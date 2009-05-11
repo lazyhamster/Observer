@@ -1,0 +1,16 @@
+LIBRARY	"Observer"
+
+EXPORTS
+	GetMinFarVersion
+	SetStartupInfo
+	GetPluginInfo
+	ExitFAR
+	Configure
+	ClosePlugin
+	OpenPlugin
+	OpenFilePlugin
+	GetFindData
+	FreeFindData
+	SetDirectory
+	GetFiles
+	GetOpenPluginInfo

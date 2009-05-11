@@ -1,0 +1,8 @@
+LIBRARY	"isoimg.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetNextItem
+	ExtractItem

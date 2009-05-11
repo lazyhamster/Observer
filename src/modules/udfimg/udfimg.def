@@ -1,0 +1,8 @@
+LIBRARY	"udfimg.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetNextItem
+	ExtractItem

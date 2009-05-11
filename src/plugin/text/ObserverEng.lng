@@ -1,0 +1,24 @@
+.Language=English,English
+
+"Observer"
+"Observer"
+
+"Observer Configuration"
+"Enable plugin"
+"Use prefix"
+
+"Format"
+"Files"
+"Directories"
+"Total Size"
+
+"Extract items?"
+"Extract Error"
+"Unable to create directory"
+"File already exists. Overwrite?"
+"Extracting failed for file:"
+"Extracting file"
+
+"Reading files list"
+"Content Error"
+"Invalid item returned during listing"

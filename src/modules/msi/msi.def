@@ -1,0 +1,8 @@
+LIBRARY	"msi.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetNextItem
+	ExtractItem

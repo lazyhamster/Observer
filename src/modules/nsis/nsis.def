@@ -1,0 +1,8 @@
+LIBRARY	"nsis.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetNextItem
+	ExtractItem
