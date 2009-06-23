@@ -63,10 +63,21 @@ UString CNsisArchive::getItemPath( CItem &item )
 {
 	UString name;
 	if (item.IsUnicode)
-		name = item.PrefixU.IsEmpty() || (item.NameU.Find(L'\\') > 0) ? item.NameU : item.PrefixU + L"\\" + item.NameU;
+	{
+		if (item.PrefixU.IsEmpty() || (item.NameU.Find(L'\\') > 0))
+			name = item.NameU;
+		else
+			name = item.PrefixU + L"\\" + item.NameU;
+	}
 	else
-		name = item.PrefixA.IsEmpty() || (item.NameA.Find('\\') > 0) ? MultiByteToUnicodeString(item.NameA) : MultiByteToUnicodeString(item.PrefixA + "\\" + item.NameA);
+	{
+		if (item.PrefixA.IsEmpty() || (item.NameA.Find('\\') > 0))
+			name = MultiByteToUnicodeString(item.NameA);
+		else
+			name = MultiByteToUnicodeString(item.PrefixA + "\\" + item.NameA);
+	}
 
+	name.Replace(L"\\\\", L"\\");
 	return name;
 }
 
