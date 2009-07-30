@@ -3,7 +3,11 @@
 
 #pragma comment(lib, "Msi.lib")
 
-#define OK(f) res=f;if(res!=ERROR_SUCCESS)return res
+#define OK(f) res=f; \
+	if(res!=ERROR_SUCCESS) return res;
+#define OK_MISS(f) res=f; \
+	if(res == ERROR_BAD_QUERY_SYNTAX) return ERROR_SUCCESS; \
+	else if(res != ERROR_SUCCESS) return res;
 #define READ_STR(rec,ind,s) nCellSize = sizeof(s)/sizeof(s[0]); OK( MsiRecordGetStringW(rec, ind, s, &nCellSize) );
 
 #define FCOPY_BUF_SIZE 32*1024
@@ -231,7 +235,7 @@ int CMsiViewer::readAppSearch(WStringMap &entries)
 	UINT res;
 	PMSIHANDLE hQueryAppSearch;
 
-	OK( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM AppSearch", &hQueryAppSearch) );
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM AppSearch", &hQueryAppSearch) );
 	OK( MsiViewExecute(hQueryAppSearch, 0) );
 
 	wchar_t key[73];
@@ -259,10 +263,7 @@ int CMsiViewer::readCreateFolder(WStringMap &entries)
 	UINT res;
 	PMSIHANDLE hQueryCreateFolder;
 
-	res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM CreateFolder", &hQueryCreateFolder);
-	if (res == ERROR_BAD_QUERY_SYNTAX)	// Can occur if table is missing in .msi file
-		return ERROR_SUCCESS;
-
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM CreateFolder", &hQueryCreateFolder) );
 	OK( MsiViewExecute(hQueryCreateFolder, 0) );
 
 	wchar_t dir[256];
@@ -523,10 +524,7 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 	UINT res;
 	PMSIHANDLE hQueryReg;
 	
-	res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Registry", &hQueryReg);
-	if (res == ERROR_BAD_QUERY_SYNTAX)	// Can occur if table is missing in .msi file
-		return ERROR_SUCCESS;
-	
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Registry", &hQueryReg) );
 	OK( MsiViewExecute(hQueryReg, 0) );
 
 	// Retrieve all registry entries
@@ -579,10 +577,7 @@ int CMsiViewer::dumpFeatures(wstringstream &sstr)
 	UINT res;
 	PMSIHANDLE hQueryFeat;
 	
-	res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Feature", &hQueryFeat);
-	if (res == ERROR_BAD_QUERY_SYNTAX)	// Can occur if table is missing in .msi file
-		return ERROR_SUCCESS;
-
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Feature", &hQueryFeat) );
 	OK( MsiViewExecute(hQueryFeat, 0) );
 
 	// Retrieve all registry entries
@@ -617,10 +612,7 @@ int CMsiViewer::generateLicenseText()
 	UINT res;
 	PMSIHANDLE hQueryLicense;
 	
-	res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM `Control` WHERE `Control`.`Control` = 'AgreementText'", &hQueryLicense);
-	if (res == ERROR_BAD_QUERY_SYNTAX)	// Can occur if table value is missing in .msi file
-		return ERROR_SUCCESS;
-
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM `Control` WHERE `Control`.`Control` = 'AgreementText'", &hQueryLicense) );
 	OK( MsiViewExecute(hQueryLicense, 0) );
 
 	// Retrieve all registry entries
@@ -657,10 +649,7 @@ int CMsiViewer::readMediaSources()
 	UINT res;
 	PMSIHANDLE hQueryMedia;
 
-	res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Media ORDER BY `LastSequence`", &hQueryMedia);
-	if (res == ERROR_BAD_QUERY_SYNTAX)	// Can occur if table value is missing in .msi file
-		return ERROR_SUCCESS;
-
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Media ORDER BY `LastSequence`", &hQueryMedia) );
 	OK( MsiViewExecute(hQueryMedia, 0) );
 
 	// Retrieve all registry entries
