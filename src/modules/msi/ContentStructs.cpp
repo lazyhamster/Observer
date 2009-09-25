@@ -3,21 +3,22 @@
 
 #define KILLSTR(wstr) if(wstr){free(wstr); wstr = NULL;}
 
-void SplitEntryWithAlloc(wchar_t* source, wchar_t delim, wchar_t* &target1, wchar_t* &target2)
+void SplitEntryWithAlloc(wchar_t* source, wchar_t delim, wchar_t* &shortName, wchar_t* &longName)
 {
 	wchar_t *delimPos = wcschr(source, delim);
 	
 	if (delimPos)
 	{
 		*delimPos = 0;
-		target1 = _wcsdup(source);
-		target2 = _wcsdup(delimPos + 1);
+		shortName = _wcsdup(source);
+		longName = _wcsdup(delimPos + 1);
 		*delimPos = delim;
 	}
 	else
 	{
-		target1 = _wcsdup(source);
-		target2 = _wcsdup(source);
+		// Short name can not be more then 14 symbols
+		shortName = (wcslen(source) <= MAX_SHORT_NAME_LEN) ? _wcsdup(source) : _wcsdup(L"");
+		longName = _wcsdup(source);
 	}
 }
 

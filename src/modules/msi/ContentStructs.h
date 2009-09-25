@@ -3,6 +3,8 @@
 
 #include "PackageStruct.h"
 
+#define MAX_SHORT_NAME_LEN 14
+
 class DirectoryNode;
 
 class FileNode

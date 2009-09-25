@@ -11,7 +11,6 @@
 #define READ_STR(rec,ind,s) nCellSize = sizeof(s)/sizeof(s[0]); OK( MsiRecordGetStringW(rec, ind, s, &nCellSize) );
 
 #define FCOPY_BUF_SIZE 32*1024
-#define MAX_SHORT_NAME_LEN 14
 
 //TODO: display features in tree structure
 
@@ -954,7 +953,7 @@ bool CMsiViewer::FindIndexedNodeData(DirectoryNode* root, int rootIndex, int ite
 
 		memset(dataBuf, 0, sizeof(*dataBuf));
 		wcscpy_s(dataBuf->cFileName, MAX_PATH, file->TargetName);
-		wcscpy_s(dataBuf->cAlternateFileName, 14, file->TargetShortName);
+		wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN + 1, file->TargetShortName);
 		dataBuf->dwFileAttributes = file->GetSytemAttributes();
 		dataBuf->nFileSizeLow = file->FileSize;
 
@@ -974,7 +973,7 @@ bool CMsiViewer::FindIndexedNodeData(DirectoryNode* root, int rootIndex, int ite
 			{
 				memset(dataBuf, 0, sizeof(*dataBuf));
 				wcscpy_s(dataBuf->cFileName, MAX_PATH, subdir->TargetName);
-				wcscpy_s(dataBuf->cAlternateFileName, 14, subdir->TargetShortName);
+				wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN + 1, subdir->TargetShortName);
 				dataBuf->dwFileAttributes = subdir->GetSytemAttributes();
 
 				wstring path = subdir->GetTargetPath();
