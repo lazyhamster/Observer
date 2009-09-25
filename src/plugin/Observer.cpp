@@ -31,7 +31,7 @@ struct FarStorageInfo
 	INT_PTR *StoragePtr;
 	wchar_t StorageFileName[MAX_PATH];
 	StorageGeneralInfo gi;
-	ContentTreeNode* items;		// All pre-alloced items, array, must be deleted
+	ContentTreeNode* items;			// All pre-allocated items, array, must be deleted
 	ContentTreeNode* root;			// First in items list, do not delete
 	ContentTreeNode* currentdir;	// Just pointer, do not delete
 };
