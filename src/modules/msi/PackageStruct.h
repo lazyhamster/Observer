@@ -34,10 +34,10 @@ struct FileEntry
 // Table: Feature
 struct FeatureEntry
 {
-	wchar_t Key[39];			// s38
-	wchar_t Parent[39];			// S38
-	wchar_t Title[65];			// L64
-	wchar_t Description[255];	// L255
+	wchar_t Key[72];			// s38
+	wchar_t Parent[72];			// S38
+	wchar_t Title[128];			// L64
+	wchar_t Description[512];	// L255
 	//UINT16 Display;			// i2
 	//UINT16 Level;				// i2
 	wchar_t Directory[73];		// S72
