@@ -273,7 +273,7 @@ void CloseStorage(HANDLE storage)
 
 static char szLastExtractName[PATH_BUFFER_SIZE] = {0};
 
-static void ExtractStart(HANDLE *context, const wchar_t* wszFileName)
+static void ExtractStart(HANDLE *context, const wchar_t* wszFileName, int fileNumber, int totalFiles, int totalProgress)
 {
 	if (context)
 		*context = FarSInfo.SaveScreen(0, 0, -1, -1);
@@ -288,10 +288,14 @@ static void ExtractStart(HANDLE *context, const wchar_t* wszFileName)
 	if ((hStdOut != INVALID_HANDLE_VALUE) && GetConsoleScreenBufferInfo(hStdOut, &si))
 		FSF.TruncPathStr(szLastExtractName, si.dwSize.X - 16);
 
-	static const char* InfoLines[3];
+	static char szFileProgressLine[100] = {0};
+	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Overall progress: %d%%", fileNumber, totalFiles, totalProgress);
+
+	static const char* InfoLines[4];
 	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
 	InfoLines[1] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
-	InfoLines[2] = szLastExtractName;
+	InfoLines[2] = szFileProgressLine;
+	InfoLines[3] = szLastExtractName;
 
 	FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
 }
@@ -359,7 +363,7 @@ bool AskExtractOverwrite(int &overwrite)
 
 	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
 	
-	if (nMsg == 5)
+	if (nMsg == 4) // Cancel is pressed
 		return false;
 	else
 	{
@@ -368,7 +372,7 @@ bool AskExtractOverwrite(int &overwrite)
 	}
 }
 
-static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite)
+static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, const wchar_t* itemSubPath, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir()) return FALSE;
 
@@ -376,7 +380,7 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 	if (CheckEsc())	return FALSE;
 
 	wstring strFullTargetPath(destDir);
-	strFullTargetPath += item->data.cFileName;
+	strFullTargetPath.append(itemSubPath);
 
 	// Ask about overwrite if needed
 	if (!silent && FileExists(strFullTargetPath.c_str()))
@@ -397,31 +401,30 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 		}
 	}
 
-	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
-	item->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
+	// Strip target path from file name
+	wstring strTargetDir;
+	size_t nLastSlash = strFullTargetPath.find_last_of('\\');
+	if (nLastSlash != wstring::npos)
+		strTargetDir = strFullTargetPath.substr(0, nLastSlash + 1);
 
-	HANDLE ctx;
-	ExtractStart(&ctx, wszNextItemSubPath);
-	
-	// Set callbacks
-	ExtractProcessCallbacks sig;
-	sig.Progress = ExtractProgress;
-	sig.signalContext = ctx;
-		
+	//TODO: create target dir if needed
+
 	int ret;
 	do
 	{
+		// Set extract params
 		ExtractOperationParams params;
-		params.item = wszNextItemSubPath;
+		params.item = itemSubPath;
 		params.Params = 0;
-		params.destPath = destDir;
-		params.Callbacks = sig;
+		params.destPath = strTargetDir.c_str();
+		params.Callbacks.Progress = ExtractProgress;
+		params.Callbacks.signalContext = callbackContext;
 
 		ret = g_pController.modules[storage->ModuleIndex].Extract(storage->StoragePtr, params);
 
 		if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
 		{
-			int errorResp = silent ? EEN_ABORT : ExtractError(ret, ctx);
+			int errorResp = silent ? EEN_ABORT : ExtractError(ret, callbackContext);
 			switch (errorResp)
 			{
 				case EEN_ABORT:
@@ -435,7 +438,6 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
-	ExtractDone(ctx);
 	return (ret == SER_SUCCESS);
 }
 
@@ -821,10 +823,25 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(vcExtractItems.begin(), vcExtractItems.end());
 
+	__int64 nBytesDone = 0;
+	int nTotalFiles = vcExtractItems.size();
+	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
+	HANDLE ctx;
+	int nFileCounter = 0;
+
 	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
 	{
-		nExtractResult = ExtractStorageItem(info, &(info->items[*cit+1]), wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite);
+		ContentTreeNode* nextItem = &(info->items[*cit+1]);
+
+		nextItem->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
+		nFileCounter++;
+
+		ExtractStart(&ctx, wszNextItemSubPath, nFileCounter, nTotalFiles, (int) ((nBytesDone * 100) / nTotalExtractSize));
+		nExtractResult = ExtractStorageItem(info, nextItem, wszNextItemSubPath, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, ctx);
+		ExtractDone(ctx);
+
 		if (!nExtractResult) break;
+		nBytesDone += nextItem->GetSize();
 	}
 
 	free(wszWideDestPath);
