@@ -405,9 +405,15 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 	wstring strTargetDir;
 	size_t nLastSlash = strFullTargetPath.find_last_of('\\');
 	if (nLastSlash != wstring::npos)
-		strTargetDir = strFullTargetPath.substr(0, nLastSlash + 1);
+		// Copy directory name without trailing backslash or following existence checker won't work
+		strTargetDir = strFullTargetPath.substr(0, nLastSlash);
 
-	//TODO: create target dir if needed
+	// Create target directory if needed
+	if ((strTargetDir.length() > 0) && !FileExists(strTargetDir.c_str()))
+	{
+		SHCreateDirectory(0, strTargetDir.c_str());
+		strTargetDir.append(L"\\");
+	}
 
 	int ret;
 	do
