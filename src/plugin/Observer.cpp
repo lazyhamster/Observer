@@ -277,7 +277,7 @@ static void ExtractStart(HANDLE *context)
 	if (context)
 		*context = FarSInfo.SaveScreen(0, 0, -1, -1);
 	
-	// Shring file path to fit on console
+	// Shrink file path to fit on console
 	CONSOLE_SCREEN_BUFFER_INFO si;
 	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if ((hStdOut != INVALID_HANDLE_VALUE) && GetConsoleScreenBufferInfo(hStdOut, &si))
@@ -474,6 +474,42 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 	}
 	
 	return TRUE;
+}
+
+// Returns total number of items added
+int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &totalSize, bool recursive)
+{
+	int numItems = 0;
+	
+	if (node->IsDir())
+	{
+		if (recursive)
+		{
+			// Iterate through sub directories
+			for (SubNodesMap::const_iterator cit = node->subdirs.begin(); cit != node->subdirs.end(); cit++)
+			{
+				ContentTreeNode* child = cit->second;
+				numItems += CollectFileList(child, targetlist, totalSize, recursive);
+			} //for
+		}
+
+		// Iterate through files
+		for (SubNodesMap::const_iterator cit = node->files.begin(); cit != node->files.end(); cit++)
+		{
+			ContentTreeNode* child = cit->second;
+			targetlist.push_back(child->storageIndex);
+			numItems++;
+			totalSize += child->GetSize();
+		} //for
+	}
+	else
+	{
+		targetlist.push_back(node->storageIndex);
+		numItems++;
+		totalSize += node->GetSize();
+	}
+
+	return numItems;
 }
 
 //-----------------------------------  Export functions ----------------------------------------
@@ -800,8 +836,10 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	wchar_t wszItemNameBuf[MAX_PATH] = {0};
 	int doOverwrite = EXTR_OVERWRITE_ASK;
 
-	//vector<int> vcExtractItems;
+	vector<int> vcExtractItems;
+	__int64 nTotalExtractSize = 0;
 
+	// Collect all indices for items to extract
 	for (int i = 0; i < ItemsNumber; i++)
 	{
 		PluginPanelItem pItem = PanelItem[i];
@@ -813,10 +851,15 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		ContentTreeNode* child = info->currentdir->GetChildByName(wszItemNameBuf);
 		if (child)
 		{
-			nExtractResult = ExtractStorageItem(info, child, wszWideDestPath, true, (OpMode & OPM_SILENT) > 0, doOverwrite);
-			if (!nExtractResult) break;
+			CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
 		}
 	} //for
+
+	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
+	{
+		nExtractResult = ExtractStorageItem(info, &(info->items[*cit+1]), wszWideDestPath, true, (OpMode & OPM_SILENT) > 0, doOverwrite);
+		if (!nExtractResult) break;
+	}
 
 	free(wszWideDestPath);
 
