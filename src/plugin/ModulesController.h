@@ -12,7 +12,7 @@ struct ExternalModule
 	LoadSubModuleFunc LoadModule;
 	OpenStorageFunc OpenStorage;
 	CloseStorageFunc CloseStorage;
-	GetNextItemFunc GetNextItem;
+	GetItemFunc GetNextItem;
 	ExtractFunc Extract;
 };
 

@@ -25,11 +25,19 @@ struct StorageGeneralInfo
 	__int64 TotalSize;
 };
 
+struct ExtractOperationParams 
+{
+	const wchar_t* item;
+	int Params;
+	const wchar_t* destPath;
+	ExtractProcessCallbacks Callbacks;
+};
+
 typedef int (MODULE_EXPORT *LoadSubModuleFunc)(int);
 typedef int (MODULE_EXPORT *OpenStorageFunc)(const wchar_t*, INT_PTR**, StorageGeneralInfo*);
 typedef void (MODULE_EXPORT *CloseStorageFunc)(INT_PTR*);
-typedef int (MODULE_EXPORT *GetNextItemFunc)(INT_PTR*, int, LPWIN32_FIND_DATAW, wchar_t*, size_t);
-typedef int (MODULE_EXPORT *ExtractFunc)(INT_PTR*, const wchar_t*, int, const wchar_t*, const ExtractProcessCallbacks*);
+typedef int (MODULE_EXPORT *GetItemFunc)(INT_PTR*, int, LPWIN32_FIND_DATAW, wchar_t*, size_t);
+typedef int (MODULE_EXPORT *ExtractFunc)(INT_PTR*, ExtractOperationParams params);
 
 // Extract operation flags
 #define SEP_ASKOVERWRITE 1

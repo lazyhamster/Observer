@@ -445,7 +445,13 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 		int ret;
 		do
 		{
-			ret = g_pController.modules[storage->ModuleIndex].Extract(storage->StoragePtr, wszNextItemSubPath, 0, destDir, &sig);
+			ExtractOperationParams params;
+			params.item = wszNextItemSubPath;
+			params.Params = 0;
+			params.destPath = destDir;
+			params.Callbacks = sig;
+
+			ret = g_pController.modules[storage->ModuleIndex].Extract(storage->StoragePtr, params);
 
 			if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
 			{
@@ -793,6 +799,8 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	int nExtractResult = TRUE;
 	wchar_t wszItemNameBuf[MAX_PATH] = {0};
 	int doOverwrite = EXTR_OVERWRITE_ASK;
+
+	//vector<int> vcExtractItems;
 
 	for (int i = 0; i < ItemsNumber; i++)
 	{

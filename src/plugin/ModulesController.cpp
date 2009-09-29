@@ -39,7 +39,7 @@ int ModulesController::Init( wchar_t* basePath )
 			module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadSubModule");
 			module.OpenStorage = (OpenStorageFunc) GetProcAddress(module.ModuleHandle, "OpenStorage");
 			module.CloseStorage = (CloseStorageFunc) GetProcAddress(module.ModuleHandle, "CloseStorage");
-			module.GetNextItem = (GetNextItemFunc) GetProcAddress(module.ModuleHandle, "GetNextItem");
+			module.GetNextItem = (GetItemFunc) GetProcAddress(module.ModuleHandle, "GetStorageItem");
 			module.Extract = (ExtractFunc) GetProcAddress(module.ModuleHandle, "ExtractItem");
 
 			if ((module.LoadModule != NULL) && (module.OpenStorage != NULL) && (module.CloseStorage != NULL) && (module.GetNextItem != NULL))

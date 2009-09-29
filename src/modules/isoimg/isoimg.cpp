@@ -129,7 +129,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 		FreeImage((IsoImage*) storage);
 }
 
-int MODULE_EXPORT GetNextItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	IsoImage* image = (IsoImage*) storage;
 	if (!image) return FALSE;
@@ -170,20 +170,20 @@ int MODULE_EXPORT GetNextItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DAT
 	return TRUE;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, const wchar_t* item, int Params, const wchar_t* destPath, const ExtractProcessCallbacks* epc)
+int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
 	IsoImage* image = (IsoImage*) storage;
 	if (!image) return SER_ERROR_SYSTEM;
 
-	size_t nItemLen = wcslen(item);
+	size_t nItemLen = wcslen(params.item);
 	for (DWORD i = 0; i < image->DirectoryCount; i++)
 	{
 		Directory dir = image->DirectoryList[i];
 
 		bool fIsDir = IsDirectory(&dir);
-		if (!fIsDir && (wcscmp(dir.FilePath, item) == 0))
+		if (!fIsDir && (wcscmp(dir.FilePath, params.item) == 0))
 		{
-			return ExtractFile(image, &dir, destPath, epc);
+			return ExtractFile(image, &dir, params.destPath, &(params.Callbacks));
 		}
 	}
 	

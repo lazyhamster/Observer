@@ -38,7 +38,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 		delete view;
 }
 
-int MODULE_EXPORT GetNextItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	CMsiViewer *view = (CMsiViewer *) storage;
 	if (!view) return FALSE;
@@ -49,14 +49,14 @@ int MODULE_EXPORT GetNextItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DAT
 	return FALSE;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, const wchar_t* item, int Params, const wchar_t* destPath, const ExtractProcessCallbacks* epc)
+int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
 	CMsiViewer *view = (CMsiViewer *) storage;
 	if (!view) return SER_ERROR_SYSTEM;
 
-	FileNode *file = view->GetFile(item);
+	FileNode *file = view->GetFile(params.item);
 	if (!file) return SER_ERROR_SYSTEM;
 
-	int nDumpResult = view->DumpFileContent(file, destPath);
+	int nDumpResult = view->DumpFileContent(file, params.destPath);
 	return nDumpResult;
 }

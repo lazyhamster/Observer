@@ -65,7 +65,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 		delete arc;
 }
 
-int MODULE_EXPORT GetNextItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	CNsisArchive* arc = (CNsisArchive *) storage;
 	if (!arc) return FALSE;
@@ -74,10 +74,10 @@ int MODULE_EXPORT GetNextItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DAT
 	return nRes;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, const wchar_t* item, int Params, const wchar_t* destPath, const ExtractProcessCallbacks* epc)
+int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
 	CNsisArchive* arc = (CNsisArchive *) storage;
 	if (!arc) return FALSE;
 	
-	return arc->ExtractItemByName(item, destPath, epc);
+	return arc->ExtractItemByName(params.item, params.destPath, &(params.Callbacks));
 }
