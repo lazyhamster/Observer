@@ -2,6 +2,7 @@
 //
 
 #include "stdafx.h"
+#include <algorithm>
 #include <far/plugin.hpp>
 
 #include "ModulesController.h"
@@ -272,10 +273,14 @@ void CloseStorage(HANDLE storage)
 
 static char szLastExtractName[PATH_BUFFER_SIZE] = {0};
 
-static void ExtractStart(HANDLE *context)
+static void ExtractStart(HANDLE *context, const wchar_t* wszFileName)
 {
 	if (context)
 		*context = FarSInfo.SaveScreen(0, 0, -1, -1);
+
+	// Save file name for dialogs
+	memset(szLastExtractName, 0, PATH_BUFFER_SIZE);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszFileName, wcslen(wszFileName), szLastExtractName, PATH_BUFFER_SIZE, NULL, NULL);
 	
 	// Shrink file path to fit on console
 	CONSOLE_SCREEN_BUFFER_INFO si;
@@ -363,117 +368,75 @@ bool AskExtractOverwrite(int &overwrite)
 	}
 }
 
-static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, const wchar_t* destDir, bool recursive, bool silent, int &doOverwrite)
+static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite)
 {
-	if (!item || !storage) return FALSE;
+	if (!item || !storage || item->IsDir()) return FALSE;
 
 	// Check for ESC pressed
 	if (CheckEsc())	return FALSE;
 
-	if (item->IsDir())
+	wstring strFullTargetPath(destDir);
+	strFullTargetPath += item->data.cFileName;
+
+	// Ask about overwrite if needed
+	if (!silent && FileExists(strFullTargetPath.c_str()))
 	{
-		// Create destination dir
-		wstring strDir(destDir);
-		strDir.append(item->data.cFileName);
-		strDir.append(L"\\");
-
-		if (!CreateDirectoryW(strDir.c_str(), NULL))
-		{
-			DisplayMessage(true, true, GetLocMsg(MSG_EXTRACT_ERROR), GetLocMsg(MSG_EXTRACT_DIR_CREATE_ERROR), NULL);
-			return FALSE;
-		}
-		SetFileAttributesW(strDir.c_str(), item->data.dwFileAttributes);
-
-		if (recursive)
-		{
-			// Iterate through sub directories
-			for (SubNodesMap::const_iterator cit = item->subdirs.begin(); cit != item->subdirs.end(); cit++)
-			{
-				ContentTreeNode* child = cit->second;
-				if (!ExtractStorageItem(storage, child, strDir.c_str(), recursive, silent, doOverwrite))
-					return FALSE;
-			} //for
-		}
-		
-		// Iterate through files
-		for (SubNodesMap::const_iterator cit = item->files.begin(); cit != item->files.end(); cit++)
-		{
-			ContentTreeNode* child = cit->second;
-			if (!ExtractStorageItem(storage, child, strDir.c_str(), recursive, silent, doOverwrite))
+		if (doOverwrite == EXTR_OVERWRITE_ASK)
+			if (!AskExtractOverwrite(doOverwrite))
 				return FALSE;
-		} //for
-	}
-	else
-	{
-		wstring strFullTargetPath(destDir);
-		strFullTargetPath += item->data.cFileName;
-
-		static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
-		item->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
-
-		// Save file name for dialogs
-		memset(szLastExtractName, 0, PATH_BUFFER_SIZE);
-		WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszNextItemSubPath, wcslen(wszNextItemSubPath), szLastExtractName, PATH_BUFFER_SIZE, NULL, NULL);
-
-		// Ask about overwrite if needed
-		if (!silent && FileExists(strFullTargetPath.c_str()))
+		
+		// Check either ask result or present value
+		if (doOverwrite == EXTR_OVERWRITE_SKIP)
 		{
-			if (doOverwrite == EXTR_OVERWRITE_ASK)
-				if (!AskExtractOverwrite(doOverwrite))
-					return FALSE;
-			
-			// Check either ask result or present value
-			if (doOverwrite == EXTR_OVERWRITE_SKIP)
+			doOverwrite = EXTR_OVERWRITE_ASK;
+			return TRUE;
+		}
+		else if (doOverwrite == EXTR_OVERWRITE_SKIPSILENT)
+		{
+			return TRUE;
+		}
+	}
+
+	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
+	item->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
+
+	HANDLE ctx;
+	ExtractStart(&ctx, wszNextItemSubPath);
+	
+	// Set callbacks
+	ExtractProcessCallbacks sig;
+	sig.Progress = ExtractProgress;
+	sig.signalContext = ctx;
+		
+	int ret;
+	do
+	{
+		ExtractOperationParams params;
+		params.item = wszNextItemSubPath;
+		params.Params = 0;
+		params.destPath = destDir;
+		params.Callbacks = sig;
+
+		ret = g_pController.modules[storage->ModuleIndex].Extract(storage->StoragePtr, params);
+
+		if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
+		{
+			int errorResp = silent ? EEN_ABORT : ExtractError(ret, ctx);
+			switch (errorResp)
 			{
-				doOverwrite = EXTR_OVERWRITE_ASK;
-				return TRUE;
-			}
-			else if (doOverwrite == EXTR_OVERWRITE_SKIPSILENT)
-			{
-				return TRUE;
+				case EEN_ABORT:
+					ret = SER_USERABORT;
+					break;
+				case EEN_SKIP:
+					ret = SER_SUCCESS;
+					break;
 			}
 		}
 
-		HANDLE ctx;
-		ExtractStart(&ctx);
-		
-		// Set callbacks
-		ExtractProcessCallbacks sig;
-		sig.Progress = ExtractProgress;
-		sig.signalContext = ctx;
-			
-		int ret;
-		do
-		{
-			ExtractOperationParams params;
-			params.item = wszNextItemSubPath;
-			params.Params = 0;
-			params.destPath = destDir;
-			params.Callbacks = sig;
+	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
-			ret = g_pController.modules[storage->ModuleIndex].Extract(storage->StoragePtr, params);
-
-			if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
-			{
-				int errorResp = silent ? EEN_ABORT : ExtractError(ret, ctx);
-				switch (errorResp)
-				{
-					case EEN_ABORT:
-						ret = SER_USERABORT;
-						break;
-					case EEN_SKIP:
-						ret = SER_SUCCESS;
-						break;
-				}
-			}
-
-		} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
-
-		ExtractDone(ctx);
-		return (ret == SER_SUCCESS);
-	}
-	
-	return TRUE;
+	ExtractDone(ctx);
+	return (ret == SER_SUCCESS);
 }
 
 // Returns total number of items added
@@ -855,9 +818,12 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		}
 	} //for
 
+	// Items should be sorted (e.g. for access to solid archives)
+	sort(vcExtractItems.begin(), vcExtractItems.end());
+
 	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
 	{
-		nExtractResult = ExtractStorageItem(info, &(info->items[*cit+1]), wszWideDestPath, true, (OpMode & OPM_SILENT) > 0, doOverwrite);
+		nExtractResult = ExtractStorageItem(info, &(info->items[*cit+1]), wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite);
 		if (!nExtractResult) break;
 	}
 
