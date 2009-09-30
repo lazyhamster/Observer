@@ -5,6 +5,7 @@
 
 #include "7zip/Common/FileStreams.h"
 #include "7zip/Archive/Nsis/NsisIn.h"
+#include "7zip/Archive/Nsis/NsisHandler.h"
 
 using namespace NArchive::NNsis;
 
@@ -13,7 +14,8 @@ class CNsisArchive
 private:
 	UString m_archiveName;
 	CInFileStream* m_stream;
-	CInArchive* m_inArc;
+	//CInArchive* m_inArc;
+	CHandler* m_handler;
 
 	int m_numFiles;
 	int m_numDirectories;
@@ -21,9 +23,8 @@ private:
 
 	UStringVector m_folderList;  // Fake folders list, since format does not expose folders
 
-	bool GetUncompressedSize(const CItem &item, DWORD &size);
 	int findItemIndex(const wchar_t* path);
-	UString getItemPath(CItem &item);
+	UString getItemPath(int itemIndex);
 
 public:
 	CNsisArchive();

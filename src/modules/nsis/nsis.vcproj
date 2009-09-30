@@ -323,7 +323,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileDir.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileFind.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileIO.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileName.cpp"
 				>
 			</File>
 			<File
@@ -451,7 +463,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileDir.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileFind.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileIO.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileName.h"
 				>
 			</File>
 			<File
