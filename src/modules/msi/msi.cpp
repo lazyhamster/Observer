@@ -19,10 +19,8 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		*storage = (INT_PTR *) view;
 
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI");
-		info->NumFiles = view->GetTotalFiles();
-		info->NumDirectories = view->GetTotalDirectories();
-		info->TotalSize = view->GetTotalSize();
-		info->NumRealItems = info->NumFiles + info->NumDirectories;
+		wcscpy_s(info->SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, L"");
+		info->NumRealItems = view->GetTotalFiles() + view->GetTotalDirectories();
 
 		return TRUE;
 	}

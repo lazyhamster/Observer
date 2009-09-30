@@ -20,9 +20,6 @@ struct StorageGeneralInfo
 	wchar_t Format[STORAGE_FORMAT_NAME_MAX_LEN];
 	wchar_t SubType[STORAGE_SUBTYPE_NAME_MAX_LEN];
 	DWORD NumRealItems;		// Number of items which should be queried from submodule (usually NumFiles + NumDirectories)
-	DWORD NumFiles;
-	DWORD NumDirectories;
-	__int64 TotalSize;
 };
 
 struct ExtractOperationParams 

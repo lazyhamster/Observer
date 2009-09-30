@@ -95,30 +95,12 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		
 	*storage = (INT_PTR *) image;
 
-	int numFiles = 0, numDirs = 0;
-	__int64 totalSize = 0;
-
-	// Calculate storage params
-	for (DWORD i = 0; i < image->DirectoryCount; i++)
-	{
-		Directory *dir = &image->DirectoryList[i];
-
-		if (IsDirectory(dir))
-		{
-			numDirs++;
-		}
-		else
-		{
-			numFiles++;
-			totalSize += (__int64) GetSize(dir);
-		}
-	}
-	
 	wcscpy(info->Format, L"ISO");
-	info->NumFiles = numFiles;
-	info->NumDirectories = numDirs;
-	info->TotalSize = totalSize;
-	info->NumRealItems = numFiles + numDirs;
+	info->NumRealItems = image->DirectoryCount;
+	if (image->VolumeDescriptors && image->VolumeDescriptors->XBOX)
+		wcscpy(info->SubType, L"XBOX");
+	else
+		wcscpy(info->SubType, L"PC");
 
 	return TRUE;
 }

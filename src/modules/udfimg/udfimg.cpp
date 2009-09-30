@@ -51,23 +51,9 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 			}
 		} //for volIndex
 
-		DWORD nTotalFiles = 0, nTotalDirs = 0;
-		__int64 nTotalSize = 0;
-		for (int i = 1; i < storageRec->arc.Items.Size(); i++) // skip root dir on index 0
-		{
-			CItem &item = storageRec->arc.Items[i];
-			if (item.IsDir())
-				nTotalDirs++;
-			else
-				nTotalFiles++;
-			nTotalSize += item.Size;
-		}
-
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"UDF");
-		info->NumFiles = nTotalFiles;
-		info->NumDirectories = nTotalDirs;
-		info->TotalSize = nTotalSize;
-		info->NumRealItems = nTotalFiles + nTotalDirs;
+		wcscpy_s(info->SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, L"");
+		info->NumRealItems = storageRec->arc.Items.Size();
 
 		return TRUE;
 	}
