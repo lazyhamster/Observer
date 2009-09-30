@@ -26,7 +26,7 @@ int CNsisArchive::Open(const wchar_t* path)
     if (!fileSpec->Open(m_archiveName))
 		return FALSE;
 	
-	UInt64 nMaxCheckSize = 128 * 1024;
+	UInt64 nMaxCheckSize = 256 * 1024;
 	CInArchive* inArc = new CInArchive();
 	if (inArc->Open(file, &nMaxCheckSize) != S_OK)
 	{
