@@ -180,6 +180,7 @@ static bool FileExists(const wchar_t* path)
 static bool DirectoryExists(const wchar_t* path)
 {
 	WIN32_FIND_DATAW fdata;
+	bool fResult = false;
 
 	HANDLE sr = FindFirstFileW(path, &fdata);
 	if (sr != INVALID_HANDLE_VALUE)
@@ -187,14 +188,16 @@ static bool DirectoryExists(const wchar_t* path)
 		do 
 		{
 			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) > 0)
-				return true;
+			{
+				fResult = true;
+				break;
+			}
 		} while (FindNextFileW(sr, &fdata));
 
 		FindClose(sr);
-		return true;
 	}
 
-	return false;
+	return fResult;
 }
 
 //-----------------------------------  Content functions ----------------------------------------
