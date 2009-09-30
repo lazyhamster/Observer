@@ -177,6 +177,26 @@ static bool FileExists(const wchar_t* path)
 	return false;
 }
 
+static bool DirectoryExists(const wchar_t* path)
+{
+	WIN32_FIND_DATAW fdata;
+
+	HANDLE sr = FindFirstFileW(path, &fdata);
+	if (sr != INVALID_HANDLE_VALUE)
+	{
+		do 
+		{
+			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) > 0)
+				return true;
+		} while (FindNextFileW(sr, &fdata));
+
+		FindClose(sr);
+		return true;
+	}
+
+	return false;
+}
+
 //-----------------------------------  Content functions ----------------------------------------
 
 HANDLE OpenStorage(const wchar_t* Name)
@@ -436,9 +456,10 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 		strTargetDir = strFullTargetPath.substr(0, nLastSlash);
 
 	// Create target directory if needed
-	if ((strTargetDir.length() > 0) && !FileExists(strTargetDir.c_str()))
+	if (strTargetDir.length() > 0)
 	{
-		SHCreateDirectory(0, strTargetDir.c_str());
+		if ( !DirectoryExists(strTargetDir.c_str()) )
+			SHCreateDirectory(0, strTargetDir.c_str());
 		strTargetDir.append(L"\\");
 	}
 
