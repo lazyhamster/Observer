@@ -893,7 +893,9 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		nextItem->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
 		nFileCounter++;
 
-		ExtractStart(&ctx, wszNextItemSubPath, nFileCounter, nTotalFiles, (int) ((nBytesDone * 100) / nTotalExtractSize));
+		int nTotalProgress = (nTotalExtractSize <= 0) ? 0 : (int) ((nBytesDone * 100) / nTotalExtractSize);
+		
+		ExtractStart(&ctx, wszNextItemSubPath, nFileCounter, nTotalFiles, nTotalProgress);
 		nExtractResult = ExtractStorageItem(info, nextItem, wszNextItemSubPath, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, ctx);
 		ExtractDone(ctx);
 
