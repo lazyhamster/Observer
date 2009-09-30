@@ -26,12 +26,22 @@ static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
 static char optPrefix[MAX_PREFIX_SIZE] = "observe";
 
+struct StorageInfo
+{
+	wchar_t Format[STORAGE_FORMAT_NAME_MAX_LEN];
+	wchar_t SubType[STORAGE_SUBTYPE_NAME_MAX_LEN];
+
+	__int64 TotalSize;
+	DWORD NumFiles;
+	DWORD NumDirectories;
+};
+
 struct FarStorageInfo
 {
 	int ModuleIndex;
 	INT_PTR *StoragePtr;
 	wchar_t StorageFileName[MAX_PATH];
-	StorageGeneralInfo gi;
+	StorageInfo info;
 	ContentTreeNode* items;			// All pre-allocated items, array, must be deleted
 	ContentTreeNode* root;			// First in items list, do not delete
 	ContentTreeNode* currentdir;	// Just pointer, do not delete
@@ -191,6 +201,8 @@ HANDLE OpenStorage(const wchar_t* Name)
 		ContentTreeNode* all_items = new ContentTreeNode[nNumItems + 1];  // +1 for root
 		
 		ContentTreeNode* root_node = &all_items[0];
+		__int64 nTotalSize = 0;
+		DWORD nNumFiles = 0, nNumDirs = 0;
 
 		wchar_t* wszItemPathBuf = new wchar_t[PATH_BUFFER_SIZE];
 		for (DWORD item_index = 0; item_index < nNumItems; item_index++)
@@ -205,6 +217,16 @@ HANDLE OpenStorage(const wchar_t* Name)
 					DisplayMessage(true, true, GetLocMsg(MSG_OPEN_CONTENT_ERROR), GetLocMsg(MSG_OPEN_INVALID_ITEM), NULL);
 					fListOK = false;
 					break;
+				}
+
+				if (!child->IsDir())
+				{
+					nNumFiles++;
+					nTotalSize += child->GetSize();
+				}
+				else
+				{
+					nNumDirs++;
 				}
 			}
 			else
@@ -224,7 +246,12 @@ HANDLE OpenStorage(const wchar_t* Name)
 			info->items = all_items;
 			info->currentdir = root_node;
 			info->root = root_node;
-			info->gi = sinfo;
+
+			info->info.TotalSize = nTotalSize;
+			info->info.NumFiles = nNumFiles;
+			info->info.NumDirectories = nNumDirs;
+			wcscpy_s(info->info.Format, STORAGE_FORMAT_NAME_MAX_LEN, sinfo.Format);
+			wcscpy_s(info->info.SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, sinfo.SubType);
 			
 			// Copy storage file name for info
 			const wchar_t *slashPos = wcsrchr(Name, L'\\');
@@ -754,16 +781,16 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	pInfoLinesData[0].Separator = 1;
 	
 	strcpy_s(pInfoLinesData[1].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));
-	WideCharToMultiByte(CP_ACP, 0, info->gi.Format, wcslen(info->gi.Format), pInfoLinesData[1].Data, nInfoDataSize, NULL, NULL);
+	WideCharToMultiByte(CP_ACP, 0, info->info.Format, wcslen(info->info.Format), pInfoLinesData[1].Data, nInfoDataSize, NULL, NULL);
 
 	strcpy_s(pInfoLinesData[2].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FILES));
-	_ultoa_s(info->gi.NumFiles, pInfoLinesData[2].Data, nInfoDataSize, 10);
+	_ultoa_s(info->info.NumFiles, pInfoLinesData[2].Data, nInfoDataSize, 10);
 
 	strcpy_s(pInfoLinesData[3].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_DIRS));
-	_ultoa_s(info->gi.NumDirectories, pInfoLinesData[3].Data, nInfoDataSize, 10);
+	_ultoa_s(info->info.NumDirectories, pInfoLinesData[3].Data, nInfoDataSize, 10);
 
 	strcpy_s(pInfoLinesData[4].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
-	_i64toa_s(info->gi.TotalSize, pInfoLinesData[4].Data, nInfoDataSize, 10);
+	_i64toa_s(info->info.TotalSize, pInfoLinesData[4].Data, nInfoDataSize, 10);
 	InsertCommas(pInfoLinesData[4].Data);
 	
 	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
