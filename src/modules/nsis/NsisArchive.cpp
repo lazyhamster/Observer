@@ -269,6 +269,7 @@ int CNsisArchive::Open(const wchar_t* path)
 	if (m_handler->Open(file, &nMaxCheckSize, NULL) != S_OK)
 	{
 		delete m_handler;
+		m_handler = NULL;
 		return FALSE;
 	}
 
