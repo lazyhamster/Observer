@@ -510,9 +510,10 @@ int CMsiViewer::generateInfoText()
 	fake->TargetShortName = _wcsdup(L"msi_info.txt");
 	fake->FileAttributes = 0;
 	fake->IsFake = true;
-	fake->FileSize = content.size() * sizeof(wchar_t);
-	fake->FakeFileContent = (char *) malloc(fake->FileSize);
-	memcpy_s(fake->FakeFileContent, fake->FileSize, content.c_str(), fake->FileSize);
+	fake->FileSize = content.size() * sizeof(wchar_t) + 2;	// sizeof BOM = 2
+	fake->FakeFileContent = (char *) malloc(fake->FileSize + sizeof(wchar_t)); // +1 for 0-terminator
+	strcpy_s(fake->FakeFileContent, 3, "\xFF\xFE");
+	memcpy_s(fake->FakeFileContent + 2, fake->FileSize - 2, content.c_str(), fake->FileSize - 2);
 	m_pRootDir->AddFile(fake);
 
 	return ERROR_SUCCESS;
