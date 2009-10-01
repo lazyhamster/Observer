@@ -323,14 +323,30 @@ void CloseStorage(HANDLE storage)
 
 static char szLastExtractName[PATH_BUFFER_SIZE] = {0};
 
-static void ExtractStart(HANDLE *context, const wchar_t* wszFileName, int fileNumber, int totalFiles, int totalProgress)
+struct ExtractStartInfoParams 
+{
+	const wchar_t* FileName;
+	int fileNumber;
+	int totalFiles;
+	int totalProgress;
+
+	void Init()
+	{
+		FileName = NULL;
+		fileNumber = 0;
+		totalFiles = 0;
+		totalProgress = 0;
+	}
+};
+
+static void ExtractStart(HANDLE *context, const ExtractStartInfoParams params)
 {
 	if (context)
 		*context = FarSInfo.SaveScreen(0, 0, -1, -1);
 
 	// Save file name for dialogs
 	memset(szLastExtractName, 0, PATH_BUFFER_SIZE);
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszFileName, wcslen(wszFileName), szLastExtractName, PATH_BUFFER_SIZE, NULL, NULL);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, params.FileName, wcslen(params.FileName), szLastExtractName, PATH_BUFFER_SIZE, NULL, NULL);
 	
 	// Shrink file path to fit on console
 	CONSOLE_SCREEN_BUFFER_INFO si;
@@ -339,7 +355,7 @@ static void ExtractStart(HANDLE *context, const wchar_t* wszFileName, int fileNu
 		FSF.TruncPathStr(szLastExtractName, si.dwSize.X - 16);
 
 	static char szFileProgressLine[100] = {0};
-	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Overall progress: %d%%", fileNumber, totalFiles, totalProgress);
+	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Overall progress: %d%%", params.fileNumber, params.totalFiles, params.totalProgress);
 
 	static const char* InfoLines[4];
 	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
@@ -894,15 +910,17 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	int doOverwrite = EXTR_OVERWRITE_ASK;
 
 	__int64 nBytesDone = 0;
-	int nTotalFiles = vcExtractItems.size();
 	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
 	HANDLE ctx;
-	int nFileCounter = 0;
 
 	// Find current directory sub-path to cut it from destination path
 	info->currentdir->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
 	size_t nSkipPathChuckSize = wcslen(wszNextItemSubPath);
 	if (nSkipPathChuckSize > 0) nSkipPathChuckSize++;	// Count trailing backslash for non-empty value
+
+	ExtractStartInfoParams espInfo;
+	espInfo.Init();
+	espInfo.totalFiles = vcExtractItems.size();
 
 	// Extract all files one by one
 	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
@@ -910,11 +928,12 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		ContentTreeNode* nextItem = &(info->items[*cit+1]);
 
 		nextItem->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
-		nFileCounter++;
 
-		int nTotalProgress = (nTotalExtractSize <= 0) ? 0 : (int) ((nBytesDone * 100) / nTotalExtractSize);
-		
-		ExtractStart(&ctx, wszNextItemSubPath, nFileCounter, nTotalFiles, nTotalProgress);
+		espInfo.FileName = wszNextItemSubPath;
+		espInfo.fileNumber++;
+		espInfo.totalProgress = (nTotalExtractSize <= 0) ? 0 : (int) ((nBytesDone * 100) / nTotalExtractSize);
+
+		ExtractStart(&ctx, espInfo);
 		nExtractResult = ExtractStorageItem(info, nextItem, wszNextItemSubPath, nSkipPathChuckSize, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, ctx);
 		ExtractDone(ctx);
 
