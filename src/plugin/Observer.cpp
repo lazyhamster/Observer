@@ -847,24 +847,11 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		if (choise != 0) return -1;
 	}
 
-	// Prepare destination path
-	size_t nDestPathLen = strlen(DestPath);
-	wchar_t *wszWideDestPath = (wchar_t *) malloc((nDestPathLen + 2) * sizeof(wchar_t));
-	wmemset(wszWideDestPath, 0, nDestPathLen + 2);
-	MultiByteToWideChar(CP_FAR_INTERNAL, 0, DestPath, nDestPathLen, wszWideDestPath, nDestPathLen + 2);
-	if (wszWideDestPath[nDestPathLen - 1] != '\\')
-		wcscat_s(wszWideDestPath, nDestPathLen + 2, L"\\");
-
-	SHCreateDirectory(0, wszWideDestPath);
-
-	int nExtractResult = TRUE;
-	wchar_t wszItemNameBuf[MAX_PATH] = {0};
-	int doOverwrite = EXTR_OVERWRITE_ASK;
-
 	vector<int> vcExtractItems;
 	__int64 nTotalExtractSize = 0;
+	wchar_t wszItemNameBuf[MAX_PATH] = {0};
 
-	// Collect all indices for items to extract
+	// Collect all indices of items to extract
 	for (int i = 0; i < ItemsNumber; i++)
 	{
 		PluginPanelItem pItem = PanelItem[i];
@@ -880,8 +867,30 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		}
 	} //for
 
+	// Check if we have something to extract
+	if (vcExtractItems.size() == 0)
+		return 0;
+
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(vcExtractItems.begin(), vcExtractItems.end());
+
+	// Prepare destination path
+	size_t nDestPathLen = strlen(DestPath);
+	wchar_t *wszWideDestPath = (wchar_t *) malloc((nDestPathLen + 2) * sizeof(wchar_t));
+	wmemset(wszWideDestPath, 0, nDestPathLen + 2);
+	MultiByteToWideChar(CP_FAR_INTERNAL, 0, DestPath, nDestPathLen, wszWideDestPath, nDestPathLen + 2);
+	if (wszWideDestPath[nDestPathLen - 1] != '\\')
+		wcscat_s(wszWideDestPath, nDestPathLen + 2, L"\\");
+
+	if (SHCreateDirectory(0, wszWideDestPath) != ERROR_SUCCESS)
+	{
+		if ((OpMode & OPM_SILENT) == 0)
+			DisplayMessage(true, true, GetLocMsg(MSG_EXTRACT_ERROR), GetLocMsg(MSG_EXTRACT_DIR_CREATE_ERROR), NULL);
+		return 0;
+	}
+
+	int nExtractResult = TRUE;
+	int doOverwrite = EXTR_OVERWRITE_ASK;
 
 	__int64 nBytesDone = 0;
 	int nTotalFiles = vcExtractItems.size();
@@ -889,6 +898,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	HANDLE ctx;
 	int nFileCounter = 0;
 
+	// Extract all files one by one
 	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
 	{
 		ContentTreeNode* nextItem = &(info->items[*cit+1]);
