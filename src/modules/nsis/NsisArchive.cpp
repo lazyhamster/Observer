@@ -247,6 +247,8 @@ CNsisArchive::CNsisArchive()
 	m_numFiles = 0;
 	m_numDirectories = 0;
 	m_totalSize = 0;
+
+	memset(m_archSubtype, 0, sizeof(m_archSubtype));
 }
 
 CNsisArchive::~CNsisArchive()
@@ -279,6 +281,17 @@ int CNsisArchive::Open(const wchar_t* path)
 	m_handler->GetNumberOfItems(&nNumFiles);
 	m_numFiles = nNumFiles;
 
+	if (nNumFiles > 0)
+	{
+		NWindows::NCOM::CPropVariant prop;
+
+		if ( (m_handler->GetProperty(0, kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL) )
+			if (prop.boolVal) wcscat_s(m_archSubtype, STORAGE_SUBTYPE_NAME_MAX_LEN, L"Solid ");
+		
+		if ( (m_handler->GetProperty(0, kpidMethod, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
+			wcscat_s(m_archSubtype, STORAGE_SUBTYPE_NAME_MAX_LEN, prop.bstrVal);
+	}
+
 	return TRUE;
 }
 
@@ -297,6 +310,7 @@ void CNsisArchive::Close()
 	m_numFiles = 0;
 	m_numDirectories = 0;
 	m_totalSize = 0;
+	memset(m_archSubtype, 0, sizeof(m_archSubtype));
 }
 
 UString CNsisArchive::getItemPath( int itemIndex )

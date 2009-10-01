@@ -20,6 +20,7 @@ private:
 	int m_numFiles;
 	int m_numDirectories;
 	__int64 m_totalSize;
+	wchar_t m_archSubtype[STORAGE_SUBTYPE_NAME_MAX_LEN];
 
 	UStringVector m_folderList;  // Fake folders list, since format does not expose folders
 
@@ -36,6 +37,7 @@ public:
 	int GetTotalFiles() { return m_numFiles; };
 	int GetTotalDirectories() { return m_numDirectories; };
 	__int64 GetTotalSize() { return m_totalSize; };
+	const wchar_t* GetSubType() { return m_archSubtype; };
 
 	int GetItemsCount();
 	int GetItem(int itemIndex, WIN32_FIND_DATAW *itemData, wchar_t* itemPath, size_t itemPathSize);

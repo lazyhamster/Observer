@@ -52,8 +52,8 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		} //for volIndex
 
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"UDF");
-		wcscpy_s(info->SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, L"");
-		info->NumRealItems = storageRec->arc.Items.Size();
+		wcscpy_s(info->SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, L"-");
+		info->NumRealItems = storageRec->arc.Items.Size() - 1;
 
 		return TRUE;
 	}

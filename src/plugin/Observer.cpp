@@ -796,7 +796,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	Info->PanelTitle = szTitle;
 
 	// Fill info lines
-	static InfoPanelLine pInfoLinesData[5];
+	static InfoPanelLine pInfoLinesData[6];
 	size_t nInfoTextSize = sizeof(pInfoLinesData[0].Text) / sizeof(pInfoLinesData[0].Text[0]);
 	size_t nInfoDataSize = sizeof(pInfoLinesData[0].Data) / sizeof(pInfoLinesData[0].Data[0]);
 
@@ -807,15 +807,18 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	strcpy_s(pInfoLinesData[1].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));
 	WideCharToMultiByte(CP_ACP, 0, info->info.Format, wcslen(info->info.Format), pInfoLinesData[1].Data, nInfoDataSize, NULL, NULL);
 
-	strcpy_s(pInfoLinesData[2].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FILES));
-	_ultoa_s(info->info.NumFiles, pInfoLinesData[2].Data, nInfoDataSize, 10);
+	strcpy_s(pInfoLinesData[2].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_TYPE));
+	WideCharToMultiByte(CP_ACP, 0, info->info.SubType, wcslen(info->info.SubType), pInfoLinesData[2].Data, nInfoDataSize, NULL, NULL);
 
-	strcpy_s(pInfoLinesData[3].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_DIRS));
-	_ultoa_s(info->info.NumDirectories, pInfoLinesData[3].Data, nInfoDataSize, 10);
+	strcpy_s(pInfoLinesData[3].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FILES));
+	_ultoa_s(info->info.NumFiles, pInfoLinesData[3].Data, nInfoDataSize, 10);
 
-	strcpy_s(pInfoLinesData[4].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
-	_i64toa_s(info->info.TotalSize, pInfoLinesData[4].Data, nInfoDataSize, 10);
-	InsertCommas(pInfoLinesData[4].Data);
+	strcpy_s(pInfoLinesData[4].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_DIRS));
+	_ultoa_s(info->info.NumDirectories, pInfoLinesData[4].Data, nInfoDataSize, 10);
+
+	strcpy_s(pInfoLinesData[5].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
+	_i64toa_s(info->info.TotalSize, pInfoLinesData[5].Data, nInfoDataSize, 10);
+	InsertCommas(pInfoLinesData[5].Data);
 	
 	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
 	Info->InfoLines = pInfoLinesData;
