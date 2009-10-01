@@ -422,7 +422,7 @@ bool AskExtractOverwrite(int &overwrite)
 	}
 }
 
-static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, const wchar_t* itemSubPath, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
+static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, const wchar_t* itemSubPath, size_t skipSubPathChunk, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir()) return FALSE;
 
@@ -430,7 +430,7 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 	if (CheckEsc())	return FALSE;
 
 	wstring strFullTargetPath(destDir);
-	strFullTargetPath.append(itemSubPath);
+	strFullTargetPath.append(itemSubPath + skipSubPathChunk);
 
 	// Ask about overwrite if needed
 	if (!silent && FileExists(strFullTargetPath.c_str()))
@@ -899,6 +899,11 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	HANDLE ctx;
 	int nFileCounter = 0;
 
+	// Find current directory sub-path to cut it from destination path
+	info->currentdir->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
+	size_t nSkipPathChuckSize = wcslen(wszNextItemSubPath);
+	if (nSkipPathChuckSize > 0) nSkipPathChuckSize++;	// Count trailing backslash for non-empty value
+
 	// Extract all files one by one
 	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
 	{
@@ -910,7 +915,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		int nTotalProgress = (nTotalExtractSize <= 0) ? 0 : (int) ((nBytesDone * 100) / nTotalExtractSize);
 		
 		ExtractStart(&ctx, wszNextItemSubPath, nFileCounter, nTotalFiles, nTotalProgress);
-		nExtractResult = ExtractStorageItem(info, nextItem, wszNextItemSubPath, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, ctx);
+		nExtractResult = ExtractStorageItem(info, nextItem, wszNextItemSubPath, nSkipPathChuckSize, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, ctx);
 		ExtractDone(ctx);
 
 		if (!nExtractResult) break;
