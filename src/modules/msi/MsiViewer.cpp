@@ -109,7 +109,7 @@ int CMsiViewer::Open( const wchar_t* path )
 	OK ( generateInfoText() );
 	OK ( generateLicenseText() );
 
-	assignSequenceIndicies(m_pRootDir, -1);
+	buildFlatIndex(m_pRootDir);
 
 	m_strStorageLocation = path;
 	
@@ -508,7 +508,7 @@ int CMsiViewer::generateInfoText()
 	FileNode *fake = new FileNode();
 	fake->TargetName = _wcsdup(L"{msi_info}.txt");
 	fake->TargetShortName = _wcsdup(L"msi_info.txt");
-	fake->FileAttributes = 0;
+	fake->Attributes = 0;
 	fake->IsFake = true;
 	fake->FileSize = content.size() * sizeof(wchar_t) + 2;	// sizeof BOM = 2
 	fake->FakeFileContent = (char *) malloc(fake->FileSize + sizeof(wchar_t)); // +1 for 0-terminator
@@ -634,7 +634,7 @@ int CMsiViewer::generateLicenseText()
 		FileNode *fake = new FileNode();
 		fake->TargetName = _wcsdup(L"{license}.txt");
 		fake->TargetShortName = _wcsdup(L"license.txt");
-		fake->FileAttributes = 0;
+		fake->Attributes = 0;
 		fake->IsFake = true;
 		fake->FileSize = nVlen;
 		fake->FakeFileContent = _strdup(&val[0]);
@@ -919,77 +919,39 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 	return nResult;
 }
 
-int CMsiViewer::assignSequenceIndicies(DirectoryNode* root, int rootIndex)
+void CMsiViewer::buildFlatIndex(DirectoryNode* root)
 {
-	int nextIndex = rootIndex + 1;
-	
 	for (int i = 0, max_i = root->Files.size(); i < max_i; i++)
 	{
-		root->Files[i]->SequentialIndex = nextIndex;
-		nextIndex++;
+		m_vFlatIndex.push_back(root->Files[i]);
 	}
 
 	for (int i = 0, max_i = root->SubDirs.size(); i < max_i; i++)
 	{
 		DirectoryNode* subdir = root->SubDirs[i];
-		subdir->SequentialIndex = nextIndex;
-		nextIndex = assignSequenceIndicies(subdir, nextIndex);
+		m_vFlatIndex.push_back(subdir);
+		buildFlatIndex(subdir);
 	}
-
-	return nextIndex;
 }
 
 bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, wchar_t* itemPathBuf, size_t itemPathBufSize)
 {
-	return FindIndexedNodeData(m_pRootDir, -1, itemIndex, dataBuf, itemPathBuf, itemPathBufSize);
-}
+	BasicNode* node = NULL;
 
-bool CMsiViewer::FindIndexedNodeData(DirectoryNode* root, int rootIndex, int itemIndex, LPWIN32_FIND_DATAW dataBuf, wchar_t* itemPathBuf, size_t itemPathBufSize)
-{
-	int nNumLocalFiles = root->Files.size();
+	if (itemIndex < 0 || itemIndex >= (int) m_vFlatIndex.size())
+		return false;
+
+	node = m_vFlatIndex[itemIndex];
+
+	memset(dataBuf, 0, sizeof(*dataBuf));
+	wcscpy_s(dataBuf->cFileName, MAX_PATH, node->TargetName);
+	wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN + 1, node->TargetShortName);
+	dataBuf->dwFileAttributes = node->GetSytemAttributes();
+	dataBuf->nFileSizeLow = (DWORD) node->GetSize();
+
+	wstring path = node->GetTargetPath();
+	wmemcpy_s(itemPathBuf, itemPathBufSize, path.c_str(), path.length());
+	itemPathBuf[path.length()] = 0;
 	
-	if (itemIndex - rootIndex <= nNumLocalFiles)  // Check if we can get file from current dir
-	{
-		FileNode* file = root->Files[itemIndex - rootIndex - 1];
-
-		memset(dataBuf, 0, sizeof(*dataBuf));
-		wcscpy_s(dataBuf->cFileName, MAX_PATH, file->TargetName);
-		wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN + 1, file->TargetShortName);
-		dataBuf->dwFileAttributes = file->GetSytemAttributes();
-		dataBuf->nFileSizeLow = file->FileSize;
-
-		wstring path = file->GetTargetPath();
-		wmemcpy_s(itemPathBuf, itemPathBufSize, path.c_str(), path.length());
-		itemPathBuf[path.length()] = 0;
-
-		return true;
-	}
-	else // Check in subdirs recursively
-	{
-		for (int i = 0, max_i = root->SubDirs.size(); i < max_i; i++)
-		{
-			DirectoryNode* subdir = root->SubDirs[i];
-
-			if (subdir->SequentialIndex == itemIndex)
-			{
-				memset(dataBuf, 0, sizeof(*dataBuf));
-				wcscpy_s(dataBuf->cFileName, MAX_PATH, subdir->TargetName);
-				wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN + 1, subdir->TargetShortName);
-				dataBuf->dwFileAttributes = subdir->GetSytemAttributes();
-
-				wstring path = subdir->GetTargetPath();
-				wmemcpy_s(itemPathBuf, itemPathBufSize, path.c_str(), path.length());
-				itemPathBuf[path.length()] = 0;
-
-				return true;
-			}
-			else if ( (i == max_i-1) ||
-				( (subdir->SequentialIndex < itemIndex) && (root->SubDirs[i+1]->SequentialIndex > itemIndex) ) )
-			{
-				return FindIndexedNodeData(subdir, subdir->SequentialIndex, itemIndex, dataBuf, itemPathBuf, itemPathBufSize);
-			}
-		}
-	}
-
-	return false;
+	return true;
 }

@@ -23,6 +23,32 @@ void SplitEntryWithAlloc(wchar_t* source, wchar_t delim, wchar_t* &shortName, wc
 }
 
 //////////////////////////////////////////////////////////////////////////
+//                           BasicNode
+//////////////////////////////////////////////////////////////////////////
+
+BasicNode::BasicNode()
+{
+	Key = NULL;
+	Parent = NULL;
+	Attributes = 0;
+
+	SourceName = NULL;
+	SourceShortName = NULL;
+	TargetName = NULL;
+	TargetShortName = NULL;
+}
+
+BasicNode::~BasicNode()
+{
+	KILLSTR(Key);
+
+	KILLSTR(SourceName);
+	KILLSTR(SourceShortName);
+	KILLSTR(TargetName);
+	KILLSTR(TargetShortName);
+}
+
+//////////////////////////////////////////////////////////////////////////
 //                           DirectoryNode
 //////////////////////////////////////////////////////////////////////////
 
@@ -37,8 +63,6 @@ DirectoryNode::DirectoryNode()
 	TargetName = NULL;
 	TargetShortName = NULL;
 	IsSpecial = false;
-
-	SequentialIndex = -1;
 }
 
 DirectoryNode::~DirectoryNode()
@@ -185,6 +209,10 @@ __int64 DirectoryNode::GetTotalSize()
 	return nResult;
 }
 
+__int64 DirectoryNode::GetSize()
+{
+	return 0;
+}
 //////////////////////////////////////////////////////////////////////////
 //                           FileNode
 //////////////////////////////////////////////////////////////////////////
@@ -200,13 +228,11 @@ FileNode::FileNode()
 	TargetShortName = NULL;
 
 	FileSize = 0;
-	FileAttributes = 0;
+	Attributes = 0;
 	SequenceMark = 0;
 
 	IsFake = false;
 	FakeFileContent = NULL;
-
-	SequentialIndex = -1;
 }
 
 FileNode::~FileNode()
@@ -241,7 +267,7 @@ bool FileNode::Init( FileEntry *entry )
 	}
 
 	FileSize = entry->FileSize;
-	FileAttributes = entry->Attributes;
+	Attributes = entry->Attributes;
 	SequenceMark = entry->Sequence;
 
 	return true;
@@ -251,11 +277,11 @@ DWORD FileNode::GetSytemAttributes()
 {
 	DWORD result = 0;
 
-	if (FileAttributes & msidbFileAttributesHidden)
+	if (Attributes & msidbFileAttributesHidden)
 		result |= FILE_ATTRIBUTE_HIDDEN;
-	if (FileAttributes & msidbFileAttributesSystem)
+	if (Attributes & msidbFileAttributesSystem)
 		result |= FILE_ATTRIBUTE_SYSTEM;
-	if (FileAttributes & msidbFileAttributesReadOnly)
+	if (Attributes & msidbFileAttributesReadOnly)
 		result |= FILE_ATTRIBUTE_READONLY;
 
 	if (result == 0)
@@ -282,4 +308,9 @@ std::wstring FileNode::GetTargetPath()
 	strResult.append(TargetName);
 
 	return strResult;
+}
+
+__int64 FileNode::GetSize()
+{
+	return FileSize;
 }

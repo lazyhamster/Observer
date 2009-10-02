@@ -15,6 +15,7 @@ private:
 	DirectoryNode* m_pRootDir;
 	vector <MediaEntry> m_vMedias;
 	wstring m_strStorageLocation;
+	vector <BasicNode*> m_vFlatIndex;
 	
 	CCabControl* m_pCabControl;
 	wstring m_strStreamCacheLocation;
@@ -41,8 +42,7 @@ private:
 	wstring getStoragePath();
 	int cacheInternalStream(const wchar_t* streamName);
 
-	int assignSequenceIndicies(DirectoryNode* root, int rootIndex);
-	bool FindIndexedNodeData(DirectoryNode* root, int rootIndex, int itemIndex, LPWIN32_FIND_DATAW dataBuf, wchar_t* itemPathBuf, size_t itemPathBufSize);
+	void buildFlatIndex(DirectoryNode* root);
 
 public:
 	CMsiViewer(void);

@@ -5,26 +5,38 @@
 
 #define MAX_SHORT_NAME_LEN 14
 
-class DirectoryNode;
-
-class FileNode
+class BasicNode
 {
 public:
 	wchar_t* Key;
-	DirectoryNode* Parent;
-	INT32 FileSize;
-	DWORD FileAttributes;
-	int SequenceMark;
-	
+	BasicNode* Parent;
+	DWORD Attributes;
+
 	wchar_t* SourceName;
 	wchar_t* SourceShortName;
 	wchar_t* TargetName;
 	wchar_t* TargetShortName;
 
+public:
+	BasicNode();
+	~BasicNode();
+
+	virtual DWORD GetSytemAttributes() = 0;
+	virtual wstring GetSourcePath() = 0;
+	virtual wstring GetTargetPath() = 0;
+	virtual __int64 GetSize() = 0;
+
+	bool IsDir() { return (Attributes & FILE_ATTRIBUTE_DIRECTORY) > 0; };
+};
+
+class FileNode : public BasicNode
+{
+public:
+	INT32 FileSize;
+	int SequenceMark;
+	
 	bool IsFake;
 	char* FakeFileContent;
-
-	int SequentialIndex;
 
 public:
 	FileNode();
@@ -35,26 +47,18 @@ public:
 	DWORD GetSytemAttributes();
 	wstring GetSourcePath();
 	wstring GetTargetPath();
+	__int64 GetSize();
 };
 
-class DirectoryNode
+class DirectoryNode : public BasicNode
 {
 private:
 	DirectoryNode(const DirectoryNode &node) {};
 
 public:
-	wchar_t* Key;
 	wchar_t* ParentKey;
-	DirectoryNode* Parent;
-			
-	wchar_t* SourceName;
-	wchar_t* SourceShortName;
-	wchar_t* TargetName;
-	wchar_t* TargetShortName;
 	bool IsSpecial;
 
-	int SequentialIndex;
-	
 	vector<DirectoryNode*> SubDirs;
 	vector<FileNode*> Files;
 
@@ -72,6 +76,8 @@ public:
 	DWORD GetSytemAttributes();
 	wstring GetSourcePath();
 	wstring GetTargetPath();
+	__int64 GetSize();
+
 	void AppendNumberToName(int val);
 };
 
