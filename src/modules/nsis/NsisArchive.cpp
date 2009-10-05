@@ -356,9 +356,8 @@ int CNsisArchive::GetItem(int itemIndex, WIN32_FIND_DATAW *itemData, wchar_t* it
 	return TRUE;
 }
 
-int CNsisArchive::ExtractItemByName( const wchar_t* itemName, const wchar_t* destDir, const ExtractProcessCallbacks* epc )
+int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destDir, const ExtractProcessCallbacks* epc )
 {	
-	int itemIndex = findItemIndex(itemName);
 	if (itemIndex < 0) return SER_ERROR_READ;
 
 	CArchiveExtractCallback* callback = new CArchiveExtractCallback();
@@ -369,20 +368,4 @@ int CNsisArchive::ExtractItemByName( const wchar_t* itemName, const wchar_t* des
 		return SER_SUCCESS;
 
 	return SER_ERROR_SYSTEM;
-}
-
-int CNsisArchive::findItemIndex( const wchar_t* path )
-{
-	UInt32 nItemsNum = 0;
-	m_handler->GetNumberOfItems(&nItemsNum);
-
-	for (int i = 0; i < (int) nItemsNum; i++)
-	{
-		UString itemPath = getItemPath(i);
-
-		if (itemPath.Compare(path) == 0)
-			return i;
-	}
-	
-	return -1;
 }

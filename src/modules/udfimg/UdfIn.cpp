@@ -913,28 +913,6 @@ int CUdfArchive::GetSubItemByName( const wchar_t* name, int parentIndex )
 	return -1;
 }
 
-int CUdfArchive::GetItemByPath( const wchar_t* path )
-{
-	if (!path || !*path) return 0;
-	
-	wchar_t* copyStr = _wcsdup(path);
-	if (!copyStr) return -1;
-
-	int result = 0;
-	wchar_t* context;
-	wchar_t* token = wcstok_s(copyStr, L"\\//", &context);
-	while (token && *token)
-	{
-		result = GetSubItemByName(token, result);
-		if (result == -1) break;
-
-		token = wcstok_s(NULL, L"\\//", &context);
-	}
-
-	free(copyStr);
-	return result;
-}
-
 #define NAME_PATH_BUFSIZE 2048
 
 int CUdfArchive::DumpFileContent(int itemIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc)

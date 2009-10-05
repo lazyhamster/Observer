@@ -77,5 +77,5 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	CNsisArchive* arc = (CNsisArchive *) storage;
 	if (!arc) return FALSE;
 	
-	return arc->ExtractItemByName(params.item, params.destPath, &(params.Callbacks));
+	return arc->ExtractArcItem(params.item, params.dest_path, &(params.callbacks));
 }

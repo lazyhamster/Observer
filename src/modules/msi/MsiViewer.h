@@ -55,7 +55,7 @@ public:
 	__int64 GetTotalSize() { return m_pRootDir->GetTotalSize(); }
 
 	DirectoryNode* GetDirectory(const wchar_t* path);
-	FileNode* GetFile(const wchar_t* path);
+	FileNode* GetFile(const int fileIndex);
 
 	int DumpFileContent(FileNode *file, const wchar_t *destPath);
 

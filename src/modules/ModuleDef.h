@@ -24,10 +24,10 @@ struct StorageGeneralInfo
 
 struct ExtractOperationParams 
 {
-	const wchar_t* item;
-	int Params;
-	const wchar_t* destPath;
-	ExtractProcessCallbacks Callbacks;
+	int item;
+	int flags;
+	const wchar_t* dest_path;
+	ExtractProcessCallbacks callbacks;
 };
 
 typedef int (MODULE_EXPORT *LoadSubModuleFunc)(int);

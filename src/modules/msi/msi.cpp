@@ -55,6 +55,6 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	FileNode *file = view->GetFile(params.item);
 	if (!file) return SER_ERROR_SYSTEM;
 
-	int nDumpResult = view->DumpFileContent(file, params.destPath);
+	int nDumpResult = view->DumpFileContent(file, params.dest_path);
 	return nDumpResult;
 }

@@ -706,36 +706,16 @@ DirectoryNode* CMsiViewer::GetDirectory( const wchar_t* path )
 	return curNode;
 }
 
-FileNode* CMsiViewer::GetFile( const wchar_t* path )
+FileNode* CMsiViewer::GetFile( const int fileIndex )
 {
-	if (!path || !*path)
+	if (fileIndex < 0 || fileIndex >= (int) m_vFlatIndex.size())
 		return NULL;
 
-	wchar_t *dupPath = _wcsdup(path);
-	wchar_t *filePart = dupPath;
-	wchar_t *lastSlash = wcsrchr(dupPath, '\\');
-	if (lastSlash)
-	{
-		*lastSlash = 0;
-		filePart = lastSlash + 1;
-	}
-
-	FileNode* result = NULL;
-
-	DirectoryNode* parent = (filePart != dupPath) ? GetDirectory(dupPath) : m_pRootDir;
-	if (parent)
-		for (size_t i = 0; i < parent->Files.size(); i++)
-		{
-			FileNode *node = parent->Files[i];
-			if (wcscmp(node->TargetName, filePart) == 0)
-			{
-				result = node;
-				break;
-			}
-		} //for
-
-	free(dupPath);
-	return result;
+	BasicNode* node = m_vFlatIndex[fileIndex];
+	if (!node->IsDir())
+		return (FileNode *) node;
+		
+	return NULL;
 }
 
 int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath )
@@ -936,12 +916,10 @@ void CMsiViewer::buildFlatIndex(DirectoryNode* root)
 
 bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, wchar_t* itemPathBuf, size_t itemPathBufSize)
 {
-	BasicNode* node = NULL;
-
 	if (itemIndex < 0 || itemIndex >= (int) m_vFlatIndex.size())
 		return false;
 
-	node = m_vFlatIndex[itemIndex];
+	BasicNode* node = m_vFlatIndex[itemIndex];
 
 	memset(dataBuf, 0, sizeof(*dataBuf));
 	wcscpy_s(dataBuf->cFileName, MAX_PATH, node->TargetName);

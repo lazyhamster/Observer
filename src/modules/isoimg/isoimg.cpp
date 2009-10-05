@@ -157,17 +157,12 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	IsoImage* image = (IsoImage*) storage;
 	if (!image) return SER_ERROR_SYSTEM;
 
-	size_t nItemLen = wcslen(params.item);
-	for (DWORD i = 0; i < image->DirectoryCount; i++)
-	{
-		Directory dir = image->DirectoryList[i];
+	if (params.item < 0 || params.item >= (int) image->DirectoryCount)
+		return SER_ERROR_SYSTEM;
 
-		bool fIsDir = IsDirectory(&dir);
-		if (!fIsDir && (wcscmp(dir.FilePath, params.item) == 0))
-		{
-			return ExtractFile(image, &dir, params.destPath, &(params.Callbacks));
-		}
-	}
+	Directory dir = image->DirectoryList[params.item];
+	if (!IsDirectory(&dir))
+		return ExtractFile(image, &dir, params.dest_path, &(params.callbacks));
 	
 	return SER_ERROR_SYSTEM;
 }

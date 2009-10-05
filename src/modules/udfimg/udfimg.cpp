@@ -102,14 +102,12 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
 	UdfStorage *storageRec = (UdfStorage*) storage;
-	if (!storageRec) return SER_ERROR_SYSTEM;
+	if (!storageRec || (params.item < 0)) return SER_ERROR_SYSTEM;
 
-	int itemIndex = storageRec->arc.GetItemByPath(params.item);
-	if (itemIndex < 0) return SER_ERROR_SYSTEM;
-
-	if (!storageRec->arc.Items[itemIndex].IsDir())
+	int nRealIndex = params.item + 1;
+	if (!storageRec->arc.Items[nRealIndex].IsDir())
 	{
-		int res = storageRec->arc.DumpFileContent(itemIndex, params.destPath, &(params.Callbacks));
+		int res = storageRec->arc.DumpFileContent(nRealIndex, params.dest_path, &(params.callbacks));
 		return res;
 	}
 	

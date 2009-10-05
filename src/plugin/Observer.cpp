@@ -487,11 +487,11 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 	{
 		// Set extract params
 		ExtractOperationParams params;
-		params.item = itemSubPath;
-		params.Params = 0;
-		params.destPath = strTargetDir.c_str();
-		params.Callbacks.Progress = ExtractProgress;
-		params.Callbacks.signalContext = callbackContext;
+		params.item = item->storageIndex;
+		params.flags = 0;
+		params.dest_path = strTargetDir.c_str();
+		params.callbacks.Progress = ExtractProgress;
+		params.callbacks.signalContext = callbackContext;
 
 		ret = g_pController.modules[storage->ModuleIndex].Extract(storage->StoragePtr, params);
 

@@ -24,7 +24,6 @@ private:
 
 	UStringVector m_folderList;  // Fake folders list, since format does not expose folders
 
-	int findItemIndex(const wchar_t* path);
 	UString getItemPath(int itemIndex);
 
 public:
@@ -42,7 +41,7 @@ public:
 	int GetItemsCount();
 	int GetItem(int itemIndex, WIN32_FIND_DATAW *itemData, wchar_t* itemPath, size_t itemPathSize);
 
-	int ExtractItemByName(const wchar_t* itemName, const wchar_t* destDir, const ExtractProcessCallbacks* epc);
+	int ExtractArcItem(const int itemIndex, const wchar_t* destDir, const ExtractProcessCallbacks* epc);
 };
 
 #endif //_NSIS_ARCHIVE_H_
