@@ -508,6 +508,10 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 					break;
 			}
 		}
+		else if (ret == SER_ERROR_SYSTEM)
+		{
+			DisplayMessage(true, true, GetLocMsg(MSG_EXTRACT_ERROR), GetLocMsg(MSG_EXTRACT_FAILED), szLastExtractName);
+		}
 
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
