@@ -1,22 +1,19 @@
 // Observer.cpp : Defines the exported functions for the DLL application.
-//
+// This module contains functions for ANSI version of FAR (1.75+)
 
-#include "stdafx.h"
-#include <algorithm>
+#include "StdAfx.h"
 #include <far/plugin.hpp>
 
+#include "CommonFunc.h"
 #include "ModulesController.h"
-#include "ContentStructures.h"
 #include "PlugLang.h"
 
-#define PATH_BUFFER_SIZE 4096
-
 extern HMODULE g_hDllHandle;
-PluginStartupInfo FarSInfo;
+static PluginStartupInfo FarSInfo;
 static FarStandardFunctions FSF;
 
-wchar_t wszPluginLocation[MAX_PATH];
-ModulesController g_pController;
+static wchar_t wszPluginLocation[MAX_PATH];
+static ModulesController g_pController;
 
 #define CP_FAR_INTERNAL CP_OEMCP
 
@@ -25,27 +22,6 @@ ModulesController g_pController;
 static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
 static char optPrefix[MAX_PREFIX_SIZE] = "observe";
-
-struct StorageInfo
-{
-	wchar_t Format[STORAGE_FORMAT_NAME_MAX_LEN];
-	wchar_t SubType[STORAGE_SUBTYPE_NAME_MAX_LEN];
-
-	__int64 TotalSize;
-	DWORD NumFiles;
-	DWORD NumDirectories;
-};
-
-struct FarStorageInfo
-{
-	int ModuleIndex;
-	INT_PTR *StoragePtr;
-	wchar_t StorageFileName[MAX_PATH];
-	StorageInfo info;
-	ContentTreeNode* items;			// All pre-allocated items, array, must be deleted
-	ContentTreeNode* root;			// First in items list, do not delete
-	ContentTreeNode* currentdir;	// Just pointer, do not delete
-};
 
 //-----------------------------------  Local functions ----------------------------------------
 
@@ -120,23 +96,6 @@ static void SaveSettings()
 	RegCloseKey(reg);
 }
 
-static bool CheckEsc()
-{
-	DWORD dwNumEvents;
-	_INPUT_RECORD inRec;
-
-	HANDLE hConsole = GetStdHandle(STD_INPUT_HANDLE);
-	if (GetNumberOfConsoleInputEvents(hConsole, &dwNumEvents))
-		while (PeekConsoleInputA(hConsole, &inRec, 1, &dwNumEvents) && (dwNumEvents > 0))
-		{
-			ReadConsoleInputA(hConsole, &inRec, 1, &dwNumEvents);
-			if ((inRec.EventType == KEY_EVENT) && (inRec.Event.KeyEvent.bKeyDown) && (inRec.Event.KeyEvent.wVirtualKeyCode == VK_ESCAPE))
-				return true;
-		} //while
-
-	return false;
-}
-
 static void InsertCommas(char *Dest)
 {
   int I;
@@ -163,43 +122,6 @@ static void DisplayMessage(bool isError, bool isInteractive, const char* header,
 	FarSInfo.Message(FarSInfo.ModuleNumber, flags, NULL, MsgLines, linesNum, 0);
 }
 
-static bool FileExists(const wchar_t* path)
-{
-	WIN32_FIND_DATAW fdata;
-	
-	HANDLE sr = FindFirstFileW(path, &fdata);
-	if (sr != INVALID_HANDLE_VALUE)
-	{
-		FindClose(sr);
-		return true;
-	}
-
-	return false;
-}
-
-static bool DirectoryExists(const wchar_t* path)
-{
-	WIN32_FIND_DATAW fdata;
-	bool fResult = false;
-
-	HANDLE sr = FindFirstFileW(path, &fdata);
-	if (sr != INVALID_HANDLE_VALUE)
-	{
-		do 
-		{
-			if ((fdata.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) > 0)
-			{
-				fResult = true;
-				break;
-			}
-		} while (FindNextFileW(sr, &fdata));
-
-		FindClose(sr);
-	}
-
-	return fResult;
-}
-
 //-----------------------------------  Content functions ----------------------------------------
 
 HANDLE OpenStorage(const wchar_t* Name)
@@ -211,87 +133,83 @@ HANDLE OpenStorage(const wchar_t* Name)
 	int moduleIndex;
 	if (!g_pController.OpenStorageFile(Name, &moduleIndex, &storage, &sinfo))
 		return INVALID_HANDLE_VALUE;
+	if (!storage) return INVALID_HANDLE_VALUE;
 
-	HANDLE hResult = INVALID_HANDLE_VALUE;
+	HANDLE hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
+	DisplayMessage(false, false, GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_LIST), NULL);
+	
+	bool fListOK = true;
+	DWORD nNumItems = sinfo.NumRealItems;
+	ContentTreeNode* all_items = new ContentTreeNode[nNumItems + 1];  // +1 for root
+	
+	ContentTreeNode* root_node = &all_items[0];
+	__int64 nTotalSize = 0;
+	DWORD nNumFiles = 0, nNumDirs = 0;
 
-	if (storage != NULL)
+	wchar_t* wszItemPathBuf = new wchar_t[PATH_BUFFER_SIZE];
+	for (DWORD item_index = 0; item_index < nNumItems; item_index++)
 	{
-		HANDLE hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
-		DisplayMessage(false, false, GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_LIST), NULL);
-		
-		bool fListOK = true;
-		DWORD nNumItems = sinfo.NumRealItems;
-		ContentTreeNode* all_items = new ContentTreeNode[nNumItems + 1];  // +1 for root
-		
-		ContentTreeNode* root_node = &all_items[0];
-		__int64 nTotalSize = 0;
-		DWORD nNumFiles = 0, nNumDirs = 0;
+		ContentTreeNode* child = &(all_items[item_index + 1]);
+		child->storageIndex = item_index;
 
-		wchar_t* wszItemPathBuf = new wchar_t[PATH_BUFFER_SIZE];
-		for (DWORD item_index = 0; item_index < nNumItems; item_index++)
+		if (g_pController.modules[moduleIndex].GetNextItem(storage, item_index, &(child->data), wszItemPathBuf, PATH_BUFFER_SIZE))
 		{
-			ContentTreeNode* child = &(all_items[item_index + 1]);
-			child->storageIndex = item_index;
-
-			if (g_pController.modules[moduleIndex].GetNextItem(storage, item_index, &(child->data), wszItemPathBuf, PATH_BUFFER_SIZE))
+			if (!root_node->AddChild(wszItemPathBuf, child))
 			{
-				if (!root_node->AddChild(wszItemPathBuf, child))
-				{
-					DisplayMessage(true, true, GetLocMsg(MSG_OPEN_CONTENT_ERROR), GetLocMsg(MSG_OPEN_INVALID_ITEM), NULL);
-					fListOK = false;
-					break;
-				}
-
-				if (!child->IsDir())
-				{
-					nNumFiles++;
-					nTotalSize += child->GetSize();
-				}
-				else
-				{
-					nNumDirs++;
-				}
-			}
-			else
-			{
-				DisplayMessage(true, true, GetLocMsg(MSG_OPEN_CONTENT_ERROR), GetLocMsg(MSG_OPEN_INVALID_ITEM), NULL);
 				fListOK = false;
 				break;
 			}
-		} //for
-		delete [] wszItemPathBuf;
-		
-		if (fListOK)
-		{
-			FarStorageInfo *info = new FarStorageInfo;
-			info->ModuleIndex = moduleIndex;
-			info->StoragePtr = storage;
-			info->items = all_items;
-			info->currentdir = root_node;
-			info->root = root_node;
 
-			info->info.TotalSize = nTotalSize;
-			info->info.NumFiles = nNumFiles;
-			info->info.NumDirectories = nNumDirs;
-			wcscpy_s(info->info.Format, STORAGE_FORMAT_NAME_MAX_LEN, sinfo.Format);
-			wcscpy_s(info->info.SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, sinfo.SubType);
-			
-			// Copy storage file name for info
-			const wchar_t *slashPos = wcsrchr(Name, L'\\');
-			if (slashPos)
-				wcscpy_s(info->StorageFileName, MAX_PATH, slashPos+1);
+			if (!child->IsDir())
+			{
+				nNumFiles++;
+				nTotalSize += child->GetSize();
+			}
 			else
-				wcscpy_s(info->StorageFileName, MAX_PATH, Name);
-
-			hResult = (HANDLE) info;
+			{
+				nNumDirs++;
+			}
 		}
 		else
 		{
-			delete [] all_items;
+			fListOK = false;
+			break;
 		}
+	} //for
+	delete [] wszItemPathBuf;
+	
+	HANDLE hResult = INVALID_HANDLE_VALUE;
+	if (fListOK)
+	{
+		FarStorageInfo *info = new FarStorageInfo;
+		info->ModuleIndex = moduleIndex;
+		info->StoragePtr = storage;
+		info->items = all_items;
+		info->currentdir = root_node;
+		info->root = root_node;
 
-		FarSInfo.RestoreScreen(hScreen);
+		info->info.TotalSize = nTotalSize;
+		info->info.NumFiles = nNumFiles;
+		info->info.NumDirectories = nNumDirs;
+		wcscpy_s(info->info.Format, STORAGE_FORMAT_NAME_MAX_LEN, sinfo.Format);
+		wcscpy_s(info->info.SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, sinfo.SubType);
+		
+		// Copy storage file name for info
+		const wchar_t *slashPos = wcsrchr(Name, L'\\');
+		if (slashPos)
+			wcscpy_s(info->StorageFileName, MAX_PATH, slashPos+1);
+		else
+			wcscpy_s(info->StorageFileName, MAX_PATH, Name);
+
+		hResult = (HANDLE) info;
 	}
+	else
+	{
+		DisplayMessage(true, true, GetLocMsg(MSG_OPEN_CONTENT_ERROR), GetLocMsg(MSG_OPEN_INVALID_ITEM), NULL);
+		delete [] all_items;
+	}
+
+	FarSInfo.RestoreScreen(hScreen);
 
 	return hResult;
 }
@@ -415,7 +333,7 @@ int CALLBACK ExtractProgress(int progressValue, HANDLE context)
 #define EXTR_OVERWRITE_SKIP 3
 #define EXTR_OVERWRITE_SKIPSILENT 4
 
-bool AskExtractOverwrite(int &overwrite)
+static bool AskExtractOverwrite(int &overwrite)
 {
 	static const char* DlgLines[8];
 	DlgLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
@@ -516,42 +434,6 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
 	return (ret == SER_SUCCESS);
-}
-
-// Returns total number of items added
-int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &totalSize, bool recursive)
-{
-	int numItems = 0;
-	
-	if (node->IsDir())
-	{
-		if (recursive)
-		{
-			// Iterate through sub directories
-			for (SubNodesMap::const_iterator cit = node->subdirs.begin(); cit != node->subdirs.end(); cit++)
-			{
-				ContentTreeNode* child = cit->second;
-				numItems += CollectFileList(child, targetlist, totalSize, recursive);
-			} //for
-		}
-
-		// Iterate through files
-		for (SubNodesMap::const_iterator cit = node->files.begin(); cit != node->files.end(); cit++)
-		{
-			ContentTreeNode* child = cit->second;
-			targetlist.push_back(child->storageIndex);
-			numItems++;
-			totalSize += child->GetSize();
-		} //for
-	}
-	else
-	{
-		targetlist.push_back(node->storageIndex);
-		numItems++;
-		totalSize += node->GetSize();
-	}
-
-	return numItems;
 }
 
 //-----------------------------------  Export functions ----------------------------------------

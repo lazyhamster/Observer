@@ -16,7 +16,9 @@
 #include <wchar.h>
 #include <ShlObj.h>
 
+// STL
 #include <string>
 #include <vector>
 #include <map>
+#include <algorithm>
 using namespace std;
