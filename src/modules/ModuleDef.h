@@ -13,7 +13,7 @@ struct ExtractProcessCallbacks
 };
 
 #define STORAGE_FORMAT_NAME_MAX_LEN 14
-#define STORAGE_SUBTYPE_NAME_MAX_LEN 16
+#define STORAGE_SUBTYPE_NAME_MAX_LEN 24
 
 struct StorageGeneralInfo
 {

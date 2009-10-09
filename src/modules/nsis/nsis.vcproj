@@ -283,7 +283,63 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BcjCoder.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BcjRegister.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BitlDecoder.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\C\Bra.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\C\Bra86.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\C\BraIA64.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchCoder.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchMisc.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchRegister.cpp"
 				>
 			</File>
 			<File
@@ -439,7 +495,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BcjCoder.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BitlDecoder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\C\Bra.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchCoder.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchMisc.h"
 				>
 			</File>
 			<File
