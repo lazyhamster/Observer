@@ -547,6 +547,7 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 		char* szLocalNameBuffer = new char[PATH_BUFFER_SIZE];
 
 		strcpy_s(szLocalNameBuffer, MAX_PATH, (char *) Item);
+		FSF.Unquote(szLocalNameBuffer);
 		FSF.ExpandEnvironmentStr(szLocalNameBuffer, szLocalNameBuffer, PATH_BUFFER_SIZE);
 		fpres = GetFullPathNameA(szLocalNameBuffer, PATH_BUFFER_SIZE, szFullNameBuffer, NULL);
 
