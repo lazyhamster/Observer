@@ -237,8 +237,8 @@ int CMsiViewer::readAppSearch(WStringMap &entries)
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM AppSearch", &hQueryAppSearch) );
 	OK( MsiViewExecute(hQueryAppSearch, 0) );
 
-	wchar_t key[73];
-	wchar_t signature[73];
+	wchar_t key[150];
+	wchar_t signature[150];
 
 	// Retrieve all component entries
 	PMSIHANDLE hAppRec;
