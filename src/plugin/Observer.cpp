@@ -216,9 +216,11 @@ HANDLE OpenStorage(const wchar_t* Name)
 
 HANDLE OpenStorageA(const char* Name)
 {
-	wchar_t *wszWideName = new wchar_t[PATH_BUFFER_SIZE];
-	wmemset(wszWideName, 0, PATH_BUFFER_SIZE);
-	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, PATH_BUFFER_SIZE);
+	size_t nNameBufLen = strlen(Name) + 1;
+	
+	wchar_t *wszWideName = new wchar_t[nNameBufLen];
+	wmemset(wszWideName, 0, nNameBufLen);
+	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, nNameBufLen);
 
 	HANDLE hResult = OpenStorage(wszWideName);
 
