@@ -313,6 +313,10 @@
 				RelativePath=".\text\readme_ru.txt"
 				>
 			</File>
+			<File
+				RelativePath=".\text\whatsnew_ru.txt"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

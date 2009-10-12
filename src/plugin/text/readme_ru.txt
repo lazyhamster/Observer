@@ -1,4 +1,4 @@
-Observer 1.0.1
+Observer
 Плагин для FAR 1.71+
 Автор: Ariman
 
