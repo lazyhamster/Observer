@@ -55,6 +55,14 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	FileNode *file = view->GetFile(params.item);
 	if (!file) return SER_ERROR_SYSTEM;
 
+	ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
+	pctx->nCurrentFileProgress = 0;
+	pctx->nCurrentFileIndex = params.item;
+
+	params.callbacks.FileStart(pctx);
 	int nDumpResult = view->DumpFileContent(file, params.dest_path);
+	pctx->nProcessedBytes += file->GetSize();
+	params.callbacks.FileEnd(pctx);
+
 	return nDumpResult;
 }

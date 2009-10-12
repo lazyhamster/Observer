@@ -63,7 +63,7 @@ public:
 private:
 	CMyComPtr<IInArchive> _archiveHandler;
 	UString _directoryPath;  // Output directory
-	UString _filePath;       // name inside arcvhive
+	UString _filePath;       // name inside archive
 	UString _diskFilePath;   // full path to file on disk
 	bool _extractMode;
 	struct CProcessedFileInfo
@@ -347,8 +347,7 @@ int CNsisArchive::GetItem(int itemIndex, WIN32_FIND_DATAW *itemData, wchar_t* it
 	else
 		wcscpy_s(itemData->cFileName, MAX_PATH, itemPath);
 	
-	if ( (m_handler->GetProperty(itemIndex, kpidSize, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
-		itemData->nFileSizeLow = prop.ulVal;
+	itemData->nFileSizeLow = GetItemSize(itemIndex);
 	
 	if ( (m_handler->GetProperty(itemIndex, kpidMTime, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
 		itemData->ftLastWriteTime = prop.filetime;
@@ -362,10 +361,30 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destDir, c
 
 	CArchiveExtractCallback* callback = new CArchiveExtractCallback();
 	callback->Init(m_handler, destDir);
+
+	ProgressContext* pctx = (ProgressContext*) epc->signalContext;
+	pctx->nCurrentFileProgress = 0;
+	pctx->nCurrentFileIndex = itemIndex;
+
+	epc->FileStart(pctx);
 	
 	UInt32 nIndex = itemIndex;
-	if (m_handler->Extract(&nIndex, 1, 0, callback) == S_OK)
+	HRESULT extResult = m_handler->Extract(&nIndex, 1, 0, callback);
+
+	pctx->nProcessedBytes += GetItemSize(itemIndex);
+	epc->FileEnd(pctx);
+
+	if (extResult == S_OK)
 		return SER_SUCCESS;
 
 	return SER_ERROR_SYSTEM;
+}
+
+DWORD CNsisArchive::GetItemSize( int itemIndex )
+{
+	NWindows::NCOM::CPropVariant prop;
+	if ( (m_handler->GetProperty(itemIndex, kpidSize, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
+		return prop.ulVal;
+
+	return 0;
 }

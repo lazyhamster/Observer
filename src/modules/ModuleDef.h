@@ -4,12 +4,43 @@
 #define MODULE_EXPORT __stdcall
 
 // Extract progress callbacks
-typedef int (CALLBACK *ExtractProgressFunc)(int, HANDLE);
+typedef int (CALLBACK *ExtractStartFunc)(HANDLE);
+typedef int (CALLBACK *ExtractProgressFunc)(HANDLE);
+typedef void (CALLBACK *ExtractEndFunc)(HANDLE);
 
 struct ExtractProcessCallbacks
 {
 	HANDLE signalContext;
-	ExtractProgressFunc Progress;
+	ExtractStartFunc FileStart;
+	ExtractProgressFunc FileProgress;
+	ExtractEndFunc FileEnd;
+};
+
+struct ProgressContext
+{
+	HANDLE hStorage;
+	HANDLE hScreen;
+
+	char szFilePath[MAX_PATH];
+	int nCurrentFileIndex;
+	int nCurrentFileNumber;
+	int nTotalFiles;
+	__int64 nProcessedBytes;
+	__int64 nTotalSize;
+	int nCurrentFileProgress;
+
+	ProgressContext()
+	{
+		hStorage = NULL;
+		hScreen = NULL;
+		memset(szFilePath, 0, MAX_PATH);
+		nCurrentFileIndex = 0;
+		nCurrentFileNumber = 0;
+		nTotalFiles = 0;
+		nTotalSize = 0;
+		nProcessedBytes = 0;
+		nCurrentFileProgress = 0;
+	}
 };
 
 #define STORAGE_FORMAT_NAME_MAX_LEN 14

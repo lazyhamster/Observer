@@ -983,10 +983,15 @@ int CUdfArchive::DumpFileContent(int itemIndex, const wchar_t* destPath, const E
 
 					// Report extraction progress
 					bytesCounter += copySize;
-					if (itemObj.Size && epc && epc->Progress)
+					if (itemObj.Size && epc && epc->FileProgress)
 					{
 						int progress = (int) (bytesCounter * 100 / itemObj.Size);
-						if (!epc->Progress(progress, epc->signalContext))
+						
+						ProgressContext* pctx = (ProgressContext*) epc->signalContext;
+						pctx->nCurrentFileProgress = progress;
+						pctx->nProcessedBytes += copySize;
+
+						if (!epc->FileProgress(epc->signalContext))
 						{
 							result = SER_USERABORT;
 							break;

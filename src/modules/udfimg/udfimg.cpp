@@ -107,7 +107,14 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	int nRealIndex = params.item + 1;
 	if (!storageRec->arc.Items[nRealIndex].IsDir())
 	{
+		ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
+		pctx->nCurrentFileProgress = 0;
+		pctx->nCurrentFileIndex = params.item;
+
+		params.callbacks.FileStart(pctx);
 		int res = storageRec->arc.DumpFileContent(nRealIndex, params.dest_path, &(params.callbacks));
+		params.callbacks.FileEnd(pctx);
+
 		return res;
 	}
 	

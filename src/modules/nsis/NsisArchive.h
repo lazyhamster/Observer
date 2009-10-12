@@ -40,6 +40,7 @@ public:
 
 	int GetItemsCount();
 	int GetItem(int itemIndex, WIN32_FIND_DATAW *itemData, wchar_t* itemPath, size_t itemPathSize);
+	DWORD GetItemSize(int itemIndex);
 
 	int ExtractArcItem(const int itemIndex, const wchar_t* destDir, const ExtractProcessCallbacks* epc);
 };

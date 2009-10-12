@@ -162,7 +162,17 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 
 	Directory dir = image->DirectoryList[params.item];
 	if (!IsDirectory(&dir))
-		return ExtractFile(image, &dir, params.dest_path, &(params.callbacks));
+	{
+		ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
+		pctx->nCurrentFileProgress = 0;
+		pctx->nCurrentFileIndex = params.item;
+
+		params.callbacks.FileStart(pctx);
+		int nExtractRes = ExtractFile(image, &dir, params.dest_path, &(params.callbacks));
+		params.callbacks.FileEnd(pctx);
+
+		return nExtractRes;
+	}
 	
 	return SER_ERROR_SYSTEM;
 }

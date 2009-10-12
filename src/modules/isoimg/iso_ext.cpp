@@ -68,10 +68,13 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 				}
 			}
 
-			if (initial_size && epc && epc->Progress)
+			if (initial_size && epc && epc->FileProgress)
 			{
-				int progress = (initial_size - size) * 100 / initial_size;
-				if (!epc->Progress(progress, epc->signalContext))
+				ProgressContext* pctx = (ProgressContext*) epc->signalContext;
+				pctx->nCurrentFileProgress = (initial_size - size) * 100 / initial_size;
+				pctx->nProcessedBytes += cur_size;
+				
+				if (!epc->FileProgress(epc->signalContext))
 				{
 					CloseHandle(hFile);
 					free(buffer);
