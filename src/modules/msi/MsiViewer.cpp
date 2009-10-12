@@ -153,7 +153,11 @@ int CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
 			nodemap[dirEntry.Key] = node;
 		else
 			delete node;
+
+		MsiCloseHandle(hDirRec);
 	}
+
+	MsiCloseHandle(hQueryDirs);
 
 	return ERROR_SUCCESS;
 }
@@ -183,7 +187,11 @@ int CMsiViewer::readComponents( DirectoryNodesMap &nodemap, ComponentEntryMap &c
 			return ERROR_INVALID_DATA;
 
 		componentmap[compEntry.Key] = compEntry;
+		
+		MsiCloseHandle(hCompRec);
 	}
+
+	MsiCloseHandle(hQueryComp);
 
 	return ERROR_SUCCESS;
 }
@@ -224,7 +232,11 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 			dir->AddFile(node);
 		else
 			return ERROR_INVALID_DATA;
+
+		MsiCloseHandle(hFileRec);
 	}
+
+	MsiCloseHandle(hQueryFile);
 	
 	return ERROR_SUCCESS;
 }
@@ -252,7 +264,11 @@ int CMsiViewer::readAppSearch(WStringMap &entries)
 
 		if (key[0])
 			entries[key] = signature;
+
+		MsiCloseHandle(hAppRec);
 	}
+
+	MsiCloseHandle(hQueryAppSearch);
 
 	return ERROR_SUCCESS;
 }
@@ -280,7 +296,11 @@ int CMsiViewer::readCreateFolder(WStringMap &entries)
 
 		if (dir[0])
 			entries[dir] = component;
+
+		MsiCloseHandle(hFolderRec);
 	}
+
+	MsiCloseHandle(hQueryCreateFolder);
 
 	return ERROR_SUCCESS;
 }
@@ -309,7 +329,7 @@ int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap )
 
 		if (cmpRes == 0)
 		{
-			// Avoind merging special folders to root dir (causes confusion)
+			// Avoid merging special folders to root dir (causes confusion)
 			node->IsSpecial = true;
 			if (wcscmp(node->TargetName, L".") == 0)
 			{
@@ -567,7 +587,11 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 		}
 		sstr << L"\\" << regEntry.RegKeyName << L"]" << endl;
 		sstr << L"\"" << regEntry.Name << L"\" = " << &regval[0] << endl;
+
+		MsiCloseHandle(hRegRec);
 	}
+
+	MsiCloseHandle(hQueryReg);
 	
 	return ERROR_SUCCESS;
 }
@@ -580,7 +604,7 @@ int CMsiViewer::dumpFeatures(wstringstream &sstr)
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Feature", &hQueryFeat) );
 	OK( MsiViewExecute(hQueryFeat, 0) );
 
-	// Retrieve all registry entries
+	// Retrieve all feature entries
 	PMSIHANDLE hFeatRec;
 	DWORD nCellSize;
 	FeatureEntry featEntry;
@@ -601,8 +625,10 @@ int CMsiViewer::dumpFeatures(wstringstream &sstr)
 		if (*featEntry.Description)
 			sstr << L"    " << featEntry.Description << L"\n";
 
-		//sstr << L"- " << featEntry.Title << L"\n    " << featEntry.Description << endl;
+		MsiCloseHandle(hFeatRec);
 	}
+
+	MsiCloseHandle(hQueryFeat);
 	
 	return ERROR_SUCCESS;
 }
@@ -625,9 +651,13 @@ int CMsiViewer::generateLicenseText()
 
 		while ((res = MsiRecordGetStringA(hLicRec, 10, &val[0], &(nVlen = val.size()))) == ERROR_MORE_DATA)
 			val.resize(nVlen + 1);
+		
+		MsiCloseHandle(hLicRec);
 		OK (res); 
 	}
-	
+
+	MsiCloseHandle(hQueryLicense);
+
 	if (nVlen > 0)
 	{
 		// Add fake file with general info to root folder
@@ -652,7 +682,7 @@ int CMsiViewer::readMediaSources()
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Media ORDER BY `LastSequence`", &hQueryMedia) );
 	OK( MsiViewExecute(hQueryMedia, 0) );
 
-	// Retrieve all registry entries
+	// Retrieve all media entries
 	PMSIHANDLE hMediaRec;
 	MediaEntry mEntry;
 	DWORD nCellSize;
@@ -665,7 +695,10 @@ int CMsiViewer::readMediaSources()
 		READ_STR(hMediaRec, 4, mEntry.Cabinet);
 
 		m_vMedias.push_back(mEntry);
+		MsiCloseHandle(hMediaRec);
 	}
+	
+	MsiCloseHandle(hQueryMedia);
 
 	return ERROR_SUCCESS;
 }
@@ -895,6 +928,7 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 			break;
 		}
 	}
+	MsiCloseHandle(hQueryStream);
 
 	return nResult;
 }
