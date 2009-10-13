@@ -60,7 +60,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	pctx->nCurrentFileIndex = params.item;
 
 	params.callbacks.FileStart(pctx);
-	int nDumpResult = view->DumpFileContent(file, params.dest_path);
+	int nDumpResult = view->DumpFileContent(file, params.dest_path, params.callbacks);
 	pctx->nProcessedBytes += file->GetSize();
 	params.callbacks.FileEnd(pctx);
 

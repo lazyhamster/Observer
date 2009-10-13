@@ -751,7 +751,7 @@ FileNode* CMsiViewer::GetFile( const int fileIndex )
 	return NULL;
 }
 
-int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath )
+int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath, ExtractProcessCallbacks callbacks )
 {
 	wstring strFilePath(destPath);
 	strFilePath.append(file->TargetName);
@@ -796,20 +796,34 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath )
 				HANDLE hDestFile = CreateFileW(strFilePath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, file->GetSytemAttributes(), NULL);
 				if (hDestFile != INVALID_HANDLE_VALUE)
 				{
-					char *buf = (char *) malloc(FCOPY_BUF_SIZE);
-					DWORD dwBytesRead, dwBytesWritten;
-
-					BOOL readResult;
-					while ((readResult = ReadFile(hSourceFile, buf, FCOPY_BUF_SIZE, &dwBytesRead, NULL)) == TRUE)
-					{
-						if (dwBytesRead == 0) break;
-						WriteFile(hDestFile, buf, dwBytesRead, &dwBytesWritten, NULL);
-					}
-					
-					free(buf);
-					CloseHandle(hDestFile);
-
 					result = SER_SUCCESS;
+					
+					if (file->GetSize() > 0)
+					{
+						char *buf = (char *) malloc(FCOPY_BUF_SIZE);
+						DWORD dwBytesRead, dwBytesWritten;
+						ProgressContext* pctx = (ProgressContext*) callbacks.signalContext;
+						__int64 nFileBytesDone = 0;
+
+						BOOL readResult;
+						while ((readResult = ReadFile(hSourceFile, buf, FCOPY_BUF_SIZE, &dwBytesRead, NULL)) == TRUE)
+						{
+							if (dwBytesRead == 0) break;
+							if (!WriteFile(hDestFile, buf, dwBytesRead, &dwBytesWritten, NULL) || (dwBytesRead != dwBytesWritten))
+							{
+								result = SER_ERROR_WRITE;
+								break;
+							}
+							
+							nFileBytesDone += dwBytesRead;
+							pctx->nProcessedBytes += dwBytesRead;
+							pctx->nCurrentFileProgress = (int) ((nFileBytesDone * 100) / file->GetSize());
+							callbacks.FileProgress(callbacks.signalContext);
+						}
+						
+						free(buf);
+					}
+					CloseHandle(hDestFile);
 				}
 				else
 				{
