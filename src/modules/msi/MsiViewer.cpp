@@ -751,6 +751,20 @@ FileNode* CMsiViewer::GetFile( const int fileIndex )
 	return NULL;
 }
 
+const wchar_t* CMsiViewer::getFileStorageName( FileNode* file )
+{
+	int mediaIndex = -1;
+	for (int i = (int) m_vMedias.size() - 1; i >= 0; i--)
+	{
+		if (file->SequenceMark <= m_vMedias[i].LastSequence)
+			mediaIndex = i;
+		else
+			break;
+	}
+
+	return (mediaIndex < 0) ? NULL : m_vMedias[mediaIndex].Cabinet;
+}
+
 int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath, ExtractProcessCallbacks callbacks )
 {
 	wstring strFilePath(destPath);
@@ -776,16 +790,8 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath, Extrac
 	}
 	else
 	{
-		int mediaIndex = -1;
-		for (int i = (int) m_vMedias.size() - 1; i >= 0; i--)
-		{
-			if (file->SequenceMark <= m_vMedias[i].LastSequence)
-				mediaIndex = i;
-			else
-				break;
-		}
+		const wchar_t *cab = getFileStorageName(file);
 
-		wchar_t *cab = (mediaIndex < 0) ? NULL : m_vMedias[mediaIndex].Cabinet;
 		if (!cab || !*cab)
 		{
 			// Copy real file

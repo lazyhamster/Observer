@@ -44,6 +44,8 @@ private:
 
 	void buildFlatIndex(DirectoryNode* root);
 
+	const wchar_t* getFileStorageName(FileNode* file);
+
 public:
 	CMsiViewer(void);
 	~CMsiViewer(void);
