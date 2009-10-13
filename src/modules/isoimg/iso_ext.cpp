@@ -71,16 +71,21 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 			if (initial_size && epc && epc->FileProgress)
 			{
 				ProgressContext* pctx = (ProgressContext*) epc->signalContext;
-				pctx->nCurrentFileProgress = (initial_size - size) * 100 / initial_size;
 				pctx->nProcessedBytes += cur_size;
 				
-				if (!epc->FileProgress(epc->signalContext))
+				int nProgressVal = ((__int64)(initial_size - size) * 100) / initial_size;
+				if (nProgressVal != pctx->nCurrentFileProgress)
 				{
-					CloseHandle(hFile);
-					free(buffer);
-					DeleteFileW(strDestFilePath);
+					pctx->nCurrentFileProgress = nProgressVal;
+					
+					if (!epc->FileProgress(epc->signalContext))
+					{
+						CloseHandle(hFile);
+						free(buffer);
+						DeleteFileW(strDestFilePath);
 
-					return SER_USERABORT;
+						return SER_USERABORT;
+					}
 				}
 			}
 		}
