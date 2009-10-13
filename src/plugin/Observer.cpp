@@ -387,7 +387,8 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 	strFullTargetPath.append(itemSubPath + skipSubPathChunk);
 
 	// Ask about overwrite if needed
-	if (!silent && FileExists(strFullTargetPath.c_str()))
+	WIN32_FIND_DATAW fdExistingFile = {0};
+	if (!silent && FileExists(strFullTargetPath.c_str(), &fdExistingFile))
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
 			if (!AskExtractOverwrite(doOverwrite, pctx->szFilePath))
