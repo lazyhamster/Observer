@@ -270,10 +270,10 @@ static int CALLBACK ExtractStart(HANDLE context)
 	if ((hStdOut != INVALID_HANDLE_VALUE) && GetConsoleScreenBufferInfo(hStdOut, &si))
 		FSF.TruncPathStr(pc->szFilePath, si.dwSize.X - 16);
 
-	int nTotalProgress = (pc->nTotalSize >= 0) ? (int) ((pc->nProcessedBytes * 100) / pc->nTotalSize) : 0;
+	int nTotalProgress = (pc->nTotalSize > 0) ? (int) ((pc->nProcessedBytes * 100) / pc->nTotalSize) : 0;
 
 	static char szFileProgressLine[100] = {0};
-	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Overall progress: %d%%", pc->nCurrentFileNumber, pc->nTotalFiles, nTotalProgress);
+	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, 0, nTotalProgress);
 
 	static const char* InfoLines[4];
 	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
@@ -326,10 +326,10 @@ static int CALLBACK ExtractProgress(HANDLE context)
 		return FALSE;
 
 	ProgressContext* pc = (ProgressContext*) context;
-	int nTotalProgress = (pc->nTotalSize >= 0) ? (int) ((pc->nProcessedBytes * 100) / pc->nTotalSize) : 0;
+	int nTotalProgress = (pc->nTotalSize > 0) ? (int) ((pc->nProcessedBytes * 100) / pc->nTotalSize) : 0;
 
 	static char szFileProgressLine[100] = {0};
-	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Overall progress: %d%%", pc->nCurrentFileNumber, pc->nTotalFiles, nTotalProgress);
+	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, pc->nCurrentFileProgress, nTotalProgress);
 
 	static const char* InfoLines[4];
 	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
