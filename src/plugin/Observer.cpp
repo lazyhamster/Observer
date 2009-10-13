@@ -351,21 +351,46 @@ static int CALLBACK ExtractProgress(HANDLE context)
 #define EXTR_OVERWRITE_SKIP 3
 #define EXTR_OVERWRITE_SKIPSILENT 4
 
-static bool AskExtractOverwrite(int &overwrite, char* filePath)
+static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, WIN32_FIND_DATAW newFile)
 {
-	static const char* DlgLines[8];
+	__int64 nOldSize = ((__int64) existingFile.nFileSizeHigh >> 32) + existingFile.nFileSizeLow;
+	__int64 nNewSize = ((__int64) newFile.nFileSizeHigh >> 32) + newFile.nFileSizeLow;
+	
+	SYSTEMTIME stOldUTC, stOldLocal;
+	FileTimeToSystemTime(&existingFile.ftLastWriteTime, &stOldUTC);
+	SystemTimeToTzSpecificLocalTime(NULL, &stOldUTC, &stOldLocal);
+
+	SYSTEMTIME stNewUTC, stNewLocal;
+	FileTimeToSystemTime(&newFile.ftLastWriteTime, &stNewUTC);
+	SystemTimeToTzSpecificLocalTime(NULL, &stNewUTC, &stNewLocal);
+	
+	static char szDialogLine1[120] = {0};
+	sprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "File %S already exists. Overwrite?", newFile.cFileName);
+	static char szDialogLine2[120] = {0};
+	sprintf_s(szDialogLine2, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "%22s  %s", "Size", "Last Modification");
+	static char szDialogLine3[120] = {0};
+	sprintf_s(szDialogLine3, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "Old file: %12d %4u-%2u-%2u %2u:%2u", nOldSize, stOldLocal.wYear, stOldLocal.wMonth, stOldLocal.wDay, stOldLocal.wHour, stOldLocal.wMinute);
+	//sprintf_s(szDialogLine3, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "Old file: %4d-%2d-%2d %2d:%2d", stOldLocal.wYear, stOldLocal.wMonth, stOldLocal.wDay, stOldLocal.wHour, stOldLocal.wMinute);
+	static char szDialogLine4[120] = {0};
+	sprintf_s(szDialogLine4, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "New file: %12d %18u", nNewSize, newFile.ftLastWriteTime);
+	
+	static const char* DlgLines[11];
 	DlgLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
 	DlgLines[1] = GetLocMsg(MSG_EXTRACT_OVERWRITE);
-	DlgLines[2] = filePath;
-	DlgLines[3] = "&Overwrite";
-	DlgLines[4] = "Overwrite &all";
-	DlgLines[5] = "&Skip";
-	DlgLines[6] = "S&kip all";
-	DlgLines[7] = "&Cancel";
+	DlgLines[2] = szDialogLine1;
+	DlgLines[3] = szDialogLine2;
+	DlgLines[4] = szDialogLine3;
+	DlgLines[5] = szDialogLine4;
+	DlgLines[6] = "&Overwrite";
+	DlgLines[7] = "Overwrite &all";
+	DlgLines[8] = "&Skip";
+	DlgLines[9] = "S&kip all";
+	DlgLines[10] = "&Cancel";
 
 	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
 	
-	if (nMsg == 4) // Cancel is pressed
+	if ((nMsg == 4) // Cancel is pressed
+		|| (nMsg == -1)) //Escape is pressed
 		return false;
 	else
 	{
@@ -391,7 +416,7 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 	if (!silent && FileExists(strFullTargetPath.c_str(), &fdExistingFile))
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
-			if (!AskExtractOverwrite(doOverwrite, pctx->szFilePath))
+			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item->data))
 				return FALSE;
 		
 		// Check either ask result or present value
