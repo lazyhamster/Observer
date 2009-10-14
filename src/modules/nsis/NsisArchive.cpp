@@ -66,6 +66,7 @@ private:
 	UString _filePath;       // name inside archive
 	UString _diskFilePath;   // full path to file on disk
 	bool _extractMode;
+	UInt64 _completed;
 	struct CProcessedFileInfo
 	{
 		FILETIME MTime;
@@ -80,9 +81,10 @@ private:
 
 public:
 	void Init(IInArchive *archiveHandler, const UString &directoryPath);
+	UInt64 GetCompleted() { return _completed; };
 
 	UInt64 NumErrors;
-
+	
 	CArchiveExtractCallback() {}
 };
 
@@ -94,13 +96,14 @@ void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const UString &di
 	NFile::NName::NormalizeDirPathPrefix(_directoryPath);
 }
 
-STDMETHODIMP CArchiveExtractCallback::SetTotal(UInt64 /* size */)
+STDMETHODIMP CArchiveExtractCallback::SetTotal(UInt64 size)
 {
 	return S_OK;
 }
 
-STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 * /* completeValue */)
+STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 * completeValue)
 {
+	_completed = *completeValue;
 	return S_OK;
 }
 
@@ -285,10 +288,10 @@ int CNsisArchive::Open(const wchar_t* path)
 	{
 		NWindows::NCOM::CPropVariant prop;
 
-		if ( (m_handler->GetProperty(0, kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL) )
+		if ( (m_handler->GetArchiveProperty(kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL) )
 			if (prop.boolVal) wcscat_s(m_archSubtype, STORAGE_SUBTYPE_NAME_MAX_LEN, L"Solid ");
 		
-		if ( (m_handler->GetProperty(0, kpidMethod, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
+		if ( (m_handler->GetArchiveProperty(kpidMethod, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
 			wcscat_s(m_archSubtype, STORAGE_SUBTYPE_NAME_MAX_LEN, prop.bstrVal);
 	}
 
@@ -300,7 +303,6 @@ void CNsisArchive::Close()
 	if (m_handler)
 	{
 		m_handler->Close();
-		delete m_handler;
 
 		m_handler = NULL;
 		m_stream = NULL;
@@ -360,6 +362,7 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destDir, c
 	if (itemIndex < 0) return SER_ERROR_READ;
 
 	CArchiveExtractCallback* callback = new CArchiveExtractCallback();
+	CMyComPtr<IArchiveExtractCallback> extractCallback(callback);
 	callback->Init(m_handler, destDir);
 
 	ProgressContext* pctx = (ProgressContext*) epc->signalContext;
@@ -386,5 +389,19 @@ DWORD CNsisArchive::GetItemSize( int itemIndex )
 	if ( (m_handler->GetProperty(itemIndex, kpidSize, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
 		return prop.ulVal;
 
-	return 0;
+	DWORD res = 0;
+
+	if ( (m_handler->GetArchiveProperty(kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL) && (!prop.boolVal) )
+	{
+		CArchiveExtractCallback* callback = new CArchiveExtractCallback();
+		CMyComPtr<IArchiveExtractCallback> extractCallback(callback);
+		callback->Init(m_handler, L"");
+
+		UInt32 nIndex = itemIndex;
+		HRESULT extResult = m_handler->Extract(&nIndex, 1, 1, callback);
+		if (extResult == S_OK)
+			res = (DWORD) callback->GetCompleted();
+	}
+
+	return res;
 }
