@@ -391,6 +391,7 @@ DWORD CNsisArchive::GetItemSize( int itemIndex )
 
 	DWORD res = 0;
 
+	// For non-solid archives only
 	if ( (m_handler->GetArchiveProperty(kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL) && (!prop.boolVal) )
 	{
 		CArchiveExtractCallback* callback = new CArchiveExtractCallback();
@@ -401,6 +402,10 @@ DWORD CNsisArchive::GetItemSize( int itemIndex )
 		HRESULT extResult = m_handler->Extract(&nIndex, 1, 1, callback);
 		if (extResult == S_OK)
 			res = (DWORD) callback->GetCompleted();
+
+		// Cache value for future use
+		NWindows::NCOM::CPropVariant propSet((UInt32) res);
+		m_handler->SetProperty(itemIndex, kpidSize, &propSet);
 	}
 
 	return res;

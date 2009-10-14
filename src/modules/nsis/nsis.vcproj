@@ -215,6 +215,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NsisHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\NsisIn.cpp"
 				>
 			</File>
@@ -246,6 +250,10 @@
 			>
 			<File
 				RelativePath=".\NsisArchive.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NsisHandler.h"
 				>
 			</File>
 			<File
@@ -491,10 +499,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\NsisHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\NsisRegister.cpp"
 				>
 			</File>
@@ -620,10 +624,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\NsisDecode.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\NsisHandler.h"
 				>
 			</File>
 			<File

@@ -4,8 +4,9 @@
 #include "..\ModuleDef.h"
 
 #include "7zip/Common/FileStreams.h"
+
 #include "NsisIn.h"
-#include "7zip/Archive/Nsis/NsisHandler.h"
+#include "NsisHandler.h"
 
 using namespace NArchive::NNsis;
 
@@ -14,7 +15,7 @@ class CNsisArchive
 private:
 	UString m_archiveName;
 	CMyComPtr<IInStream> m_stream;
-	CMyComPtr<IInArchive> m_handler;
+	CMyComPtr<CHandler> m_handler;
 
 	int m_numFiles;
 	int m_numDirectories;
