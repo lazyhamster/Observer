@@ -13,9 +13,8 @@ class CNsisArchive
 {
 private:
 	UString m_archiveName;
-	CInFileStream* m_stream;
-	//CInArchive* m_inArc;
-	CHandler* m_handler;
+	CMyComPtr<IInStream> m_stream;
+	CMyComPtr<IInArchive> m_handler;
 
 	int m_numFiles;
 	int m_numDirectories;
