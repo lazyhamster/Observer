@@ -4,7 +4,7 @@
 #include "..\ModuleDef.h"
 
 #include "7zip/Common/FileStreams.h"
-#include "7zip/Archive/Nsis/NsisIn.h"
+#include "NsisIn.h"
 #include "7zip/Archive/Nsis/NsisHandler.h"
 
 using namespace NArchive::NNsis;
