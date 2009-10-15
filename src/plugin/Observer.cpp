@@ -365,7 +365,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	SystemTimeToTzSpecificLocalTime(NULL, &stNewUTC, &stNewLocal);
 	
 	static char szDialogLine1[120] = {0};
-	sprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "File %S already exists. Overwrite?", newFile.cFileName);
+	sprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_OVERWRITE), newFile.cFileName);
 	static char szDialogLine2[120] = {0};
 	sprintf_s(szDialogLine2, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "%21s  %s", "Size", "Last Modification");
 	static char szDialogLine3[120] = {0};
@@ -375,18 +375,17 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	sprintf_s(szDialogLine4, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "New file: %11u  %5u-%02u-%02u %02u:%02u",
 		(UINT) nNewSize, stNewLocal.wYear, stNewLocal.wMonth, stNewLocal.wDay, stNewLocal.wHour, stNewLocal.wMinute);
 	
-	static const char* DlgLines[11];
+	static const char* DlgLines[10];
 	DlgLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
-	DlgLines[1] = GetLocMsg(MSG_EXTRACT_OVERWRITE);
-	DlgLines[2] = szDialogLine1;
-	DlgLines[3] = szDialogLine2;
-	DlgLines[4] = szDialogLine3;
-	DlgLines[5] = szDialogLine4;
-	DlgLines[6] = "&Overwrite";
-	DlgLines[7] = "Overwrite &all";
-	DlgLines[8] = "&Skip";
-	DlgLines[9] = "S&kip all";
-	DlgLines[10] = "&Cancel";
+	DlgLines[1] = szDialogLine1;
+	DlgLines[2] = szDialogLine2;
+	DlgLines[3] = szDialogLine3;
+	DlgLines[4] = szDialogLine4;
+	DlgLines[5] = GetLocMsg(MSG_OVERWRITE);
+	DlgLines[6] = GetLocMsg(MSG_OVERWRITE_ALL);
+	DlgLines[7] = GetLocMsg(MSG_SKIP);
+	DlgLines[8] = GetLocMsg(MSG_SKIP_ALL);
+	DlgLines[9] = GetLocMsg(MSG_CANCEL);
 
 	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
 	

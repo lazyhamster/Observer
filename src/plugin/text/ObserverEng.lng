@@ -16,10 +16,16 @@
 "Extract items?"
 "Extract Error"
 "Unable to create directory"
-"File already exists. Overwrite?"
+"File %S already exists. Overwrite?"
 "Extracting failed for file:"
 "Extracting file"
 
 "Reading files list"
 "Content Error"
 "Invalid item returned during listing"
+
+"&Overwrite"
+"Overwrite &all"
+"&Skip"
+"S&kip all"
+"&Cancel"
