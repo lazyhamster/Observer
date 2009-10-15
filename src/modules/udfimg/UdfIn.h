@@ -389,7 +389,7 @@ public:
   bool CheckItemExtents(int volIndex, const CItem &item) const;
 
   // Extension functions
-  int DumpFileContent(int itemIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc);
+  int DumpFileContent(int itemIndex, int fileIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc);
 };
 
 #endif

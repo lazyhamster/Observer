@@ -913,16 +913,11 @@ int CUdfArchive::GetSubItemByName( const wchar_t* name, int parentIndex )
 	return -1;
 }
 
-#define NAME_PATH_BUFSIZE 2048
-
-int CUdfArchive::DumpFileContent(int itemIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc)
+int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc)
 {
 	if (itemIndex <= 0) return SER_ERROR_SYSTEM;
 
-	wchar_t* strDestFilePath = new wchar_t[NAME_PATH_BUFSIZE];
-
-	wcscpy_s(strDestFilePath, NAME_PATH_BUFSIZE, destPath);
-	wcscat_s(strDestFilePath, NAME_PATH_BUFSIZE, Files[itemIndex].GetName());
+	UString strDestFilePath = destPath + Files[fileIndex].GetName();
 
 	HANDLE context = NULL;
 
@@ -1010,6 +1005,5 @@ int CUdfArchive::DumpFileContent(int itemIndex, const wchar_t* destPath, const E
 			DeleteFileW(strDestFilePath);
 	}
 
-	delete [] strDestFilePath;
 	return result;
 }

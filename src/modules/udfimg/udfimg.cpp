@@ -53,7 +53,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"UDF");
 		wcscpy_s(info->SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, L"-");
-		info->NumRealItems = storageRec->arc.Items.Size() - 1;
+		info->NumRealItems = storageRec->refs2.Size();
 
 		return TRUE;
 	}
@@ -104,15 +104,20 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	UdfStorage *storageRec = (UdfStorage*) storage;
 	if (!storageRec || (params.item < 0)) return SER_ERROR_SYSTEM;
 
-	int nRealIndex = params.item + 1;
-	if (!storageRec->arc.Items[nRealIndex].IsDir())
+	const CRef2 &ref2 = storageRec->refs2[params.item];
+	const CLogVol &vol = storageRec->arc.LogVols[ref2.Vol];
+	const CRef &ref = vol.FileSets[ref2.Fs].Refs[ref2.Ref];
+	const CFile &file = storageRec->arc.Files[ref.FileIndex];
+	CItem &item = storageRec->arc.Items[file.ItemIndex];
+
+	if (!item.IsDir())
 	{
 		ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
 		pctx->nCurrentFileProgress = 0;
 		pctx->nCurrentFileIndex = params.item;
 
 		params.callbacks.FileStart(pctx);
-		int res = storageRec->arc.DumpFileContent(nRealIndex, params.dest_path, &(params.callbacks));
+		int res = storageRec->arc.DumpFileContent(file.ItemIndex, ref.FileIndex, params.dest_path, &(params.callbacks));
 		params.callbacks.FileEnd(pctx);
 
 		return res;
