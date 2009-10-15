@@ -29,6 +29,7 @@ struct FarStorageInfo
 
 bool FileExists(const wchar_t* path, LPWIN32_FIND_DATAW file_data);
 bool DirectoryExists(const wchar_t* path);
+bool IsDiskRoot(const wchar_t* path);
 bool CheckEsc();
 int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &totalSize, bool recursive);
 

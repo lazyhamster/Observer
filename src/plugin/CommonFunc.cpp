@@ -93,3 +93,8 @@ int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &tot
 
 	return numItems;
 }
+
+bool IsDiskRoot(const wchar_t* path)
+{
+	return (wcslen(path) == 3) && (path[1] == ':') && (path[2] == '\\');
+}

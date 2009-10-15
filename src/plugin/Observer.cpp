@@ -834,7 +834,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	if (wszWideDestPath[nDestPathLen - 1] != '\\')
 		wcscat_s(wszWideDestPath, nDestPathLen + 2, L"\\");
 
-	int nDirResult = SHCreateDirectory(0, wszWideDestPath);
+	int nDirResult = !IsDiskRoot(wszWideDestPath) ? SHCreateDirectory(0, wszWideDestPath) : ERROR_SUCCESS;
 	if (nDirResult != ERROR_SUCCESS && nDirResult != ERROR_ALREADY_EXISTS)
 	{
 		if ((OpMode & OPM_SILENT) == 0)
