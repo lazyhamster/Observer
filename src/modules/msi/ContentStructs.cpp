@@ -48,6 +48,16 @@ BasicNode::~BasicNode()
 	KILLSTR(TargetShortName);
 }
 
+void BasicNode::AppendNumberToName(int val)
+{
+	size_t nNewLen = wcslen(TargetName) + 5;  // 1 for comma, 1 for 0-term, 3 for digits
+	wchar_t *newName = (wchar_t *) malloc(nNewLen * sizeof(wchar_t));
+	swprintf_s(newName, nNewLen, L"%s,%d", TargetName, val);
+
+	KILLSTR(TargetName);
+	TargetName = newName;
+}
+
 //////////////////////////////////////////////////////////////////////////
 //                           DirectoryNode
 //////////////////////////////////////////////////////////////////////////
@@ -178,16 +188,6 @@ std::wstring DirectoryNode::GetTargetPath()
 		strResult.append(TargetName);
 
 	return strResult;
-}
-
-void DirectoryNode::AppendNumberToName(int val)
-{
-	size_t nNewLen = wcslen(TargetName) + 5;  // 1 for comma, 1 for 0-term, 3 for digits
-	wchar_t *newName = (wchar_t *) malloc(nNewLen * sizeof(wchar_t));
-	swprintf_s(newName, nNewLen, L"%s,%d", TargetName, val);
-
-	KILLSTR(TargetName);
-	TargetName = newName;
 }
 
 __int64 DirectoryNode::GetTotalSize()
