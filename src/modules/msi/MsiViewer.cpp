@@ -65,7 +65,7 @@ CMsiViewer::~CMsiViewer(void)
 	RemoveDirectoryW(m_strStreamCacheLocation.c_str());
 }
 
-int CMsiViewer::Open( const wchar_t* path )
+int CMsiViewer::Open( const wchar_t* path, bool keepUniqueFolders )
 {
 	if (m_hMsi) return -1;
 	
@@ -99,7 +99,10 @@ int CMsiViewer::Open( const wchar_t* path )
 	removeEmptyFolders(m_pRootDir, mCreateFolder);
 	mergeDotFolders(m_pRootDir);
 	checkShortNames(m_pRootDir);
-	avoidSameNames(m_pRootDir);
+	if (keepUniqueFolders)
+		avoidSameFolderNames(m_pRootDir);
+	else
+		mergeSameNamedFolders(m_pRootDir);
 
 	mCreateFolder.clear();
 	mComponents.clear();
@@ -413,7 +416,7 @@ void CMsiViewer::mergeDotFolders( DirectoryNode *root )
 	} //for
 }
 
-void CMsiViewer::avoidSameNames(DirectoryNode *root)
+void CMsiViewer::avoidSameFolderNames(DirectoryNode *root)
 {
 	int nSameCounter;
 	size_t nMaxCounter = root->SubDirs.size();
@@ -425,7 +428,7 @@ void CMsiViewer::avoidSameNames(DirectoryNode *root)
 		for (size_t inner_i = i + 1; inner_i < nMaxCounter; inner_i++)
 		{
 			DirectoryNode* nextdir = root->SubDirs.at(inner_i);
-			if (wcscmp(subdir->TargetName, nextdir->TargetName) == 0)
+			if (_wcsicmp(subdir->TargetName, nextdir->TargetName) == 0)
 			{
 				if ((nextdir->SubDirs.size() > 0) || (nextdir->Files.size() > 0))
 				{
@@ -445,7 +448,7 @@ void CMsiViewer::avoidSameNames(DirectoryNode *root)
 		if (nSameCounter > 1)
 			subdir->AppendNumberToName(1);
 
-		avoidSameNames(subdir);
+		avoidSameFolderNames(subdir);
 	} //for
 }
 
@@ -470,6 +473,75 @@ void CMsiViewer::checkShortNames(DirectoryNode *root)
 			checkShortNames(subdir);
 			iter++;
 		}
+	} //for
+}
+
+void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
+{
+	size_t nMaxCounter = root->SubDirs.size();
+	
+	// First pass to merge everything inside sub-folders
+	for (size_t i = 0; i < nMaxCounter; i++)
+	{
+		DirectoryNode* subdir = root->SubDirs[i];
+		mergeSameNamedFolders(subdir);
+	}
+
+	// Second pass to merge folders in current one
+	for (size_t i = 0; i < nMaxCounter; i++)
+	{
+		DirectoryNode* subdir = root->SubDirs[i];
+		
+		for (size_t inner_i = i + 1; inner_i < nMaxCounter; inner_i++)
+		{
+			DirectoryNode* nextdir = root->SubDirs[inner_i];
+
+			if (_wcsicmp(subdir->TargetName, nextdir->TargetName) == 0)
+			{
+				// Move subdirs from second folder to first one and update parent pointer
+				subdir->SubDirs.insert(subdir->SubDirs.end(), nextdir->SubDirs.begin(), nextdir->SubDirs.end());
+				for (size_t j = 0; j < subdir->SubDirs.size(); j++)
+					subdir->SubDirs[j]->Parent = subdir;
+				nextdir->SubDirs.clear();
+
+				// Move files from second folder to first one and update parent pointer
+				subdir->Files.insert(subdir->Files.end(), nextdir->Files.begin(), nextdir->Files.end());
+				for (size_t j = 0; j < subdir->Files.size(); j++)
+					subdir->Files[j]->Parent = subdir;
+				nextdir->Files.clear();
+				
+				root->SubDirs.erase(root->SubDirs.begin() + inner_i);
+				inner_i--;
+				nMaxCounter--;
+				delete nextdir;
+			}
+		} // inner for
+
+		avoidSameFileNames(subdir);
+	} //for
+}
+
+void CMsiViewer::avoidSameFileNames(DirectoryNode *root)
+{
+	int nSameCounter;
+	size_t nMaxCounter = root->Files.size();
+	for (size_t i = 0; i < nMaxCounter; i++)
+	{
+		FileNode* file = root->Files[i];
+
+		nSameCounter = 1;
+		for (size_t inner_i = i + 1; inner_i < nMaxCounter; inner_i++)
+		{
+			FileNode* nextfile = root->Files[inner_i];
+			if (_wcsicmp(file->TargetName, nextfile->TargetName) == 0)
+			{
+				nSameCounter++;
+				nextfile->AppendNumberToName(nSameCounter);
+			}
+		}  //for
+
+		if (nSameCounter > 1)
+			file->AppendNumberToName(1);
 	} //for
 }
 

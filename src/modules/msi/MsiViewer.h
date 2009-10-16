@@ -31,8 +31,10 @@ private:
 	int assignParentDirs(DirectoryNodesMap &nodemap);
 	void removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolders);
 	void mergeDotFolders(DirectoryNode *root);
-	void avoidSameNames(DirectoryNode *root);
+	void avoidSameFolderNames(DirectoryNode *root);
+	void avoidSameFileNames(DirectoryNode *root);
 	void checkShortNames(DirectoryNode *root);
+	void mergeSameNamedFolders(DirectoryNode *root);
 
 	int generateInfoText();
 	int generateLicenseText();
@@ -50,7 +52,7 @@ public:
 	CMsiViewer(void);
 	~CMsiViewer(void);
 
-	int Open(const wchar_t* path);
+	int Open(const wchar_t* path, bool keepUniqueFolders);
 
 	int GetTotalDirectories() { return m_pRootDir->GetSubDirsCount(); }
 	int GetTotalFiles() { return m_pRootDir->GetFilesCount(); }

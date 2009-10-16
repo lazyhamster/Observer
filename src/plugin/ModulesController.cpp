@@ -13,6 +13,7 @@ int ModulesController::Init( wchar_t* basePath )
 	wchar_t wszGlobalSection[SECTION_BUF_SIZE];
 	wchar_t wszModuleSection[SECTION_BUF_SIZE];
 
+	// Get list of modules from config file
 	DWORD res = GetPrivateProfileSectionW(L"Modules", wszGlobalSection, SECTION_BUF_SIZE, strCfgFile.c_str());
 	if ((res == 0) || (res >= SECTION_BUF_SIZE - 2)) return 0;
 
@@ -45,9 +46,11 @@ int ModulesController::Init( wchar_t* basePath )
 			if ((module.LoadModule != NULL) && (module.OpenStorage != NULL) &&
 				(module.CloseStorage != NULL) && (module.GetNextItem != NULL) && (module.Extract != NULL))
 			{
+				// Get module specific settings section
 				DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, strCfgFile.c_str());
 				const wchar_t* wszModuleSettings = (readRes > 0) && (readRes < SECTION_BUF_SIZE - 2) ? wszModuleSection : NULL;
 				
+				// Try to init module
 				if (module.LoadModule(wszModuleSettings))
 					modules.push_back(module);
 				else

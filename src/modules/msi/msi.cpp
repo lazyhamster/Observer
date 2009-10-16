@@ -13,7 +13,7 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
 {
 	CMsiViewer *view = new CMsiViewer();
-	int nOpenRes = view->Open(path);
+	int nOpenRes = view->Open(path, false);
 	if (nOpenRes == ERROR_SUCCESS)
 	{
 		*storage = (INT_PTR *) view;
