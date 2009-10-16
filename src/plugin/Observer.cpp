@@ -572,6 +572,8 @@ int WINAPI Configure(int ItemNumber)
 
 void WINAPI ClosePlugin(HANDLE hPlugin)
 {
+	if (hPlugin == NULL) return;
+	
 	FarStorageInfo *info = (FarStorageInfo *) hPlugin;
 	if (info->ModuleIndex < (int) g_pController.modules.size())
 	{
