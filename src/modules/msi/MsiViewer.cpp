@@ -65,7 +65,7 @@ CMsiViewer::~CMsiViewer(void)
 	RemoveDirectoryW(m_strStreamCacheLocation.c_str());
 }
 
-int CMsiViewer::Open( const wchar_t* path, bool keepUniqueFolders )
+int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 {
 	if (m_hMsi) return -1;
 	
@@ -89,7 +89,7 @@ int CMsiViewer::Open( const wchar_t* path, bool keepUniqueFolders )
 
 	// Assign parent nodes (only after all entries are processed)
 	// Should be done only after files are read to remove empty special folder refs
-	OK ( assignParentDirs(mDirs) );
+	OK ( assignParentDirs(mDirs, (openFlags & MSI_OPENFLAG_SHOWSPECIALS) != 0) );
 
 	// Read CreateFolder table for allowed empty folders
 	WStringMap mCreateFolder;
@@ -99,7 +99,7 @@ int CMsiViewer::Open( const wchar_t* path, bool keepUniqueFolders )
 	removeEmptyFolders(m_pRootDir, mCreateFolder);
 	mergeDotFolders(m_pRootDir);
 	checkShortNames(m_pRootDir);
-	if (keepUniqueFolders)
+	if ((openFlags & MSI_OPENFLAG_KEEPUNIQUEDIRS) != 0)
 		avoidSameFolderNames(m_pRootDir);
 	else
 		mergeSameNamedFolders(m_pRootDir);
@@ -308,9 +308,9 @@ int CMsiViewer::readCreateFolder(WStringMap &entries)
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap )
+int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecialDirs )
 {
-	int numSpecFolders = sizeof(MsiSpecialFolders) / sizeof(MsiSpecialFolders[0]);
+	int numSpecFolders = processSpecialDirs ? sizeof(MsiSpecialFolders) / sizeof(MsiSpecialFolders[0]) : 0;
 	
 	DirectoryNodesMap::iterator dirIter;
 	for (dirIter = nodemap.begin(); dirIter != nodemap.end(); dirIter++)

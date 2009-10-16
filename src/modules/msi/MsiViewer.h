@@ -8,6 +8,9 @@ typedef map<wstring, DirectoryNode*> DirectoryNodesMap;
 typedef map<wstring, ComponentEntry> ComponentEntryMap;
 typedef map<wstring, wstring> WStringMap;
 
+#define MSI_OPENFLAG_KEEPUNIQUEDIRS 1
+#define MSI_OPENFLAG_SHOWSPECIALS 2
+
 class CMsiViewer
 {
 private:
@@ -20,7 +23,7 @@ private:
 	CCabControl* m_pCabControl;
 	wstring m_strStreamCacheLocation;
 	map<wstring, wstring> m_mStreamCache;
-	
+
 	int readDirectories(DirectoryNodesMap &nodemap);
 	int readComponents(DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap);
 	int readFiles(DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap);
@@ -28,7 +31,7 @@ private:
 	int readAppSearch(WStringMap &entries);
 	int readCreateFolder(WStringMap &entries);
 
-	int assignParentDirs(DirectoryNodesMap &nodemap);
+	int assignParentDirs(DirectoryNodesMap &nodemap, bool processSpecialDirs);
 	void removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolders);
 	void mergeDotFolders(DirectoryNode *root);
 	void avoidSameFolderNames(DirectoryNode *root);
@@ -52,7 +55,7 @@ public:
 	CMsiViewer(void);
 	~CMsiViewer(void);
 
-	int Open(const wchar_t* path, bool keepUniqueFolders);
+	int Open(const wchar_t* path, DWORD openFlags);
 
 	int GetTotalDirectories() { return m_pRootDir->GetSubDirsCount(); }
 	int GetTotalFiles() { return m_pRootDir->GetFilesCount(); }
