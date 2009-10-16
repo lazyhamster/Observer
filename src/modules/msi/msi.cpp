@@ -5,7 +5,7 @@
 #include "..\ModuleDef.h"
 #include "MsiViewer.h"
 
-int MODULE_EXPORT LoadSubModule(int Reserved)
+int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 {
 	return TRUE;
 }

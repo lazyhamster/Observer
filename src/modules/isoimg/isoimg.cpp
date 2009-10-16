@@ -68,7 +68,7 @@ struct IsoListContextInfo
 	int itemIndex;		// last index of listed item, we start search from it
 };
 
-int MODULE_EXPORT LoadSubModule(int Reserved)
+int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 {
 	return TRUE;
 }

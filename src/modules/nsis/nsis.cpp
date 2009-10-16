@@ -14,7 +14,7 @@ extern "C"
 
 #include "7zip/UI/Common/LoadCodecs.h"
 
-int MODULE_EXPORT LoadSubModule(int Reserved)
+int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 {
 #if defined(_7ZIP_LARGE_PAGES)
 	SetLargePageSize();

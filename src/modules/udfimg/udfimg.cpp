@@ -18,7 +18,7 @@ struct UdfStorage
 	CRecordVector<CRef2> refs2;
 };
 
-int MODULE_EXPORT LoadSubModule(int Reserved)
+int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 {
 	return TRUE;
 }
