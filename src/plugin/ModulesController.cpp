@@ -10,8 +10,8 @@ int ModulesController::Init( wchar_t* basePath )
 	wstring strBasePath(basePath);
 	wstring strCfgFile = strBasePath + CONFIG_FILE;
 
-	wchar_t wszGlobalSection[SECTION_BUF_SIZE];
-	wchar_t wszModuleSection[SECTION_BUF_SIZE];
+	wchar_t wszGlobalSection[SECTION_BUF_SIZE] = {0};
+	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
 
 	// Get list of modules from config file
 	DWORD res = GetPrivateProfileSectionW(L"Modules", wszGlobalSection, SECTION_BUF_SIZE, strCfgFile.c_str());
