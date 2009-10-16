@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "..\ModuleDef.h"
+#include "ModuleDef.h"
 #include "MsiViewer.h"
 
 int MODULE_EXPORT LoadSubModule(const wchar_t* settings)

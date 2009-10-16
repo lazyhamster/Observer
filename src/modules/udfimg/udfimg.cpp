@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "..\ModuleDef.h"
+#include "ModuleDef.h"
 #include "UdfIn.h"
 
 struct CRef2

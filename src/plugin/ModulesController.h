@@ -1,7 +1,7 @@
 #ifndef _ModulesController_h__
 #define _ModulesController_h__
 
-#include "..\modules\ModuleDef.h"
+#include "ModuleDef.h"
 
 struct ExternalModule
 {

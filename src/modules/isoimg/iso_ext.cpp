@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "..\ModuleDef.h"
+#include "ModuleDef.h"
 #include "iso_tc.h"
 
 #define NAME_PATH_BUFSIZE 2048

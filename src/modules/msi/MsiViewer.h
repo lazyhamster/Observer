@@ -2,7 +2,7 @@
 
 #include "ContentStructs.h"
 #include "CabControl.h"
-#include "../ModuleDef.h"
+#include "ModuleDef.h"
 
 typedef map<wstring, DirectoryNode*> DirectoryNodesMap;
 typedef map<wstring, ComponentEntry> ComponentEntryMap;

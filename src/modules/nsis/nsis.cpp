@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "..\ModuleDef.h"
+#include "ModuleDef.h"
 #include "NsisArchive.h"
 
 #if defined( _7ZIP_LARGE_PAGES)

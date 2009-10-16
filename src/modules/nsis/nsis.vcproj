@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\"
+				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -119,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\"
+				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

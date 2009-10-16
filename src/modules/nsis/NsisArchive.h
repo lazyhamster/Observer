@@ -1,7 +1,7 @@
 #ifndef _NSIS_ARCHIVE_H_
 #define _NSIS_ARCHIVE_H_
 
-#include "..\ModuleDef.h"
+#include "ModuleDef.h"
 
 #include "7zip/Common/FileStreams.h"
 

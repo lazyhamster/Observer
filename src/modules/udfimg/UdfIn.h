@@ -10,7 +10,7 @@
 
 #include "StreamUtils.h"
 
-#include "../ModuleDef.h"
+#include "ModuleDef.h"
 
 // ---------- ECMA Part 1 ----------
 

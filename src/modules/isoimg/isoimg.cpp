@@ -2,7 +2,7 @@
 //
 
 #include "stdafx.h"
-#include "..\ModuleDef.h"
+#include "ModuleDef.h"
 #include "iso_tc.h"
 
 bool IsDirectory(Directory *dir)

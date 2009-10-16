@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories=".\7zCommon\"
+				AdditionalIncludeDirectories=".\7zCommon\;..\..\common\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;UDFIMG_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -119,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories=".\7zCommon\"
+				AdditionalIncludeDirectories=".\7zCommon\;..\..\common\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;UDFIMG_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
