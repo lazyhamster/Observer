@@ -1,0 +1,13 @@
+Plugin:
+- true Unicode version
+- more graceful settings parsing from .ini file
+
+MSI:
+- modification time for real files
+- modification time for files in external cab
+- modification time for files in internal cab
+- extract progress
+
+NSIS:
+- extract progress
+- fast extract for solid archives
