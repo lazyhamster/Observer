@@ -7,6 +7,7 @@ MSI:
 - modification time for files in external cab
 - modification time for files in internal cab
 - extract progress
+- fix problem with real file and non showing the special folders mode
 
 NSIS:
 - extract progress

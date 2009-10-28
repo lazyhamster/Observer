@@ -1052,6 +1052,9 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 	const wchar_t *cab = getFileStorageName(file);
 	if (!cab || !*cab)
 	{
+		if (file->IsFake)
+			return false;
+		
 		// For real files
 		wstring strFullSourcePath = getStoragePath() + file->GetSourcePath();
 		
