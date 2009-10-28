@@ -316,6 +316,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\common\todo.txt"
+				>
+			</File>
+			<File
 				RelativePath=".\text\whatsnew_ru.txt"
 				>
 			</File>
