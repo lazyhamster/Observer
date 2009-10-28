@@ -142,6 +142,20 @@ UString CInArchive::ReadStringU(UInt32 pos) const
   return s;
 }
 
+static void AppendIntToName(CItem &item, UInt32 value)
+{
+	if (item.IsUnicode)
+	{
+		item.NameU += L",";
+		item.NameU += MultiByteToUnicodeString(IntToString(value));
+	}
+	else
+	{
+		item.NameA += ",";
+		item.NameA += IntToString(value);
+	}
+}
+
 /*
 static AString ParsePrefix(const AString &prefix)
 {
@@ -1222,6 +1236,27 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
         item.CompressedSizeIsDefined = true;
       }
     }
+	// Avoid duplicate names in same folder
+	for (i = 0; i + 1 < Items.Size(); i++)
+	{
+		CItem &item = Items[i];
+		UInt32 nDupCounter = 1;
+		for (int j = i + 1; j < Items.Size(); j++)
+		{					   
+			CItem &item_next = Items[j];
+			bool sameName = IsUnicode
+				? (!item.NameU.CompareNoCase(item_next.NameU) && !item.PrefixU.CompareNoCase(item_next.PrefixU))
+				: !_strcmpi(item.NameA, item_next.NameA) && !_strcmpi(item.PrefixA, item_next.PrefixA);
+			if (sameName)
+			{
+				if (nDupCounter == 1)
+					AppendIntToName(item, nDupCounter);
+
+				nDupCounter++;
+				AppendIntToName(item_next, nDupCounter);
+			}
+		}
+	}
   }
   return S_OK;
 }

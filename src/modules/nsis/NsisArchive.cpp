@@ -324,7 +324,7 @@ UString CNsisArchive::getItemPath( int itemIndex )
 	name.Replace(L"\\\\", L"\\");
 
 	// Some files have crap prefix (usually from $PLUGINDIR), it should be removed
-	int nSignPos = name.Find(L"\\$");
+	int nSignPos = name.Find(L"\\$PLUGINDIR");
 	if (nSignPos >=0)
 		name.Delete(0, nSignPos + 1);
 
