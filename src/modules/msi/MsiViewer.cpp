@@ -519,6 +519,13 @@ void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
 
 		avoidSameFileNames(subdir);
 	} //for
+
+	// Third pass to merge everything inside sub-folders again
+	for (size_t i = 0; i < nMaxCounter; i++)
+	{
+		DirectoryNode* subdir = root->SubDirs[i];
+		mergeSameNamedFolders(subdir);
+	}
 }
 
 void CMsiViewer::avoidSameFileNames(DirectoryNode *root)
