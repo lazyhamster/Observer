@@ -118,9 +118,34 @@ ContentTreeNode* ContentTreeNode::GetSubDir(const wchar_t* name)
 
 ContentTreeNode* ContentTreeNode::GetChildByName(const wchar_t* name)
 {
-	ContentTreeNode* child = GetSubDir(name);
-	if (child) return child;
+	// If name is not NULL but empty or equal to \ return self
+	if (name && (!*name || !wcscmp(name, L"\\")))
+		return this;
+	
+	const wchar_t* slash = wcschr(name, L'\\');
+	if (slash != NULL)
+	{
+		size_t nSliceSize = slash - name;
+		if (nSliceSize > 0)
+		{
+			wchar_t* tmpName = new wchar_t[nSliceSize + 1];
+			wcsncpy_s(tmpName, nSliceSize + 1, name, nSliceSize);
 
-	SubNodesMap::iterator it = files.find(name);
-	return (it == files.end()) ? NULL : (*it).second;
+			ContentTreeNode* child = GetSubDir(tmpName);
+			delete [] tmpName;
+			
+			if (child)
+				return child->GetChildByName(slash + 1);
+		}
+	}
+	else
+	{
+		ContentTreeNode* child = GetSubDir(name);
+		if (child) return child;
+
+		SubNodesMap::iterator it = files.find(name);
+		return (it == files.end()) ? NULL : (*it).second;
+	}
+
+	return NULL;
 }

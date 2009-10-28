@@ -700,6 +700,8 @@ int WINAPI SetDirectory(HANDLE hPlugin, const char *Dir, int OpMode)
 	FarStorageInfo* info = (FarStorageInfo *) hPlugin;
 	if (!info) return FALSE;
 
+	if (!Dir || !*Dir) return TRUE;
+
 	if (strcmp(Dir, "..") == 0)
 	{
 		if (info->currentdir->parent == NULL)
@@ -709,15 +711,20 @@ int WINAPI SetDirectory(HANDLE hPlugin, const char *Dir, int OpMode)
 	}
 	else if (strcmp(Dir, ".") != 0)
 	{
-		wchar_t *wzDirName = new wchar_t[MAX_PATH];
+		wchar_t wzDirName[MAX_PATH];
 		wmemset(wzDirName, 0, MAX_PATH);
 		MultiByteToWideChar(CP_FAR_INTERNAL, 0, Dir, strlen(Dir), wzDirName, MAX_PATH);
 
-		ContentTreeNode* child_dir = info->currentdir->GetSubDir(wzDirName);
-		delete [] wzDirName;
+		ContentTreeNode* child_dir = NULL;
+		if (wzDirName[0] == L'\\')
+			child_dir = info->root->GetChildByName(wzDirName + 1);
+		else
+			child_dir = info->currentdir->GetChildByName(wzDirName);
 
-		if (!child_dir)	return FALSE;
-		info->currentdir = child_dir;
+		if (child_dir && (child_dir->IsDir() || (child_dir == info->root)))
+			info->currentdir = child_dir;
+		else
+			return FALSE;
 	}
 		
 	return TRUE;
