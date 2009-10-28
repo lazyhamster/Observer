@@ -75,7 +75,7 @@ bool ContentTreeNode::AddChild(wchar_t* path, ContentTreeNode* child)
 		while (*slash == '\\') // This cycle solves issues with double backslashes in path
 			slash++;
 
-		sub_dir->AddChild(slash, child);
+		return sub_dir->AddChild(slash, child);
 	}
 	else
 	{
