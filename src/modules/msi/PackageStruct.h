@@ -67,8 +67,8 @@ struct RegistryEntry
 {
 	wchar_t Key[256];			// s72
 	UINT16 Root;				// i2
-	wchar_t RegKeyName[256];	// l255
-	wchar_t Name[256];			// L255
+	wchar_t RegKeyName[512];	// l255
+	wchar_t Name[512];			// L255
 	wchar_t* Value;				// L0 (variable len)
 	wchar_t Component[73];		// s72
 };
