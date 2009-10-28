@@ -76,6 +76,8 @@ DirectoryNode::DirectoryNode()
 	TargetName = NULL;
 	TargetShortName = NULL;
 	IsSpecial = false;
+
+	Attributes = FILE_ATTRIBUTE_DIRECTORY;
 }
 
 DirectoryNode::~DirectoryNode()
