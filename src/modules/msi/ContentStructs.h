@@ -4,6 +4,7 @@
 #include "PackageStruct.h"
 
 #define MAX_SHORT_NAME_LEN 14
+const FILETIME ZERO_FILE_TIME = {0};
 
 class BasicNode
 {
@@ -16,6 +17,9 @@ public:
 	wchar_t* SourceShortName;
 	wchar_t* TargetName;
 	wchar_t* TargetShortName;
+
+	FILETIME ftCreationTime;
+	FILETIME ftModificationTime;
 
 public:
 	BasicNode();

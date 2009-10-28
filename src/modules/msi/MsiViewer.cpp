@@ -1040,6 +1040,35 @@ void CMsiViewer::buildFlatIndex(DirectoryNode* root)
 	}
 }
 
+bool CMsiViewer::readRealFileAttributes(FileNode* file)
+{
+	const wchar_t *cab = getFileStorageName(file);
+	if (!cab || !*cab)
+	{
+		// For real files
+		wstring strFullSourcePath = getStoragePath() + file->GetSourcePath();
+		
+		WIN32_FIND_DATAW fd;
+		HANDLE hSearch = FindFirstFile(strFullSourcePath.c_str(), &fd);
+		if (hSearch != INVALID_HANDLE_VALUE)
+		{
+			file->ftCreationTime = fd.ftCreationTime;
+			file->ftModificationTime = fd.ftLastWriteTime;
+			FindClose(hSearch);
+			return true;
+		}
+	}
+	else if (cab[0] == L'#')
+	{
+		// For files in internal cab
+	}
+	else
+	{
+		// For files in external cab
+	}
+	return false;
+}
+
 bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, wchar_t* itemPathBuf, size_t itemPathBufSize)
 {
 	if (itemIndex < 0 || itemIndex >= (int) m_vFlatIndex.size())
@@ -1052,6 +1081,15 @@ bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, 
 	wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN + 1, node->TargetShortName);
 	dataBuf->dwFileAttributes = node->GetSytemAttributes();
 	dataBuf->nFileSizeLow = (DWORD) node->GetSize();
+
+	// Retrieve file attributes from real files
+	if (!node->IsDir())
+	{
+		if (memcmp(&(node->ftCreationTime), &ZERO_FILE_TIME, sizeof(FILETIME)) == 0)
+			readRealFileAttributes(static_cast<FileNode*>(node));
+		dataBuf->ftCreationTime = node->ftCreationTime;
+		dataBuf->ftLastWriteTime = node->ftModificationTime;
+	}
 
 	wstring path = node->GetTargetPath();
 	wmemcpy_s(itemPathBuf, itemPathBufSize, path.c_str(), path.length());

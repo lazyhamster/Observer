@@ -36,6 +36,9 @@ BasicNode::BasicNode()
 	SourceShortName = NULL;
 	TargetName = NULL;
 	TargetShortName = NULL;
+
+	ftCreationTime = ZERO_FILE_TIME;
+	ftModificationTime = ZERO_FILE_TIME;
 }
 
 BasicNode::~BasicNode()

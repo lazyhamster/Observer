@@ -50,6 +50,7 @@ private:
 	void buildFlatIndex(DirectoryNode* root);
 
 	const wchar_t* getFileStorageName(FileNode* file);
+	bool readRealFileAttributes(FileNode* file);
 
 public:
 	CMsiViewer(void);
