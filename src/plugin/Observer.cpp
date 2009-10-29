@@ -231,11 +231,9 @@ HANDLE OpenStorageA(const char* Name)
 void CloseStorage(HANDLE storage)
 {
 	FarStorageInfo *info = (FarStorageInfo *) storage;
-	if (info->ModuleIndex < (int) g_pController.modules.size())
-	{
-		g_pController.CloseStorageFile(info->ModuleIndex, info->StoragePtr);
-		delete [] info->items;
-	}
+	g_pController.CloseStorageFile(info->ModuleIndex, info->StoragePtr);
+
+	delete [] info->items;
 	delete info;
 }
 
@@ -339,7 +337,6 @@ static int CALLBACK ExtractProgress(HANDLE context)
 
 	FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
 	
-	//TODO: show progress bar (progress report not implemented in modules for now)
 	return TRUE;
 }
 
@@ -572,21 +569,14 @@ int WINAPI Configure(int ItemNumber)
 
 void WINAPI ClosePlugin(HANDLE hPlugin)
 {
-	if (hPlugin == NULL) return;
-	
-	FarStorageInfo *info = (FarStorageInfo *) hPlugin;
-	if (info->ModuleIndex < (int) g_pController.modules.size())
-	{
-		g_pController.modules[info->ModuleIndex].CloseStorage(info->StoragePtr);
-		delete [] info->items;
-	}
-	delete info;
+	if (hPlugin != NULL)
+		CloseStorage(hPlugin);
 }
 
 HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 {
 	// Unload plugin if no submodules loaded
-	if (g_pController.modules.size() == 0)
+	if (g_pController.NumModules() == 0)
 		return 0;
 	
 	char* szFullNameBuffer = new char[PATH_BUFFER_SIZE];
@@ -746,7 +736,8 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	info->currentdir->GetPath(wszCurrentDirPath, PATH_BUFFER_SIZE);
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszCurrentDirPath, wcslen(wszCurrentDirPath), szCurrentDir, MAX_PATH, NULL, NULL);
 
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, g_pController.modules[info->ModuleIndex].ModuleName, wcslen(g_pController.modules[info->ModuleIndex].ModuleName), szTitle, 1024, NULL, NULL);
+	const wchar_t* wszModuleName = g_pController.modules[info->ModuleIndex].ModuleName;
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszModuleName, wcslen(wszModuleName), szTitle, 1024, NULL, NULL);
 	strcat_s(szTitle, 1024, ":\\");
 	strcat_s(szTitle, 1024, szCurrentDir);
 	
