@@ -18,6 +18,9 @@ struct ExternalModule
 
 class ModulesController
 {
+private:
+	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings);
+
 public:
 	vector<ExternalModule> modules;
 	
@@ -26,6 +29,7 @@ public:
 
 	int Init(wchar_t* basePath);
 	void Cleanup();
+	size_t NumModules() { return modules.size(); };
 
 	int OpenStorageFile(const wchar_t* path, int *moduleIndex, INT_PTR **storage, StorageGeneralInfo *info);
 	void CloseStorageFile(int moduleIndex, INT_PTR *storage);

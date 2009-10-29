@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "ModulesController.h"
+#include "OptionsParser.h"
 
 #define SECTION_BUF_SIZE 1024
 
@@ -10,60 +11,28 @@ int ModulesController::Init( wchar_t* basePath )
 	wstring strBasePath(basePath);
 	wstring strCfgFile = strBasePath + CONFIG_FILE;
 
-	wchar_t wszGlobalSection[SECTION_BUF_SIZE] = {0};
-	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
+	WStringMap mModulesList;
 
 	// Get list of modules from config file
-	DWORD res = GetPrivateProfileSectionW(L"Modules", wszGlobalSection, SECTION_BUF_SIZE, strCfgFile.c_str());
-	if ((res == 0) || (res >= SECTION_BUF_SIZE - 2)) return 0;
+	if (!ParseOptions(strCfgFile.c_str(), L"Modules", mModulesList))
+		return 0;
 
-	wchar_t *wszModuleDef = wszGlobalSection;
-	while (wszModuleDef && *wszModuleDef)
+	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
+
+	WStringMap::iterator cit;
+	for (cit = mModulesList.begin(); cit != mModulesList.end(); cit++)
 	{
-		wchar_t *wszSeparator = wcschr(wszModuleDef, '=');
-		if (!wszSeparator) continue;
-
-		// Skip commented modules
-		if (wszModuleDef[0] == ';') continue;
-		
-		size_t nNextEntry = wcslen(wszModuleDef) + 1;
-		*wszSeparator = 0;
-
 		ExternalModule module;
-		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), wszModuleDef);
-		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), wszSeparator + 1);
+		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), (cit->first).c_str());
+		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), cit->second.c_str());
 
-		wstring strFillModulePath = strBasePath + module.LibraryFile;
-		module.ModuleHandle = LoadLibraryW(strFillModulePath.c_str());
-		if (module.ModuleHandle != NULL)
-		{
-			module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadSubModule");
-			module.OpenStorage = (OpenStorageFunc) GetProcAddress(module.ModuleHandle, "OpenStorage");
-			module.CloseStorage = (CloseStorageFunc) GetProcAddress(module.ModuleHandle, "CloseStorage");
-			module.GetNextItem = (GetItemFunc) GetProcAddress(module.ModuleHandle, "GetStorageItem");
-			module.Extract = (ExtractFunc) GetProcAddress(module.ModuleHandle, "ExtractItem");
+		// Get module specific settings section
+		DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, strCfgFile.c_str());
+		const wchar_t* wszModuleSettings = (readRes > 0) && (readRes < SECTION_BUF_SIZE - 2) ? wszModuleSection : NULL;
 
-			if ((module.LoadModule != NULL) && (module.OpenStorage != NULL) &&
-				(module.CloseStorage != NULL) && (module.GetNextItem != NULL) && (module.Extract != NULL))
-			{
-				// Get module specific settings section
-				DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, strCfgFile.c_str());
-				const wchar_t* wszModuleSettings = (readRes > 0) && (readRes < SECTION_BUF_SIZE - 2) ? wszModuleSection : NULL;
-				
-				// Try to init module
-				if (module.LoadModule(wszModuleSettings))
-					modules.push_back(module);
-				else
-					FreeLibrary(module.ModuleHandle);
-			}
-			else
-			{
-				FreeLibrary(module.ModuleHandle);
-			}
-		}
-
-		wszModuleDef += nNextEntry;
-	} //while
+		if (LoadModule(basePath, module, wszModuleSettings))
+			modules.push_back(module);
+	} // for
 	
 	return modules.size();
 }
@@ -92,4 +61,36 @@ void ModulesController::CloseStorageFile(int moduleIndex, INT_PTR *storage)
 {
 	if ((moduleIndex >= 0) && (moduleIndex < (int) modules.size()))
 		modules[moduleIndex].CloseStorage(storage);
+}
+
+bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings )
+{
+	if (!module.ModuleName[0] || !module.LibraryFile[0])
+		return false;
+
+	wstring strFillModulePath(basePath);
+	strFillModulePath.append(module.LibraryFile);
+
+	module.ModuleHandle = LoadLibraryW(strFillModulePath.c_str());
+	if (module.ModuleHandle != NULL)
+	{
+		module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadSubModule");
+		module.OpenStorage = (OpenStorageFunc) GetProcAddress(module.ModuleHandle, "OpenStorage");
+		module.CloseStorage = (CloseStorageFunc) GetProcAddress(module.ModuleHandle, "CloseStorage");
+		module.GetNextItem = (GetItemFunc) GetProcAddress(module.ModuleHandle, "GetStorageItem");
+		module.Extract = (ExtractFunc) GetProcAddress(module.ModuleHandle, "ExtractItem");
+
+		if ((module.LoadModule != NULL) && (module.OpenStorage != NULL) &&
+			(module.CloseStorage != NULL) && (module.GetNextItem != NULL) && (module.Extract != NULL))
+		{
+			// Try to init module
+			if (module.LoadModule(moduleSettings))
+				return true;
+		}
+
+		FreeLibrary(module.ModuleHandle);
+		return false;
+	}
+	
+	return false;
 }
