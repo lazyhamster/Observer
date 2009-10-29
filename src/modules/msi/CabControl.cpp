@@ -84,6 +84,52 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	return result;
 }
 
+bool CCabControl::GetFileAttributes(const wchar_t* cabName, const wchar_t* cabPath, const wchar_t* sourceFileName, WIN32_FIND_DATAW &fd)
+{
+	if (!cabName || !cabPath || !sourceFileName)
+		return false;
+
+	CabCacheItem* item = getCacheItem(cabName, cabPath);
+	if (!item)
+		return false;
+
+	char* szAnsiSourceName = (char *) malloc(ANSI_STR_BUF_SIZE);
+	memset(szAnsiSourceName, 0, ANSI_STR_BUF_SIZE);
+	WideCharToMultiByte(CP_ACP, 0, sourceFileName, wcslen(sourceFileName), szAnsiSourceName, ANSI_STR_BUF_SIZE, NULL, NULL);
+
+	bool fResult = false;
+	
+	mscabd_file *cabfile = item->data->files;
+	while (cabfile)
+	{
+		if (strcmp(cabfile->filename, szAnsiSourceName) == 0)
+		{
+			memset(&fd, 0, sizeof(fd));
+			wcscpy_s(fd.cFileName, MAX_PATH, sourceFileName);
+			fd.nFileSizeLow = cabfile->length;
+			fd.dwFileAttributes = cabfile->attribs;
+
+			SYSTEMTIME stime;
+			stime.wYear = cabfile->date_y;
+			stime.wMonth = cabfile->date_m;
+			stime.wDay = cabfile->date_d;
+			stime.wHour = cabfile->time_h;
+			stime.wMinute = cabfile->time_m;
+			stime.wSecond = cabfile->time_s;
+			SystemTimeToFileTime(&stime, &fd.ftLastWriteTime);
+
+			fResult = true;
+			break;
+		}
+
+		cabfile = cabfile->next;
+	}
+
+	free(szAnsiSourceName);
+
+	return fResult;
+}
+
 CabCacheItem* CCabControl::getCacheItem( const wchar_t* cabName, const wchar_t* cabPath )
 {
 	if (!cabName || !*cabName)
