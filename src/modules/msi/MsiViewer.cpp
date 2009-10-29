@@ -1075,6 +1075,15 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 	else
 	{
 		// For files in external cab
+		wstring strCabPath = getStoragePath();
+		strCabPath.append(cab);
+
+		WIN32_FIND_DATAW fd;
+		if (m_pCabControl->GetFileAttributes(cab, strCabPath.c_str(), file->Key, fd))
+		{
+			file->ftCreationTime = fd.ftCreationTime;
+			file->ftModificationTime = fd.ftLastWriteTime;
+		}
 	}
 	return false;
 }
