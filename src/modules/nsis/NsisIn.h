@@ -123,6 +123,8 @@ class CInArchive
   HRESULT ReadEntries(const CBlockHeader &bh);
   HRESULT Parse();
 
+  void PostProcess();
+
   CByteBuffer _data;
   UInt64 _size;
 

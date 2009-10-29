@@ -323,11 +323,6 @@ UString CNsisArchive::getItemPath( int itemIndex )
 	UString name = prop.bstrVal;
 	name.Replace(L"\\\\", L"\\");
 
-	// Some files have crap prefix (usually from $PLUGINDIR), it should be removed
-	int nSignPos = name.Find(L"\\$PLUGINDIR");
-	if (nSignPos >=0)
-		name.Delete(0, nSignPos + 1);
-
 	return name;
 }
 

@@ -1236,27 +1236,6 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
         item.CompressedSizeIsDefined = true;
       }
     }
-	// Avoid duplicate names in same folder
-	for (i = 0; i + 1 < Items.Size(); i++)
-	{
-		CItem &item = Items[i];
-		UInt32 nDupCounter = 1;
-		for (int j = i + 1; j < Items.Size(); j++)
-		{					   
-			CItem &item_next = Items[j];
-			bool sameName = IsUnicode
-				? (!item.NameU.CompareNoCase(item_next.NameU) && !item.PrefixU.CompareNoCase(item_next.PrefixU))
-				: !_strcmpi(item.NameA, item_next.NameA) && !_strcmpi(item.PrefixA, item_next.PrefixA);
-			if (sameName)
-			{
-				if (nDupCounter == 1)
-					AppendIntToName(item, nDupCounter);
-
-				nDupCounter++;
-				AppendIntToName(item_next, nDupCounter);
-			}
-		}
-	}
   }
   return S_OK;
 }
@@ -1411,7 +1390,11 @@ HRESULT CInArchive::Open2(
     _size = (size_t)unpackSize;
     RINOK(ReadStream_FALSE(_stream, (Byte *)_data, unpackSize));
   }
-  return Parse();
+  
+  HRESULT res = Parse();
+  if (res == S_OK)
+	  PostProcess();
+  return res;
 }
 
 /*
@@ -1492,6 +1475,46 @@ void CInArchive::Clear()
   #endif
   Items.Clear();
   _stream.Release();
+}
+
+void CInArchive::PostProcess()
+{
+	// Remove prefix if file in $PLUGINSDIR folder
+	for (int i = 0; i < Items.Size(); i++)
+	{
+		CItem &item = Items[i];
+		if (item.IsUnicode)
+		{
+			if (item.PrefixU.Length() > 0 && (item.NameU.Find(L"$PLUGINSDIR") == 0))
+				item.PrefixU.Empty();
+		}
+		else
+		{
+			if (item.PrefixA.Length() > 0 && (item.NameA.Find("$PLUGINSDIR") == 0))
+				item.PrefixA.Empty();
+		}
+	}
+
+	// Avoid duplicate names in same folder
+	for (int i = 0; i + 1 < Items.Size(); i++)
+	{
+		CItem &item = Items[i];
+		UInt32 nDupCounter = 1;
+		for (int j = i + 1; j < Items.Size(); j++)
+		{					   
+			CItem &item_next = Items[j];
+			bool sameName = IsUnicode
+				? (!item.NameU.CompareNoCase(item_next.NameU) && !item.PrefixU.CompareNoCase(item_next.PrefixU))
+				: !_strcmpi(item.NameA, item_next.NameA) && !_strcmpi(item.PrefixA, item_next.PrefixA);
+			if (sameName)
+			{
+				nDupCounter++;
+				AppendIntToName(item_next, nDupCounter);
+			}
+		}  // for
+		if (nDupCounter > 1)
+			AppendIntToName(item, 1);
+	} // for
 }
 
 }}
