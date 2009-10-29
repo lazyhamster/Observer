@@ -1049,12 +1049,11 @@ void CMsiViewer::buildFlatIndex(DirectoryNode* root)
 
 bool CMsiViewer::readRealFileAttributes(FileNode* file)
 {
+	if (file->IsFake) return false;
+	
 	const wchar_t *cab = getFileStorageName(file);
 	if (!cab || !*cab)
 	{
-		if (file->IsFake)
-			return false;
-		
 		// For real files
 		wstring strFullSourcePath = getStoragePath() + file->GetSourcePath();
 		
@@ -1083,6 +1082,8 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 		{
 			file->ftCreationTime = fd.ftCreationTime;
 			file->ftModificationTime = fd.ftLastWriteTime;
+			
+			return true;
 		}
 	}
 	return false;
@@ -1105,7 +1106,10 @@ bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, 
 	if (!node->IsDir())
 	{
 		if (memcmp(&(node->ftCreationTime), &ZERO_FILE_TIME, sizeof(FILETIME)) == 0)
-			readRealFileAttributes(static_cast<FileNode*>(node));
+		{
+			FileNode* file = static_cast<FileNode*>(node);
+			readRealFileAttributes(file);
+		}
 		dataBuf->ftCreationTime = node->ftCreationTime;
 		dataBuf->ftLastWriteTime = node->ftModificationTime;
 	}
