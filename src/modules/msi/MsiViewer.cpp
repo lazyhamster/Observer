@@ -51,6 +51,7 @@ CMsiViewer::CMsiViewer(void)
 {
 	m_hMsi = 0;
 	m_pRootDir = NULL;
+	m_nSummaryWordCount = 0;
 	m_pCabControl = new CCabControl();
 }
 
@@ -579,6 +580,11 @@ int CMsiViewer::generateInfoText()
 			sstr << SUMMARY_PROPS[i].PropName << L" : " << (wchar_t *) &propdata[0] << endl;
 	}
 
+	// Read "Word Count" property to save default compression info
+	int nPropVal;
+	if (MsiSummaryInfoGetPropertyW(hSummary, 15, &nDataType, &nPropVal, NULL, NULL, NULL) == ERROR_SUCCESS)
+		m_nSummaryWordCount = nPropVal;
+
 	// Content info
 	sstr << endl;
 	sstr << L"Total directories: " << GetTotalDirectories() << endl;
@@ -825,6 +831,11 @@ FileNode* CMsiViewer::GetFile( const int fileIndex )
 
 const wchar_t* CMsiViewer::getFileStorageName( FileNode* file )
 {
+	// Check flags first to filter uncompressed files
+	if ((file->Attributes & msidbFileAttributesNoncompressed) ||
+		((file->Attributes & msidbFileAttributesCompressed) == 0 && (m_nSummaryWordCount & 2) == 0))
+		return NULL;
+
 	int mediaIndex = -1;
 	for (int i = (int) m_vMedias.size() - 1; i >= 0; i--)
 	{

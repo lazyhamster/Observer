@@ -19,6 +19,7 @@ private:
 	vector <MediaEntry> m_vMedias;
 	wstring m_strStorageLocation;
 	vector <BasicNode*> m_vFlatIndex;
+	int m_nSummaryWordCount;
 	
 	CCabControl* m_pCabControl;
 	wstring m_strStreamCacheLocation;
