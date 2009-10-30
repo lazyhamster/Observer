@@ -480,14 +480,7 @@ void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
 {
 	size_t nMaxCounter = root->SubDirs.size();
 	
-	// First pass to merge everything inside sub-folders
-	for (size_t i = 0; i < nMaxCounter; i++)
-	{
-		DirectoryNode* subdir = root->SubDirs[i];
-		mergeSameNamedFolders(subdir);
-	}
-
-	// Second pass to merge folders in current one
+	// First pass to merge folders in current one
 	for (size_t i = 0; i < nMaxCounter; i++)
 	{
 		DirectoryNode* subdir = root->SubDirs[i];
@@ -520,7 +513,7 @@ void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
 		avoidSameFileNames(subdir);
 	} //for
 
-	// Third pass to merge everything inside sub-folders again
+	// Second pass to merge everything inside sub-folders again
 	for (size_t i = 0; i < nMaxCounter; i++)
 	{
 		DirectoryNode* subdir = root->SubDirs[i];
@@ -1050,7 +1043,7 @@ void CMsiViewer::buildFlatIndex(DirectoryNode* root)
 bool CMsiViewer::readRealFileAttributes(FileNode* file)
 {
 	if (file->IsFake) return false;
-	
+
 	const wchar_t *cab = getFileStorageName(file);
 	if (!cab || !*cab)
 	{
