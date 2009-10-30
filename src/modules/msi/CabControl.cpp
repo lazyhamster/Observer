@@ -110,6 +110,7 @@ bool CCabControl::GetFileAttributes(const wchar_t* cabName, const wchar_t* cabPa
 			fd.dwFileAttributes = cabfile->attribs;
 
 			SYSTEMTIME stime;
+			memset(&stime, 0, sizeof(stime));
 			stime.wYear = cabfile->date_y;
 			stime.wMonth = cabfile->date_m;
 			stime.wDay = cabfile->date_d;
