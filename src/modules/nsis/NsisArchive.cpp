@@ -67,6 +67,9 @@ private:
 	UString _diskFilePath;   // full path to file on disk
 	bool _extractMode;
 	UInt64 _completed;
+	UInt64 _totalSize;
+	const ExtractProcessCallbacks *_progressCallbacks;
+
 	struct CProcessedFileInfo
 	{
 		FILETIME MTime;
@@ -80,7 +83,7 @@ private:
 	CMyComPtr<ISequentialOutStream> _outFileStream;
 
 public:
-	void Init(IInArchive *archiveHandler, const UString &directoryPath);
+	void Init(IInArchive *archiveHandler, const UString &directoryPath, const ExtractProcessCallbacks *progessCallbacks);
 	UInt64 GetCompleted() { return _completed; };
 
 	UInt64 NumErrors;
@@ -88,22 +91,37 @@ public:
 	CArchiveExtractCallback() {}
 };
 
-void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const UString &directoryPath)
+void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const UString &directoryPath, const ExtractProcessCallbacks *progessCallbacks)
 {
 	NumErrors = 0;
 	_archiveHandler = archiveHandler;
 	_directoryPath = directoryPath;
 	NFile::NName::NormalizeDirPathPrefix(_directoryPath);
+
+	_totalSize = 0;
+	_completed = 0;
+	_progressCallbacks = progessCallbacks;
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetTotal(UInt64 size)
 {
+	_totalSize = size;
 	return S_OK;
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 * completeValue)
 {
 	_completed = *completeValue;
+
+	if (_progressCallbacks && _totalSize > 0)
+	{
+		ProgressContext* pctx = (ProgressContext*) _progressCallbacks->signalContext;
+		//pctx->nProcessedBytes += dwBytesRead;
+		//TODO: add processed bytes
+		pctx->nCurrentFileProgress = (int) ((_completed * 100) / _totalSize);
+		_progressCallbacks->FileProgress(_progressCallbacks->signalContext);
+	}
+
 	return S_OK;
 }
 
@@ -357,7 +375,7 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destDir, c
 
 	CArchiveExtractCallback* callback = new CArchiveExtractCallback();
 	CMyComPtr<IArchiveExtractCallback> extractCallback(callback);
-	callback->Init(m_handler, destDir);
+	callback->Init(m_handler, destDir, epc);
 
 	ProgressContext* pctx = (ProgressContext*) epc->signalContext;
 	pctx->nCurrentFileProgress = 0;
@@ -390,7 +408,7 @@ DWORD CNsisArchive::GetItemSize( int itemIndex )
 	{
 		CArchiveExtractCallback* callback = new CArchiveExtractCallback();
 		CMyComPtr<IArchiveExtractCallback> extractCallback(callback);
-		callback->Init(m_handler, L"");
+		callback->Init(m_handler, L"", NULL);
 
 		UInt32 nIndex = itemIndex;
 		HRESULT extResult = m_handler->Extract(&nIndex, 1, 1, callback);

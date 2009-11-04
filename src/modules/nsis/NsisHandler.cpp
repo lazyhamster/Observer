@@ -327,8 +327,13 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
       }
       else
       {
-        GetCompressedSize(index, size);
-        totalSize += size;
+		  if (GetUncompressedSize(index, size))
+			  totalSize += size;
+		  else
+		  {
+			  GetCompressedSize(index, size);
+			  totalSize += size;
+		  }
       }
     }
   }
