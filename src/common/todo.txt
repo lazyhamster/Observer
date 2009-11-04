@@ -3,11 +3,10 @@ Plugin:
 - more graceful settings parsing from .ini file
 
 MSI:
-- modification time for real files
-- modification time for files in external cab
 - modification time for files in internal cab
 - extract progress
 - fix problem with real file and non showing the special folders mode
+- (?) registry list is more close to valid reg files
 
 NSIS:
 - extract progress
