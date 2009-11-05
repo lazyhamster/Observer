@@ -664,7 +664,11 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 				break;
 		}
 		sstr << L"\\" << regEntry.RegKeyName << L"]" << endl;
-		sstr << L"\"" << regEntry.Name << L"\" = " << &regval[0] << endl;
+		if (regEntry.Name[0])
+			sstr << L"\"" << regEntry.Name << L"\"";
+		else
+			sstr << L"@";
+		sstr << L" = \"" << &regval[0] << L"\"" << endl;
 
 		MsiCloseHandle(hRegRec);
 	}
