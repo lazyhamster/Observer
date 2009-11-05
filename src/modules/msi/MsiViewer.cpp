@@ -698,14 +698,20 @@ int CMsiViewer::dumpFeatures(wstringstream &sstr)
 		READ_STR(hFeatRec, 2, featEntry.Parent);
 		READ_STR(hFeatRec, 3, featEntry.Title);
 		READ_STR(hFeatRec, 4, featEntry.Description);
+		featEntry.Display = MsiRecordGetInteger(hFeatRec, 5);
+		featEntry.Level = MsiRecordGetInteger(hFeatRec, 6);
+		READ_STR(hFeatRec, 7, featEntry.Directory);
 
-		if (*featEntry.Title)
-			sstr << L"- " << featEntry.Title << L"\n";
-		else
-			sstr << L"- <" << featEntry.Key << L">\n";
+		if (featEntry.Level > 0 && featEntry.Display > 0)
+		{
+			if (wcslen(featEntry.Title) > 0)
+				sstr << L"- " << featEntry.Title << L"\n";
+			else
+				sstr << L"- <" << featEntry.Key << L">\n";
 
-		if (*featEntry.Description)
-			sstr << L"    " << featEntry.Description << L"\n";
+			if (wcslen(featEntry.Description) > 0)
+				sstr << L"    " << featEntry.Description << L"\n";
+		}
 
 		MsiCloseHandle(hFeatRec);
 	}

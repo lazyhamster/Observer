@@ -38,9 +38,9 @@ struct FeatureEntry
 	wchar_t Parent[72];			// S38
 	wchar_t Title[128];			// L64
 	wchar_t Description[512];	// L255
-	//UINT16 Display;			// i2
-	//UINT16 Level;				// i2
-	wchar_t Directory[73];		// S72
+	UINT16 Display;				// i2
+	UINT16 Level;				// i2
+	wchar_t Directory[256];		// S72
 };
 
 
