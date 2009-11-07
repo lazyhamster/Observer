@@ -8,6 +8,5 @@ MSI:
 - fix problem with real file and non showing the special folders mode
 - (?) registry list is more close to valid reg files
 
-NSIS:
-- extract progress
-- fast extract for solid archives
+UDF:
+- allow proper extraction of some specific files (possibly from Nero)
