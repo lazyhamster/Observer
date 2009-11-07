@@ -93,6 +93,7 @@ STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 * maxCheckStartPosit
         stream, maxCheckStartPosition) != S_OK)
       return S_FALSE;
     _inStream = stream;
+	_lastSolidPos = 0;
   }
   return S_OK;
   COM_TRY_END
@@ -342,14 +343,19 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
   UInt64 currentTotalSize = 0;
   UInt32 currentItemSize = 0;
 
-  UInt64 streamPos = 0;
-  if (_archive.IsSolid)
+  bool solidInit = true;
+  if (_archive.IsSolid && _lastSolidPos > 0)
+	  solidInit = _archive.GetPosOfSolidItem(indices[0]) < _lastSolidPos;
+
+  UInt64 streamPos = _archive.IsSolid ? _lastSolidPos : 0;
+  if (_archive.IsSolid && solidInit)
   {
     RINOK(_inStream->Seek(_archive.StreamOffset, STREAM_SEEK_SET, NULL));
     bool useFilter;
     RINOK(_archive.Decoder.Init(
         EXTERNAL_CODECS_VARS
         _inStream, _archive.Method, _archive.FilterFlag, useFilter));
+	streamPos = 0;
   }
 
   CByteBuffer byteBuf;
@@ -512,6 +518,7 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
         }
       }
     }
+    _lastSolidPos = _archive.IsSolid ? streamPos : 0;
     realOutStream.Release();
     RINOK(extractCallback->SetOperationResult(dataError ?
         NArchive::NExtract::NOperationResult::kDataError :
