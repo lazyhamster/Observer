@@ -66,7 +66,7 @@ private:
 	UString _filePath;       // name inside archive
 	UString _diskFilePath;   // full path to file on disk
 	bool _extractMode;
-	UInt64 _completed;
+	UInt64 _completed, _prevCompleted;
 	UInt64 _totalSize;
 	const ExtractProcessCallbacks *_progressCallbacks;
 
@@ -100,28 +100,32 @@ void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const UString &di
 
 	_totalSize = 0;
 	_completed = 0;
+	_prevCompleted = 0;
 	_progressCallbacks = progessCallbacks;
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetTotal(UInt64 size)
 {
 	_totalSize = size;
+	_completed = 0;
+	_prevCompleted = 0;
 	return S_OK;
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 * completeValue)
 {
+	_prevCompleted = _completed;
 	_completed = *completeValue;
 
-	if (_progressCallbacks && _totalSize > 0)
+	if (_progressCallbacks)
 	{
 		ProgressContext* pctx = (ProgressContext*) _progressCallbacks->signalContext;
-		//pctx->nProcessedBytes += dwBytesRead;
-		//TODO: add processed bytes
-		pctx->nCurrentFileProgress = (int) ((_completed * 100) / _totalSize);
+		pctx->nProcessedBytes += _completed - _prevCompleted;
+		if (_totalSize > 0)
+			pctx->nCurrentFileProgress = (int) ((_completed * 100) / _totalSize);
 		_progressCallbacks->FileProgress(_progressCallbacks->signalContext);
 	}
-
+	
 	return S_OK;
 }
 
@@ -386,7 +390,6 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destDir, c
 	UInt32 nIndex = itemIndex;
 	HRESULT extResult = m_handler->Extract(&nIndex, 1, 0, callback);
 
-	pctx->nProcessedBytes += GetItemSize(itemIndex);
 	epc->FileEnd(pctx);
 
 	if (extResult == S_OK)
