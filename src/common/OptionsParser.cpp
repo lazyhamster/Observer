@@ -3,7 +3,7 @@
 
 #define SECTION_BUF_SIZE 1024
 
-bool ParseOptions(const wchar_t* wszConfigFile, const wchar_t* wszSectionName, WStringMap &opts)
+bool ParseOptions(const wchar_t* wszConfigFile, const wchar_t* wszSectionName, OptionsList &opts)
 {
 	size_t nOptCountBefore = opts.size();
 	wchar_t wszBuffer[SECTION_BUF_SIZE] = {0};
@@ -27,10 +27,11 @@ bool ParseOptions(const wchar_t* wszConfigFile, const wchar_t* wszSectionName, W
 		if (wszBufPtr[0] == ';') continue;
 
 		*wszSeparator = 0;
-		wstring sOpt(wszBufPtr);
-		wstring sVal(wszSeparator + 1);
+		OptionsItem opt;
+		opt.key = wszBufPtr;
+		opt.value = (wszSeparator + 1);
 
-		opts[sOpt] = sVal;
+		opts.push_back(opt);
 
 		wszBufPtr += nEntryLen + 1;
 	} //while

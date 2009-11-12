@@ -11,7 +11,7 @@ int ModulesController::Init( wchar_t* basePath )
 	wstring strBasePath(basePath);
 	wstring strCfgFile = strBasePath + CONFIG_FILE;
 
-	WStringMap mModulesList;
+	OptionsList mModulesList;
 
 	// Get list of modules from config file
 	if (!ParseOptions(strCfgFile.c_str(), L"Modules", mModulesList))
@@ -19,12 +19,12 @@ int ModulesController::Init( wchar_t* basePath )
 
 	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
 
-	WStringMap::iterator cit;
+	OptionsList::iterator cit;
 	for (cit = mModulesList.begin(); cit != mModulesList.end(); cit++)
 	{
 		ExternalModule module;
-		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), (cit->first).c_str());
-		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), cit->second.c_str());
+		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), cit->key.c_str());
+		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), cit->value.c_str());
 
 		// Get module specific settings section
 		DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, strCfgFile.c_str());
