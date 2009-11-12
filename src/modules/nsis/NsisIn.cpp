@@ -1345,10 +1345,15 @@ HRESULT CInArchive::Open2(
     IsSolid = false;
     Method = NMethodType::kLZMA;
   }
-  else if (sig[3] == 0x80)
+  else if (sig[3] == 0x80 && sig[4] == 0xED)
   {
     IsSolid = false;
     Method = NMethodType::kDeflate;
+  }
+  else if (sig[3] == 0x80 && sig[4] == 0x31)
+  {
+	  IsSolid = false;
+	  Method = NMethodType::kBZip2;
   }
   else
   {
