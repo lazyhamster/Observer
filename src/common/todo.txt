@@ -1,6 +1,5 @@
 Plugin:
 - true Unicode version
-- more graceful settings parsing from .ini file
 
 MSI:
 - modification time for files in internal cab
@@ -10,3 +9,6 @@ MSI:
 
 UDF:
 - allow proper extraction of some specific files (possibly from Nero)
+
+NSIS:
+- handle bzip2 compressed files
