@@ -742,7 +742,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	strcat_s(szTitle, 1024, szCurrentDir);
 	
 	Info->StructSize = sizeof(OpenPluginInfo);
-	Info->Flags = OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS | OPIF_SHOWPRESERVECASE;
+	Info->Flags = OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
 	Info->CurDir = szCurrentDir;
 	Info->PanelTitle = szTitle;
 
