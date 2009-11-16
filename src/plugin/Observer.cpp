@@ -722,29 +722,35 @@ int WINAPI SetDirectory(HANDLE hPlugin, const char *Dir, int OpMode)
 
 void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 {
+	Info->StructSize = sizeof(OpenPluginInfo);
+	
 	FarStorageInfo* info = (FarStorageInfo *) hPlugin;
 	if (!info) return;
 	
 	static char szCurrentDir[MAX_PATH];
-	static char szTitle[1024];
+	static char szTitle[512];
 	static wchar_t wszCurrentDirPath[PATH_BUFFER_SIZE];
+	static char szHostFile[MAX_PATH];
 
 	memset(szCurrentDir, 0, sizeof(szCurrentDir));
 	memset(szTitle, 0, sizeof(szTitle));
 	memset(wszCurrentDirPath, 0, sizeof(wszCurrentDirPath));
+	memset(szHostFile, 0, sizeof(szHostFile));
 
 	info->currentdir->GetPath(wszCurrentDirPath, PATH_BUFFER_SIZE);
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszCurrentDirPath, wcslen(wszCurrentDirPath), szCurrentDir, MAX_PATH, NULL, NULL);
 
 	const wchar_t* wszModuleName = g_pController.modules[info->ModuleIndex].ModuleName;
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszModuleName, wcslen(wszModuleName), szTitle, 1024, NULL, NULL);
-	strcat_s(szTitle, 1024, ":\\");
-	strcat_s(szTitle, 1024, szCurrentDir);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszModuleName, wcslen(wszModuleName), szTitle, sizeof(szTitle), NULL, NULL);
+	strcat_s(szTitle, sizeof(szTitle), ":\\");
+	strcat_s(szTitle, sizeof(szTitle), szCurrentDir);
+
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StorageFileName, wcslen(info->StorageFileName), szHostFile, MAX_PATH, NULL, NULL);
 	
-	Info->StructSize = sizeof(OpenPluginInfo);
-	Info->Flags = OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
+	Info->Flags = OPIF_USEFILTER | OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
 	Info->CurDir = szCurrentDir;
 	Info->PanelTitle = szTitle;
+	Info->HostFile = szHostFile;
 
 	// Fill info lines
 	static InfoPanelLine pInfoLinesData[6];
@@ -774,7 +780,6 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
 	Info->InfoLines = pInfoLinesData;
 }
-
 
 int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int ItemsNumber, int Move, char *DestPath, int OpMode)
 {
