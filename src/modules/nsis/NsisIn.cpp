@@ -144,15 +144,23 @@ UString CInArchive::ReadStringU(UInt32 pos) const
 
 static void AppendIntToName(CItem &item, UInt32 value)
 {
+	AString strAppendix = ',' + IntToString(value);
+	
 	if (item.IsUnicode)
 	{
-		item.NameU += L",";
-		item.NameU += MultiByteToUnicodeString(IntToString(value));
+		int nExtPos = item.NameU.ReverseFind(L'.');
+		if (nExtPos > 0)
+			item.NameU.Insert(nExtPos, MultiByteToUnicodeString(strAppendix));
+		else
+			item.NameU += MultiByteToUnicodeString(strAppendix);
 	}
 	else
 	{
-		item.NameA += ",";
-		item.NameA += IntToString(value);
+		int nExtPos = item.NameU.ReverseFind(L'.');
+		if (nExtPos > 0)
+			item.NameA.Insert(nExtPos, strAppendix);
+		else
+			item.NameA += strAppendix;
 	}
 }
 
