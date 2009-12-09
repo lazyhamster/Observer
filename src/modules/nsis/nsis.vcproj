@@ -395,18 +395,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BZip2Crc.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BZip2Decoder.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BZip2Register.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\CodecExports.cpp"
 				>
 			</File>
@@ -556,14 +544,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchMisc.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BZip2Crc.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BZip2Decoder.h"
 				>
 			</File>
 			<File
