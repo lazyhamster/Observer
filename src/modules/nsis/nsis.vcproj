@@ -215,6 +215,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NsisBzipDecoder.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\NsisBzipRegister.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\NsisHandler.cpp"
 				>
 			</File>
@@ -250,6 +258,10 @@
 			>
 			<File
 				RelativePath=".\NsisArchive.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NsisBzipDecoder.h"
 				>
 			</File>
 			<File
@@ -641,6 +653,50 @@
 			<File
 				RelativePath="..\..\..\..\7z465_src\CPP\Common\StringConvert.h"
 				>
+			</File>
+		</Filter>
+		<Filter
+			Name="NsisBzip2"
+			>
+			<File
+				RelativePath=".\nbzip2\bzlib.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\nbzip2\bzlib.h"
+				>
+			</File>
+			<File
+				RelativePath=".\nbzip2\decompress.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\nbzip2\huffman.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 	</Files>
