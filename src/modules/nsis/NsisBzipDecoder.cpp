@@ -42,6 +42,7 @@ STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value)
 STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 * outSize)
 {
 	BZ2_bzDecompressInit(m_bzState);
+	m_InBuffer.Init();
 	return S_OK;
 }
 
@@ -50,24 +51,45 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 	if (processedSize)
 		*processedSize = 0;
 
-	UInt32 nRead = m_InBuffer.ReadBytes((Byte *) &m_pBufIn[0], size);
+	UInt32 nBytesLeft = size;
+	UInt32 nProcessedCount = 0;
+	char* outbuf = (char*) data;
 
-	m_bzState->next_in = m_pBufIn;
-	m_bzState->avail_in = nRead;
-	m_bzState->next_out = m_pBufOut;
-	m_bzState->avail_out = OBUFSIZE;
-
-	int dec_res = BZ2_bzDecompress(m_bzState);
-	if (dec_res >= 0)
+	while (nBytesLeft > 0)
 	{
-		size_t nDataSize = m_bzState->next_out - m_pBufOut;
-		memcpy(data, m_pBufOut, nDataSize);
-		if (processedSize)
-			*processedSize = nDataSize;
-		return S_OK;
+		UInt32 nRead = m_InBuffer.ReadBytes((Byte *) &m_pBufIn[0], (nBytesLeft < IBUFSIZE) ? nBytesLeft : IBUFSIZE);
+
+		m_bzState->next_in = m_pBufIn;
+		m_bzState->avail_in = nRead;
+
+		int dec_res;
+		do 
+		{
+			m_bzState->next_out = m_pBufOut;
+			m_bzState->avail_out = OBUFSIZE;
+
+			dec_res = BZ2_bzDecompress(m_bzState);
+			if (dec_res < 0) return S_FALSE;
+
+			UInt32 nDataSize = m_bzState->next_out - m_pBufOut;
+			
+			// if there's no output, more input is needed
+			if (nDataSize == 0)	break;
+
+			memcpy(outbuf, m_pBufOut, nDataSize);
+			outbuf += nDataSize;
+
+			nProcessedCount += nDataSize;
+		} while (m_bzState->avail_in && (dec_res != BZ_STREAM_END));
+
+		nBytesLeft -= nRead;
+		if (dec_res == BZ_STREAM_END) break;
 	}
 
-	return S_FALSE;
+	if (processedSize)
+		*processedSize = nProcessedCount;
+	
+	return S_OK;
 }
 
 }}}
