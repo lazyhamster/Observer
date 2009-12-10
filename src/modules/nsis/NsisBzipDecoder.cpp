@@ -12,6 +12,7 @@ CDecoder::CDecoder()
 	
 	m_bzState = new DState;
 	memset(m_bzState, 0, sizeof(DState));
+	BZ2_bzDecompressInit(m_bzState);
 }
 
 CDecoder::~CDecoder()
@@ -43,6 +44,7 @@ STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 * outSize)
 {
 	BZ2_bzDecompressInit(m_bzState);
 	m_InBuffer.Init();
+
 	return S_OK;
 }
 
@@ -55,9 +57,18 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 	UInt32 nProcessedCount = 0;
 	char* outbuf = (char*) data;
 
+	/*
+		How it works.
+		For large files first call to decompressor will not produce any output.
+		You have to feed it with input data until bzip2 logical block is processed (up to 900kb).
+		Then next calls to decompress routine will populate output buffer leaving next input intact
+		until all output data is retrieved. And cycle ready to start over again.
+	*/
+	
 	while (nBytesLeft > 0)
 	{
 		UInt32 nRead = m_InBuffer.ReadBytes((Byte *) &m_pBufIn[0], (nBytesLeft < IBUFSIZE) ? nBytesLeft : IBUFSIZE);
+		if (nRead == 0) return S_OK;
 
 		m_bzState->next_in = m_pBufIn;
 		m_bzState->avail_in = nRead;
@@ -80,11 +91,12 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 			outbuf += nDataSize;
 
 			nProcessedCount += nDataSize;
-		} while (m_bzState->avail_in && (dec_res != BZ_STREAM_END));
+			nBytesLeft -= nDataSize;
+		} while (m_bzState->avail_in && (dec_res != BZ_STREAM_END) && nBytesLeft);
 
-		nBytesLeft -= nRead;
 		if (dec_res == BZ_STREAM_END) break;
 	}
+	//TODO: save avail_in leftovers for the next read iteration
 
 	if (processedSize)
 		*processedSize = nProcessedCount;
