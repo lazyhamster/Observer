@@ -26,6 +26,9 @@ private:
 	DState* m_bzState;
 	char m_pBufIn[IBUFSIZE];
 	char m_pBufOut[OBUFSIZE];
+	int m_nBufInAvail;
+	int m_nBufOutAvail;
+	bool m_fStreamEnd;
 
 public:
 	CDecoder();
