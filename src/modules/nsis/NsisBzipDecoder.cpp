@@ -109,11 +109,14 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 				// Save unused portion of output for further use
 				nCopySize = nBytesLeft;
 				m_nBufOutAvail = nDataSize - nBytesLeft;
-				memmove(m_pBufOut, m_pBufOut + nCopySize, m_nBufOutAvail);
 			}
 
 			memcpy(outbuf, m_pBufOut, nCopySize);
 			outbuf += nCopySize;
+
+			// Make actual output save buffering after transferring to external buffer
+			if (m_nBufOutAvail > 0)
+				memmove(m_pBufOut, m_pBufOut + nCopySize, m_nBufOutAvail);
 
 			nProcessedCount += nCopySize;
 			nBytesLeft -= nCopySize;
