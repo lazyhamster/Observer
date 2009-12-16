@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="2"
 				GenerateManifest="false"
 				ModuleDefinitionFile="Observer.def"

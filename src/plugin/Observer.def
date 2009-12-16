@@ -1,4 +1,4 @@
-LIBRARY	"Observer"
+LIBRARY	"4Observer"
 
 EXPORTS
 	GetMinFarVersion
