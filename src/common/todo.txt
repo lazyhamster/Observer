@@ -11,4 +11,4 @@ UDF:
 - allow proper extraction of some specific files (possibly from Nero)
 
 NSIS:
-- handle bzip2 compressed files
+- handle legacy file format (around 2.0b3, different header then current one)
