@@ -156,7 +156,7 @@ static void AppendIntToName(CItem &item, UInt32 value)
 	}
 	else
 	{
-		int nExtPos = item.NameU.ReverseFind(L'.');
+		int nExtPos = item.NameA.ReverseFind(L'.');
 		if (nExtPos > 0)
 			item.NameA.Insert(nExtPos, strAppendix);
 		else
