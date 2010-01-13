@@ -27,7 +27,7 @@ public:
 	ModulesController(void) {};
 	~ModulesController(void) { this->Cleanup(); };
 
-	int Init(wchar_t* basePath);
+	int Init(const wchar_t* basePath);
 	void Cleanup();
 	size_t NumModules() { return modules.size(); };
 

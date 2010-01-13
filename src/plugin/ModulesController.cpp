@@ -4,17 +4,19 @@
 
 #define SECTION_BUF_SIZE 1024
 
-int ModulesController::Init( wchar_t* basePath )
+int ModulesController::Init( const wchar_t* basePath )
 {
 	Cleanup();
 
-	wstring strBasePath(basePath);
-	wstring strCfgFile = strBasePath + CONFIG_FILE;
+	wchar_t wszConfigFile[MAX_PATH] = {0};
+
+	wcscpy_s(wszConfigFile, MAX_PATH, basePath);
+	wcscat_s(wszConfigFile, MAX_PATH, CONFIG_FILE);
 
 	OptionsList mModulesList;
 
 	// Get list of modules from config file
-	if (!ParseOptions(strCfgFile.c_str(), L"Modules", mModulesList))
+	if (!ParseOptions(wszConfigFile, L"Modules", mModulesList))
 		return 0;
 
 	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
@@ -27,7 +29,7 @@ int ModulesController::Init( wchar_t* basePath )
 		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), cit->value.c_str());
 
 		// Get module specific settings section
-		DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, strCfgFile.c_str());
+		DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, wszConfigFile);
 		const wchar_t* wszModuleSettings = (readRes > 0) && (readRes < SECTION_BUF_SIZE - 2) ? wszModuleSection : NULL;
 
 		if (LoadModule(basePath, module, wszModuleSettings))
@@ -68,10 +70,12 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 	if (!module.ModuleName[0] || !module.LibraryFile[0])
 		return false;
 
-	wstring strFillModulePath(basePath);
-	strFillModulePath.append(module.LibraryFile);
+	wchar_t wszFullModulePath[MAX_PATH] = {0};
 
-	module.ModuleHandle = LoadLibraryW(strFillModulePath.c_str());
+	wcscpy_s(wszFullModulePath, MAX_PATH, basePath);
+	wcscat_s(wszFullModulePath, MAX_PATH, module.LibraryFile);
+
+	module.ModuleHandle = LoadLibraryW(wszFullModulePath);
 	if (module.ModuleHandle != NULL)
 	{
 		module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadSubModule");
