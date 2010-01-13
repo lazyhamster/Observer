@@ -11,10 +11,12 @@ private:
 	vector<ContentTreeNode* > m_dummyFolders;
 	ContentTreeNode* insertDummyDirectory(const wchar_t *name);
 
+	ContentTreeNode* GetSubDir(const wchar_t* name);
+
 public:
+	int storageIndex;
 	WIN32_FIND_DATAW data;
 	ContentTreeNode* parent;
-	int storageIndex;
 	SubNodesMap subdirs;
 	SubNodesMap files;
 
@@ -26,7 +28,6 @@ public:
 
 	size_t GetChildCount() { return subdirs.size() + files.size(); };
 	ContentTreeNode* GetChildByName(const wchar_t* name);
-	ContentTreeNode* GetSubDir(const wchar_t* name);
 	bool IsDir() { return (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) > 0; }
 	__int64 GetSize() {return IsDir() ? 0 : (data.nFileSizeLow + ((__int64)(data.nFileSizeHigh) >> 32)); };
 };
