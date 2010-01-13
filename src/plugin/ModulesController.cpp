@@ -25,8 +25,8 @@ int ModulesController::Init( const wchar_t* basePath )
 	for (cit = mModulesList.begin(); cit != mModulesList.end(); cit++)
 	{
 		ExternalModule module;
-		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), cit->key.c_str());
-		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), cit->value.c_str());
+		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), cit->key);
+		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), cit->value);
 
 		// Get module specific settings section
 		DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, wszConfigFile);

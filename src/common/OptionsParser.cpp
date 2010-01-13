@@ -27,12 +27,16 @@ bool ParseOptions(const wchar_t* wszConfigFile, const wchar_t* wszSectionName, O
 		if (wszBufPtr[0] == ';') continue;
 
 		*wszSeparator = 0;
+		
 		OptionsItem opt;
-		opt.key = wszBufPtr;
-		opt.value = (wszSeparator + 1);
-
-		opts.push_back(opt);
-
+		// Ignore too large options
+		if ((wcslen(wszBufPtr) < OPT_KEY_MAXLEN) && (wcslen(wszSeparator + 1) < OPT_VAL_MAXLEN))
+		{
+			wcscpy_s(opt.key, OPT_KEY_MAXLEN, wszBufPtr);
+			wcscpy_s(opt.value, OPT_VAL_MAXLEN, (wszSeparator + 1));
+			opts.push_back(opt);
+		}
+		
 		wszBufPtr += nEntryLen + 1;
 	} //while
 	

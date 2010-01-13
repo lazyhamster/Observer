@@ -1,10 +1,13 @@
 #ifndef OptionsParser_h__
 #define OptionsParser_h__
 
+#define OPT_KEY_MAXLEN 32
+#define OPT_VAL_MAXLEN 64
+
 struct OptionsItem
 {
-	wstring key;
-	wstring value;
+	wchar_t key[OPT_KEY_MAXLEN];
+	wchar_t value[OPT_VAL_MAXLEN];
 };
 typedef vector<OptionsItem> OptionsList;
 
