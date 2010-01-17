@@ -971,7 +971,7 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 				DWORD copySize;
 
 				LARGE_INTEGER movePos;
-				movePos.QuadPart = (UInt64)(part.Pos << SecLogSize) + (extent.Pos * vol.BlockSize);
+				movePos.QuadPart = ((__int64)part.Pos << SecLogSize) + ((__int64)extent.Pos * vol.BlockSize);
 
 				SetFilePointer(_file, movePos.LowPart, &movePos.HighPart, FILE_BEGIN);
 				while (bytesLeft > 0)
