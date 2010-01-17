@@ -19,6 +19,7 @@
 "File %S already exists. Overwrite?"
 "Extracting failed for file:"
 "Extracting file"
+"Not enough space on target drive"
 
 "Reading files list"
 "Content Error"

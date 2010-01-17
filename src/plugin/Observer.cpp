@@ -838,6 +838,12 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	if (wszWideDestPath[nDestPathLen - 1] != '\\')
 		wcscat_s(wszWideDestPath, nDestPathLen + 2, L"\\");
 
+	if (!IsEnoughSpaceInPath(wszWideDestPath, nTotalExtractSize))
+	{
+		DisplayMessage(true, true, GetLocMsg(MSG_EXTRACT_ERROR), GetLocMsg(MSG_EXTRACT_NODISKSPACE), NULL);
+		return 0;
+	}
+
 	int nDirResult = !IsDiskRoot(wszWideDestPath) ? SHCreateDirectory(0, wszWideDestPath) : ERROR_SUCCESS;
 	if (nDirResult != ERROR_SUCCESS && nDirResult != ERROR_ALREADY_EXISTS)
 	{

@@ -98,3 +98,20 @@ bool IsDiskRoot(const wchar_t* path)
 {
 	return (wcslen(path) == 3) && (path[1] == ':') && (path[2] == '\\');
 }
+
+bool IsEnoughSpaceInPath(const wchar_t* path, __int64 requiredSize)
+{
+	if (requiredSize <= 0) return true;
+	if (!path) return false;
+	
+	//wchar_t wszRoot[4] = {0};
+	//wcsncpy(wszRoot, path, 3);
+
+	//if (!IsDiskRoot(wszRoot)) return true;
+
+	ULARGE_INTEGER liFreeBytes;
+	if (GetDiskFreeSpaceEx(path, &liFreeBytes, NULL, NULL))
+		return (liFreeBytes.QuadPart > (ULONGLONG) requiredSize);
+	
+	return true;
+}

@@ -32,5 +32,6 @@ bool DirectoryExists(const wchar_t* path);
 bool IsDiskRoot(const wchar_t* path);
 bool CheckEsc();
 int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &totalSize, bool recursive);
+bool IsEnoughSpaceInPath(const wchar_t* path, __int64 requiredSize);
 
 #endif // CommonFunc_h__
