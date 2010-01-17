@@ -3,8 +3,6 @@
 
 #include "cab/mspack.h"
 
-#define ANSI_STR_BUF_SIZE MAX_PATH
-
 struct CabCacheItem
 {
 	mscab_decompressor* decomp;
@@ -55,14 +53,15 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	if (!item)
 		return FALSE;
 
-	char* szAnsiSourceName = (char *) malloc(ANSI_STR_BUF_SIZE);
-	memset(szAnsiSourceName, 0, ANSI_STR_BUF_SIZE);
-	WideCharToMultiByte(CP_ACP, 0, sourceFileName, wcslen(sourceFileName), szAnsiSourceName, ANSI_STR_BUF_SIZE, NULL, NULL);
+	char* szAnsiSourceName = (char *) malloc(MAX_PATH);
+	memset(szAnsiSourceName, 0, MAX_PATH);
+	WideCharToMultiByte(CP_ACP, 0, sourceFileName, wcslen(sourceFileName), szAnsiSourceName, MAX_PATH, NULL, NULL);
 
 	// Unpack library expects disk file names in UTF-8 (after custom patch)
-	char* szAnsiDestName = (char *) malloc(ANSI_STR_BUF_SIZE);
-	memset(szAnsiDestName, 0, ANSI_STR_BUF_SIZE);
-	WideCharToMultiByte(CP_UTF8, 0, destFilePath, wcslen(destFilePath), szAnsiDestName, ANSI_STR_BUF_SIZE, NULL, NULL);
+	size_t nDestNameLen = wcslen(destFilePath) * 2 + 1;
+	char* szAnsiDestName = (char *) malloc(nDestNameLen);
+	memset(szAnsiDestName, 0, nDestNameLen);
+	WideCharToMultiByte(CP_UTF8, 0, destFilePath, wcslen(destFilePath), szAnsiDestName, nDestNameLen, NULL, NULL);
 	
 	int result = FALSE;
 
@@ -94,9 +93,9 @@ bool CCabControl::GetFileAttributes(const wchar_t* cabName, const wchar_t* cabPa
 	if (!item)
 		return false;
 
-	char* szAnsiSourceName = (char *) malloc(ANSI_STR_BUF_SIZE);
-	memset(szAnsiSourceName, 0, ANSI_STR_BUF_SIZE);
-	WideCharToMultiByte(CP_ACP, 0, sourceFileName, wcslen(sourceFileName), szAnsiSourceName, ANSI_STR_BUF_SIZE, NULL, NULL);
+	char* szAnsiSourceName = (char *) malloc(MAX_PATH);
+	memset(szAnsiSourceName, 0, MAX_PATH);
+	WideCharToMultiByte(CP_ACP, 0, sourceFileName, wcslen(sourceFileName), szAnsiSourceName, MAX_PATH, NULL, NULL);
 
 	bool fResult = false;
 	
@@ -147,9 +146,9 @@ CabCacheItem* CCabControl::getCacheItem( const wchar_t* cabName, const wchar_t* 
 
 	CabCacheItem *newItem = new CabCacheItem();
 	
-	newItem->fileName = (char *) malloc(ANSI_STR_BUF_SIZE);
-	memset(newItem->fileName, 0, ANSI_STR_BUF_SIZE);
-	WideCharToMultiByte(CP_ACP, 0, cabPath, wcslen(cabPath), newItem->fileName, ANSI_STR_BUF_SIZE, NULL, NULL);
+	newItem->fileName = (char *) malloc(MAX_PATH);
+	memset(newItem->fileName, 0, MAX_PATH);
+	WideCharToMultiByte(CP_UTF8, 0, cabPath, wcslen(cabPath), newItem->fileName, MAX_PATH, NULL, NULL);
 
 	mscabd_cabinet* cabData = newDecomp->open(newDecomp, newItem->fileName);
 	if (cabData)
