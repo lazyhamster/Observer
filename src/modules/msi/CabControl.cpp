@@ -59,9 +59,10 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	memset(szAnsiSourceName, 0, ANSI_STR_BUF_SIZE);
 	WideCharToMultiByte(CP_ACP, 0, sourceFileName, wcslen(sourceFileName), szAnsiSourceName, ANSI_STR_BUF_SIZE, NULL, NULL);
 
+	// Unpack library expects disk file names in UTF-8 (after custom patch)
 	char* szAnsiDestName = (char *) malloc(ANSI_STR_BUF_SIZE);
 	memset(szAnsiDestName, 0, ANSI_STR_BUF_SIZE);
-	WideCharToMultiByte(CP_ACP, 0, destFilePath, wcslen(destFilePath), szAnsiDestName, ANSI_STR_BUF_SIZE, NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, destFilePath, wcslen(destFilePath), szAnsiDestName, ANSI_STR_BUF_SIZE, NULL, NULL);
 	
 	int result = FALSE;
 
