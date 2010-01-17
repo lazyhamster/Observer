@@ -590,9 +590,25 @@ HRESULT CUdfArchive::Open2()
       if (tag.Id == DESC_TYPE_AnchorVolPtr)
         break;
   }
-  if (SecLogSize < kSecLogSizeMin)
-    return S_FALSE;
 
+	// Try alternative search for anchor volume
+	if (SecLogSize < kSecLogSizeMin)
+	{
+		SecLogSize = kSecLogSizeMax;
+		Int32 bufSize = 1 << kSecLogSizeMax;
+
+		if (!SeekStream(_file, 256 * bufSize, FILE_BEGIN, NULL))
+			return S_FALSE;
+		if (!ReadStream_FALSE(_file, buf, bufSize))
+			return S_FALSE;
+
+		CTag tag;
+		if (tag.Parse(buf, bufSize) != S_OK)
+			return S_FALSE;
+		if (tag.Id != DESC_TYPE_AnchorVolPtr)
+			return S_FALSE;
+	}
+	
   CExtent extentVDS;
   extentVDS.Parse(buf + 16);
 
