@@ -2,6 +2,7 @@
 
 1.4.2
 - Plugin: Added free size check on target drive before extraction.
+- Plugin: Fixed total size calculation in container info windows for some cases.
 - UDF: Improved image structure recognition.
 - UDF: Fixed invalid content extraction in some cases.
 
