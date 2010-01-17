@@ -1,0 +1,56 @@
+История изменений:
+
+1.4.2
+- Plugin: Added free size check on target drive before extraction.
+- UDF: Improved image structure recognition.
+- UDF: Fixed invalid content extraction in some cases.
+
+1.4.1
+- MSI: Fixed problem with extraction for files with non-Latin chars in names (e.g. ciryllic).
+
+1.4
+- NSIS: Added support for installers packed with bzip2 algorithm.
+- Now numbers are added before extension for same files when they are renamed.
+
+1.3.2
+- Plugin: Now plugin honors file case settings from regular Far panels.
+- Plugin: Fixed wrong positioning on Far panel after exit from container.
+
+1.3.1
+- NSIS: Added extraction progress for individual files.
+- NSIS: Significant extraction speed improvements for solid archives.
+- MSI: Package info file slighty tweaked.
+
+1.3
+- Plugin: Fixed directory navigation from command line or through 'Ctrl-\'.
+- NSIS: Fixed situation when package have several different files with same name.
+- NSIS: Fixed several issues with unusual path.
+- MSI: Fixed parsing of packages with mixed files storage.
+- MSI: Added last modification time reading for real files and in external .cab-s.
+- Various small fixes.
+
+1.2
+- Plugin: Fixed crash in some cases.
+- MSI: New behavior - directories with same names are merged together (intead of numbered suffixes).
+
+1.1
+- Plugin: Added extraction progress (requires support in each module also).
+- Plugin: Extended file overwrite dialog.
+- NSIS: Enabled script generation.
+- NSIS: Added file size detection for non-solid archives.
+- MSI: Added missing resource release in some places.
+- MSI: Added extraction progress for real files (not in .cab).
+- ISO: Added extraction progress for each file.
+- UDF: Added extraction progress for each file.
+- UDF: Fixed issue with hardlinked files.
+- Small bugs fixed.
+
+1.0.2
+- Fixed MSI module. Not all files were opened properly.
+
+1.0.1
+- Fixed plugin call through prefix for quuoted path.
+- Added missing BCJ decoder for NSIS module.
+
+1.0
+- First public version.

@@ -426,6 +426,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\text\whatsnew.txt"
+				>
+			</File>
+			<File
 				RelativePath=".\text\whatsnew_ru.txt"
 				>
 			</File>
