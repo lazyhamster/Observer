@@ -367,7 +367,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\7zCommon\MyMap.h"
+				>
+			</File>
+			<File
 				RelativePath=".\7zCommon\MyString.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\7zCommon\MyString.h"
 				>
 			</File>
 			<File
@@ -375,11 +383,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\7zCommon\MyVector.h"
+				>
+			</File>
+			<File
 				RelativePath=".\7zCommon\StreamUtils.cpp"
 				>
 			</File>
 			<File
+				RelativePath=".\7zCommon\StreamUtils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\7zCommon\StringConvert.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\7zCommon\StringConvert.h"
+				>
+			</File>
+			<File
+				RelativePath=".\7zCommon\Types.h"
 				>
 			</File>
 		</Filter>
