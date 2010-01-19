@@ -14,3 +14,4 @@
 
 // Additional headers
 #include <malloc.h>
+#include <wchar.h>

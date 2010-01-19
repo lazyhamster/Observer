@@ -71,6 +71,13 @@ struct CTime
 
 	  return SystemTimeToFileTime(&st, &ft);
   }
+
+  UString ToShortString() const
+  {
+	  wchar_t buf[100] = {0};
+	  swprintf_s(buf, 100, L"%04d-%02d-%02d", GetYear(), Data[4], Data[5]);
+	  return UString(buf);
+  }
 };
 
 
@@ -390,6 +397,7 @@ public:
 
   // Extension functions
   int DumpFileContent(int itemIndex, int fileIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc);
+  UString GetCreatedStr() const;
 };
 
 #endif

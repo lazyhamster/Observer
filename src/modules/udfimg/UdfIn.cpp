@@ -1023,3 +1023,15 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 
 	return result;
 }
+
+UString CUdfArchive::GetCreatedStr() const
+{
+	UString res;
+	if (LogVols.Size() == 1)
+	{
+		const CLogVol &vol = LogVols[0];
+		if (vol.FileSets.Size() >= 1)
+			res = vol.FileSets[0].RecodringTime.ToShortString();
+	}
+	return res;
+}

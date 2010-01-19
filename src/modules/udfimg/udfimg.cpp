@@ -18,6 +18,18 @@ struct UdfStorage
 	CRecordVector<CRef2> refs2;
 };
 
+void CopyArcParam(wchar_t* dest, UString src)
+{
+	size_t maxSize = STORAGE_PARAM_MAX_LEN;
+	
+	if (src.IsEmpty())
+		wcscpy_s(dest, maxSize, L"-");
+	else if ((size_t) src.Length() <= maxSize)
+		wcscpy_s(dest, maxSize, src);
+	else
+		wcscpy_s(dest, maxSize, src.Left(maxSize));
+}
+
 int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 {
 	return TRUE;
@@ -52,7 +64,9 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		} //for volIndex
 
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"UDF");
-		wcscpy_s(info->SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, L"-");
+		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
+		CopyArcParam(info->Comment, storageRec->arc.GetComment());
+		CopyArcParam(info->Created, storageRec->arc.GetCreatedStr());
 		info->NumRealItems = storageRec->refs2.Size();
 
 		return TRUE;
