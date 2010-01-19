@@ -719,6 +719,17 @@ int WINAPI SetDirectory(HANDLE hPlugin, const char *Dir, int OpMode)
 	return TRUE;
 }
 
+enum InfoLines
+{
+	IL_FORMAT = 1,
+	IL_SIZE = 2,
+	IL_FILES = 3,
+	IL_DIRECTORIES = 4,
+	IL_COMPRESS = 5,
+	IL_COMMENT = 6,
+	IL_CREATED = 7
+};
+
 void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 {
 	Info->StructSize = sizeof(OpenPluginInfo);
@@ -757,30 +768,33 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	size_t nInfoDataSize = sizeof(pInfoLinesData[0].Data) / sizeof(pInfoLinesData[0].Data[0]);
 
 	memset(pInfoLinesData, 0, sizeof(pInfoLinesData));
-	WideCharToMultiByte(CP_ACP, 0, info->StorageFileName, wcslen(info->StorageFileName), pInfoLinesData[0].Text, nInfoTextSize, NULL, NULL);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StorageFileName, wcslen(info->StorageFileName), pInfoLinesData[0].Text, nInfoTextSize, NULL, NULL);
 	pInfoLinesData[0].Separator = 1;
 	
-	strcpy_s(pInfoLinesData[1].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));
-	WideCharToMultiByte(CP_ACP, 0, info->info.GeneralInfo.Format, wcslen(info->info.GeneralInfo.Format), pInfoLinesData[1].Data, nInfoDataSize, NULL, NULL);
+	strcpy_s(pInfoLinesData[IL_FORMAT].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->info.GeneralInfo.Format, wcslen(info->info.GeneralInfo.Format), pInfoLinesData[IL_FORMAT].Data, nInfoDataSize, NULL, NULL);
 
-	strcpy_s(pInfoLinesData[2].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
-	_i64toa_s(info->info.TotalSize, pInfoLinesData[2].Data, nInfoDataSize, 10);
-	InsertCommas(pInfoLinesData[2].Data);
+	strcpy_s(pInfoLinesData[IL_SIZE].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
+	_i64toa_s(info->info.TotalSize, pInfoLinesData[IL_SIZE].Data, nInfoDataSize, 10);
+	InsertCommas(pInfoLinesData[IL_SIZE].Data);
 	
-	strcpy_s(pInfoLinesData[3].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FILES));
-	_ultoa_s(info->info.NumFiles, pInfoLinesData[3].Data, nInfoDataSize, 10);
+	strcpy_s(pInfoLinesData[IL_FILES].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FILES));
+	_ultoa_s(info->info.NumFiles, pInfoLinesData[IL_FILES].Data, nInfoDataSize, 10);
 
-	strcpy_s(pInfoLinesData[4].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_DIRS));
-	_ultoa_s(info->info.NumDirectories, pInfoLinesData[4].Data, nInfoDataSize, 10);
+	strcpy_s(pInfoLinesData[IL_DIRECTORIES].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_DIRS));
+	_ultoa_s(info->info.NumDirectories, pInfoLinesData[IL_DIRECTORIES].Data, nInfoDataSize, 10);
 
-	strcpy_s(pInfoLinesData[5].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMPRESSION));
-	WideCharToMultiByte(CP_ACP, 0, info->info.GeneralInfo.Compression, wcslen(info->info.GeneralInfo.Compression), pInfoLinesData[5].Data, nInfoDataSize, NULL, NULL);
+	strcpy_s(pInfoLinesData[IL_COMPRESS].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMPRESSION));
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->info.GeneralInfo.Compression, wcslen(info->info.GeneralInfo.Compression), pInfoLinesData[IL_COMPRESS].Data, nInfoDataSize, NULL, NULL);
+	pInfoLinesData[IL_COMPRESS].Data[STORAGE_PARAM_MAX_LEN] = 0;
 
-	strcpy_s(pInfoLinesData[6].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMMENT));
-	WideCharToMultiByte(CP_ACP, 0, info->info.GeneralInfo.Comment, wcslen(info->info.GeneralInfo.Comment), pInfoLinesData[6].Data, nInfoDataSize, NULL, NULL);
+	strcpy_s(pInfoLinesData[IL_COMMENT].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMMENT));
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->info.GeneralInfo.Comment, wcslen(info->info.GeneralInfo.Comment), pInfoLinesData[IL_COMMENT].Data, nInfoDataSize, NULL, NULL);
+	pInfoLinesData[IL_COMMENT].Data[STORAGE_PARAM_MAX_LEN] = 0;
 
-	strcpy_s(pInfoLinesData[7].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_CREATED));
-	WideCharToMultiByte(CP_ACP, 0, info->info.GeneralInfo.Created, wcslen(info->info.GeneralInfo.Created), pInfoLinesData[7].Data, nInfoDataSize, NULL, NULL);
+	strcpy_s(pInfoLinesData[IL_CREATED].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_CREATED));
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->info.GeneralInfo.Created, wcslen(info->info.GeneralInfo.Created), pInfoLinesData[IL_CREATED].Data, nInfoDataSize, NULL, NULL);
+	pInfoLinesData[IL_CREATED].Data[STORAGE_PARAM_MAX_LEN] = 0;
 	
 	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
 	Info->InfoLines = pInfoLinesData;
