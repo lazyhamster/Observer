@@ -35,8 +35,14 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 				break;
 		}
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
-		wcscpy_s(info->Created, STORAGE_PARAM_MAX_LEN, L"-");
 		info->NumRealItems = view->GetTotalFiles() + view->GetTotalDirectories();
+
+		SYSTEMTIME st;
+		FILETIME ft = view->GetCreateDateTime();
+		if (FileTimeToSystemTime(&ft, &st))
+			swprintf_s(info->Created, STORAGE_PARAM_MAX_LEN, L"%04d-%02d-%02d", st.wYear, st.wMonth, st.wDay);
+		else
+			wcscpy_s(info->Created, STORAGE_PARAM_MAX_LEN, L"-");
 
 		return TRUE;
 	}

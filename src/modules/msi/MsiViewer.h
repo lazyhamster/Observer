@@ -68,6 +68,7 @@ public:
 	int GetTotalFiles() { return m_pRootDir->GetFilesCount(); }
 	__int64 GetTotalSize() { return m_pRootDir->GetTotalSize(); }
 	int GetCompressionType();
+	FILETIME GetCreateDateTime() { return m_ftCreateTime; };
 
 	DirectoryNode* GetDirectory(const wchar_t* path);
 	FileNode* GetFile(const int fileIndex);
