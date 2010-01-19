@@ -55,6 +55,17 @@ DWORD GetDirectoryAttributes(Directory* dir)
 	return dwAttr;
 }
 
+template <typename T>
+void TrimRight(T* buf, int bufSize)
+{
+	int i = bufSize - 1;
+	while ((i >= 0) && (buf[i] == 32))
+	{
+		buf[i] = 0;
+		i--;
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const ExtractProcessCallbacks* epc);
@@ -95,13 +106,33 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		
 	*storage = (INT_PTR *) image;
 
-	wcscpy(info->Format, L"ISO");
 	info->NumRealItems = image->DirectoryCount;
 	if (image->VolumeDescriptors && image->VolumeDescriptors->XBOX)
-		wcscpy(info->SubType, L"XBOX");
+	{
+		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"XBOX ISO");
+		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"MICROSOFT*XBOX*MEDIA");
+	}
 	else
-		wcscpy(info->SubType, L"PC");
+	{
+		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"ISO");
 
+		MultiByteToWideChar(CP_ACP, 0, (char*)image->VolumeDescriptors->VolumeDescriptor.VolumeCreationDateAndTime, 8,  info->Created, STORAGE_PARAM_MAX_LEN);
+
+		if (image->VolumeDescriptors->Unicode)
+		{
+			wchar_t* vd = (wchar_t*) (image->VolumeDescriptors->VolumeDescriptor.VolumeIdentifier + 1);
+			wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, vd);
+			TrimRight<wchar_t>(info->Comment, wcslen(info->Comment));
+		}
+		else
+		{
+			char *vd = (char*) image->VolumeDescriptors->VolumeDescriptor.VolumeIdentifier;
+			TrimRight<char>(vd, 32);
+			MultiByteToWideChar(CP_ACP, 0, vd, strlen(vd), info->Comment, STORAGE_PARAM_MAX_LEN);
+		}
+	}
+	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
+	
 	return TRUE;
 }
 

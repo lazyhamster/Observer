@@ -11,6 +11,10 @@ typedef map<wstring, wstring> WStringMap;
 #define MSI_OPENFLAG_KEEPUNIQUEDIRS 1
 #define MSI_OPENFLAG_SHOWSPECIALS 2
 
+#define MSI_COMPRESSION_NONE 0
+#define MSI_COMPRESSION_CAB 1
+#define MSI_COMPRESSION_MIXED 2
+
 class CMsiViewer
 {
 private:
@@ -20,6 +24,7 @@ private:
 	wstring m_strStorageLocation;
 	vector <BasicNode*> m_vFlatIndex;
 	int m_nSummaryWordCount;
+	FILETIME m_ftCreateTime;
 	
 	CCabControl* m_pCabControl;
 	wstring m_strStreamCacheLocation;
@@ -62,6 +67,7 @@ public:
 	int GetTotalDirectories() { return m_pRootDir->GetSubDirsCount(); }
 	int GetTotalFiles() { return m_pRootDir->GetFilesCount(); }
 	__int64 GetTotalSize() { return m_pRootDir->GetTotalSize(); }
+	int GetCompressionType();
 
 	DirectoryNode* GetDirectory(const wchar_t* path);
 	FileNode* GetFile(const int fileIndex);

@@ -20,7 +20,7 @@ private:
 	int m_numFiles;
 	int m_numDirectories;
 	__int64 m_totalSize;
-	wchar_t m_archSubtype[STORAGE_SUBTYPE_NAME_MAX_LEN];
+	wchar_t m_archSubtype[STORAGE_PARAM_MAX_LEN];
 
 	UStringVector m_folderList;  // Fake folders list, since format does not expose folders
 

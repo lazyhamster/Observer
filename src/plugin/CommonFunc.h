@@ -8,8 +8,7 @@
 
 struct StorageInfo
 {
-	wchar_t Format[STORAGE_FORMAT_NAME_MAX_LEN];
-	wchar_t SubType[STORAGE_SUBTYPE_NAME_MAX_LEN];
+	StorageGeneralInfo GeneralInfo;
 
 	__int64 TotalSize;
 	DWORD NumFiles;

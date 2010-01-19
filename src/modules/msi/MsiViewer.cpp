@@ -52,6 +52,7 @@ CMsiViewer::CMsiViewer(void)
 	m_hMsi = 0;
 	m_pRootDir = NULL;
 	m_nSummaryWordCount = 0;
+	memset(&m_ftCreateTime, 0, sizeof(m_ftCreateTime));
 	m_pCabControl = new CCabControl();
 }
 
@@ -584,6 +585,11 @@ int CMsiViewer::generateInfoText()
 	int nPropVal;
 	if (MsiSummaryInfoGetPropertyW(hSummary, 15, &nDataType, &nPropVal, NULL, NULL, NULL) == ERROR_SUCCESS)
 		m_nSummaryWordCount = nPropVal;
+	
+	// Save "Create Time/Date" property for future use
+	FILETIME ftPropVal;
+	if (MsiSummaryInfoGetPropertyW(hSummary, 12, &nDataType, NULL, &ftPropVal, NULL, NULL) == ERROR_SUCCESS)
+		m_ftCreateTime = ftPropVal;
 
 	// Content info
 	sstr << endl;
@@ -1133,4 +1139,33 @@ bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, 
 	itemPathBuf[path.length()] = 0;
 	
 	return true;
+}
+
+int CMsiViewer::GetCompressionType()
+{
+	if (m_vMedias.size() == 0)
+		return MSI_COMPRESSION_NONE;
+	if (m_nSummaryWordCount & 2)
+		return MSI_COMPRESSION_CAB;
+
+	bool fFoundUncomp = false, fFoundComp = false;
+	for (vector<BasicNode*>::const_iterator cit = m_vFlatIndex.begin(); cit != m_vFlatIndex.end(); cit++)
+	{
+		BasicNode* node = *cit;
+		if (!node->IsDir())
+		{
+			FileNode *fnode = (FileNode *) node;
+			if (fnode->IsFake) continue;
+
+			if ((fnode->Attributes & msidbFileAttributesCompressed) != 0)
+				fFoundComp = true;
+			else
+				fFoundUncomp = true;
+
+			if (fFoundComp && fFoundUncomp)
+				return MSI_COMPRESSION_MIXED;
+		}
+	}
+	
+	return MSI_COMPRESSION_CAB;
 }

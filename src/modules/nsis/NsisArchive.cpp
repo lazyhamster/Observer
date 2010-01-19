@@ -310,10 +310,10 @@ int CNsisArchive::Open(const wchar_t* path)
 		NWindows::NCOM::CPropVariant prop;
 
 		if ( (m_handler->GetArchiveProperty(kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL) )
-			if (prop.boolVal) wcscat_s(m_archSubtype, STORAGE_SUBTYPE_NAME_MAX_LEN, L"Solid ");
+			if (prop.boolVal) wcscat_s(m_archSubtype, STORAGE_PARAM_MAX_LEN, L"Solid ");
 		
 		if ( (m_handler->GetArchiveProperty(kpidMethod, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
-			wcscat_s(m_archSubtype, STORAGE_SUBTYPE_NAME_MAX_LEN, prop.bstrVal);
+			wcscat_s(m_archSubtype, STORAGE_PARAM_MAX_LEN, prop.bstrVal);
 	}
 
 	return TRUE;

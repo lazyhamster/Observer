@@ -191,8 +191,7 @@ HANDLE OpenStorage(const wchar_t* Name)
 		info->info.TotalSize = nTotalSize;
 		info->info.NumFiles = nNumFiles;
 		info->info.NumDirectories = nNumDirs;
-		wcscpy_s(info->info.Format, STORAGE_FORMAT_NAME_MAX_LEN, sinfo.Format);
-		wcscpy_s(info->info.SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, sinfo.SubType);
+		memcpy(&(info->info.GeneralInfo), &sinfo, sizeof(StorageGeneralInfo));
 		
 		// Copy storage file name for info
 		const wchar_t *slashPos = wcsrchr(Name, L'\\');
@@ -753,7 +752,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	Info->HostFile = szHostFile;
 
 	// Fill info lines
-	static InfoPanelLine pInfoLinesData[6];
+	static InfoPanelLine pInfoLinesData[8];
 	size_t nInfoTextSize = sizeof(pInfoLinesData[0].Text) / sizeof(pInfoLinesData[0].Text[0]);
 	size_t nInfoDataSize = sizeof(pInfoLinesData[0].Data) / sizeof(pInfoLinesData[0].Data[0]);
 
@@ -762,20 +761,26 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	pInfoLinesData[0].Separator = 1;
 	
 	strcpy_s(pInfoLinesData[1].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));
-	WideCharToMultiByte(CP_ACP, 0, info->info.Format, wcslen(info->info.Format), pInfoLinesData[1].Data, nInfoDataSize, NULL, NULL);
+	WideCharToMultiByte(CP_ACP, 0, info->info.GeneralInfo.Format, wcslen(info->info.GeneralInfo.Format), pInfoLinesData[1].Data, nInfoDataSize, NULL, NULL);
 
-	strcpy_s(pInfoLinesData[2].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_TYPE));
-	WideCharToMultiByte(CP_ACP, 0, info->info.SubType, wcslen(info->info.SubType), pInfoLinesData[2].Data, nInfoDataSize, NULL, NULL);
-
+	strcpy_s(pInfoLinesData[2].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
+	_i64toa_s(info->info.TotalSize, pInfoLinesData[2].Data, nInfoDataSize, 10);
+	InsertCommas(pInfoLinesData[2].Data);
+	
 	strcpy_s(pInfoLinesData[3].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FILES));
 	_ultoa_s(info->info.NumFiles, pInfoLinesData[3].Data, nInfoDataSize, 10);
 
 	strcpy_s(pInfoLinesData[4].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_DIRS));
 	_ultoa_s(info->info.NumDirectories, pInfoLinesData[4].Data, nInfoDataSize, 10);
 
-	strcpy_s(pInfoLinesData[5].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
-	_i64toa_s(info->info.TotalSize, pInfoLinesData[5].Data, nInfoDataSize, 10);
-	InsertCommas(pInfoLinesData[5].Data);
+	strcpy_s(pInfoLinesData[5].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMPRESSION));
+	WideCharToMultiByte(CP_ACP, 0, info->info.GeneralInfo.Compression, wcslen(info->info.GeneralInfo.Compression), pInfoLinesData[5].Data, nInfoDataSize, NULL, NULL);
+
+	strcpy_s(pInfoLinesData[6].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMMENT));
+	WideCharToMultiByte(CP_ACP, 0, info->info.GeneralInfo.Comment, wcslen(info->info.GeneralInfo.Comment), pInfoLinesData[6].Data, nInfoDataSize, NULL, NULL);
+
+	strcpy_s(pInfoLinesData[7].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_CREATED));
+	WideCharToMultiByte(CP_ACP, 0, info->info.GeneralInfo.Created, wcslen(info->info.GeneralInfo.Created), pInfoLinesData[7].Data, nInfoDataSize, NULL, NULL);
 	
 	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
 	Info->InfoLines = pInfoLinesData;

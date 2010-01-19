@@ -19,7 +19,23 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		*storage = (INT_PTR *) view;
 
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI");
-		wcscpy_s(info->SubType, STORAGE_SUBTYPE_NAME_MAX_LEN, L"-");
+		switch (view->GetCompressionType())
+		{
+			case MSI_COMPRESSION_NONE:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
+				break;
+			case MSI_COMPRESSION_CAB:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"MSCab");
+				break;
+			case MSI_COMPRESSION_MIXED:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"Mixed");
+				break;
+			default:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
+				break;
+		}
+		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
+		wcscpy_s(info->Created, STORAGE_PARAM_MAX_LEN, L"-");
 		info->NumRealItems = view->GetTotalFiles() + view->GetTotalDirectories();
 
 		return TRUE;
