@@ -1,0 +1,18 @@
+1. Building prerequisites.
+
+To build plugin you will need 7-zip sources placed alonside plugin folder.
+The folder structure should be the following:
+
+- 7z465_src (7-zip sources version 4.65)
+- Observer
+    |
+     -src
+
+Copy all files from Oberver\patches folder to 7-zip sources
+(find files by name in source tree and replace them).
+
+2. Building IDE.
+
+Plugin is created with MS Visual Studio 2008.
+It should build with other MSVC versions,
+but project convertion will be required.
