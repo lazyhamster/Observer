@@ -22,8 +22,6 @@ private:
 	__int64 m_totalSize;
 	wchar_t m_archSubtype[STORAGE_PARAM_MAX_LEN];
 
-	UStringVector m_folderList;  // Fake folders list, since format does not expose folders
-
 	UString getItemPath(int itemIndex);
 
 public:
