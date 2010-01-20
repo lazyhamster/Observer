@@ -72,10 +72,11 @@ int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 	if (m_hMsi) return -1;
 	
 	UINT res;
+		
+	OK( MsiOpenDatabaseW(path, MSIDBOPEN_READONLY, &m_hMsi) );
+
 	DirectoryNodesMap mDirs;
 	ComponentEntryMap mComponents;
-	
-	OK( MsiOpenDatabaseW(path, MSIDBOPEN_READONLY, &m_hMsi) );
 
 	// Prepare list of media sources
 	OK ( readMediaSources() );
