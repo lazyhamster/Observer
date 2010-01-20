@@ -106,6 +106,8 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	item_data->nFileSizeLow = (DWORD) item.Size;
 	item_data->nFileSizeHigh = (DWORD) (item.Size >> 32);
 	item.MTime.GetFileTime(item_data->ftLastWriteTime);
+	item.MTime.GetFileTime(item_data->ftCreationTime);
+	item.ATime.GetFileTime(item_data->ftLastAccessTime);
 
 	UString fullPath = storageRec->arc.GetItemPath(ref2.Vol, ref2.Fs, ref2.Ref, storageRec->arc.LogVols.Size() > 1, vol.FileSets.Size() > 1);
 	wcscpy_s(item_path, path_size, fullPath);

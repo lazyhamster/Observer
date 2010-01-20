@@ -667,6 +667,7 @@ int WINAPI GetFindData(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int 
 		panelItem->FindData.dwFileAttributes = fd->dwFileAttributes;
 		panelItem->FindData.ftCreationTime = fd->ftCreationTime;
 		panelItem->FindData.ftLastWriteTime = fd->ftLastWriteTime;
+		panelItem->FindData.ftLastAccessTime = fd->ftLastAccessTime;
 		panelItem->FindData.nFileSizeHigh = fd->nFileSizeHigh;
 		panelItem->FindData.nFileSizeLow = fd->nFileSizeLow;
 
