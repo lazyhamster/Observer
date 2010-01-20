@@ -793,8 +793,11 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	pInfoLinesData[IL_COMMENT].Data[STORAGE_PARAM_MAX_LEN] = 0;
 
 	strcpy_s(pInfoLinesData[IL_CREATED].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_CREATED));
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->info.GeneralInfo.Created, wcslen(info->info.GeneralInfo.Created), pInfoLinesData[IL_CREATED].Data, nInfoDataSize, NULL, NULL);
-	pInfoLinesData[IL_CREATED].Data[STORAGE_PARAM_MAX_LEN] = 0;
+	SYSTEMTIME st;
+	if (FileTimeToSystemTime(&info->info.GeneralInfo.Created, &st))
+		sprintf_s(pInfoLinesData[IL_CREATED].Data, nInfoDataSize, "%04d-%02d-%02d", st.wYear, st.wMonth, st.wDay);
+	else
+		strcpy_s(pInfoLinesData[IL_CREATED].Data, nInfoDataSize, "-");
 	
 	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
 	Info->InfoLines = pInfoLinesData;

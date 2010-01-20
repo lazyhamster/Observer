@@ -58,7 +58,7 @@ struct CTime
   unsigned GetYear() const { return (Data[2] | ((UInt16)Data[3] << 8)); }
   void Parse(const Byte *buf);
 
-  BOOL GetFileTime(FILETIME &ft)
+  BOOL GetFileTime(FILETIME &ft) const
   {
 	  SYSTEMTIME st;
 	  st.wYear = GetYear();
@@ -70,13 +70,6 @@ struct CTime
 	  st.wMilliseconds = Data[9] * 10;
 
 	  return SystemTimeToFileTime(&st, &ft);
-  }
-
-  UString ToShortString() const
-  {
-	  wchar_t buf[100] = {0};
-	  swprintf_s(buf, 100, L"%04d-%02d-%02d", GetYear(), Data[4], Data[5]);
-	  return UString(buf);
   }
 };
 
@@ -397,7 +390,7 @@ public:
 
   // Extension functions
   int DumpFileContent(int itemIndex, int fileIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc);
-  UString GetCreatedStr() const;
+  FILETIME GetCreatedTime() const;
 };
 
 #endif

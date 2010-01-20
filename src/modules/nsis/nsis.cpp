@@ -52,7 +52,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"NSIS");
 	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, arc->GetSubType());
 	wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
-	wcscpy_s(info->Created, STORAGE_PARAM_MAX_LEN, L"-");
+	memset(&info->Created, 0, sizeof(info->Created));
 	info->NumRealItems = arc->GetTotalFiles();
 
 	return TRUE;

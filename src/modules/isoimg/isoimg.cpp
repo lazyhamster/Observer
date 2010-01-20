@@ -66,6 +66,17 @@ void TrimRight(T* buf, int bufSize)
 	}
 }
 
+FILETIME StringToTime(const char* data)
+{
+	FILETIME res = {0};
+	
+	SYSTEMTIME st = {0};
+	int valnum = sscanf(data, "%4d%2d%2d%2d%2d%2d", &st.wYear, &st.wMonth, &st.wDay, &st.wHour, &st.wMinute, &st.wSecond);
+	if (valnum >= 3) SystemTimeToFileTime(&st, &res);
+	
+	return res;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const ExtractProcessCallbacks* epc);
@@ -111,12 +122,12 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	{
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"XBOX ISO");
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"MICROSOFT*XBOX*MEDIA");
+		info->Created = image->VolumeDescriptors->XBOXVolumeDescriptor.FileTime;
 	}
 	else
 	{
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"ISO");
-
-		MultiByteToWideChar(CP_ACP, 0, (char*)image->VolumeDescriptors->VolumeDescriptor.VolumeCreationDateAndTime, 8,  info->Created, STORAGE_PARAM_MAX_LEN);
+		info->Created = StringToTime((char*)image->VolumeDescriptors->VolumeDescriptor.VolumeCreationDateAndTime);
 
 		if (image->VolumeDescriptors->Unicode)
 		{

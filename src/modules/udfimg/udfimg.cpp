@@ -66,7 +66,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"UDF");
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
 		CopyArcParam(info->Comment, storageRec->arc.GetComment());
-		CopyArcParam(info->Created, storageRec->arc.GetCreatedStr());
+		info->Created = storageRec->arc.GetCreatedTime();
 		info->NumRealItems = storageRec->refs2.Size();
 
 		return TRUE;

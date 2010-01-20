@@ -51,7 +51,7 @@ struct StorageGeneralInfo
 	wchar_t Format[STORAGE_FORMAT_NAME_MAX_LEN];
 	wchar_t Compression[STORAGE_PARAM_MAX_LEN];
 	wchar_t Comment[STORAGE_PARAM_MAX_LEN];
-	wchar_t Created[STORAGE_PARAM_MAX_LEN];
+	FILETIME Created;
 	DWORD NumRealItems;		// Number of items which should be queried from submodule (usually NumFiles + NumDirectories)
 };
 
