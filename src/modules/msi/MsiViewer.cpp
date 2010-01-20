@@ -158,11 +158,7 @@ int CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
 			nodemap[dirEntry.Key] = node;
 		else
 			delete node;
-
-		MsiCloseHandle(hDirRec);
 	}
-
-	MsiCloseHandle(hQueryDirs);
 
 	return ERROR_SUCCESS;
 }
@@ -192,11 +188,7 @@ int CMsiViewer::readComponents( DirectoryNodesMap &nodemap, ComponentEntryMap &c
 			return ERROR_INVALID_DATA;
 
 		componentmap[compEntry.Key] = compEntry;
-		
-		MsiCloseHandle(hCompRec);
 	}
-
-	MsiCloseHandle(hQueryComp);
 
 	return ERROR_SUCCESS;
 }
@@ -237,12 +229,8 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 			dir->AddFile(node);
 		else
 			return ERROR_INVALID_DATA;
-
-		MsiCloseHandle(hFileRec);
 	}
 
-	MsiCloseHandle(hQueryFile);
-	
 	return ERROR_SUCCESS;
 }
 
@@ -269,11 +257,7 @@ int CMsiViewer::readAppSearch(WStringMap &entries)
 
 		if (key[0])
 			entries[key] = signature;
-
-		MsiCloseHandle(hAppRec);
 	}
-
-	MsiCloseHandle(hQueryAppSearch);
 
 	return ERROR_SUCCESS;
 }
@@ -301,11 +285,7 @@ int CMsiViewer::readCreateFolder(WStringMap &entries)
 
 		if (dir[0])
 			entries[dir] = component;
-
-		MsiCloseHandle(hFolderRec);
 	}
-
-	MsiCloseHandle(hQueryCreateFolder);
 
 	return ERROR_SUCCESS;
 }
@@ -675,11 +655,7 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 		else
 			sstr << L"@";
 		sstr << L" = \"" << &regval[0] << L"\"" << endl;
-
-		MsiCloseHandle(hRegRec);
 	}
-
-	MsiCloseHandle(hQueryReg);
 	
 	return ERROR_SUCCESS;
 }
@@ -718,12 +694,8 @@ int CMsiViewer::dumpFeatures(wstringstream &sstr)
 			if (wcslen(featEntry.Description) > 0)
 				sstr << L"    " << featEntry.Description << L"\n";
 		}
-
-		MsiCloseHandle(hFeatRec);
 	}
 
-	MsiCloseHandle(hQueryFeat);
-	
 	return ERROR_SUCCESS;
 }
 
