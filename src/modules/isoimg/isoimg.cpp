@@ -189,6 +189,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		time.wSecond = dir.Record.RecordingDateAndTime.Second;
 		SystemTimeToFileTime( &time, &ftime );
 		item_data->ftLastWriteTime = ftime;
+		item_data->ftCreationTime = ftime;
 	}
 
 	return TRUE;

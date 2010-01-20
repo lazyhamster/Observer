@@ -104,9 +104,9 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 			time.wSecond = dir->Record.RecordingDateAndTime.Second;
 
 			SystemTimeToFileTime( &time, &ftime );
-			LocalFileTimeToFileTime( &ftime, &dtime );
-			//dtime = ftime;
-			SetFileTime( hFile, &dtime, &dtime, &dtime );
+			//LocalFileTimeToFileTime( &ftime, &dtime );
+			dtime = ftime;
+			SetFileTime( hFile, &dtime, NULL, &dtime );
 		}
 
 		free( buffer );

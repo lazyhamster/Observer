@@ -1018,7 +1018,7 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 		FILETIME ft;
 		itemObj.MTime.GetFileTime(ft);
 		if (ft.dwHighDateTime)
-			SetFileTime(hFile, &ft, NULL, &ft);
+			SetFileTime(hFile, NULL, NULL, &ft);
 
 		CloseHandle(hFile);
 
