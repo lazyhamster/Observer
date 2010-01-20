@@ -418,6 +418,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\text\readme.txt"
+				>
+			</File>
+			<File
 				RelativePath=".\text\readme_ru.txt"
 				>
 			</File>
