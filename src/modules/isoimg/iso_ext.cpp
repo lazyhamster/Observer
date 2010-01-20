@@ -6,6 +6,32 @@
 
 DWORD GetDirectoryAttributes(Directory* dir);
 
+FILETIME VolumeDateTimeToFileTime(VolumeDateTime &vdtime)
+{
+	SYSTEMTIME time;
+	FILETIME ftime = {0}, ltime = {0};
+	ZeroMemory( &time, sizeof( time ) );
+	time.wYear   = (WORD)(vdtime.Year + 1900);
+	time.wMonth  = vdtime.Month;
+	time.wDay    = vdtime.Day;
+	time.wHour   = vdtime.Hour;
+	time.wMinute = vdtime.Minute;
+	time.wSecond = vdtime.Second;
+	SystemTimeToFileTime( &time, &ftime );
+
+	// Apply time-zone shift to convert to UTC
+	int nTimeZoneShift = vdtime.Zone / 4;
+	if (nTimeZoneShift != 0)
+	{
+		__int64* li = (__int64*)&ftime;
+		*li -= nTimeZoneShift * (__int64)10000000*60*60;
+	}
+
+	//FileTimeToLocalFileTime(&ftime, &ltime);
+
+	return ltime;
+}
+
 int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const ExtractProcessCallbacks* epc)
 {
 	wchar_t strDestFilePath[NAME_PATH_BUFSIZE] = {0};
@@ -92,21 +118,8 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 
 		if(!xbox)
 		{
-			FILETIME   dtime;
-			SYSTEMTIME time;
-			FILETIME   ftime;
-			ZeroMemory( &time, sizeof( time ) );
-			time.wYear   = (WORD)(dir->Record.RecordingDateAndTime.Year + 1900);
-			time.wMonth  = dir->Record.RecordingDateAndTime.Month;
-			time.wDay    = dir->Record.RecordingDateAndTime.Day;
-			time.wHour   = dir->Record.RecordingDateAndTime.Hour;
-			time.wMinute = dir->Record.RecordingDateAndTime.Minute;
-			time.wSecond = dir->Record.RecordingDateAndTime.Second;
-
-			SystemTimeToFileTime( &time, &ftime );
-			//LocalFileTimeToFileTime( &ftime, &dtime );
-			dtime = ftime;
-			SetFileTime( hFile, &dtime, NULL, &dtime );
+			FILETIME ftime = VolumeDateTimeToFileTime(dir->Record.RecordingDateAndTime);
+			SetFileTime( hFile, &ftime, NULL, &ftime );
 		}
 
 		free( buffer );

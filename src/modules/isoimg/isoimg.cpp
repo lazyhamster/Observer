@@ -80,6 +80,7 @@ FILETIME StringToTime(const char* data)
 //////////////////////////////////////////////////////////////////////////
 
 int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const ExtractProcessCallbacks* epc);
+FILETIME VolumeDateTimeToFileTime(VolumeDateTime &vdtime);
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -178,16 +179,8 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	{
 		item_data->nFileSizeLow = (dir.Record.FileFlags & FATTR_DIRECTORY)? 0 : (DWORD) dir.Record.DataLength;
 
-		SYSTEMTIME time;
-		FILETIME   ftime;
-		ZeroMemory( &time, sizeof( time ) );
-		time.wYear   = (WORD)(dir.Record.RecordingDateAndTime.Year + 1900);
-		time.wMonth  = dir.Record.RecordingDateAndTime.Month;
-		time.wDay    = dir.Record.RecordingDateAndTime.Day;
-		time.wHour   = dir.Record.RecordingDateAndTime.Hour;
-		time.wMinute = dir.Record.RecordingDateAndTime.Minute;
-		time.wSecond = dir.Record.RecordingDateAndTime.Second;
-		SystemTimeToFileTime( &time, &ftime );
+		FILETIME ftime = VolumeDateTimeToFileTime(dir.Record.RecordingDateAndTime);
+		
 		item_data->ftLastWriteTime = ftime;
 		item_data->ftCreationTime = ftime;
 	}
