@@ -28,6 +28,7 @@ FILETIME VolumeDateTimeToFileTime(VolumeDateTime &vdtime)
 	}
 
 	//FileTimeToLocalFileTime(&ftime, &ltime);
+	ltime = ftime;
 
 	return ltime;
 }
