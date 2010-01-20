@@ -794,7 +794,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 
 	strcpy_s(pInfoLinesData[IL_CREATED].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_CREATED));
 	SYSTEMTIME st;
-	if (FileTimeToSystemTime(&info->info.GeneralInfo.Created, &st))
+	if (info->info.GeneralInfo.Created.dwHighDateTime && FileTimeToSystemTime(&info->info.GeneralInfo.Created, &st))
 		sprintf_s(pInfoLinesData[IL_CREATED].Data, nInfoDataSize, "%04d-%02d-%02d", st.wYear, st.wMonth, st.wDay);
 	else
 		strcpy_s(pInfoLinesData[IL_CREATED].Data, nInfoDataSize, "-");
