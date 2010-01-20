@@ -1,5 +1,5 @@
 Observer
-Плагин для FAR 1.71+
+Плагин для FAR 1.75+
 Автор: Ariman
 
 -------------------------------------------------------------------
@@ -23,16 +23,24 @@ Observer
 2. Лицензия и авторские права.
 
 Плагин включает в себя код других авторов, с некоторыми изменениями.
-Вследствии чего распространияется под LGPL.
+Вследствии чего распространияется под GNU LGPL версии 3 или выше.
 
 Используемый код:
 
-- 7-zip (взята поддержка UDF + NSIS). От него отнаследована лицензия LGPL.
-Модуль для UDF взят как есть, только лишнее обрезано.
+- 7-zip (http://www.7-zip.org)
+Взята поддержка UDF + NSIS. От него отнаследована лицензия LGPL.
 
-- Total Commander ISO plugin by Sergey Oblomov.
+- Total Commander ISO plugin by Sergey Oblomov (http://wincmd.ru/plugring/iso.html)
 Передалан на поддержку wchar_t в именах. Базируется на версии 1.7.4 b1.
 Лицензии на код не нашел, поэтому тоже пойдет по LGPL.
+
+- libmspack (http://www.cabextract.org.uk/libmspack/)
+libmspack is a library which provides compressors and decompressors,
+archivers and dearchivers for Microsoft compression formats.
+
+- NSIS (http://nsis.sourceforge.net/)
+Взят код распаковщика bzip2. Версия специфическая для данного инсталятора.
+
 
 3. Системные требования.
 Минимальная версия FAR-а для работы плагина 1.71, build 2406 (и выше).
