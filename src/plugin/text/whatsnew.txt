@@ -2,6 +2,7 @@
 
 1.4.3
 - Changed container property list layout.
+- Several fixes for extracted files' attributes.
 
 1.4.2
 - Plugin: Added free size check on target drive before extraction.

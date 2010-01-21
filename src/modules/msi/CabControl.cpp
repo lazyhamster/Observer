@@ -29,6 +29,39 @@ struct CabCacheItem
 	}
 };
 
+static bool DecodeCabAttributes(mscabd_file *cabfile, DWORD &fileAttr)
+{
+	fileAttr = 0;
+	
+	if (cabfile->attribs & MSCAB_ATTRIB_RDONLY)
+		fileAttr |= FILE_ATTRIBUTE_READONLY;
+	if (cabfile->attribs & MSCAB_ATTRIB_ARCH)
+		fileAttr |= FILE_ATTRIBUTE_ARCHIVE;
+	if (cabfile->attribs & MSCAB_ATTRIB_HIDDEN)
+		fileAttr |= FILE_ATTRIBUTE_HIDDEN;
+	if (cabfile->attribs & MSCAB_ATTRIB_SYSTEM)
+		fileAttr |= FILE_ATTRIBUTE_SYSTEM;
+
+	return true;
+}
+
+static FILETIME CabTimeToFileTime(mscabd_file *cabfile)
+{
+	FILETIME res = {0};
+
+	SYSTEMTIME stime;
+	memset(&stime, 0, sizeof(stime));
+	stime.wYear = cabfile->date_y;
+	stime.wMonth = cabfile->date_m;
+	stime.wDay = cabfile->date_d;
+	stime.wHour = cabfile->time_h;
+	stime.wMinute = cabfile->time_m;
+	stime.wSecond = cabfile->time_s;
+	SystemTimeToFileTime(&stime, &res);
+
+	return res;
+}
+
 CCabControl::CCabControl(void)
 {
 }
@@ -81,6 +114,22 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	free(szAnsiSourceName);
 	free(szAnsiDestName);
 
+	// Reopen destination file to set required attributes
+	if (cabfile)
+	{
+		HANDLE hFile = CreateFile(destFilePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			FILETIME ft = CabTimeToFileTime(cabfile);
+			SetFileTime(hFile, NULL, NULL, &ft);
+			CloseHandle(hFile);
+
+			DWORD attr;
+			DecodeCabAttributes(cabfile, attr);
+			if (attr != 0) SetFileAttributes(destFilePath, attr);
+		}
+	}
+
 	return result;
 }
 
@@ -107,18 +156,9 @@ bool CCabControl::GetFileAttributes(const wchar_t* cabName, const wchar_t* cabPa
 			memset(&fd, 0, sizeof(fd));
 			wcscpy_s(fd.cFileName, MAX_PATH, sourceFileName);
 			fd.nFileSizeLow = cabfile->length;
-			fd.dwFileAttributes = cabfile->attribs;
-
-			SYSTEMTIME stime;
-			memset(&stime, 0, sizeof(stime));
-			stime.wYear = cabfile->date_y;
-			stime.wMonth = cabfile->date_m;
-			stime.wDay = cabfile->date_d;
-			stime.wHour = cabfile->time_h;
-			stime.wMinute = cabfile->time_m;
-			stime.wSecond = cabfile->time_s;
-			SystemTimeToFileTime(&stime, &fd.ftLastWriteTime);
-
+			DecodeCabAttributes(cabfile, fd.dwFileAttributes);
+			fd.ftLastWriteTime = CabTimeToFileTime(cabfile);
+			
 			fResult = true;
 			break;
 		}
