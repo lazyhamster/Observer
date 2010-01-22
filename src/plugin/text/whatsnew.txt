@@ -3,6 +3,7 @@
 1.4.3
 - Changed container property list layout.
 - Several fixes for extracted files' attributes.
+- ISO: Fixed time zone calculation for file' last modification time.
 
 1.4.2
 - Plugin: Added free size check on target drive before extraction.
