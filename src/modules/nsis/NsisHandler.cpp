@@ -307,6 +307,7 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
   if(numItems == 0)
     return S_OK;
   UInt64 totalSize = 0;
+  bool fakeOnly = true;
 
   UInt32 i;
   for(i = 0; i < numItems; i++)
@@ -314,7 +315,10 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
     UInt32 index = (allFilesMode ? i : indices[i]);
     #ifdef NSIS_SCRIPT
     if (index >= (UInt32)_archive.Items.Size())
+	{
       totalSize += _archive.Script.Length();
+	  fakeOnly = fakeOnly && true;
+	}
     else
     #endif
     {
@@ -336,6 +340,7 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
 			  totalSize += size;
 		  }
       }
+	  fakeOnly = false;
     }
   }
   extractCallback->SetTotal(totalSize);
@@ -343,8 +348,8 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
   UInt64 currentTotalSize = 0;
   UInt32 currentItemSize = 0;
 
-  bool solidInit = true;
-  if (_archive.IsSolid && _lastSolidPos > 0)
+  bool solidInit = !fakeOnly;
+  if (_archive.IsSolid && !fakeOnly && _lastSolidPos > 0)
 	  solidInit = _archive.GetPosOfSolidItem(indices[0]) < _lastSolidPos;
 
   UInt64 streamPos = _archive.IsSolid ? _lastSolidPos : 0;
