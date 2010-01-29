@@ -123,6 +123,8 @@ class CInArchive
   HRESULT ReadEntries(const CBlockHeader &bh);
   HRESULT Parse();
 
+  HRESULT ParseLegacy();
+
   void PostProcess();
 
   CByteBuffer _data;
@@ -151,6 +153,7 @@ public:
   bool UseFilter;
   bool FilterFlag;
   bool IsUnicode;
+  bool IsLegacyVer;
 
   #ifdef NSIS_SCRIPT
   AString Script;

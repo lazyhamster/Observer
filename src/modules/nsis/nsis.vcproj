@@ -319,6 +319,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NsisInLegacy.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -366,6 +370,14 @@
 			</File>
 			<File
 				RelativePath=".\NsisIn.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NsisInDef.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NsisInLegacy.h"
 				>
 			</File>
 			<File

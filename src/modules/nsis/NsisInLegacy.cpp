@@ -1,0 +1,149 @@
+#include "StdAfx.h"
+
+#include "Common/Types.h"
+#include "Common/MyString.h"
+#include "Common/IntToString.h"
+
+#include "NsisInDef.h"
+
+namespace NArchive {
+namespace NNsis {
+
+#define MAP_OPCODE(a,b) case a: return b;
+#define VAR_CODES_START (256 - 37)
+
+UInt32 ResolveLegacyOpcode( UInt32 modernOpcode )
+{
+	if (modernOpcode <= EW_SLEEP)
+		return modernOpcode;
+
+	switch (modernOpcode)
+	{
+		MAP_OPCODE(EW_BRINGTOFRONT, EW_INVALID_OPCODE) //EW_HIDEWINDOW;
+		MAP_OPCODE(EW_CHDETAILSVIEW, EW_BRINGTOFRONT)
+		MAP_OPCODE(EW_SETFILEATTRIBUTES, EW_CHDETAILSVIEW)
+		MAP_OPCODE(EW_CREATEDIR, EW_SETFILEATTRIBUTES)
+		MAP_OPCODE(EW_IFFILEEXISTS,	EW_CREATEDIR)
+		MAP_OPCODE(EW_SETFLAG, EW_IFFILEEXISTS)
+		MAP_OPCODE(EW_IFFLAG, EW_INVALID_OPCODE) //EW_IFERRORS;
+		MAP_OPCODE(EW_GETFLAG, EW_SETFLAG)
+	}
+
+	if (modernOpcode <= EW_INTCMP)
+		return modernOpcode;
+
+	switch (modernOpcode)
+	{
+		MAP_OPCODE(EW_INTOP, EW_INVALID_OPCODE)				//EW_INTCMPU
+		MAP_OPCODE(EW_INTFMT, EW_INTOP)
+		MAP_OPCODE(EW_PUSHPOP, EW_INTFMT)
+		MAP_OPCODE(EW_FINDWINDOW, EW_PUSHPOP)
+		MAP_OPCODE(EW_SENDMESSAGE, EW_FINDWINDOW)
+		MAP_OPCODE(EW_ISWINDOW, EW_SENDMESSAGE)
+		MAP_OPCODE(EW_GETDLGITEM, EW_ISWINDOW)
+		MAP_OPCODE(EW_SETCTLCOLORS, EW_GETDLGITEM)
+		MAP_OPCODE(EW_SETBRANDINGIMAGE, EW_INVALID_OPCODE)	//EW_GETWINTEXT
+		MAP_OPCODE(EW_CREATEFONT, EW_INVALID_OPCODE)		//EW_SETSTATICBKCOLOR
+		MAP_OPCODE(EW_SHOWWINDOW, EW_SETBRANDINGIMAGE)
+		MAP_OPCODE(EW_SHELLEXEC, EW_CREATEFONT)
+		MAP_OPCODE(EW_EXECUTE, EW_SHOWWINDOW)
+		MAP_OPCODE(EW_GETFILETIME, EW_SHELLEXEC)
+		MAP_OPCODE(EW_GETDLLVERSION, EW_EXECUTE)
+		MAP_OPCODE(EW_REGISTERDLL, EW_GETFILETIME)
+		MAP_OPCODE(EW_CREATESHORTCUT, EW_GETDLLVERSION)
+		MAP_OPCODE(EW_COPYFILES, EW_REGISTERDLL)
+		MAP_OPCODE(EW_REBOOT, EW_CREATESHORTCUT)
+		MAP_OPCODE(EW_WRITEINI, EW_COPYFILES)
+		MAP_OPCODE(EW_READINISTR, EW_REBOOT)
+		MAP_OPCODE(EW_DELREG, EW_INVALID_OPCODE)			//EW_IFREBOOTFLAG
+		MAP_OPCODE(EW_WRITEREG, EW_WRITEINI)
+		MAP_OPCODE(EW_READREGSTR, EW_READINISTR)
+		MAP_OPCODE(EW_REGENUM, EW_DELREG)
+		MAP_OPCODE(EW_FCLOSE, EW_WRITEREG)
+		MAP_OPCODE(EW_FOPEN, EW_READREGSTR)
+		MAP_OPCODE(EW_FPUTS, EW_REGENUM)
+		MAP_OPCODE(EW_FGETS, EW_FCLOSE)
+		MAP_OPCODE(EW_FSEEK, EW_FOPEN)
+		MAP_OPCODE(EW_FINDCLOSE, EW_FPUTS)
+		MAP_OPCODE(EW_FINDNEXT, EW_FGETS)
+		MAP_OPCODE(EW_FINDFIRST, EW_FSEEK)
+		MAP_OPCODE(EW_WRITEUNINSTALLER, EW_FINDCLOSE)
+		MAP_OPCODE(EW_LOG, EW_FINDNEXT)
+		MAP_OPCODE(EW_SECTIONSET, EW_FINDFIRST)
+		MAP_OPCODE(EW_INSTTYPESET, EW_WRITEUNINSTALLER)
+		MAP_OPCODE(EW_GETLABELADDR, EW_LOG)
+		MAP_OPCODE(EW_GETFUNCTIONADDR, EW_SECTIONSET)
+		MAP_OPCODE(EW_LOCKWINDOW, EW_GETLABELADDR)
+	}
+
+	return EW_INVALID_OPCODE;
+}
+
+static const char *kVarLegacyStrings[] =
+{
+	"CMDLINE",
+	"INSTDIR",
+	"OUTDIR",
+	"EXEDIR",
+	"LANGUAGE",
+	"PROGRAMFILES",
+	"SMPROGRAMS",
+	"SMSTARTUP",
+	"DESKTOP",
+	"STARTMENU",
+	"QUICKLAUNCH",
+	"TEMP",
+	"WINDIR",
+	"SYSDIR",
+	"PLUGINSDIR"
+};
+
+static const int kNumVarLegacyStrings = sizeof(kVarLegacyStrings) / sizeof(kVarLegacyStrings[0]);
+
+static AString UIntToString(UInt32 v)
+{
+	char sz[32];
+	ConvertUInt64ToString(v, sz);
+	return sz;
+}
+
+static AString GetVar(UInt32 index)
+{
+	AString res = "$";
+	if (index < 10)
+		res += UIntToString(index);
+	else if (index < 20)
+	{
+		res += "R";
+		res += UIntToString(index - 10);
+	}
+	else if (index < 20 + kNumVarLegacyStrings)
+		res += kVarLegacyStrings[index - 20];
+	else
+	{
+		res += "[";
+		res += UIntToString(index);
+		res += "]";
+	}
+	return res;
+}
+
+AString GetNsisLegacyString(const AString &s)
+{
+	AString res;
+	for (int i = 0; i < s.Length();)
+	{
+		unsigned char nVarIdx = s[i++];
+		if (nVarIdx < VAR_CODES_START)
+			res += (char)nVarIdx;
+		else if (nVarIdx == 255)
+			res += s[i++];
+		else if (nVarIdx == VAR_CODES_START)
+			res += "$HWNDPARENT";
+		else if (nVarIdx > VAR_CODES_START)
+			res += GetVar(nVarIdx - VAR_CODES_START - 1);
+	}
+	return res;
+}
+
+}}
