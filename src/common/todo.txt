@@ -7,5 +7,3 @@ MSI:
 - fix problem with real file and non showing the special folders mode
 - (?) registry list is more close to valid reg files
 
-NSIS:
-- handle legacy file format (around 2.0b3, different header then current one)

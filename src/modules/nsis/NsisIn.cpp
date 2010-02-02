@@ -1156,7 +1156,7 @@ HRESULT CInArchive::Open2(
   // (it has header structure of 2.0+ but lacks leading info byte as 2.0b3-)
   if (IsLegacyVer)
   {
-	  UInt32 next_num = ReadUInt32();
+	UInt32 next_num = ReadUInt32();
 	_posInData -= sizeof(UInt32);
 	if (next_num > 50) IsLegacyVer = false;
   }
