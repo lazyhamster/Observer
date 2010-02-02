@@ -60,8 +60,21 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 {
 	if (processedSize) *processedSize = 0;
 
-	// Return 0 bytes read until end-of-stream flag is reset
-	if (m_fStreamEnd) return S_OK;
+	// If end of stream already reached then try to fetch remaining output in buffer or return 0 bytes
+	if (m_fStreamEnd)
+	{
+		if (m_nBufOutAvail > 0)
+		{
+			size_t nCopySize = ((size_t) m_nBufOutAvail > size) ? size : (size_t) m_nBufOutAvail;
+			memcpy(data, m_pBufOut, nCopySize);
+			m_nBufOutAvail -= nCopySize;
+			if (m_nBufOutAvail > 0)
+				memmove(m_pBufOut, m_pBufOut + nCopySize, m_nBufOutAvail);
+
+			if (processedSize) *processedSize = nCopySize;
+		}
+		return S_OK;
+	}
 
 	UInt32 nBytesLeft = size;
 	UInt32 nProcessedCount = 0;
