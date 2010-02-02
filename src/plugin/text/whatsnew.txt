@@ -1,5 +1,8 @@
 История изменений:
 
+1.4.4
+- NSIS: Added support for some legacy version (< 2.0).
+
 1.4.3
 - Changed container property list layout.
 - Several fixes for extracted files' attributes.
