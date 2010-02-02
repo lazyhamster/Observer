@@ -1151,6 +1151,16 @@ HRESULT CInArchive::Open2(
     _size = (size_t)unpackSize;
     RINOK(ReadStream_FALSE(_stream, (Byte *)_data, unpackSize));
   }
+
+  // Ugly hack to support 2.0 b4
+  // (it has header structure of 2.0+ but lacks leading info byte as 2.0b3-)
+  if (IsLegacyVer)
+  {
+	  UInt32 next_num = ReadUInt32();
+	_posInData -= sizeof(UInt32);
+	if (next_num > 50) IsLegacyVer = false;
+  }
+  // end of ugly hack
   
   HRESULT res = IsLegacyVer ? ParseLegacy() : Parse();
   if (res == S_OK)
