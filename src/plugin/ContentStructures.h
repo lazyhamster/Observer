@@ -23,7 +23,7 @@ public:
 	ContentTreeNode();
 	~ContentTreeNode();
 
-	void GetPath(wchar_t* dest, size_t destSize) const;
+	size_t GetPath(wchar_t* dest, size_t destSize) const;
 	bool AddChild(wchar_t* path, ContentTreeNode* child);
 
 	size_t GetChildCount() { return subdirs.size() + files.size(); };

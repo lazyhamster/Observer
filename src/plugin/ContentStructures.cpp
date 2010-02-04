@@ -39,24 +39,35 @@ ContentTreeNode::~ContentTreeNode()
 	//subitems.clear();
 }
 
-void ContentTreeNode::GetPath(wchar_t* dest, size_t destSize) const
+size_t ContentTreeNode::GetPath(wchar_t* dest, size_t destSize) const
 {
 	if (!data.cFileName[0])
 	{
-		*dest = 0;
-		return;
+		if (dest) *dest = 0;
+		return 0;
 	}
 	
+	size_t ret = 0;
 	if (parent)
 	{
-		parent->GetPath(dest, destSize);
-		if (*dest) wcscat_s(dest, destSize, L"\\");
-		wcscat_s(dest, destSize, data.cFileName);
+		ret = parent->GetPath(dest, destSize);
+		if (ret > 0)
+		{
+			if (dest != NULL)
+				wcscat_s(dest, destSize, L"\\");
+			ret++;
+		}
+		if (dest != NULL)
+			wcscat_s(dest, destSize, data.cFileName);
 	}
 	else
 	{
-		wcscpy_s(dest, destSize, data.cFileName);
+		if (dest != NULL)
+			wcscpy_s(dest, destSize, data.cFileName);
 	}
+
+	ret += wcslen(data.cFileName);
+	return ret;
 }
 
 bool ContentTreeNode::AddChild(wchar_t* path, ContentTreeNode* child)
