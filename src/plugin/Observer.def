@@ -14,3 +14,4 @@ EXPORTS
 	SetDirectory
 	GetFiles
 	GetOpenPluginInfo
+	ProcessKey

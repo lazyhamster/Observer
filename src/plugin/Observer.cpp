@@ -910,3 +910,13 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	//TODO: add option to keep full path
 	return nExtractResult;
 }
+
+int WINAPI ProcessKey(HANDLE hPlugin, int Key, unsigned int ControlState)
+{
+	if (Key == VK_F6 && ControlState == PKF_ALT)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
+}
