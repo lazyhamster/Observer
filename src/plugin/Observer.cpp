@@ -736,6 +736,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	static char szTitle[512];
 	static wchar_t wszCurrentDirPath[PATH_BUFFER_SIZE];
 	static char szHostFile[MAX_PATH];
+	static KeyBarTitles KeyBar;
 
 	memset(szCurrentDir, 0, sizeof(szCurrentDir));
 	memset(szTitle, 0, sizeof(szTitle));
@@ -799,6 +800,11 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	
 	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
 	Info->InfoLines = pInfoLinesData;
+
+	memset(&KeyBar, 0, sizeof(KeyBar));
+	KeyBar.ShiftTitles[0] = "";
+	KeyBar.AltTitles[6-1] = (char*) GetLocMsg(MSG_ALTF6);
+	Info->KeyBar = &KeyBar;
 }
 
 int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int ItemsNumber, int Move, char *DestPath, int OpMode)
@@ -912,6 +918,24 @@ int WINAPI ProcessKey(HANDLE hPlugin, int Key, unsigned int ControlState)
 {
 	if (Key == VK_F6 && ControlState == PKF_ALT)
 	{
+		FarStorageInfo* info = (FarStorageInfo *) hPlugin;
+		if (!info) return FALSE;
+		
+		PanelInfo pi;
+		memset(&pi, 0, sizeof(pi));
+		if (!FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi)) return FALSE;
+
+		size_t nPathSize = wcslen(info->StoragePath);
+		char* szTargetDir = (char *) malloc(nPathSize + 1);
+		memset(szTargetDir, 0, nPathSize + 1);
+		WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StoragePath, nPathSize, szTargetDir, nPathSize + 1, NULL, NULL);
+		char* szLastSlash = strrchr(szTargetDir, '\\');
+		if (szLastSlash) *(szLastSlash + 1) = 0;
+
+		GetFiles(hPlugin, pi.SelectedItems, pi.SelectedItemsNumber, 0, szTargetDir, 0);
+
+		free(szTargetDir);
+		
 		return TRUE;
 	}
 

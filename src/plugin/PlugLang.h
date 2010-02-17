@@ -34,7 +34,9 @@ enum
 	MSG_OVERWRITE_ALL,
 	MSG_SKIP,
 	MSG_SKIP_ALL,
-	MSG_CANCEL
+	MSG_CANCEL,
+	//Key bar
+	MSG_ALTF6
 };
 
 #endif
