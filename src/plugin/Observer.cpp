@@ -191,15 +191,9 @@ HANDLE OpenStorage(const wchar_t* Name)
 		info->info.TotalSize = nTotalSize;
 		info->info.NumFiles = nNumFiles;
 		info->info.NumDirectories = nNumDirs;
+		info->StoragePath = _wcsdup(Name);
 		memcpy(&(info->info.GeneralInfo), &sinfo, sizeof(StorageGeneralInfo));
 		
-		// Copy storage file name for info
-		const wchar_t *slashPos = wcsrchr(Name, L'\\');
-		if (slashPos)
-			wcscpy_s(info->StorageFileName, MAX_PATH, slashPos+1);
-		else
-			wcscpy_s(info->StorageFileName, MAX_PATH, Name);
-
 		hResult = (HANDLE) info;
 	}
 	else
@@ -756,7 +750,10 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	strcat_s(szTitle, sizeof(szTitle), ":\\");
 	strcat_s(szTitle, sizeof(szTitle), szCurrentDir);
 
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StorageFileName, wcslen(info->StorageFileName), szHostFile, MAX_PATH, NULL, NULL);
+	wchar_t* wszStorageFileName = wcsrchr(info->StoragePath, '\\');
+	if (wszStorageFileName) wszStorageFileName++;
+	else wszStorageFileName = info->StoragePath;
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszStorageFileName, wcslen(wszStorageFileName), szHostFile, MAX_PATH, NULL, NULL);
 	
 	Info->Flags = OPIF_USEFILTER | OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
 	Info->CurDir = szCurrentDir;
@@ -769,7 +766,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	size_t nInfoDataSize = sizeof(pInfoLinesData[0].Data) / sizeof(pInfoLinesData[0].Data[0]);
 
 	memset(pInfoLinesData, 0, sizeof(pInfoLinesData));
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StorageFileName, wcslen(info->StorageFileName), pInfoLinesData[0].Text, nInfoTextSize, NULL, NULL);
+	strncpy_s(pInfoLinesData[0].Text, nInfoTextSize, szHostFile, nInfoTextSize);
 	pInfoLinesData[0].Separator = 1;
 	
 	strcpy_s(pInfoLinesData[IL_FORMAT].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));

@@ -19,7 +19,7 @@ struct FarStorageInfo
 {
 	int ModuleIndex;
 	INT_PTR *StoragePtr;
-	wchar_t StorageFileName[MAX_PATH];
+	wchar_t *StoragePath;
 	StorageInfo info;
 	ContentTreeNode* items;			// All pre-allocated items, array, must be deleted
 	ContentTreeNode* root;			// First in items list, do not delete
