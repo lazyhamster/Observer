@@ -929,10 +929,11 @@ int WINAPI ProcessKey(HANDLE hPlugin, int Key, unsigned int ControlState)
 		char* szTargetDir = (char *) malloc(nPathSize + 1);
 		memset(szTargetDir, 0, nPathSize + 1);
 		WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StoragePath, nPathSize, szTargetDir, nPathSize + 1, NULL, NULL);
+		
 		char* szLastSlash = strrchr(szTargetDir, '\\');
 		if (szLastSlash) *(szLastSlash + 1) = 0;
 
-		GetFiles(hPlugin, pi.SelectedItems, pi.SelectedItemsNumber, 0, szTargetDir, 0);
+		GetFiles(hPlugin, pi.SelectedItems, pi.SelectedItemsNumber, 0, szTargetDir, OPM_SILENT);
 
 		free(szTargetDir);
 		

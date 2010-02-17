@@ -1,7 +1,8 @@
 История изменений:
 
 1.4.4
-- NSIS: Added support for some legacy version (< 2.0).
+- Added support for Alt-F6 hotkey (extract to storage location).
+- NSIS: Added support for some legacy version (pre 2.0).
 
 1.4.3
 - Changed container property list layout.
