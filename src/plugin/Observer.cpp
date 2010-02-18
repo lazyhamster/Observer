@@ -226,6 +226,7 @@ void CloseStorage(HANDLE storage)
 	FarStorageInfo *info = (FarStorageInfo *) storage;
 	g_pController.CloseStorageFile(info->ModuleIndex, info->StoragePtr);
 
+	free(info->StoragePath);
 	delete [] info->items;
 	delete info;
 }
