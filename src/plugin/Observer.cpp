@@ -107,11 +107,11 @@ static void InsertCommas(char *Dest)
     }
 }
 
-static void DisplayMessage(bool isError, bool isInteractive, const char* header, const char* errorText, const char* errorItem)
+static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const char* errorItem)
 {
 	static const char* MsgLines[3];
-	MsgLines[0] = header;
-	MsgLines[1] = errorText;
+	MsgLines[0] = GetLocMsg(headerMsgID);
+	MsgLines[1] = GetLocMsg(textMsgID);
 	MsgLines[2] = errorItem;
 
 	int linesNum = (errorItem) ? 3 : 2;
@@ -136,7 +136,7 @@ HANDLE OpenStorage(const wchar_t* Name)
 	if (!storage) return INVALID_HANDLE_VALUE;
 
 	HANDLE hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
-	DisplayMessage(false, false, GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_LIST), NULL);
+	DisplayMessage(false, false, MSG_PLUGIN_NAME, MSG_OPEN_LIST, NULL);
 	
 	bool fListOK = true;
 	DWORD nNumItems = sinfo.NumRealItems;
@@ -198,7 +198,7 @@ HANDLE OpenStorage(const wchar_t* Name)
 	}
 	else
 	{
-		DisplayMessage(true, true, GetLocMsg(MSG_OPEN_CONTENT_ERROR), GetLocMsg(MSG_OPEN_INVALID_ITEM), NULL);
+		DisplayMessage(true, true, MSG_OPEN_CONTENT_ERROR, MSG_OPEN_INVALID_ITEM, NULL);
 		delete [] all_items;
 	}
 
@@ -467,7 +467,7 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 		}
 		else if (ret == SER_ERROR_SYSTEM)
 		{
-			DisplayMessage(true, true, GetLocMsg(MSG_EXTRACT_ERROR), GetLocMsg(MSG_EXTRACT_FAILED), pctx->szFilePath);
+			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_FAILED, pctx->szFilePath);
 		}
 
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
@@ -867,7 +867,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 
 	if (!IsEnoughSpaceInPath(wszWideDestPath, nTotalExtractSize))
 	{
-		DisplayMessage(true, true, GetLocMsg(MSG_EXTRACT_ERROR), GetLocMsg(MSG_EXTRACT_NODISKSPACE), NULL);
+		DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
 		return 0;
 	}
 
@@ -875,7 +875,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	if (nDirResult != ERROR_SUCCESS && nDirResult != ERROR_ALREADY_EXISTS)
 	{
 		if ((OpMode & OPM_SILENT) == 0)
-			DisplayMessage(true, true, GetLocMsg(MSG_EXTRACT_ERROR), GetLocMsg(MSG_EXTRACT_DIR_CREATE_ERROR), NULL);
+			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
 		return 0;
 	}
 
