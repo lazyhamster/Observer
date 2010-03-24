@@ -52,7 +52,6 @@ struct StorageGeneralInfo
 	wchar_t Compression[STORAGE_PARAM_MAX_LEN];
 	wchar_t Comment[STORAGE_PARAM_MAX_LEN];
 	FILETIME Created;
-	DWORD NumRealItems;		// Number of items which should be queried from submodule (usually NumFiles + NumDirectories)
 };
 
 struct ExtractOperationParams 

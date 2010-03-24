@@ -35,7 +35,6 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 				break;
 		}
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
-		info->NumRealItems = view->GetTotalFiles() + view->GetTotalDirectories();
 		info->Created = view->GetCreateDateTime();
 
 		return TRUE;

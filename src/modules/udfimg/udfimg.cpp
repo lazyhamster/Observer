@@ -67,7 +67,6 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
 		CopyArcParam(info->Comment, storageRec->arc.GetComment());
 		info->Created = storageRec->arc.GetCreatedTime();
-		info->NumRealItems = storageRec->refs2.Size();
 
 		return TRUE;
 	}

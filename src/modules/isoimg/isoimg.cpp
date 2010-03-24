@@ -118,7 +118,6 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		
 	*storage = (INT_PTR *) image;
 
-	info->NumRealItems = image->DirectoryCount;
 	if (image->VolumeDescriptors && image->VolumeDescriptors->XBOX)
 	{
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"XBOX ISO");
