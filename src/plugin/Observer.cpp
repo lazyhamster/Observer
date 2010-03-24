@@ -7,6 +7,7 @@
 #include "CommonFunc.h"
 #include "ModulesController.h"
 #include "PlugLang.h"
+#include "FarStorage.h"
 
 extern HMODULE g_hDllHandle;
 static PluginStartupInfo FarSInfo;
@@ -124,82 +125,30 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 
 //-----------------------------------  Content functions ----------------------------------------
 
-HANDLE OpenStorage(const wchar_t* Name)
+HANDLE OpenStorage(const char* Name)
 {
-	INT_PTR *storage = NULL;
-	StorageGeneralInfo sinfo;
-	memset(&sinfo, 0, sizeof(sinfo));
+	wchar_t wszWideName[MAX_PATH] = {0};
+	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, MAX_PATH);
 
-	int moduleIndex;
-	if (!g_pController.OpenStorageFile(Name, &moduleIndex, &storage, &sinfo))
+	StorageObject *storage = new StorageObject(&g_pController);
+	if (!storage->Open(wszWideName))
+	{
+		delete storage;
 		return INVALID_HANDLE_VALUE;
-	if (!storage) return INVALID_HANDLE_VALUE;
+	}
 
 	HANDLE hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
 	DisplayMessage(false, false, MSG_PLUGIN_NAME, MSG_OPEN_LIST, NULL);
-	
-	bool fListOK = true;
-	DWORD nNumItems = sinfo.NumRealItems;
-	ContentTreeNode* all_items = new ContentTreeNode[nNumItems + 1];  // +1 for root
-	
-	ContentTreeNode* root_node = &all_items[0];
-	__int64 nTotalSize = 0;
-	DWORD nNumFiles = 0, nNumDirs = 0;
 
-	wchar_t* wszItemPathBuf = new wchar_t[PATH_BUFFER_SIZE];
-	for (DWORD item_index = 0; item_index < nNumItems; item_index++)
-	{
-		ContentTreeNode* child = &(all_items[item_index + 1]);
-		child->storageIndex = item_index;
-
-		if (g_pController.modules[moduleIndex].GetNextItem(storage, item_index, &(child->data), wszItemPathBuf, PATH_BUFFER_SIZE))
-		{
-			if (!root_node->AddChild(wszItemPathBuf, child))
-			{
-				fListOK = false;
-				break;
-			}
-
-			if (!child->IsDir())
-			{
-				nNumFiles++;
-				nTotalSize += child->GetSize();
-			}
-			else
-			{
-				nNumDirs++;
-			}
-		}
-		else
-		{
-			fListOK = false;
-			break;
-		}
-	} //for
-	delete [] wszItemPathBuf;
-	
 	HANDLE hResult = INVALID_HANDLE_VALUE;
-	if (fListOK)
+	if (storage->ReadFileList())
 	{
-		FarStorageInfo *info = new FarStorageInfo;
-		info->ModuleIndex = moduleIndex;
-		info->StoragePtr = storage;
-		info->items = all_items;
-		info->currentdir = root_node;
-		info->root = root_node;
-
-		info->info.TotalSize = nTotalSize;
-		info->info.NumFiles = nNumFiles;
-		info->info.NumDirectories = nNumDirs;
-		info->StoragePath = _wcsdup(Name);
-		memcpy(&(info->info.GeneralInfo), &sinfo, sizeof(StorageGeneralInfo));
-		
-		hResult = (HANDLE) info;
+		hResult = (HANDLE) storage;
 	}
 	else
 	{
 		DisplayMessage(true, true, MSG_OPEN_CONTENT_ERROR, MSG_OPEN_INVALID_ITEM, NULL);
-		delete [] all_items;
+		delete storage;
 	}
 
 	FarSInfo.RestoreScreen(hScreen);
@@ -207,28 +156,11 @@ HANDLE OpenStorage(const wchar_t* Name)
 	return hResult;
 }
 
-HANDLE OpenStorageA(const char* Name)
+void CloseStorage(HANDLE hStorage)
 {
-	size_t nNameBufLen = strlen(Name) + 1;
-	
-	wchar_t *wszWideName = new wchar_t[nNameBufLen];
-	wmemset(wszWideName, 0, nNameBufLen);
-	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, nNameBufLen);
-
-	HANDLE hResult = OpenStorage(wszWideName);
-
-	delete [] wszWideName;
-	return hResult;
-}
-
-void CloseStorage(HANDLE storage)
-{
-	FarStorageInfo *info = (FarStorageInfo *) storage;
-	g_pController.CloseStorageFile(info->ModuleIndex, info->StoragePtr);
-
-	free(info->StoragePath);
-	delete [] info->items;
-	delete info;
+	StorageObject *sobj = (StorageObject*) hStorage;
+	sobj->Close();
+	delete sobj;
 }
 
 //-----------------------------------  Callback functions ----------------------------------------
@@ -241,9 +173,9 @@ static int CALLBACK ExtractStart(HANDLE context)
 	pc->nCurrentFileNumber++;
 	pc->nCurrentFileProgress = 0;
 
-	int nArrayIndex = pc->nCurrentFileIndex + 1;
-	FarStorageInfo* storage = (FarStorageInfo*) pc->hStorage;
-	ContentTreeNode* nextItem = &(storage->items[nArrayIndex]);
+	int nArrayIndex = pc->nCurrentFileIndex;
+	StorageObject* storage = (StorageObject*) pc->hStorage;
+	const ContentTreeNode* nextItem =  storage->GetItem(nArrayIndex);
 
 	wchar_t wszSubPath[PATH_BUFFER_SIZE] = {0};
 	nextItem->GetPath(wszSubPath, PATH_BUFFER_SIZE);
@@ -390,7 +322,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
-static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, const wchar_t* itemSubPath, size_t skipSubPathChunk, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* itemSubPath, size_t skipSubPathChunk, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir()) return FALSE;
 
@@ -450,7 +382,7 @@ static int ExtractStorageItem(FarStorageInfo* storage, ContentTreeNode* item, co
 		params.callbacks.FileEnd = ExtractDone;
 		params.callbacks.signalContext = callbackContext;
 
-		ret = g_pController.modules[storage->ModuleIndex].Extract(storage->StoragePtr, params);
+		ret = storage->Extract(params);
 
 		if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
 		{
@@ -603,7 +535,7 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 			}
 	}
 
-	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorageA(szFullNameBuffer) : INVALID_HANDLE_VALUE;
+	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer) : INVALID_HANDLE_VALUE;
 
 	delete [] szFullNameBuffer;
 	return hOpenResult;
@@ -614,16 +546,16 @@ HANDLE WINAPI OpenFilePlugin(char *Name, const unsigned char *Data, int DataSize
 	if (!Name || !optEnabled)
 		return INVALID_HANDLE_VALUE;
 
-	HANDLE hOpenResult = OpenStorageA(Name);
+	HANDLE hOpenResult = OpenStorage(Name);
 	return hOpenResult;
 }
 
 int WINAPI GetFindData(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode)
 {
-	FarStorageInfo* info = (FarStorageInfo *) hPlugin;
-	if (!info || !info->currentdir) return FALSE;
+	StorageObject* info = (StorageObject *) hPlugin;
+	if (!info || !info->CurrentDir()) return FALSE;
 
-	int nTotalItems = info->currentdir->GetChildCount();
+	int nTotalItems = info->CurrentDir()->GetChildCount();
 	*pItemsNumber = nTotalItems;
 
 	// Zero items - exit now
@@ -633,7 +565,7 @@ int WINAPI GetFindData(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int 
 	PluginPanelItem *panelItem = *pPanelItem;
 
 	// Display all directories
-	for (SubNodesMap::const_iterator cit = info->currentdir->subdirs.begin(); cit != info->currentdir->subdirs.end(); cit++)
+	for (SubNodesMap::const_iterator cit = info->CurrentDir()->subdirs.begin(); cit != info->CurrentDir()->subdirs.end(); cit++)
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
@@ -651,7 +583,7 @@ int WINAPI GetFindData(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int 
 	}
 
 	// Display all files
-	for (SubNodesMap::const_iterator cit = info->currentdir->files.begin(); cit != info->currentdir->files.end(); cit++)
+	for (SubNodesMap::const_iterator cit = info->CurrentDir()->files.begin(); cit != info->CurrentDir()->files.end(); cit++)
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
@@ -682,37 +614,14 @@ int WINAPI SetDirectory(HANDLE hPlugin, const char *Dir, int OpMode)
 	if (hPlugin == NULL)
 		return FALSE;
 
-	FarStorageInfo* info = (FarStorageInfo *) hPlugin;
+	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info) return FALSE;
 
 	if (!Dir || !*Dir) return TRUE;
 
-	if (strcmp(Dir, "..") == 0)
-	{
-		if (info->currentdir->parent == NULL)
-			return FALSE;
-
-		info->currentdir = info->currentdir->parent;
-	}
-	else if (strcmp(Dir, ".") != 0)
-	{
-		wchar_t wzDirName[MAX_PATH];
-		wmemset(wzDirName, 0, MAX_PATH);
-		MultiByteToWideChar(CP_FAR_INTERNAL, 0, Dir, strlen(Dir), wzDirName, MAX_PATH);
-
-		ContentTreeNode* child_dir = NULL;
-		if (wzDirName[0] == L'\\')
-			child_dir = info->root->GetChildByName(wzDirName + 1);
-		else
-			child_dir = info->currentdir->GetChildByName(wzDirName);
-
-		if (child_dir && (child_dir->IsDir() || (child_dir == info->root)))
-			info->currentdir = child_dir;
-		else
-			return FALSE;
-	}
-		
-	return TRUE;
+	wchar_t wzDirName[MAX_PATH] = {0};
+	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Dir, strlen(Dir), wzDirName, MAX_PATH);
+	return info->ChangeCurrentDir(wzDirName);
 }
 
 enum InfoLines
@@ -730,7 +639,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 {
 	Info->StructSize = sizeof(OpenPluginInfo);
 	
-	FarStorageInfo* info = (FarStorageInfo *) hPlugin;
+	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info) return;
 	
 	static char szCurrentDir[MAX_PATH];
@@ -744,17 +653,17 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	memset(wszCurrentDirPath, 0, sizeof(wszCurrentDirPath));
 	memset(szHostFile, 0, sizeof(szHostFile));
 
-	info->currentdir->GetPath(wszCurrentDirPath, PATH_BUFFER_SIZE);
+	info->CurrentDir()->GetPath(wszCurrentDirPath, PATH_BUFFER_SIZE);
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszCurrentDirPath, wcslen(wszCurrentDirPath), szCurrentDir, MAX_PATH, NULL, NULL);
 
-	const wchar_t* wszModuleName = g_pController.modules[info->ModuleIndex].ModuleName;
+	const wchar_t* wszModuleName = info->GetModuleName();
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszModuleName, wcslen(wszModuleName), szTitle, sizeof(szTitle), NULL, NULL);
 	strcat_s(szTitle, sizeof(szTitle), ":\\");
 	strcat_s(szTitle, sizeof(szTitle), szCurrentDir);
 
-	wchar_t* wszStorageFileName = wcsrchr(info->StoragePath, '\\');
+	const wchar_t* wszStorageFileName = wcsrchr(info->StoragePath(), '\\');
 	if (wszStorageFileName) wszStorageFileName++;
-	else wszStorageFileName = info->StoragePath;
+	else wszStorageFileName = info->StoragePath();
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszStorageFileName, wcslen(wszStorageFileName), szHostFile, MAX_PATH, NULL, NULL);
 	
 	Info->Flags = OPIF_USEFILTER | OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
@@ -772,29 +681,29 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	pInfoLinesData[0].Separator = 1;
 	
 	strcpy_s(pInfoLinesData[IL_FORMAT].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->info.GeneralInfo.Format, wcslen(info->info.GeneralInfo.Format), pInfoLinesData[IL_FORMAT].Data, nInfoDataSize, NULL, NULL);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->GeneralInfo.Format, wcslen(info->GeneralInfo.Format), pInfoLinesData[IL_FORMAT].Data, nInfoDataSize, NULL, NULL);
 
 	strcpy_s(pInfoLinesData[IL_SIZE].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
-	_i64toa_s(info->info.TotalSize, pInfoLinesData[IL_SIZE].Data, nInfoDataSize, 10);
+	_i64toa_s(info->TotalSize(), pInfoLinesData[IL_SIZE].Data, nInfoDataSize, 10);
 	InsertCommas(pInfoLinesData[IL_SIZE].Data);
 	
 	strcpy_s(pInfoLinesData[IL_FILES].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FILES));
-	_ultoa_s(info->info.NumFiles, pInfoLinesData[IL_FILES].Data, nInfoDataSize, 10);
+	_ultoa_s(info->NumFiles(), pInfoLinesData[IL_FILES].Data, nInfoDataSize, 10);
 
 	strcpy_s(pInfoLinesData[IL_DIRECTORIES].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_DIRS));
-	_ultoa_s(info->info.NumDirectories, pInfoLinesData[IL_DIRECTORIES].Data, nInfoDataSize, 10);
+	_ultoa_s(info->NumDirectories(), pInfoLinesData[IL_DIRECTORIES].Data, nInfoDataSize, 10);
 
 	strcpy_s(pInfoLinesData[IL_COMPRESS].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMPRESSION));
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->info.GeneralInfo.Compression, wcslen(info->info.GeneralInfo.Compression), pInfoLinesData[IL_COMPRESS].Data, nInfoDataSize, NULL, NULL);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->GeneralInfo.Compression, wcslen(info->GeneralInfo.Compression), pInfoLinesData[IL_COMPRESS].Data, nInfoDataSize, NULL, NULL);
 	pInfoLinesData[IL_COMPRESS].Data[STORAGE_PARAM_MAX_LEN] = 0;
 
 	strcpy_s(pInfoLinesData[IL_COMMENT].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMMENT));
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->info.GeneralInfo.Comment, wcslen(info->info.GeneralInfo.Comment), pInfoLinesData[IL_COMMENT].Data, nInfoDataSize, NULL, NULL);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->GeneralInfo.Comment, wcslen(info->GeneralInfo.Comment), pInfoLinesData[IL_COMMENT].Data, nInfoDataSize, NULL, NULL);
 	pInfoLinesData[IL_COMMENT].Data[STORAGE_PARAM_MAX_LEN] = 0;
 
 	strcpy_s(pInfoLinesData[IL_CREATED].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_CREATED));
 	SYSTEMTIME st;
-	if (info->info.GeneralInfo.Created.dwHighDateTime && FileTimeToSystemTime(&info->info.GeneralInfo.Created, &st))
+	if (info->GeneralInfo.Created.dwHighDateTime && FileTimeToSystemTime(&info->GeneralInfo.Created, &st))
 		sprintf_s(pInfoLinesData[IL_CREATED].Data, nInfoDataSize, "%04d-%02d-%02d", st.wYear, st.wMonth, st.wDay);
 	else
 		strcpy_s(pInfoLinesData[IL_CREATED].Data, nInfoDataSize, "-");
@@ -817,7 +726,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	if ((ItemsNumber == 1) && (strcmp(PanelItem[0].FindData.cFileName, "..") == 0))
 		return 0;
 
-	FarStorageInfo* info = (FarStorageInfo *) hPlugin;
+	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info) return 0;
 
 	// Confirm extraction
@@ -843,7 +752,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		wmemset(wszItemNameBuf, 0, MAX_PATH);
 		MultiByteToWideChar(CP_FAR_INTERNAL, 0, pItem.FindData.cFileName, strlen(pItem.FindData.cFileName), wszItemNameBuf, MAX_PATH);
 
-		ContentTreeNode* child = info->currentdir->GetChildByName(wszItemNameBuf);
+		ContentTreeNode* child = info->CurrentDir()->GetChildByName(wszItemNameBuf);
 		if (child)
 		{
 			CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
@@ -886,7 +795,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
 
 	// Find current directory sub-path to cut it from destination path
-	info->currentdir->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
+	info->CurrentDir()->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
 	size_t nSkipPathChuckSize = wcslen(wszNextItemSubPath);
 	if (nSkipPathChuckSize > 0) nSkipPathChuckSize++;	// Count trailing backslash for non-empty value
 
@@ -898,7 +807,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	// Extract all files one by one
 	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
 	{
-		ContentTreeNode* nextItem = &(info->items[*cit+1]);
+		ContentTreeNode* nextItem = info->GetItem(*cit);
 
 		nextItem->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
 
@@ -919,17 +828,17 @@ int WINAPI ProcessKey(HANDLE hPlugin, int Key, unsigned int ControlState)
 {
 	if (Key == VK_F6 && ControlState == PKF_ALT)
 	{
-		FarStorageInfo* info = (FarStorageInfo *) hPlugin;
+		StorageObject* info = (StorageObject *) hPlugin;
 		if (!info) return FALSE;
 		
 		PanelInfo pi;
 		memset(&pi, 0, sizeof(pi));
 		if (!FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi)) return FALSE;
 
-		size_t nPathSize = wcslen(info->StoragePath);
+		size_t nPathSize = wcslen(info->StoragePath());
 		char* szTargetDir = (char *) malloc(nPathSize + 1);
 		memset(szTargetDir, 0, nPathSize + 1);
-		WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StoragePath, nPathSize, szTargetDir, nPathSize + 1, NULL, NULL);
+		WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StoragePath(), nPathSize, szTargetDir, nPathSize + 1, NULL, NULL);
 		
 		char* szLastSlash = strrchr(szTargetDir, '\\');
 		if (szLastSlash) *(szLastSlash + 1) = 0;

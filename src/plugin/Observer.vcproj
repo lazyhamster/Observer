@@ -300,6 +300,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\FarStorage.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ModulesController.cpp"
 				>
 			</File>
@@ -355,6 +359,10 @@
 			</File>
 			<File
 				RelativePath=".\ContentStructures.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FarStorage.h"
 				>
 			</File>
 			<File

@@ -69,6 +69,11 @@ typedef void (MODULE_EXPORT *CloseStorageFunc)(INT_PTR*);
 typedef int (MODULE_EXPORT *GetItemFunc)(INT_PTR*, int, LPWIN32_FIND_DATAW, wchar_t*, size_t);
 typedef int (MODULE_EXPORT *ExtractFunc)(INT_PTR*, ExtractOperationParams params);
 
+// Item retrieval result
+#define GET_ITEM_ERROR 0
+#define GET_ITEM_OK 1
+#define GET_ITEM_NOMOREITEMS 2
+
 // Extract operation flags
 #define SEP_ASKOVERWRITE 1
 

@@ -1,5 +1,8 @@
 История изменений:
 
+1.5
+- Version for FAR 2.0 (Unicode)
+
 1.4.4
 - Added support for Alt-F6 hotkey (extract to storage location).
 - NSIS: Added support for some legacy version (pre 2.0).

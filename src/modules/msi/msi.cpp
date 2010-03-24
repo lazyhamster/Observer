@@ -55,12 +55,12 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	CMsiViewer *view = (CMsiViewer *) storage;
-	if (!view) return FALSE;
+	if (!view) return GET_ITEM_ERROR;
 
 	if (view->FindNodeDataByIndex(item_index, item_data, item_path, path_size))
-		return TRUE;
+		return GET_ITEM_OK;
 	
-	return FALSE;
+	return GET_ITEM_NOMOREITEMS;
 }
 
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)

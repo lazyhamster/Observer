@@ -86,10 +86,10 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	UdfStorage *storageRec = (UdfStorage*) storage;
-	if (!storageRec) return FALSE;
+	if (!storageRec) return GET_ITEM_ERROR;
 
-	if ((item_index < 0) || (item_index > storageRec->refs2.Size()))
-		return FALSE;
+	if ((item_index < 0) || (item_index >= storageRec->refs2.Size()))
+		return GET_ITEM_NOMOREITEMS;
 
 	const CRef2 &ref2 = storageRec->refs2[item_index];
 	const CLogVol &vol = storageRec->arc.LogVols[ref2.Vol];
@@ -112,7 +112,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	UString fullPath = storageRec->arc.GetItemPath(ref2.Vol, ref2.Fs, ref2.Ref, storageRec->arc.LogVols.Size() > 1, vol.FileSets.Size() > 1);
 	wcscpy_s(item_path, path_size, fullPath);
 	
-	return TRUE;
+	return GET_ITEM_OK;
 }
 
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)

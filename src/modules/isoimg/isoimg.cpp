@@ -157,10 +157,10 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	IsoImage* image = (IsoImage*) storage;
-	if (!image) return FALSE;
+	if (!image) return GET_ITEM_ERROR;
 
 	if ((item_index < 0) || (item_index >= (int) image->DirectoryCount))
-		return FALSE;
+		return GET_ITEM_NOMOREITEMS;
 
 	Directory dir = image->DirectoryList[item_index];
 
@@ -185,7 +185,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		item_data->ftCreationTime = ftime;
 	}
 
-	return TRUE;
+	return GET_ITEM_OK;
 }
 
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)

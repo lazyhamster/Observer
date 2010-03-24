@@ -68,10 +68,16 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	CNsisArchive* arc = (CNsisArchive *) storage;
-	if (!arc) return FALSE;
+	if (!arc) return GET_ITEM_ERROR;
+	
+	if (item_index < 0)
+		return GET_ITEM_ERROR;
+
+	if (item_index >= arc->GetItemsCount())
+		return GET_ITEM_NOMOREITEMS;
 
 	int nRes = arc->GetItem(item_index, item_data, item_path, path_size);
-	return nRes;
+	return (nRes) ? GET_ITEM_OK : GET_ITEM_ERROR;
 }
 
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
