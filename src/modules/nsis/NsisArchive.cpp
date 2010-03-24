@@ -425,3 +425,10 @@ DWORD CNsisArchive::GetItemSize( int itemIndex )
 
 	return res;
 }
+
+int CNsisArchive::GetItemsCount()
+{
+	UInt32 numItems = 0;
+	m_handler->GetNumberOfItems(&numItems);
+	return numItems;
+}
