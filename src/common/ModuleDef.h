@@ -11,18 +11,12 @@ typedef void (CALLBACK *ExtractEndFunc)(HANDLE);
 struct ExtractProcessCallbacks
 {
 	HANDLE signalContext;
-	ExtractStartFunc FileStart;
 	ExtractProgressFunc FileProgress;
-	ExtractEndFunc FileEnd;
 };
 
 struct ProgressContext
 {
-	HANDLE hStorage;
-	HANDLE hScreen;
-
 	char szFilePath[MAX_PATH];
-	int nCurrentFileIndex;
 	int nCurrentFileNumber;
 	int nTotalFiles;
 	__int64 nProcessedBytes;
@@ -31,10 +25,7 @@ struct ProgressContext
 
 	ProgressContext()
 	{
-		hStorage = NULL;
-		hScreen = NULL;
 		memset(szFilePath, 0, MAX_PATH);
-		nCurrentFileIndex = 0;
 		nCurrentFileNumber = 0;
 		nTotalFiles = 0;
 		nTotalSize = 0;

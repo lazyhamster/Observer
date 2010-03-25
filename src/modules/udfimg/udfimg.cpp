@@ -128,12 +128,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	if (!item.IsDir())
 	{
 		ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
-		pctx->nCurrentFileProgress = 0;
-		pctx->nCurrentFileIndex = params.item;
-
-		params.callbacks.FileStart(pctx);
 		int res = storageRec->arc.DumpFileContent(file.ItemIndex, ref.FileIndex, params.dest_path, &(params.callbacks));
-		params.callbacks.FileEnd(pctx);
 
 		return res;
 	}

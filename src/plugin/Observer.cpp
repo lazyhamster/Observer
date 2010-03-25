@@ -167,55 +167,49 @@ void CloseStorage(HANDLE hStorage)
 
 //-----------------------------------  Callback functions ----------------------------------------
 
-static int CALLBACK ExtractStart(HANDLE context)
+static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* context, HANDLE &screen)
 {
-	ProgressContext* pc = (ProgressContext*) context;
-	
-	pc->hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
-	pc->nCurrentFileNumber++;
-	pc->nCurrentFileProgress = 0;
+	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
 
-	int nArrayIndex = pc->nCurrentFileIndex;
-	StorageObject* storage = (StorageObject*) pc->hStorage;
-	const ContentTreeNode* nextItem =  storage->GetItem(nArrayIndex);
+	context->nCurrentFileNumber++;
+	context->nCurrentFileProgress = 0;
 
 	wchar_t wszSubPath[PATH_BUFFER_SIZE] = {0};
-	nextItem->GetPath(wszSubPath, PATH_BUFFER_SIZE);
+	item->GetPath(wszSubPath, PATH_BUFFER_SIZE);
 		
 	// Save file name for dialogs
 	int nPathLen = wcslen(wszSubPath);
 	wchar_t* wszSubPathPtr = wszSubPath;
 	if (nPathLen > MAX_PATH) wszSubPathPtr += (nPathLen % MAX_PATH);
 
-	memset(pc->szFilePath, 0, MAX_PATH);
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszSubPathPtr, wcslen(wszSubPathPtr), pc->szFilePath, MAX_PATH, NULL, NULL);
+	memset(context->szFilePath, 0, MAX_PATH);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszSubPathPtr, wcslen(wszSubPathPtr), context->szFilePath, MAX_PATH, NULL, NULL);
 	
 	// Shrink file path to fit on console
 	CONSOLE_SCREEN_BUFFER_INFO si;
 	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if ((hStdOut != INVALID_HANDLE_VALUE) && GetConsoleScreenBufferInfo(hStdOut, &si))
-		FSF.TruncPathStr(pc->szFilePath, si.dwSize.X - 16);
+		FSF.TruncPathStr(context->szFilePath, si.dwSize.X - 16);
 
-	int nTotalProgress = (pc->nTotalSize > 0) ? (int) ((pc->nProcessedBytes * 100) / pc->nTotalSize) : 0;
+	int nTotalProgress = (context->nTotalSize > 0) ? (int) ((context->nProcessedBytes * 100) / context->nTotalSize) : 0;
 
 	static char szFileProgressLine[100] = {0};
-	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, 0, nTotalProgress);
+	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Progress: %2d%% / %2d%%", context->nCurrentFileNumber, context->nTotalFiles, 0, nTotalProgress);
 
 	static const char* InfoLines[4];
 	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
 	InfoLines[1] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
 	InfoLines[2] = szFileProgressLine;
-	InfoLines[3] = pc->szFilePath;
+	InfoLines[3] = context->szFilePath;
 
 	FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
 
 	return TRUE;
 }
 
-static void CALLBACK ExtractDone(HANDLE context)
+static void CALLBACK ExtractDone(ProgressContext* context, HANDLE screen)
 {
-	ProgressContext* pctx = (ProgressContext*) context;
-	FarSInfo.RestoreScreen(pctx->hScreen);
+	FarSInfo.RestoreScreen(screen);
 }
 
 static int ExtractError(int errorReason, HANDLE context)
@@ -331,8 +325,6 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, siz
 	// Check for ESC pressed
 	if (CheckEsc())	return FALSE;
 
-	ProgressContext* pctx = (ProgressContext*) callbackContext;
-
 	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
 	item->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
 
@@ -374,6 +366,9 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, siz
 		strTargetDir.append(L"\\");
 	}
 
+	ProgressContext* pctx = (ProgressContext*) callbackContext;
+	HANDLE hScreen;
+
 	int ret;
 	do
 	{
@@ -382,12 +377,12 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, siz
 		params.item = item->storageIndex;
 		params.flags = 0;
 		params.dest_path = strTargetDir.c_str();
-		params.callbacks.FileStart = ExtractStart;
 		params.callbacks.FileProgress = ExtractProgress;
-		params.callbacks.FileEnd = ExtractDone;
 		params.callbacks.signalContext = callbackContext;
 
+		ExtractStart(item, pctx, hScreen);
 		ret = storage->Extract(params);
+		ExtractDone(pctx, hScreen);
 
 		if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
 		{
@@ -802,7 +797,6 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	if (nSkipPathChunkSize > 0) nSkipPathChunkSize++;	// Count trailing backslash for non-empty value
 
 	ProgressContext pctx;
-	pctx.hStorage = (HANDLE) info;
 	pctx.nTotalFiles = vcExtractItems.size();
 	pctx.nTotalSize = nTotalExtractSize;
 

@@ -382,15 +382,9 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destDir, c
 	callback->Init(m_handler, destDir, epc);
 
 	ProgressContext* pctx = (ProgressContext*) epc->signalContext;
-	pctx->nCurrentFileProgress = 0;
-	pctx->nCurrentFileIndex = itemIndex;
 
-	epc->FileStart(pctx);
-	
 	UInt32 nIndex = itemIndex;
 	HRESULT extResult = m_handler->Extract(&nIndex, 1, 0, callback);
-
-	epc->FileEnd(pctx);
 
 	if (extResult == S_OK)
 		return SER_SUCCESS;
