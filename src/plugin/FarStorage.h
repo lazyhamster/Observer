@@ -32,7 +32,7 @@ public:
 	~StorageObject();
 
 	int Open(const wchar_t *Path);
-	int ReadFileList();
+	int ReadFileList(bool &aborted);
 	void Close();
 
 	int Extract(ExtractOperationParams &params);

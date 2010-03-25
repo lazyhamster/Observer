@@ -141,13 +141,15 @@ HANDLE OpenStorage(const char* Name)
 	DisplayMessage(false, false, MSG_PLUGIN_NAME, MSG_OPEN_LIST, NULL);
 
 	HANDLE hResult = INVALID_HANDLE_VALUE;
-	if (storage->ReadFileList())
+	bool listAborted;
+	if (storage->ReadFileList(listAborted))
 	{
 		hResult = (HANDLE) storage;
 	}
 	else
 	{
-		DisplayMessage(true, true, MSG_OPEN_CONTENT_ERROR, MSG_OPEN_INVALID_ITEM, NULL);
+		if (!listAborted)
+			DisplayMessage(true, true, MSG_OPEN_CONTENT_ERROR, MSG_OPEN_INVALID_ITEM, NULL);
 		delete storage;
 	}
 

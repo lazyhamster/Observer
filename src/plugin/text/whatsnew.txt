@@ -2,6 +2,7 @@
 
 1.5
 - Version for FAR 2.0 (Unicode)
+- Now you can cancel storage open process in the middle.
 
 1.4.4
 - Added support for Alt-F6 hotkey (extract to storage location).

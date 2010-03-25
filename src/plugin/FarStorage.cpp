@@ -80,9 +80,10 @@ void StorageObject::Close()
 	m_vItems.clear();
 }
 
-int StorageObject::ReadFileList()
+int StorageObject::ReadFileList(bool &aborted)
 {
 	bool fListOK = true;
+	aborted = false;
 
 	__int64 nTotalSize = 0;
 	DWORD nNumFiles = 0, nNumDirs = 0;
@@ -133,7 +134,10 @@ int StorageObject::ReadFileList()
 
 		// Check for user abort
 		if (CheckEsc())
+		{
 			fListOK = false;
+			aborted = true;
+		}
 
 		item_index++;
 
