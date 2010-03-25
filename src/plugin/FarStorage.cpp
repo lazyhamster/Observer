@@ -107,33 +107,37 @@ int StorageObject::ReadFileList()
 			child->storageIndex = item_index;
 			memcpy(&(child->data), &child_data, sizeof(child_data));
 			
-			if (!m_pRootDir->AddChild(wszItemPathBuf, child))
+			if (m_pRootDir->AddChild(wszItemPathBuf, child))
 			{
-				fListOK = false;
-				delete child;
-				break;
-			}
-
-			m_vItems.push_back(child);
-			if (!child->IsDir())
-			{
-				nNumFiles++;
-				nTotalSize += child->GetSize();
+				m_vItems.push_back(child);
+				if (!child->IsDir())
+				{
+					nNumFiles++;
+					nTotalSize += child->GetSize();
+				}
+				else
+				{
+					nNumDirs++;
+				}
 			}
 			else
 			{
-				nNumDirs++;
+				fListOK = false;
+				delete child;
 			}
 		}
 		else // Any error
 		{
 			fListOK = false;
-			break;
 		}
+
+		// Check for user abort
+		if (CheckEsc())
+			fListOK = false;
 
 		item_index++;
 
-	} while (TRUE);
+	} while (fListOK);
 
 	free(wszItemPathBuf);
 
