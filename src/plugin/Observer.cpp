@@ -324,7 +324,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* itemSubPath, size_t skipSubPathChunk, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, size_t skipSubPathChunk, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir()) return FALSE;
 
@@ -333,8 +333,11 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 
 	ProgressContext* pctx = (ProgressContext*) callbackContext;
 
+	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
+	item->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
+
 	wstring strFullTargetPath(destDir);
-	strFullTargetPath.append(itemSubPath + skipSubPathChunk);
+	strFullTargetPath.append(wszNextItemSubPath + skipSubPathChunk);
 
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
@@ -792,14 +795,11 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 
 	int nExtractResult = TRUE;
 	int doOverwrite = EXTR_OVERWRITE_ASK;
-
 	__int64 nBytesDone = 0;
-	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
 
 	// Find current directory sub-path to cut it from destination path
-	info->CurrentDir()->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
-	size_t nSkipPathChuckSize = wcslen(wszNextItemSubPath);
-	if (nSkipPathChuckSize > 0) nSkipPathChuckSize++;	// Count trailing backslash for non-empty value
+	size_t nSkipPathChunkSize = info->CurrentDir()->GetPath(NULL, 0);
+	if (nSkipPathChunkSize > 0) nSkipPathChunkSize++;	// Count trailing backslash for non-empty value
 
 	ProgressContext pctx;
 	pctx.hStorage = (HANDLE) info;
@@ -811,9 +811,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	{
 		ContentTreeNode* nextItem = info->GetItem(*cit);
 
-		nextItem->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
-
-		nExtractResult = ExtractStorageItem(info, nextItem, wszNextItemSubPath, nSkipPathChuckSize, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, &pctx);
+		nExtractResult = ExtractStorageItem(info, nextItem, nSkipPathChunkSize, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, &pctx);
 
 		if (!nExtractResult) break;
 		nBytesDone += nextItem->GetSize();
@@ -833,8 +831,7 @@ int WINAPI ProcessKey(HANDLE hPlugin, int Key, unsigned int ControlState)
 		StorageObject* info = (StorageObject *) hPlugin;
 		if (!info) return FALSE;
 		
-		PanelInfo pi;
-		memset(&pi, 0, sizeof(pi));
+		PanelInfo pi = {0};
 		if (!FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi)) return FALSE;
 
 		size_t nPathSize = wcslen(info->StoragePath());
