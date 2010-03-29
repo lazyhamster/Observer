@@ -110,3 +110,9 @@ bool IsEnoughSpaceInPath(const wchar_t* path, __int64 requiredSize)
 	
 	return true;
 }
+
+bool ForceDirectoryExist(const wchar_t* path)
+{
+	int nDirResult = !IsDiskRoot(path) ? SHCreateDirectory(0, path) : ERROR_SUCCESS;
+	return (nDirResult == ERROR_SUCCESS) || (nDirResult == ERROR_ALREADY_EXISTS);
+}

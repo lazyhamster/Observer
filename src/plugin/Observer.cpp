@@ -361,8 +361,8 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, siz
 	// Create target directory if needed
 	if (strTargetDir.length() > 0)
 	{
-		if ( !DirectoryExists(strTargetDir.c_str()) )
-			SHCreateDirectory(0, strTargetDir.c_str());
+		if (!ForceDirectoryExist(strTargetDir.c_str()))
+			return FALSE;
 		strTargetDir.append(L"\\");
 	}
 
@@ -774,23 +774,21 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	if (wszWideDestPath[nDestPathLen - 1] != '\\')
 		wcscat_s(wszWideDestPath, nDestPathLen + 2, L"\\");
 
-	if (!IsEnoughSpaceInPath(wszWideDestPath, nTotalExtractSize))
-	{
-		DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
-		return 0;
-	}
-
-	int nDirResult = !IsDiskRoot(wszWideDestPath) ? SHCreateDirectory(0, wszWideDestPath) : ERROR_SUCCESS;
-	if (nDirResult != ERROR_SUCCESS && nDirResult != ERROR_ALREADY_EXISTS)
+	if (!ForceDirectoryExist(wszWideDestPath))
 	{
 		if ((OpMode & OPM_SILENT) == 0)
 			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
 		return 0;
 	}
 
+	if (!IsEnoughSpaceInPath(wszWideDestPath, nTotalExtractSize))
+	{
+		DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
+		return 0;
+	}
+
 	int nExtractResult = TRUE;
 	int doOverwrite = EXTR_OVERWRITE_ASK;
-	__int64 nBytesDone = 0;
 
 	// Find current directory sub-path to cut it from destination path
 	size_t nSkipPathChunkSize = info->CurrentDir()->GetPath(NULL, 0);
@@ -808,7 +806,6 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		nExtractResult = ExtractStorageItem(info, nextItem, nSkipPathChunkSize, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, &pctx);
 
 		if (!nExtractResult) break;
-		nBytesDone += nextItem->GetSize();
 	}
 
 	free(wszWideDestPath);
