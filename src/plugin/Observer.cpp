@@ -167,6 +167,29 @@ void CloseStorage(HANDLE hStorage)
 
 //-----------------------------------  Callback functions ----------------------------------------
 
+static int CALLBACK ExtractProgress(HANDLE context)
+{
+	// Check for ESC pressed
+	if (CheckEsc())
+		return FALSE;
+
+	ProgressContext* pc = (ProgressContext*) context;
+	int nTotalProgress = (pc->nTotalSize > 0) ? (int) ((pc->nProcessedBytes * 100) / pc->nTotalSize) : 0;
+
+	static char szFileProgressLine[100] = {0};
+	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, pc->nCurrentFileProgress, nTotalProgress);
+
+	static const char* InfoLines[4];
+	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
+	InfoLines[1] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
+	InfoLines[2] = szFileProgressLine;
+	InfoLines[3] = pc->szFilePath;
+
+	FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
+
+	return TRUE;
+}
+
 static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* context, HANDLE &screen)
 {
 	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
@@ -191,20 +214,7 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	if ((hStdOut != INVALID_HANDLE_VALUE) && GetConsoleScreenBufferInfo(hStdOut, &si))
 		FSF.TruncPathStr(context->szFilePath, si.dwSize.X - 16);
 
-	int nTotalProgress = (context->nTotalSize > 0) ? (int) ((context->nProcessedBytes * 100) / context->nTotalSize) : 0;
-
-	static char szFileProgressLine[100] = {0};
-	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Progress: %2d%% / %2d%%", context->nCurrentFileNumber, context->nTotalFiles, 0, nTotalProgress);
-
-	static const char* InfoLines[4];
-	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
-	InfoLines[1] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
-	InfoLines[2] = szFileProgressLine;
-	InfoLines[3] = context->szFilePath;
-
-	FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
-
-	return TRUE;
+	return ExtractProgress((HANDLE)context);
 }
 
 static void CALLBACK ExtractDone(ProgressContext* context, HANDLE screen)
@@ -238,30 +248,6 @@ static int ExtractError(int errorReason, HANDLE context)
 
 	return EEN_SKIP;
 }
-
-static int CALLBACK ExtractProgress(HANDLE context)
-{
-	// Check for ESC pressed
-	if (CheckEsc())
-		return FALSE;
-
-	ProgressContext* pc = (ProgressContext*) context;
-	int nTotalProgress = (pc->nTotalSize > 0) ? (int) ((pc->nProcessedBytes * 100) / pc->nTotalSize) : 0;
-
-	static char szFileProgressLine[100] = {0};
-	sprintf_s(szFileProgressLine, 100, "File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, pc->nCurrentFileProgress, nTotalProgress);
-
-	static const char* InfoLines[4];
-	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
-	InfoLines[1] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
-	InfoLines[2] = szFileProgressLine;
-	InfoLines[3] = pc->szFilePath;
-
-	FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
-	
-	return TRUE;
-}
-
 //-----------------------------------  Extract functions ----------------------------------------
 
 // Overwrite values
@@ -325,11 +311,11 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, siz
 	// Check for ESC pressed
 	if (CheckEsc())	return FALSE;
 
-	static wchar_t wszNextItemSubPath[PATH_BUFFER_SIZE];
-	item->GetPath(wszNextItemSubPath, PATH_BUFFER_SIZE);
+	static wchar_t wszItemSubPath[PATH_BUFFER_SIZE];
+	item->GetPath(wszItemSubPath, PATH_BUFFER_SIZE);
 
 	wstring strFullTargetPath(destDir);
-	strFullTargetPath.append(wszNextItemSubPath + skipSubPathChunk);
+	strFullTargetPath.append(wszItemSubPath + skipSubPathChunk);
 
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
