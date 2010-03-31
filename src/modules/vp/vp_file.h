@@ -34,7 +34,7 @@ struct VP_FileRec
 	wchar_t full_path[MAX_PATH]; // Full local path
 	FILETIME timestamp;
 
-	bool IsDir() { return offset == -1; }
+	bool IsDir() { return (offset == -1) || (size == 0); }
 };
 
 class CVPFile

@@ -108,7 +108,7 @@ bool CVPFile::Open( const wchar_t* path )
 			m_vContent.push_back(frec);
 			
 			// Save current directory path
-			if (dirent.offset == -1)
+			if (frec.IsDir())
 			{
 				wcscpy_s(wszCurrentDir, MAX_PATH, frec.full_path);
 				nCurrentDirLen = wcslen(wszCurrentDir);
