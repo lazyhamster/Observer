@@ -90,12 +90,15 @@ int StorageObject::ReadFileList(bool &aborted)
 
 	size_t nItemPathBufSize = PATH_BUFFER_SIZE;
 	wchar_t* wszItemPathBuf = (wchar_t*) malloc(nItemPathBufSize * sizeof(wchar_t));
+
+	ExternalModule &module = m_pModules->modules[m_nModuleIndex];
 		
 	DWORD item_index = 0;
-	WIN32_FIND_DATAW child_data = {0};
+	WIN32_FIND_DATAW child_data;
 	do
 	{
-		int res = m_pModules->modules[m_nModuleIndex].GetNextItem(m_pStoragePtr, item_index, &child_data, wszItemPathBuf, nItemPathBufSize);
+		memset(&child_data, 0, sizeof(child_data));
+		int res = module.GetNextItem(m_pStoragePtr, item_index, &child_data, wszItemPathBuf, nItemPathBufSize);
 
 		if (res == GET_ITEM_NOMOREITEMS)
 		{
