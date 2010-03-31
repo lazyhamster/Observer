@@ -1,0 +1,8 @@
+LIBRARY	"vp.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetStorageItem
+	ExtractItem
