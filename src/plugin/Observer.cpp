@@ -304,7 +304,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, size_t skipSubPathChunk, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir()) return FALSE;
 
@@ -312,10 +312,10 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, siz
 	if (CheckEsc())	return FALSE;
 
 	static wchar_t wszItemSubPath[PATH_BUFFER_SIZE];
-	item->GetPath(wszItemSubPath, PATH_BUFFER_SIZE);
+	item->GetPath(wszItemSubPath, PATH_BUFFER_SIZE, storage->CurrentDir());
 
 	wstring strFullTargetPath(destDir);
-	strFullTargetPath.append(wszItemSubPath + skipSubPathChunk);
+	strFullTargetPath.append(wszItemSubPath);
 
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
@@ -776,10 +776,6 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	int nExtractResult = TRUE;
 	int doOverwrite = EXTR_OVERWRITE_ASK;
 
-	// Find current directory sub-path to cut it from destination path
-	size_t nSkipPathChunkSize = info->CurrentDir()->GetPath(NULL, 0);
-	if (nSkipPathChunkSize > 0) nSkipPathChunkSize++;	// Count trailing backslash for non-empty value
-
 	ProgressContext pctx;
 	pctx.nTotalFiles = vcExtractItems.size();
 	pctx.nTotalSize = nTotalExtractSize;
@@ -789,7 +785,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	{
 		ContentTreeNode* nextItem = info->GetItem(*cit);
 
-		nExtractResult = ExtractStorageItem(info, nextItem, nSkipPathChunkSize, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, &pctx);
+		nExtractResult = ExtractStorageItem(info, nextItem, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, &pctx);
 
 		if (!nExtractResult) break;
 	}

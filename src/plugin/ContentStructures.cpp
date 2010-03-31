@@ -39,7 +39,7 @@ ContentTreeNode::~ContentTreeNode()
 	//subitems.clear();
 }
 
-size_t ContentTreeNode::GetPath(wchar_t* dest, size_t destSize) const
+size_t ContentTreeNode::GetPath(wchar_t* dest, size_t destSize, ContentTreeNode* upRoot) const
 {
 	if (!data.cFileName[0])
 	{
@@ -48,9 +48,9 @@ size_t ContentTreeNode::GetPath(wchar_t* dest, size_t destSize) const
 	}
 	
 	size_t ret = 0;
-	if (parent)
+	if (parent && (parent != upRoot))
 	{
-		ret = parent->GetPath(dest, destSize);
+		ret = parent->GetPath(dest, destSize, upRoot);
 		if (ret > 0)
 		{
 			if (dest != NULL)
