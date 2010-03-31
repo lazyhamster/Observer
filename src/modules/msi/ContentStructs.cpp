@@ -17,7 +17,7 @@ void SplitEntryWithAlloc(wchar_t* source, wchar_t delim, wchar_t* &shortName, wc
 	else
 	{
 		// Short name can not be more then 14 symbols
-		shortName = (wcslen(source) <= MAX_SHORT_NAME_LEN) ? _wcsdup(source) : _wcsdup(L"");
+		shortName = (wcslen(source) < MAX_SHORT_NAME_LEN) ? _wcsdup(source) : _wcsdup(L"");
 		longName = _wcsdup(source);
 	}
 }

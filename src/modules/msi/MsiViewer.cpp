@@ -441,7 +441,7 @@ void CMsiViewer::checkShortNames(DirectoryNode *root)
 	{
 		DirectoryNode* subdir = *iter;
 
-		if (subdir->TargetShortName && (wcslen(subdir->TargetShortName) > MAX_SHORT_NAME_LEN))
+		if (subdir->TargetShortName && (wcslen(subdir->TargetShortName) >= MAX_SHORT_NAME_LEN))
 		{
 			if (subdir->GetFilesCount() == 0)
 				iter = root->SubDirs.erase(iter);
@@ -1089,9 +1089,8 @@ bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, 
 
 	BasicNode* node = m_vFlatIndex[itemIndex];
 
-	memset(dataBuf, 0, sizeof(*dataBuf));
 	wcscpy_s(dataBuf->cFileName, MAX_PATH, node->TargetName);
-	wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN + 1, node->TargetShortName);
+	wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN, node->TargetShortName);
 	dataBuf->dwFileAttributes = node->GetSytemAttributes();
 	dataBuf->nFileSizeLow = (DWORD) node->GetSize();
 
