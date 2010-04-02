@@ -510,7 +510,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 	return hOpenResult;
 }
 
-HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, int DataSize)
+HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode)
 {
 	if (!Name || !optEnabled)
 		return INVALID_HANDLE_VALUE;
