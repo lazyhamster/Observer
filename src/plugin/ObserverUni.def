@@ -1,0 +1,17 @@
+LIBRARY	"4Observer"
+
+EXPORTS
+	GetMinFarVersionW
+	SetStartupInfoW
+	GetPluginInfoW
+	ExitFARW
+	ConfigureW
+	ClosePluginW
+	OpenPluginW
+	OpenFilePluginW
+	GetFindDataW
+	FreeFindDataW
+	SetDirectoryW
+	GetFilesW
+	GetOpenPluginInfoW
+	ProcessKeyW

@@ -125,7 +125,7 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 
 //-----------------------------------  Content functions ----------------------------------------
 
-HANDLE OpenStorage(const char* Name)
+static HANDLE OpenStorage(const char* Name)
 {
 	wchar_t wszWideName[MAX_PATH] = {0};
 	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, MAX_PATH);
@@ -158,7 +158,7 @@ HANDLE OpenStorage(const char* Name)
 	return hResult;
 }
 
-void CloseStorage(HANDLE hStorage)
+static void CloseStorage(HANDLE hStorage)
 {
 	StorageObject *sobj = (StorageObject*) hStorage;
 	sobj->Close();

@@ -17,6 +17,8 @@ struct ExtractProcessCallbacks
 struct ProgressContext
 {
 	char szFilePath[MAX_PATH];
+	wchar_t wszFilePath[MAX_PATH];
+
 	int nCurrentFileNumber;
 	int nTotalFiles;
 	__int64 nProcessedBytes;
