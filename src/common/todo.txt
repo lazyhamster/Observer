@@ -1,6 +1,3 @@
-Plugin:
-- true Unicode version
-
 MSI:
 - modification time for files in internal cab
 - extract progress
