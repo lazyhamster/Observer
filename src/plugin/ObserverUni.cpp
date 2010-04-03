@@ -483,8 +483,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 	}
 	else if (OpenFrom == OPEN_PLUGINSMENU)
 	{
-		PanelInfo pi;
-		memset(&pi, 0, sizeof(pi));
+		PanelInfo pi = {0};
 		if (FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR)&pi))
 			if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 			{
@@ -621,8 +620,9 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	memset(wszCurrentDir, 0, sizeof(wszCurrentDir));
 	memset(wszTitle, 0, sizeof(wszTitle));
 
-	info->CurrentDir()->GetPath(wszCurrentDir, PATH_BUFFER_SIZE);
-	swprintf_s(wszTitle, L"%s:\\%s", info->GetModuleName(), wszCurrentDir);
+	wszCurrentDir[0] = '\\';
+	info->CurrentDir()->GetPath(wszCurrentDir + 1, PATH_BUFFER_SIZE);
+	swprintf_s(wszTitle, L"%s:%s", info->GetModuleName(), wszCurrentDir);
 
 	wszHostFile = wcsrchr(info->StoragePath(), '\\');
 	if (wszHostFile) wszHostFile++; else wszHostFile = info->StoragePath();
