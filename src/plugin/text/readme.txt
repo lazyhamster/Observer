@@ -1,5 +1,5 @@
 Observer
-Plug-in for FAR Manager 1.75+
+Plug-in for FAR Manager 1.75+ / 2.0+
 Copyright: 2009-2010, Ariman
 
 -------------------------------------------------------------------

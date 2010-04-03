@@ -1,5 +1,5 @@
 Observer 1.5
-Plugin for FAR 1.7x
+Plugin for FAR 1.7x / 2.x
 ---------------------------
 
 This plugins allows to browse several types of file containers.
@@ -11,6 +11,6 @@ Supported file formats:
 - CD disk images : ISO-9660 (incl. Joliet), CUE/BIN, MDF/MDS
 - Installers made by NSIS
 
-(c) 2009, Ariman
+(c) 2009-2010, Ariman
 -----------------------------------------
 E-mail for suggestions, bug reports, etc: ariman@inbox.ru
