@@ -357,6 +357,49 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	return (ret == SER_SUCCESS);
 }
 
+int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSize, const wchar_t* DestPath, bool silent)
+{
+	// Items should be sorted (e.g. for access to solid archives)
+	sort(items.begin(), items.end());
+
+	if (!ForceDirectoryExist(DestPath))
+	{
+		if (!silent)
+			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
+		return 0;
+	}
+
+	if (!IsEnoughSpaceInPath(DestPath, totalExtractSize))
+	{
+		DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
+		return 0;
+	}
+
+	int nExtractResult = TRUE;
+	int doOverwrite = EXTR_OVERWRITE_ASK;
+
+	ProgressContext pctx;
+	pctx.nTotalFiles = items.size();
+	pctx.nTotalSize = totalExtractSize;
+
+	// Extract all files one by one
+	for (vector<int>::const_iterator cit = items.begin(); cit != items.end(); cit++)
+	{
+		ContentTreeNode* nextItem = info->GetItem(*cit);
+
+		nExtractResult = ExtractStorageItem(info, nextItem, DestPath, silent, doOverwrite, &pctx);
+
+		if (nExtractResult != SER_SUCCESS) break;
+	}
+
+	if (nExtractResult == SER_USERABORT)
+		return -1;
+	else if (nExtractResult == SER_SUCCESS)
+		return 1;
+
+	return 0;
+}
+
 //-----------------------------------  Export functions ----------------------------------------
 
 int WINAPI GetMinFarVersionW(void)
@@ -723,42 +766,10 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 	if (vcExtractItems.size() == 0)
 		return 0;
 
-	// Items should be sorted (e.g. for access to solid archives)
-	sort(vcExtractItems.begin(), vcExtractItems.end());
-
-	if (!ForceDirectoryExist(*DestPath))
-	{
-		if ((OpMode & OPM_SILENT) == 0)
-			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
-		return 0;
-	}
-
-	if (!IsEnoughSpaceInPath(*DestPath, nTotalExtractSize))
-	{
-		DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
-		return 0;
-	}
-
-	int nExtractResult = TRUE;
-	int doOverwrite = EXTR_OVERWRITE_ASK;
-
-	ProgressContext pctx;
-	pctx.nTotalFiles = vcExtractItems.size();
-	pctx.nTotalSize = nTotalExtractSize;
-
-	// Extract all files one by one
-	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
-	{
-		ContentTreeNode* nextItem = info->GetItem(*cit);
-
-		nExtractResult = ExtractStorageItem(info, nextItem, *DestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, &pctx);
-
-		if (!nExtractResult) break;
-	}
-
 	//TODO: add recursion option
 	//TODO: add option to keep full path
-	return nExtractResult;
+
+	return BatchExtract(info, vcExtractItems, nTotalExtractSize, *DestPath, (OpMode & OPM_SILENT) > 0);
 }
 
 int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
@@ -768,18 +779,37 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
 		StorageObject* info = (StorageObject *) hPlugin;
 		if (!info) return FALSE;
 		
-		//PanelInfo pi = {0};
-		//if (!FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR) &pi)) return FALSE;
-		//if (pi.SelectedItemsNumber == 0) return FALSE;
+		PanelInfo pi = {0};
+		if (!FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR) &pi)) return FALSE;
+		if (pi.SelectedItemsNumber == 0) return FALSE;
 
-		//wchar_t *wszTargetDir = _wcsdup(info->StoragePath());
-		//
-		//wchar_t* szLastSlash = wcsrchr(wszTargetDir, '\\');
-		//if (szLastSlash) *(szLastSlash + 1) = 0;
+		vector<int> vcExtractItems;
+		__int64 nTotalExtractSize = 0;
 
-		//GetFilesW(hPlugin, pi.SelectedItems, pi.SelectedItemsNumber, 0, &wszTargetDir, OPM_SILENT);
+		// Collect all indices of items to extract
+		for (int i = 0; i < pi.SelectedItemsNumber; i++)
+		{
+			PluginPanelItem* pItem = (PluginPanelItem*) malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, NULL));
+			FarSInfo.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, (LONG_PTR) pItem);
+			if (wcscmp(pItem->FindData.lpwszFileName, L"..") == 0) continue;
 
-		//free(wszTargetDir);
+			ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem->FindData.lpwszFileName);
+			if (child) CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
+			
+			free(pItem);
+		} //for
+
+		// Check if we have something to extract
+		if (vcExtractItems.size() == 0) return TRUE;
+
+		wchar_t *wszTargetDir = _wcsdup(info->StoragePath());
+		
+		wchar_t* szLastSlash = wcsrchr(wszTargetDir, '\\');
+		if (szLastSlash) *(szLastSlash + 1) = 0;
+
+		BatchExtract(info, vcExtractItems, nTotalExtractSize, wszTargetDir, true);
+
+		free(wszTargetDir);
 		
 		return TRUE;
 	}
