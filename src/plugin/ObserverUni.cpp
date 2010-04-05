@@ -668,6 +668,9 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	info->CurrentDir()->GetPath(wszCurrentDir + 1, PATH_BUFFER_SIZE);
 	swprintf_s(wszTitle, L"%s:%s", info->GetModuleName(), wszCurrentDir);
 
+	// Ugly hack (FAR does not exit plug-in if root directory is \)
+	if (wcslen(wszCurrentDir) == 1) wszCurrentDir[0] = 0;
+
 	wszHostFile = wcsrchr(info->StoragePath(), '\\');
 	if (wszHostFile) wszHostFile++; else wszHostFile = info->StoragePath();
 
