@@ -400,6 +400,14 @@
 			<File
 				RelativePath=".\Observer.cpp"
 				>
+				<FileConfiguration
+					Name="Debug-Unicode|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\Observer.def"
@@ -408,6 +416,14 @@
 			<File
 				RelativePath=".\ObserverUni.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ObserverUni.def"
