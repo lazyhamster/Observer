@@ -1,0 +1,36 @@
+.Language=English,English
+
+"Observer"
+"Observer"
+
+"Observer Configuration"
+"Enable plugin"
+"Use prefix"
+
+"Format"
+"Compression"
+"Label"
+"Created"
+"Files"
+"Directories"
+"Total Size"
+
+"Extract items?"
+"Extract Error"
+"Unable to create directory"
+"File %S already exists. Overwrite?"
+"Extracting failed for file:"
+"Extracting file"
+"Not enough space on target drive"
+
+"Reading files list"
+"Content Error"
+"Invalid item returned during listing"
+
+"&Overwrite"
+"Overwrite &all"
+"&Skip"
+"S&kip all"
+"&Cancel"
+
+"ToCurr"

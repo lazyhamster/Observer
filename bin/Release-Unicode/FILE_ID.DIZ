@@ -1,0 +1,16 @@
+Observer 1.5
+Plugin for FAR 1.7x / 2.x
+---------------------------
+
+This plugins allows to browse several types of file containers.
+All formats support files listing and extraction
+
+Supported file formats:
+- MSI installation packages
+- UDF (ISO 13346) images.
+- CD disk images : ISO-9660 (incl. Joliet), CUE/BIN, MDF/MDS
+- Installers made by NSIS
+
+(c) 2009-2010, Ariman
+-----------------------------------------
+E-mail for suggestions, bug reports, etc: ariman@inbox.ru
