@@ -268,10 +268,11 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 
 static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
 {
-	if (!item || !storage || item->IsDir()) return FALSE;
+	if (!item || !storage || item->IsDir())
+		return SER_ERROR_READ;
 
 	// Check for ESC pressed
-	if (CheckEsc())	return FALSE;
+	if (CheckEsc())	return SER_USERABORT;
 
 	static wchar_t wszItemSubPath[PATH_BUFFER_SIZE];
 	item->GetPath(wszItemSubPath, PATH_BUFFER_SIZE, storage->CurrentDir());
@@ -287,17 +288,17 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
 			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item->data))
-				return FALSE;
+				return SER_USERABORT;
 		
 		// Check either ask result or present value
 		if (doOverwrite == EXTR_OVERWRITE_SKIP)
 		{
 			doOverwrite = EXTR_OVERWRITE_ASK;
-			return TRUE;
+			return SER_SUCCESS;
 		}
 		else if (doOverwrite == EXTR_OVERWRITE_SKIPSILENT)
 		{
-			return TRUE;
+			return SER_SUCCESS;
 		}
 	}
 
@@ -312,7 +313,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	if (strTargetDir.length() > 0)
 	{
 		if (!ForceDirectoryExist(strTargetDir.c_str()))
-			return FALSE;
+			return SER_ERROR_WRITE;
 		strTargetDir.append(L"\\");
 	}
 
@@ -354,7 +355,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
-	return (ret == SER_SUCCESS);
+	return ret;
 }
 
 int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSize, const wchar_t* DestPath, bool silent)
