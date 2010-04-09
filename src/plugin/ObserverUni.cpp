@@ -567,8 +567,8 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info || !info->CurrentDir()) return FALSE;
 
-	int nTotalItems = (int) info->CurrentDir()->GetChildCount();
-	*pItemsNumber = nTotalItems;
+	size_t nTotalItems = info->CurrentDir()->GetChildCount();
+	*pItemsNumber = (int) nTotalItems;
 
 	// Zero items - exit now
 	if (nTotalItems == 0) return TRUE;
