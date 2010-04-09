@@ -53,7 +53,7 @@ bool CVPFile::Open( const wchar_t* path )
 	}
 
 	if (!GetFileSizeEx(hFile, &nFileSize) || (nFileSize.HighPart > 0)
-		|| (nFileSize.QuadPart < header.diroffset + header.direntries * sizeof(VP_DirEntry)))
+		|| (nFileSize.QuadPart < header.diroffset + (__int64) header.direntries * sizeof(VP_DirEntry)))
 	{
 		goto err_exit;
 	}
@@ -96,7 +96,7 @@ bool CVPFile::Open( const wchar_t* path )
 				UnixTimeToFileTime(dirent.timestamp, &frec.timestamp);
 
 			wmemset(wszItemName, 0, MAX_PATH);
-			MultiByteToWideChar(CP_UTF8, 0, dirent.name, strlen(dirent.name) + 1, wszItemName, MAX_PATH);
+			MultiByteToWideChar(CP_UTF8, 0, dirent.name, (int) strlen(dirent.name) + 1, wszItemName, MAX_PATH);
 
 			if (nCurrentDirLen > 0)
 			{

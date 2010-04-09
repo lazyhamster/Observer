@@ -64,8 +64,8 @@ static void SaveSettings()
 
 static void InsertCommas(wchar_t *Dest)
 {
-  size_t I;
-  for (I=wcslen(Dest)-4;I>=0;I-=3)
+  int I;
+  for (I=(int)wcslen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
       wmemmove(Dest+I+2,Dest+I+1,wcslen(Dest+I));
