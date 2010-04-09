@@ -36,7 +36,7 @@ int ModulesController::Init( const wchar_t* basePath )
 			modules.push_back(module);
 	} // for
 	
-	return modules.size();
+	return (int) modules.size();
 }
 
 void ModulesController::Cleanup()
@@ -52,7 +52,7 @@ int ModulesController::OpenStorageFile(const wchar_t* path, int *moduleIndex, IN
 	for (size_t i = 0; i < modules.size(); i++)
 		if (modules[i].OpenStorage(path, storage, sinfo) == TRUE)
 		{
-			*moduleIndex = i;
+			*moduleIndex = (int) i;
 			return TRUE;
 		}
 

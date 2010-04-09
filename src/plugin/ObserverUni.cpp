@@ -57,14 +57,14 @@ static void SaveSettings()
 
 	RegSetValueEx(reg, L"Enabled", 0, REG_DWORD, (BYTE *) &optEnabled, sizeof(optEnabled));
 	RegSetValueEx(reg, L"UsePrefix", 0, REG_DWORD, (BYTE *) &optUsePrefix, sizeof(optUsePrefix));
-	RegSetValueEx(reg, L"Prefix", 0, REG_SZ, (BYTE *) &optPrefix, wcslen(optPrefix) + 1);
+	RegSetValueEx(reg, L"Prefix", 0, REG_SZ, (BYTE *) &optPrefix, (DWORD) wcslen(optPrefix) + 1);
 	
 	RegCloseKey(reg);
 }
 
 static void InsertCommas(wchar_t *Dest)
 {
-  int I;
+  size_t I;
   for (I=wcslen(Dest)-4;I>=0;I-=3)
     if (Dest[I])
     {
@@ -163,7 +163,7 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	item->GetPath(wszSubPath, PATH_BUFFER_SIZE);
 		
 	// Save file name for dialogs
-	int nPathLen = wcslen(wszSubPath);
+	size_t nPathLen = wcslen(wszSubPath);
 	wchar_t* wszSubPathPtr = wszSubPath;
 	if (nPathLen > MAX_PATH) wszSubPathPtr += (nPathLen % MAX_PATH);
 
@@ -380,7 +380,7 @@ int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSi
 	int doOverwrite = EXTR_OVERWRITE_ASK;
 
 	ProgressContext pctx;
-	pctx.nTotalFiles = items.size();
+	pctx.nTotalFiles = (int) items.size();
 	pctx.nTotalSize = totalExtractSize;
 
 	// Extract all files one by one
@@ -542,7 +542,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 					wcscat_s(szFullNameBuffer, PATH_BUFFER_SIZE, PPI->FindData.lpwszFileName);
 					free(PPI);
 
-					fpres = wcslen(szFullNameBuffer);
+					fpres = (DWORD) wcslen(szFullNameBuffer);
 				}
 			}
 	}
@@ -567,7 +567,7 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info || !info->CurrentDir()) return FALSE;
 
-	int nTotalItems = info->CurrentDir()->GetChildCount();
+	int nTotalItems = (int) info->CurrentDir()->GetChildCount();
 	*pItemsNumber = nTotalItems;
 
 	// Zero items - exit now
