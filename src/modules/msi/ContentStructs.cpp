@@ -7,7 +7,7 @@ void SplitEntryWithAlloc(wchar_t* source, wchar_t delim, wchar_t* &shortName, wc
 {
 	wchar_t *delimPos = wcschr(source, delim);
 	
-	if (delimPos)
+	if (delimPos && (delimPos - source) < MAX_SHORT_NAME_LEN)
 	{
 		*delimPos = 0;
 		shortName = _wcsdup(source);
