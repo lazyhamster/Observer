@@ -983,7 +983,18 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 
 	UINT res;
 	PMSIHANDLE hQueryStream;
-	OK( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQueryStream) );
+	//OK( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQueryStream) );
+	
+	res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQueryStream);
+	if (res == ERROR_INVALID_HANDLE)
+	{
+		// Very rare bug with auto-closed handle, try to reopen it
+		res = MsiOpenDatabaseW(m_strStorageLocation.c_str(), MSIDBOPEN_READONLY, &m_hMsi);
+		if (res == ERROR_SUCCESS)
+			res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQueryStream);
+	}
+	OK(res);
+
 	OK( MsiViewExecute(hQueryStream, 0) );
 
 	// Go through streams list and copy to temp folder
