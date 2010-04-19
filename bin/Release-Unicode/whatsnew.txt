@@ -1,5 +1,10 @@
 История изменений:
 
+1.5.1
+- Officialy introduced x64 verion for FAR 2.0
+- MSI: Fixed crash on some mailformed containers.
+- MSI: Fixed inability to extract files in very rare cases of weird behavior of MS Installer.
+
 1.5
 - Version for FAR 2.0 (Unicode)
 - Now you can cancel storage open process in the middle.
