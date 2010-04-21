@@ -1162,7 +1162,7 @@
 		</Filter>
 		<Filter
 			Name="Support Files"
-			Filter="ini;lng;DIZ;txt"
+			Filter="ini;lng;DIZ;txt;hlf"
 			ParseFiles="false"
 			>
 			<File
@@ -1171,6 +1171,10 @@
 			</File>
 			<File
 				RelativePath=".\text\observer.ini"
+				>
+			</File>
+			<File
+				RelativePath=".\text\ObserverEng.hlf"
 				>
 			</File>
 			<File

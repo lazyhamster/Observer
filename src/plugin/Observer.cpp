@@ -463,7 +463,7 @@ int WINAPI Configure(int ItemNumber)
 	DialogItems[2].Selected = optUsePrefix;
 	strcpy_s(DialogItems[3].Data, sizeof(DialogItems[3].Data) / sizeof(DialogItems[3].Data[0]), optPrefix);
 
-	int ExitCode = FarSInfo.Dialog(FarSInfo.ModuleNumber, -1, -1, 40, 9, "TempCfg", DialogItems, sizeof(DialogItems)/sizeof(DialogItems[0]));
+	int ExitCode = FarSInfo.Dialog(FarSInfo.ModuleNumber, -1, -1, 40, 9, "ObserverConfig", DialogItems, sizeof(DialogItems)/sizeof(DialogItems[0]));
 
 	if ((ExitCode == 5) && (strlen(DialogItems[3].Data) < MAX_PREFIX_SIZE))
 	{

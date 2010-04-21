@@ -464,7 +464,7 @@ int WINAPI ConfigureW(int ItemNumber)
 		DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 0, L"Cancel", 0,
 	};
 
-	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 38, 9, L"TempCfg",
+	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 38, 9, L"ObserverConfig",
 		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, 0, FarSInfo.DefDlgProc, 0);
 
 	if (hDlg != INVALID_HANDLE_VALUE)
