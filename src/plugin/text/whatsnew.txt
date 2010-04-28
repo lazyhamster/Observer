@@ -1,5 +1,8 @@
 История изменений:
 
+1.5.2
+- Fixed overwrite dialog in Unicode version.
+
 1.5.1
 - Officialy introduced x64 verion for FAR 2.0
 - MSI: Fixed crash on some mailformed containers.

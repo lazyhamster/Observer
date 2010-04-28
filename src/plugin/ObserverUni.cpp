@@ -234,7 +234,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	static wchar_t szDialogLine1[120] = {0};
 	swprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_OVERWRITE), newFile.cFileName);
 	static wchar_t szDialogLine2[120] = {0};
-	swprintf_s(szDialogLine2, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), L"%21s  %s", "Size", "Last Modification");
+	swprintf_s(szDialogLine2, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), L"%21s  %s", L"Size", L"Last Modification");
 	static wchar_t szDialogLine3[120] = {0};
 	swprintf_s(szDialogLine3, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), L"Old file: %11u  %5u-%02u-%02u %02u:%02u",
 		(UINT) nOldSize, stOldLocal.wYear, stOldLocal.wMonth, stOldLocal.wDay, stOldLocal.wHour, stOldLocal.wMinute);

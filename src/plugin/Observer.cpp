@@ -268,9 +268,12 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	SYSTEMTIME stNewUTC, stNewLocal;
 	FileTimeToSystemTime(&newFile.ftLastWriteTime, &stNewUTC);
 	SystemTimeToTzSpecificLocalTime(NULL, &stNewUTC, &stNewLocal);
+
+	char szFileName[MAX_PATH] = {0};
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, newFile.cFileName, wcslen(newFile.cFileName), szFileName, MAX_PATH, NULL, NULL);
 	
 	static char szDialogLine1[120] = {0};
-	sprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_OVERWRITE), newFile.cFileName);
+	sprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_OVERWRITE), szFileName);
 	static char szDialogLine2[120] = {0};
 	sprintf_s(szDialogLine2, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), "%21s  %s", "Size", "Last Modification");
 	static char szDialogLine3[120] = {0};
