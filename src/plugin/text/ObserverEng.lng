@@ -15,7 +15,7 @@
 "Directories"
 "Total Size"
 
-"Extract items?"
+"Extract %d files(s) and %d folder(s) to"
 "Extract Error"
 "Unable to create directory"
 "File %s already exists. Overwrite?"

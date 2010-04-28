@@ -401,6 +401,20 @@ int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSi
 	return 0;
 }
 
+bool ConfirmExtract(int NumFiles, int NumDirectories, const wchar_t *DestPath)
+{
+	static wchar_t szDialogLine1[120] = {0};
+	swprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
+		
+	static const wchar_t* ConfirmBox[3];
+	ConfirmBox[0] = GetLocMsg(MSG_PLUGIN_NAME);
+	ConfirmBox[1] = szDialogLine1;
+	ConfirmBox[2] = DestPath;
+	int choise = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_MB_OKCANCEL, NULL, ConfirmBox, 3, 2);
+	
+	return (choise == 0);
+}
+
 //-----------------------------------  Export functions ----------------------------------------
 
 int WINAPI GetMinFarVersionW(void)
@@ -740,18 +754,9 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info) return 0;
 
-	// Confirm extraction
-	if ((OpMode & OPM_SILENT) == 0)
-	{
-		static const wchar_t* ConfirmBox[2];
-		ConfirmBox[0] = GetLocMsg(MSG_PLUGIN_NAME);
-		ConfirmBox[1] = GetLocMsg(MSG_EXTRACT_CONFIRM);
-		int choise = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_MB_OKCANCEL, NULL, ConfirmBox, 2, 2);
-		if (choise != 0) return -1;
-	}
-
 	vector<int> vcExtractItems;
 	__int64 nTotalExtractSize = 0;
+	int nExtNumFiles = 0, nExtNumDirs = 0;
 
 	// Collect all indices of items to extract
 	for (int i = 0; i < ItemsNumber; i++)
@@ -760,15 +765,24 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 		if (wcscmp(pItem.FindData.lpwszFileName, L"..") == 0) continue;
 
 		ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem.FindData.lpwszFileName);
-		if (child)
-		{
-			CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
-		}
+		if (child) CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
+
+		if (pItem.FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			nExtNumDirs++;
+		else
+			nExtNumFiles++;
 	} //for
 
 	// Check if we have something to extract
 	if (vcExtractItems.size() == 0)
 		return 0;
+
+	// Confirm extraction
+	if ((OpMode & OPM_SILENT) == 0)
+	{
+		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, *DestPath))
+			return -1;
+	}
 
 	//TODO: add recursion option
 	//TODO: add option to keep full path

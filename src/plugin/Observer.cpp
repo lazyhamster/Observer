@@ -396,6 +396,20 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	return (ret == SER_SUCCESS);
 }
 
+bool ConfirmExtract(int NumFiles, int NumDirectories, const char *DestPath)
+{
+	static char szDialogLine1[120] = {0};
+	sprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
+
+	static const char* ConfirmBox[3];
+	ConfirmBox[0] = GetLocMsg(MSG_PLUGIN_NAME);
+	ConfirmBox[1] = szDialogLine1;
+	ConfirmBox[2] = DestPath;
+	int choise = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_MB_OKCANCEL, NULL, ConfirmBox, 3, 2);
+
+	return (choise == 0);
+}
+
 //-----------------------------------  Export functions ----------------------------------------
 
 int WINAPI GetMinFarVersion(void)
@@ -718,19 +732,10 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info) return 0;
 
-	// Confirm extraction
-	if ((OpMode & OPM_SILENT) == 0)
-	{
-		static const char* ConfirmBox[2];
-		ConfirmBox[0] = GetLocMsg(MSG_PLUGIN_NAME);
-		ConfirmBox[1] = GetLocMsg(MSG_EXTRACT_CONFIRM);
-		int choise = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_MB_OKCANCEL, NULL, ConfirmBox, 2, 2);
-		if (choise != 0) return -1;
-	}
-
 	vector<int> vcExtractItems;
 	__int64 nTotalExtractSize = 0;
 	wchar_t wszItemNameBuf[MAX_PATH] = {0};
+	int nExtNumFiles = 0, nExtNumDirs = 0;
 
 	// Collect all indices of items to extract
 	for (int i = 0; i < ItemsNumber; i++)
@@ -742,15 +747,24 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		MultiByteToWideChar(CP_FAR_INTERNAL, 0, pItem.FindData.cFileName, strlen(pItem.FindData.cFileName), wszItemNameBuf, MAX_PATH);
 
 		ContentTreeNode* child = info->CurrentDir()->GetChildByName(wszItemNameBuf);
-		if (child)
-		{
-			CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
-		}
+		if (child) CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
+
+		if (pItem.FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			nExtNumDirs++;
+		else
+			nExtNumFiles++;
 	} //for
 
 	// Check if we have something to extract
 	if (vcExtractItems.size() == 0)
 		return 0;
+
+	// Confirm extraction
+	if ((OpMode & OPM_SILENT) == 0)
+	{
+		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, DestPath))
+			return -1;
+	}
 
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(vcExtractItems.begin(), vcExtractItems.end());
