@@ -10,6 +10,6 @@
 	/>
 	<UserMacro
 		Name="FAR2_DBG"
-		Value="C:\Tools\Far2\Plugins\!Personal"
+		Value="C:\Tools\Far2DBG\Plugins\!Personal"
 	/>
 </VisualStudioPropertySheet>
