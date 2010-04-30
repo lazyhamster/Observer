@@ -1,0 +1,34 @@
+.Language=English,English
+.PluginContents=Observer
+
+@Contents
+$^#Observer 1.5.2#
+
+ This plugins allows to browse several types of file containers.
+ All formats support files listing and extraction.
+
+ Supported file formats:
+ - #MSI# installation packages
+ - #NSIS# installation packages
+ - #UDF# (ISO 13346) images.
+ - CD disk images : #ISO-9660# (incl. Joliet), #CUE/BIN#, #MDF/MDS#
+ - Volition Pack V2 files
+
+ (c) 2009-2010, Ariman
+ -----------------------------------------
+ Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
+ Contact E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@
+
+@ObserverConfig
+$ #Observer configuration#
+    In this dialog you may change following parameters:
+
+ #Enable plugin#
+ Enables / Disables plugin's reaction to Enter and Ctrl-PgDn.
+ This option does not affect plugins menu (F11).
+
+ #Use prefix#
+ Enables / Disables reaction on prefix.
+ 
+ #Prefix value#
+ Text that will be used as prefix (32 chars max).

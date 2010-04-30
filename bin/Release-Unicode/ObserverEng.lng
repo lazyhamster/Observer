@@ -15,10 +15,10 @@
 "Directories"
 "Total Size"
 
-"Extract items?"
+"Extract %d files(s) and %d folder(s) to"
 "Extract Error"
 "Unable to create directory"
-"File %S already exists. Overwrite?"
+"File %s already exists. Overwrite?"
 "Extracting failed for file:"
 "Extracting file"
 "Not enough space on target drive"
