@@ -57,7 +57,7 @@ static void SaveSettings()
 
 	RegSetValueEx(reg, L"Enabled", 0, REG_DWORD, (BYTE *) &optEnabled, sizeof(optEnabled));
 	RegSetValueEx(reg, L"UsePrefix", 0, REG_DWORD, (BYTE *) &optUsePrefix, sizeof(optUsePrefix));
-	RegSetValueEx(reg, L"Prefix", 0, REG_SZ, (BYTE *) &optPrefix, (DWORD) wcslen(optPrefix) + 1);
+	RegSetValueEx(reg, L"Prefix", 0, REG_SZ, (BYTE *) &optPrefix, (DWORD) (wcslen(optPrefix) + 1) * sizeof(wchar_t));
 	
 	RegCloseKey(reg);
 }
@@ -469,16 +469,16 @@ void WINAPI ExitFARW(void)
 int WINAPI ConfigureW(int ItemNumber)
 {
 	FarDialogItem DialogItems []={
-		DI_DOUBLEBOX, 3,1, 35, 7, 0, 0, 0,0, GetLocMsg(MSG_CONFIG_TITLE), 0,
-		DI_CHECKBOX,  5,2,  0, 2, 0, optEnabled, 0,0, GetLocMsg(MSG_CONFIG_ENABLE), 0,
-		DI_CHECKBOX,  5,3,  0, 2, 0, optUsePrefix, 0,0, GetLocMsg(MSG_CONFIG_PREFIX), 0,
-		DI_FIXEDIT,	  7,4, 17, 3, 0, 0, 0,0, optPrefix, 0,
-		DI_TEXT,	  3,5,  0, 5, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0,
-		DI_BUTTON,	  0,6,  0, 7, 1, 0, DIF_CENTERGROUP, 1, L"OK", 0,
-		DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 0, L"Cancel", 0,
+		{DI_DOUBLEBOX, 3,1, 35, 7, 0, 0, 0,0, GetLocMsg(MSG_CONFIG_TITLE), 0},
+		{DI_CHECKBOX,  5,2,  0, 2, 1, optEnabled, 0,0, GetLocMsg(MSG_CONFIG_ENABLE), 0},
+		{DI_CHECKBOX,  5,3,  0, 2, 0, optUsePrefix, 0,0, GetLocMsg(MSG_CONFIG_PREFIX), 0},
+		{DI_FIXEDIT,   7,4, 20, 3, 0, 0, 0,0, optPrefix, 0},
+		{DI_TEXT,	   3,5,  0, 5, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
+		{DI_BUTTON,	   0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 1, L"OK", 0},
+		{DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 0, L"Cancel", 0},
 	};
 
-	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 38, 9, L"ObserverConfig",
+	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 39, 9, L"ObserverConfig",
 		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, 0, FarSInfo.DefDlgProc, 0);
 
 	if (hDlg != INVALID_HANDLE_VALUE)
