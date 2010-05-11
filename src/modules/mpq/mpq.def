@@ -1,0 +1,8 @@
+LIBRARY	"mpq.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetStorageItem
+	ExtractItem

@@ -1,0 +1,8 @@
+LIBRARY	"wise.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetStorageItem
+	ExtractItem
