@@ -238,10 +238,44 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	if ((storage == NULL) || (params.item < 0))
 		return SER_ERROR_SYSTEM;
 
+	ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
+
 	XStorage* xst = (XStorage*) storage;
 	if (xst->IsCatalog)
 	{
-		//
+		if (params.item >= (int) xst->Files.size())
+			return GET_ITEM_NOMOREITEMS;
+
+		X2CATFILEINFO finfo;
+		if (!xst->GetItemByIndex(params.item, finfo))
+			return GET_ITEM_ERROR;
+		
+		char szSrc[MAX_PATH] = {0};
+		WideCharToMultiByte(CP_ACP, 0, xst->Path, wcslen(xst->Path), szSrc, MAX_PATH, NULL, NULL);
+		strcat_s(szSrc, MAX_PATH, "::");
+		strcat_s(szSrc, MAX_PATH, finfo.szFileName);
+		
+		X2FILE hInput = X2FD_OpenFile(szSrc, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_PLAIN);
+		if (hInput == 0) return SER_ERROR_READ;
+
+		char szDest[MAX_PATH] = {0};
+		WideCharToMultiByte(CP_ACP, 0, params.dest_path, wcslen(params.dest_path), szDest, MAX_PATH, NULL, NULL);
+		strcat_s(szDest, MAX_PATH, GetFileName(finfo.szFileName));
+		
+		X2FILE hOutput = X2FD_OpenFile(szDest, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
+		if (hOutput == 0)
+		{
+			X2FD_CloseFile(hInput);
+			return SER_ERROR_WRITE;
+		}
+
+		int res = X2FD_CopyFile(hInput, hOutput);
+		
+		X2FD_CloseFile(hInput);
+		X2FD_CloseFile(hOutput);
+
+		pctx->nProcessedBytes += finfo.size;
+		if (res > 0) return SER_SUCCESS;
 	}
 	else if (params.item == 0)
 	{
@@ -264,6 +298,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		int res = X2FD_CopyFile(xst->FilePtr, hOutput);
 		X2FD_CloseFile(hOutput);
 
+		pctx->nProcessedBytes += finfo.size;
 		if (res > 0) return SER_SUCCESS;
 	}
 
