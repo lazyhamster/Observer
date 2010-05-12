@@ -38,7 +38,7 @@ struct XStorage
 
 //////////////////////////////////////////////////////////////////////////
 
-bool FileExists(const wchar_t* path)
+static bool FileExists(const wchar_t* path)
 {
 	WIN32_FIND_DATAW fdata;
 
@@ -50,6 +50,16 @@ bool FileExists(const wchar_t* path)
 	}
 
 	return false;
+}
+
+static void UnixTimeToFileTime(X2FDLONG t, LPFILETIME pft)
+{
+	// Note that LONGLONG is a 64-bit value
+	LONGLONG ll;
+
+	ll = Int32x32To64(t, 10000000) + 116444736000000000;
+	pft->dwLowDateTime = (DWORD)ll;
+	pft->dwHighDateTime = ll >> 32;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -91,15 +101,42 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 			*storage = (INT_PTR*) xst;
 			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"X-CAT");
-			wcscpy_s(info->Compression, STORAGE_FORMAT_NAME_MAX_LEN, L"");
-			wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
+			//wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"");
+			//wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
 
 			return TRUE;
 		}
 	}
 	else if (_wcsicmp(fileExt, L".pck") == 0)
 	{
-		//
+		X2FILE hFile = X2FD_OpenFile(tmp, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_AUTO);
+		if (hFile != 0)
+		{
+			XStorage* xst = new XStorage();
+			xst->Path = _wcsdup(path);
+			xst->IsCatalog = false;
+			xst->FilePtr = hFile;
+
+			*storage = (INT_PTR*) xst;
+			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"X-PCK");
+			//wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
+			
+			int nCompression = X2FD_GetFileCompressionType(tmp);
+			switch (nCompression)
+			{
+				case X2FD_FILETYPE_PCK:
+					wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"PCK");
+					break;
+				case X2FD_FILETYPE_DEFLATE:
+					wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"Deflate");
+					break;
+				default:
+					wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"Plain");
+					break;
+			}
+
+			return TRUE;
+		}
 	}
 			
 	return FALSE;
@@ -157,9 +194,35 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 
 		return GET_ITEM_OK;
 	}
-	else
+	else if (item_index == 0)	// Files other then catalogs always has one file inside
 	{
-		//
+		X2FILEINFO finfo;
+		if (X2FD_FileStatByHandle(xst->FilePtr, &finfo) == 0)
+			return GET_ITEM_ERROR;
+
+		char* fileName = strrchr(finfo.szFileName, '\\');
+		if (fileName)
+			fileName++;
+		else
+			fileName = finfo.szFileName;
+
+		memset(item_path, 0, path_size * sizeof(wchar_t));
+		MultiByteToWideChar(CP_ACP, 0, fileName, strlen(fileName), item_path, path_size);
+
+		// Change extension
+		size_t nNameLen = wcslen(item_path);
+		if (nNameLen > 4)
+			wcscpy_s(item_path + nNameLen - 4, 5, L".txt");
+
+		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
+		wcscpy_s(item_data->cFileName, MAX_PATH, item_path);
+		wcscpy_s(item_data->cAlternateFileName, 14, L"");
+		item_data->nFileSizeLow = finfo.size;
+		
+		X2FDLONG localTime = X2FD_TimeStampToLocalTimeStamp(finfo.mtime);
+		UnixTimeToFileTime(localTime, &item_data->ftLastWriteTime);
+
+		return GET_ITEM_OK;
 	}
 
 	return GET_ITEM_NOMOREITEMS;
