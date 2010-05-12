@@ -10,6 +10,7 @@
 struct XStorage
 {
 	bool IsCatalog;
+	wchar_t* Path;
 	
 	X2FILE FilePtr;		// User for .pck files
 	X2CATALOG Catalog;	// User for .cat/.dat pair
@@ -17,6 +18,8 @@ struct XStorage
 
 	bool GetItemByIndex(int index, X2CATFILEINFO &fileInfo)
 	{
+		if (!IsCatalog) return false;
+		
 		int cnt = 0;
 		ext::list<X2CATFILEINFO>::iterator it = Files.begin();
 		while ((cnt < index) && (it != Files.end()))
@@ -71,6 +74,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		if (hCat != 0)
 		{
 			XStorage* xst = new XStorage();
+			xst->Path = _wcsdup(path);
 			xst->IsCatalog = true;
 			xst->Catalog = hCat;
 
@@ -107,6 +111,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 	{
 		XStorage* xst = (XStorage*) storage;
 		
+		free(xst->Path);
 		if (xst->IsCatalog)
 		{
 			X2FD_CloseCatalog(xst->Catalog);
@@ -116,6 +121,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 		{
 			X2FD_CloseFile(xst->FilePtr);
 		}
+		
 		delete xst;
 	}
 }
@@ -161,5 +167,18 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
+	if (storage == NULL)
+		return SER_ERROR_SYSTEM;
+
+	XStorage* xst = (XStorage*) storage;
+	if (xst->IsCatalog)
+	{
+		//
+	}
+	else
+	{
+		//
+	}
+
 	return SER_ERROR_SYSTEM;
 }
