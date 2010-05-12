@@ -20,10 +20,13 @@ Supported formats:
 
 - Installation packages made by NSIS (Nullsoft Installer)
 
+- Egosoft packages (for X-series games)
+
 2. License and copyright.
 
 Plug-in includes several third-party code by different authors.
-It distributed under term of GNU LGPL version 3 or any higher.
+It distributed under term of GNU LGPL version 3 or any higher
+(excluding parts of the code that have separate license).
 
 Ued third-party code:
 
@@ -40,6 +43,9 @@ archivers and dearchivers for Microsoft compression formats.
 
 - NSIS (http://nsis.sourceforge.net/)
 Code used is for bzip2 support. Upacker version is specific for NSIS.
+
+- X2 FileDriver (http://x-tools.doubleshadow.wz.cz/)
+User for Egosoft (X2, X3, X3:TC) archives support.
 
 3. System requirements.
 Minimal FAR version is 1.71, build 2406 (и выше).

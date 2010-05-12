@@ -62,6 +62,15 @@ static void UnixTimeToFileTime(X2FDLONG t, LPFILETIME pft)
 	pft->dwHighDateTime = ll >> 32;
 }
 
+static const char* GetFileName(const char* path)
+{
+	const char* fileName = strrchr(path, '\\');
+	if (fileName)
+		return ++fileName;
+	else
+		return path;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
@@ -200,11 +209,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		if (X2FD_FileStatByHandle(xst->FilePtr, &finfo) == 0)
 			return GET_ITEM_ERROR;
 
-		char* fileName = strrchr(finfo.szFileName, '\\');
-		if (fileName)
-			fileName++;
-		else
-			fileName = finfo.szFileName;
+		const char* fileName = GetFileName(finfo.szFileName);
 
 		memset(item_path, 0, path_size * sizeof(wchar_t));
 		MultiByteToWideChar(CP_ACP, 0, fileName, strlen(fileName), item_path, path_size);
@@ -230,7 +235,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
-	if (storage == NULL)
+	if ((storage == NULL) || (params.item < 0))
 		return SER_ERROR_SYSTEM;
 
 	XStorage* xst = (XStorage*) storage;
@@ -238,9 +243,28 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	{
 		//
 	}
-	else
+	else if (params.item == 0)
 	{
-		//
+		char tmp[MAX_PATH] = {0};
+		WideCharToMultiByte(CP_ACP, 0, params.dest_path, wcslen(params.dest_path), tmp, MAX_PATH, NULL, NULL);
+
+		// Append name
+		X2FILEINFO finfo = {0};
+		X2FD_FileStatByHandle(xst->FilePtr, &finfo);
+		strcat_s(tmp, MAX_PATH, GetFileName(finfo.szFileName));
+		
+		// Change extension
+		size_t nNameLen = strlen(tmp);
+		if (nNameLen > 4)
+			strcpy_s(tmp + nNameLen - 4, 5, ".txt");
+		
+		X2FILE hOutput = X2FD_OpenFile(tmp, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
+		if (hOutput == 0) return SER_ERROR_WRITE;
+
+		int res = X2FD_CopyFile(xst->FilePtr, hOutput);
+		X2FD_CloseFile(hOutput);
+
+		if (res > 0) return SER_SUCCESS;
 	}
 
 	return SER_ERROR_SYSTEM;
