@@ -822,6 +822,18 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\x2fd\cat.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\catpck.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\common.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dllmain.cpp"
 				>
 				<FileConfiguration
@@ -916,6 +928,22 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\x2fd\file_io.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\files.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\common\gzip.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\local_error.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -1000,11 +1028,35 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\x2fd\common\strutils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\time2.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\libwdmatch\wdmatch.c"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\x23cat.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\x23cat.def"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\x2fd.cpp"
 				>
 			</File>
 		</Filter>
@@ -1014,11 +1066,27 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\x2fd\cat.h"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\common\ext_list.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
 			<File
+				RelativePath=".\x2fd\common\strutils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\x2fd.h"
 				>
 			</File>
 		</Filter>
