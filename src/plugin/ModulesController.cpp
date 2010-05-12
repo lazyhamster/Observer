@@ -75,7 +75,7 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 	wcscpy_s(wszFullModulePath, MAX_PATH, basePath);
 	wcscat_s(wszFullModulePath, MAX_PATH, module.LibraryFile);
 
-	module.ModuleHandle = LoadLibraryW(wszFullModulePath);
+	module.ModuleHandle = LoadLibraryEx(wszFullModulePath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 	if (module.ModuleHandle != NULL)
 	{
 		module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadSubModule");
