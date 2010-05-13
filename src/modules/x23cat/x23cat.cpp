@@ -110,7 +110,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 			*storage = (INT_PTR*) xst;
 			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"X-CAT");
-			//wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"");
+			wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
 			//wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
 
 			return TRUE;

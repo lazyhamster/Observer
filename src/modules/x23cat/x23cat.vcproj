@@ -1070,7 +1070,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\x2fd\catpck.h"
+				>
+			</File>
+			<File
 				RelativePath=".\x2fd\common\ext_list.h"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\file_io.h"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\files.h"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\local_error.h"
 				>
 			</File>
 			<File
@@ -1083,6 +1099,10 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\x2fd\time2.h"
 				>
 			</File>
 			<File
