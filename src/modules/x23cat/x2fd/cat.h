@@ -31,7 +31,6 @@ class x2catbuffer : public ext::list<x2catentry *>
 		io64::file m_hCATFile;
 		int m_nError;
 		int m_nRefCount;
-		bool m_bDirty;
 		
 		inline char * getDATName() const;
 		int error(int err) { return (m_nError=err); }
@@ -56,13 +55,10 @@ class x2catbuffer : public ext::list<x2catentry *>
 			return size;
 		}
 		
-		void dirty(bool val) { m_bDirty=val; }
-		
-		void saveCAT();
 		bool isValidFileName(const char *pszFileName);
 		
 	public:		
-		x2catbuffer() { m_nRefCount=1; m_pszFileName=0; m_pszDATName=0; m_bDirty=0; }
+		x2catbuffer() { m_nRefCount=1; m_pszFileName=0; m_pszDATName=0; }
 		~x2catbuffer() 
 		{ 
 			delete[] m_pszFileName; 
@@ -76,7 +72,6 @@ class x2catbuffer : public ext::list<x2catentry *>
 		
 		const char * fileName() const { return m_pszFileName; }
 		const char * fileNameDAT() const { return m_pszDATName; }
-		bool dirty() const { return m_bDirty; }
 		
 		int error() const { return m_nError; }
 		
@@ -106,7 +101,6 @@ class x2catbuffer : public ext::list<x2catentry *>
 		
 		filebuffer * loadFile(const char *pszFile, int fileType);
 		filebuffer * loadFile(x2catentry *entry, int fileType);
-		filebuffer * createFile(const char *pszFile, int fileType);
 		void closeFile(filebuffer *buff);
 		
 		int getFileCompressionType(const char *pszFileName);

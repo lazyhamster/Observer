@@ -115,7 +115,7 @@ int ReleaseCatalog(x2catbuffer *catalog)
 	return catalog->release();
 }
 //---------------------------------------------------------------------------------
-X2FILE OpenFileCAT(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
+X2FILE OpenFileCAT(const char *pszName, int nAccess, int nFileType)
 {
 	char *pszCATName=0, *pszFile=0;
 
@@ -138,8 +138,6 @@ X2FILE OpenFileCAT(const char *pszName, int nAccess, int nCreateDisposition, int
 		x2catbuffer *catbuff=_OpenCatalog(pszCATName);
 		if(catbuff!=NULL){
 			buff=catbuff->loadFile(pszFile, nFileType);
-			if(buff==NULL && nCreateDisposition==X2FD_CREATE_NEW && catbuff->error()==X2FD_E_CAT_NOENTRY)
-				buff=catbuff->createFile(pszFile, nFileType==X2FD_FILETYPE_AUTO ? X2FD_FILETYPE_PLAIN : nFileType);
 
 			if(buff)
 				g_bufflist.push_back(buff);
@@ -246,7 +244,7 @@ X2FDEXPORT(X2FILE) X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDi
 	if(strstr(pszFullName, "::")==NULL)
 		f=OpenFile(pszFullName, nAccess, nCreateDisposition, nFileType);
 	else
-		f=OpenFileCAT(pszFullName, nAccess, nCreateDisposition, nFileType);
+		f=OpenFileCAT(pszFullName, nAccess, nFileType);
 
 	delete[] pszFullName;
 	return f;
@@ -286,6 +284,46 @@ X2FDEXPORT(X2FDULONG) X2FD_TranslateError(int nErrCode, char *pszBuffer, X2FDLON
 	}
 	if(pNeeded) *pNeeded=errlen + 1;
 	return m;
+}
+//---------------------------------------------------------------------------------
+X2FDEXPORT(X2FDLONG) X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size)
+{
+	xfile *f=getfile(hFile);
+	X2FDLONG r=-1;
+	clrerr();
+	if(f==NULL)
+		error(X2FD_E_HANDLE);
+	else{
+		r=(X2FDLONG)f->read(buffer, size);
+		if(r==-1) error(f->error());
+	}
+	return r;
+}
+//---------------------------------------------------------------------------------
+X2FDEXPORT(int) X2FD_EOF(X2FILE hFile)
+{
+	xfile *f=getfile(hFile);
+	clrerr();
+	if(f)
+		return f->eof();
+	else{
+		error(X2FD_E_HANDLE);
+		return 0;
+	}
+}
+//---------------------------------------------------------------------------------
+X2FDEXPORT(X2FDULONG) X2FD_SeekFile(X2FILE hFile, int offset, int origin)
+{
+	xfile *f=getfile(hFile);
+	X2FDULONG newoff = (X2FDULONG)-1;
+	clrerr();
+	if(f==NULL)
+		error(X2FD_E_HANDLE);
+	else{
+		newoff=(X2FDULONG)f->seek(offset, origin);
+		if(newoff==-1) error(f->error());
+	}
+	return newoff;
 }
 //---------------------------------------------------------------------------------
 X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName)

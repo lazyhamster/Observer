@@ -220,39 +220,6 @@ bool x2catbuffer::isValidFileName(const char *pszFileName)
 	return true;
 }
 //---------------------------------------------------------------------------------
-filebuffer * x2catbuffer::createFile(const char *pszFile, int fileType)
-{
-	if(isValidFileName(pszFile)==false){
-		error(X2FD_E_CAT_INVALIDFILENAME);
-		return NULL;
-	}
-	if(fileType != X2FD_FILETYPE_PCK && fileType != X2FD_FILETYPE_PLAIN && fileType != X2FD_FILETYPE_DEFLATE){
-		error(X2FD_E_BAD_FLAGS);
-		return NULL;
-	}
-	
-	x2catentry *entry=new x2catentry();
-	filebuffer *buff=new filebuffer();
-	
-	buff->pszName=strcat2(3, fileName(), "::", pszFile);
-	buff->dirty(true);
-	buff->type |= filebuffer::fileTypeToBufferType(fileType);
-	
-	buff->cat(this);
-	buff->mtime(time(0));
-	
-	strcreate(entry->pszFileName, pszFile);
-	entry->buffer=buff;
-	
-	for(iterator it=begin(); it!=end(); ++it){
-		entry->offset+=it->size;
-	}
-	
-	push_back(entry);
-	dirty(true);
-	return buff;
-}
-//---------------------------------------------------------------------------------
 int x2catbuffer::getFileCompressionType(const char *pszFileName)
 {
 	int nRes;

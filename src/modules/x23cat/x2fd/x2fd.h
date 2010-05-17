@@ -214,6 +214,45 @@ X2FDEXPORT(int) X2FD_CloseFile(X2FILE hFile);
 X2FDEXPORT(X2FDLONG) X2FD_FileSize(X2FILE hFile);
 
 /************************************************
+ * X2FD_EOF
+ *
+ * Check if file pointer is at the file end (beyond last readable position)
+ *
+ * in: handle of file
+ * ret: non zero if EOF is true, 0 otherwise
+ ************************************************/
+X2FDEXPORT(int) X2FD_EOF(X2FILE hFile);
+
+/************************************************
+ * X2FD_ReadFile
+ *
+ * Works like C runtime function fread()
+ * It will read up to <size> bytes from specified file and write them to
+ * <buffer>.
+ * If file is opened as PCK then the data readed are also unpacked.
+ * The reading will begin at location specified by internal file pointer and
+ * this pointer will be shifted by number of bytes readed.
+ *
+ * in: hFile - file to read from, buffer - buffer to hold the readed data
+ *     size - number of bytes to read from file
+ * ret: number of bytes readed or -1 on error
+ ************************************************/
+X2FDEXPORT(X2FDLONG) X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size);
+
+/************************************************
+ * X2FD_SeekFile
+ *
+ * Works as C runtime function fseek()
+ * Will set the internal file pointer at specified location.
+ *
+ * in: hFile - file to seek, offset - offset in bytes from origin
+ *     origin - X2FD_SEEK_SET - beginning of file, X2FD_SEEK_CUR - current
+ *              position, X2FD_SEEK_END - end of file
+ * ret: new offset or -1 on failure
+ ************************************************/
+X2FDEXPORT(X2FDULONG) X2FD_SeekFile(X2FILE hFile, int offset, int origin);
+
+/************************************************
  * X2FD_FileStatByHandle
  *
  * Will return X2FILEINFO structure with information about file type
