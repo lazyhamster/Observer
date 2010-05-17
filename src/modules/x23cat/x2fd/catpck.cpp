@@ -119,67 +119,6 @@ int DecompressBuffer(unsigned char *in_data, const io64::file::size& in_size, in
 	return nRes;
 }
 //---------------------------------------------------------------------------------
-int CompressBufferToFile(unsigned char *buffer, const io64::file::size& size, io64::file& file, time_t mtime, int compressionType)
-{
-	/*
-	int nRes=0;
-	gzwriter gz;
-	gz.compression(GZ_COMP_MAX);
-	gz.mtime(mtime);
-
-	if(gz.pack(buffer, (size_t)size)==false)
-		nRes=TranslateGZError(gz.error());
-	else{
-		char magic = (char)clock(), m;
-		m=magic ^ 0xC8;
-		file.seek(0, SEEK_SET);
-		file.write(&m, 1);
-		gzwriter::value_type *ptr, *end;
-		ptr=gz.buffer(); end=gz.buffer() + gz.size();
-		for( ; ptr < end; ptr++){
-			(*ptr)^=magic;
-		}
-		file.write(gz.buffer(), gz.size());
-		file.setSize((gz.size() + 1));
-	}
-	return nRes;
-	*/
-	gzwriter gz;
-	char magic;
-	int nRes = CompressBuffer(buffer, size, mtime, compressionType, &gz, &magic);
-	
-	file.seek(0, SEEK_SET);
-	if(compressionType == X2FD_FILETYPE_PCK)
-		file.write(&magic, 1);
-	file.write(gz.buffer(), gz.size());
-	file.setSize(gz.size() + (compressionType == X2FD_FILETYPE_PCK ? 1 : 0));
-	
-	return nRes;
-}
-//---------------------------------------------------------------------------------
-int CompressBuffer(unsigned char *buffer, const io64::file::size& size, time_t mtime, int compressionType, gzwriter *gz, char *magic)
-{
-	int nRes=0;
-	gz->compression(GZ_COMP_MAX);
-	gz->mtime(mtime);
-	if(gz->pack(buffer, (size_t)size) == false)
-		nRes = TranslateGZError(gz->error());
-	else{
-		if(compressionType == X2FD_FILETYPE_PCK){
-			char m = (char)clock();
-			*magic = m ^ 0xC8;
-			gzwriter::value_type *ptr, *end;
-			ptr=gz->buffer(); end=gz->buffer() + gz->size();
-			for( ; ptr < end; ptr++){
-				(*ptr)^=m;
-			}
-		}
-		else
-			*magic = 0;
-	}
-	return nRes;
-}
-//---------------------------------------------------------------------------------
 void FileStat(bool bIsCat, const char *pszFileName, io64::file& fd, const io64::file::size& size, X2FILEINFO *pInfo)
 {
 	unsigned char data[4];

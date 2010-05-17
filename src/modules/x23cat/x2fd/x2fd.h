@@ -225,18 +225,6 @@ X2FDEXPORT(X2FDLONG) X2FD_FileSize(X2FILE hFile);
 X2FDEXPORT(int) X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo);
 
 /************************************************
- * X2FD_FileExists
- *
- * Check if file exists. Use the same syntax as in X2FD_OpenFile to check file
- * within CAT.
- * Does not make difference if target is file or directory
- *
- * in: file name
- * ret: zero if file doesn't exist, non zero otherwise
- ************************************************/
-X2FDEXPORT(int) X2FD_FileExists(const char *pszFileName);
-
-/************************************************
  * X2FD_GetFileCompressionType
  *
  * Returns the compression format used in file.
@@ -268,8 +256,7 @@ X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName);
  *     otherwise it's opened)
  * ret: catalog handle or 0 on failure
  ************************************************/
-X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName,
-int nCreateDisposition);
+X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName);
 
 /************************************************
  * X2FD_CloseCatalog

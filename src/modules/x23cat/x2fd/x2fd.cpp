@@ -87,7 +87,7 @@ x2catbuffer * findCatBuff(const char *pszName)
 		return NULL;
 }
 //---------------------------------------------------------------------------------
-x2catbuffer * _OpenCatalog(const char *pszName, int nCreateDisposition)
+x2catbuffer * _OpenCatalog(const char *pszName)
 {
 	x2catbuffer *cbuff;
 	bool bRes;
@@ -95,8 +95,6 @@ x2catbuffer * _OpenCatalog(const char *pszName, int nCreateDisposition)
 	if(cbuff==NULL){
 		cbuff=new x2catbuffer();
 		bRes=cbuff->open(pszName);
-		if(bRes==false && nCreateDisposition==X2FD_CREATE_NEW && cbuff->error()==X2FD_E_FILE_NOENTRY)
-			bRes=cbuff->create(pszName);
 
 		if(bRes==false){
 			error(cbuff->error());
@@ -137,7 +135,7 @@ X2FILE OpenFileCAT(const char *pszName, int nAccess, int nCreateDisposition, int
 	else{
 		ParseCATPath(pszName, &pszCATName, &pszFile);
 		// find or open catalog
-		x2catbuffer *catbuff=_OpenCatalog(pszCATName, X2FD_OPEN_EXISTING);
+		x2catbuffer *catbuff=_OpenCatalog(pszCATName);
 		if(catbuff!=NULL){
 			buff=catbuff->loadFile(pszFile, nFileType);
 			if(buff==NULL && nCreateDisposition==X2FD_CREATE_NEW && catbuff->error()==X2FD_E_CAT_NOENTRY)
@@ -290,16 +288,12 @@ X2FDEXPORT(X2FDULONG) X2FD_TranslateError(int nErrCode, char *pszBuffer, X2FDLON
 	return m;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName, int nCreateDisposition)
+X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName)
 {
 	x2catalog *cat=NULL;
 	x2catbuffer *cbuff;
 
 	clrerr();
-	if(nCreateDisposition!=X2FD_CREATE_NEW && nCreateDisposition!=X2FD_OPEN_EXISTING){
-		error(X2FD_E_BAD_FLAGS);
-		return 0;
-	}
 
 	// convert to normalized fullname
 	char *pszFullName=_fullpath(0, pszName, 0);
@@ -308,7 +302,7 @@ X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName, int nCreateDispositi
 		return false;
 	}
 
-	cbuff=_OpenCatalog(pszFullName, nCreateDisposition);
+	cbuff=_OpenCatalog(pszFullName);
 	if(cbuff) {
 		cat=new x2catalog(cbuff);
 		cbuff->release();
@@ -379,32 +373,6 @@ X2FDEXPORT(int) X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
 	return 1;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_FileExists(const char *pszFileName)
-{
-	const char *pos = strstr(pszFileName, "::");
-	bool bRes=false;
-	// normal file
-	if(pos==0){
-		_finddata_t ffd;
-		intptr_t h=_findfirst(pszFileName, &ffd);
-		bRes=(h!=-1);
-		_findclose(h);
-	}
-	// file from cat
-	else{
-		char *pszCAT, *pszFile;
-		ParseCATPath(pszFileName, &pszCAT, &pszFile);
-		x2catbuffer *cat=_OpenCatalog(pszCAT, X2FD_OPEN_EXISTING);
-		if(cat){
-			bRes=(cat->findFile(pszFile)!=NULL);
-			if(cat->release()==0) g_catlist.erase(g_catlist.find(cat));
-		}
-		delete[] pszCAT;
-		delete[] pszFile;
-	}
-	return bRes;
-}
-//---------------------------------------------------------------------------------
 X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName)
 {
 	char *pszCat, *pszFile;
@@ -417,7 +385,7 @@ X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName)
 	if(pszCat==0)
 		nRes = GetFileCompressionType(pszFileName);
 	else{
-		x2catbuffer *cat=_OpenCatalog(pszCat, X2FD_OPEN_EXISTING);
+		x2catbuffer *cat=_OpenCatalog(pszCat);
 		if(cat){
 			nRes = cat->getFileCompressionType(pszFile);
 			error(cat->error());

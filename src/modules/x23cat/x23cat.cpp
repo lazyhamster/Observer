@@ -55,7 +55,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 	if (_wcsicmp(fileExt, L".cat") == 0)
 	{
-		X2CATALOG hCat = X2FD_OpenCatalog(tmp, X2FD_OPEN_EXISTING);
+		X2CATALOG hCat = X2FD_OpenCatalog(tmp);
 		if (hCat != 0)
 		{
 			XStorage* xst = new XStorage();

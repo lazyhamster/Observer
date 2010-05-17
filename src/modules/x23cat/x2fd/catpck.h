@@ -13,8 +13,6 @@ int GetBufferCompressionType(const unsigned char *data, const io64::file::size& 
 int DecompressFile(io64::file& file, int compressionMethod, unsigned char **out_data, io64::file::size *out_size, time_t *mtime);
 int DecompressFile(const char *pszName, int compressionMethod, unsigned char **out_data, io64::file::size *out_size, time_t *mtime);
 int DecompressBuffer(unsigned char *in_data, const io64::file::size& in_size, int compressionMethod, unsigned char **out_data, io64::file::size *out_size, time_t *mtime);
-int CompressBufferToFile(unsigned char *buffer, const io64::file::size& size, io64::file& file, time_t mtime, int compressionType);
-int CompressBuffer(unsigned char *buffer, const io64::file::size& size, time_t mtime, int compressionType, gzwriter *gz, char *magic);
 void FileStat(bool bIsCat, const char *pszFileNme, io64::file& fd, const io64::file::size& size, X2FILEINFO *pInfo);
 
 #endif // !defined(CATPCK_INCLUDED)

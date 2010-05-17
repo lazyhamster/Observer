@@ -147,14 +147,13 @@ bool filebuffer::save()
 {
 	bool bRes = false;
 	if(m_cat){
-		bRes=m_cat->saveFile(this);
-		if(bRes==false) error(m_cat->error());
+		error(X2FD_E_FILE_ACCESS);
 	}
 	else if(type & ISFILE){
 		if(type & ISPLAIN)
 			bRes = file.flush();
 		else {
-			error(CompressBufferToFile(data(), size(), file, mtime(), bufferTypeToFileType(type)));
+			error(X2FD_E_FILE_BADDATA);
 			bRes=(error()==0);
 		}
 		time_t m = mtime();
