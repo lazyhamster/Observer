@@ -290,58 +290,6 @@ X2FDEXPORT(X2FDULONG) X2FD_TranslateError(int nErrCode, char *pszBuffer, X2FDLON
 	return m;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2FDLONG) X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size)
-{
-	xfile *f=getfile(hFile);
-	X2FDLONG r=-1;
-	clrerr();
-	if(f==NULL)
-		error(X2FD_E_HANDLE);
-	else{
-		r=(X2FDLONG)f->read(buffer, size);
-		if(r==-1) error(f->error());
-	}
-	return r;
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_EOF(X2FILE hFile)
-{
-	xfile *f=getfile(hFile);
-	clrerr();
-	if(f)
-		return f->eof();
-	else{
-		error(X2FD_E_HANDLE);
-		return 0;
-	}
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(X2FDULONG) X2FD_SeekFile(X2FILE hFile, int offset, int origin)
-{
-	xfile *f=getfile(hFile);
-	X2FDULONG newoff = (X2FDULONG)-1;
-	clrerr();
-	if(f==NULL)
-		error(X2FD_E_HANDLE);
-	else{
-		newoff=(X2FDULONG)f->seek(offset, origin);
-		if(newoff==-1) error(f->error());
-	}
-	return newoff;
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(X2FDULONG) X2FD_FileTell(X2FILE hFile)
-{
-	xfile *f=getfile(hFile);
-	X2FDULONG pos = (X2FDULONG)-1;
-	clrerr();
-	if(f==NULL)
-		error(X2FD_E_HANDLE);
-	else
-		pos=(X2FDULONG)f->tell();
-	return pos;
-}
-//---------------------------------------------------------------------------------
 X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName, int nCreateDisposition)
 {
 	x2catalog *cat=NULL;
@@ -384,37 +332,6 @@ X2FDEXPORT(int) X2FD_CloseCatalog(X2CATALOG hCat)
 		error(X2FD_E_HANDLE);
 		return false;
 	}
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(X2FDLONG) X2FD_WriteFile(X2FILE hFile, const void *pData, X2FDULONG nCount)
-{
-	xfile *f = getfile(hFile);
-	io64::file::size res;
-
-	clrerr();
-	if(f == NULL) {
-		error(X2FD_E_HANDLE);
-		res = -1;
-	}
-	else{
-		res = f->write(pData, nCount);
-		if(res == -1) error(f->error());
-	}
-	return (X2FDLONG)res;
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_SetEndOfFile(X2FILE hFile)
-{
-	bool bRes;
-	xfile *f = getfile(hFile);
-	if(f == NULL) {
-		error(X2FD_E_HANDLE);
-		return false;
-	}
-
-	bRes = f->seteof();
-	if(bRes == false) error(f->error());
-	return bRes;
 }
 //---------------------------------------------------------------------------------
 X2FDEXPORT(int) X2FD_CloseFile(X2FILE hFile)
@@ -462,47 +379,6 @@ X2FDEXPORT(int) X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
 	return 1;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_FileStat(const char *pszFileName, X2FILEINFO *pInfo)
-{
-	char *pszCat, *pszFile, *pszFullFileName;
-	bool bRes = false;
-
-	pszFullFileName = _fullpath(0, pszFileName, 0);
-
-	ParseCATPath(pszFullFileName, &pszCat, &pszFile);
-	if(pszCat){
-		x2catbuffer *cat = _OpenCatalog(pszCat, X2FD_OPEN_EXISTING);
-		if(cat){
-			bRes = cat->fileStat(pszFile, pInfo);
-			if(bRes == false) error(cat->error());
-			ReleaseCatalog(cat);
-		}
-	}
-	else{
-		io64::file fd;
-		filebuffer *f = findBuffer(pszFullFileName);
-		if(f)
-			fd = f->file;
-		else
-			fd = io64::file::open(pszFullFileName, _O_BINARY | _O_RDONLY);
-
-		if(!fd.valid())
-			error(fileerror(fd.error()));
-		else{
-			FileStat(false, pszFileName, fd, fd.getSize(), pInfo);
-			bRes = true;
-		} 
-		if(f)
-			f->release();
-		else
-			fd.close();
-	}
-	delete[] pszCat;
-	delete[] pszFile;
-	delete[] pszFullFileName;
-	return bRes;
-}
-//---------------------------------------------------------------------------------
 X2FDEXPORT(int) X2FD_FileExists(const char *pszFileName)
 {
 	const char *pos = strstr(pszFileName, "::");
@@ -526,86 +402,6 @@ X2FDEXPORT(int) X2FD_FileExists(const char *pszFileName)
 		delete[] pszCAT;
 		delete[] pszFile;
 	}
-	return bRes;
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_DeleteFile(const char *pszFileName)
-{
-	char *pszFullName=_fullpath(0, pszFileName, 0);
-	bool bRes=false;
-
-	clrerr();
-	if(pszFullName==0){
-		error(X2FD_E_ERROR);
-		return false;
-	}
-
-	filebuffer *b=findBuffer(pszFullName);
-	// file is opened - error
-	if(b){
-		b->release();
-		error(X2FD_E_FILE_LOCKED);
-	}
-	else{
-		const char *pos=strstr(pszFullName, "::");
-		// normal file
-		if(pos==NULL){
-			bRes=(::remove(pszFullName)==0);
-			if(bRes==false)
-				error(fileerror(errno));
-		}
-		// file from CAT
-		else{
-			char *catname, *filename;
-			ParseCATPath(pszFullName, &catname, &filename);
-			x2catbuffer *cat=_OpenCatalog(catname, X2FD_OPEN_EXISTING);
-			if(cat){
-				bRes=cat->deleteFile(filename);
-				if(bRes==false) error(cat->error());
-				ReleaseCatalog(cat);
-			}
-			delete[] catname;
-			delete[] filename;
-		}
-	}
-	delete[] pszFullName;
-	return bRes;
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_DeleteCatalog(const char *pszFileName)
-{
-	bool bRes=false;
-
-	clrerr();
-	char *pszFullName=_fullpath(0, pszFileName, 0);
-	if(pszFileName==0){
-		error(X2FD_E_ERROR);
-		return false;
-	}
-	x2catbuffer *cat=findCatBuff(pszFullName);
-	if(cat){
-		error(X2FD_E_FILE_LOCKED);
-		cat->release();
-	}
-	else{
-		char *path, *datname, *datpath;
-		path=ExtractFilePath(pszFullName);
-		datname=ExtractFileName(pszFullName, true);
-		datpath=strcat2(4, path, "\\", datname, ".dat");
-
-		bRes=(::remove(pszFullName)==0);
-		if(bRes==false)
-			error(fileerror(errno));
-		else{
-			bRes=(::remove(datpath)==0);
-			if(bRes==false)
-				error(fileerror(errno));
-		}
-		delete[] path;
-		delete[] datpath;
-		delete[] datname;
-	}
-	delete[] pszFullName;
 	return bRes;
 }
 //---------------------------------------------------------------------------------
@@ -633,94 +429,6 @@ X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName)
 	return nRes;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_MoveFile(const char *pszFileName, const char *pszNewName)
-{
-	char *fullname, *fullname2;
-	char *catname, *filename, *catname2, *filename2;
-	x2catbuffer *srccat = 0, *targetcat = 0;
-	bool bRes = false;
-
-	clrerr();
-
-	// normal files
-	if((strstr(pszFileName, "::") == 0) && (strstr(pszNewName, "::") == 0)){
-		if((bRes = (::rename(pszFileName, pszNewName)==0))==false) error(fileerror(errno));
-	}
-	else if((strstr(pszFileName, "::") != 0) || (strstr(pszNewName, "::") != 0)){
-		fullname = _fullpath(0, pszFileName, 0);
-		fullname2 = _fullpath(0, pszNewName, 0);
-
-		ParseCATPath(fullname, &catname, &filename);
-		ParseCATPath(fullname2, &catname2, &filename2);
-
-		bool bSameCat = (_stricmp(catname, catname2) == 0);
-		srccat = _OpenCatalog(catname, X2FD_OPEN_EXISTING);
-		if(srccat){
-			targetcat = _OpenCatalog(catname2, X2FD_CREATE_NEW);
-
-			// move inside same catalog -> simple rename
-			if(bSameCat && srccat){
-				bRes = srccat->renameFile(filename, filename2);
-				if(bRes == false) error(srccat->error());
-			}
-			// move across catalogs
-			else if(srccat && targetcat){
-				X2FILE sourcefile, destfile;
-				sourcefile = OpenFileCAT(pszFileName, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_PLAIN);
-				if(sourcefile) {
-					destfile = X2FD_OpenFile(pszNewName, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
-					if(destfile){
-						size_t size = X2FD_FileSize(sourcefile);
-						if(size >= 0) {
-							unsigned char *data = new unsigned char[size];
-							if(size != (size_t)X2FD_ReadFile(sourcefile, data, size))
-								error("MoveFile: Error reading file.");
-							else {
-								if(size != (size_t)X2FD_WriteFile(destfile, data, size))
-									error("MoveFile: Error writing file.");
-								else
-									bRes=true;
-							}
-							delete[] data;
-						}
-						X2FD_CloseFile(destfile);
-					}
-					X2FD_CloseFile(sourcefile);
-					// we can delete only after the source file has been closed
-					if(bRes) bRes = (X2FD_DeleteFile(pszFileName)!=0);
-				}
-			}
-		}
-		if(srccat) ReleaseCatalog(srccat);
-		if(targetcat) ReleaseCatalog(targetcat);
-		delete[] catname;
-		delete[] filename;
-		delete[] fullname;
-		delete[] catname2;
-		delete[] filename2;
-		delete[] fullname2;
-	}
-	else
-		error("MoveFile supports only files within catalogs.");
-
-	return bRes;
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(X2FILE) X2FD_OpenFileConvert(const char *pszName, int nCreateDisposition, int nFileType, int nConvertToFileType)
-{
-	clrerr();
-	X2FILE hFile=X2FD_OpenFile(pszName, X2FD_WRITE, nCreateDisposition, nFileType);
-	if(hFile){
-		xfile *file=(xfile*) hFile;
-		if(file->convert(nConvertToFileType)==false){
-			error(file->error());
-			X2FD_CloseFile(hFile);
-			hFile=0;
-		}
-	}
-	return hFile;
-}
-//---------------------------------------------------------------------------------
 // converts timestamp in GTM to local time using current TZ and daylight saving
 // if applicable at given date
 X2FDEXPORT(X2FDLONG) X2FD_TimeStampToLocalTimeStamp(X2FDLONG TimeStamp)
@@ -728,15 +436,6 @@ X2FDEXPORT(X2FDLONG) X2FD_TimeStampToLocalTimeStamp(X2FDLONG TimeStamp)
 	if(TimeStamp==-1) return -1;
 
 	return (X2FDLONG) TimeStampToLocalTimeStamp((time_t*)&TimeStamp);
-}
-//---------------------------------------------------------------------------------
-X2FDEXPORT(double) X2FD_TimeStampToOLEDateTime(unsigned long TimeStamp)
-{
-	// timestamp: number of seconds from midnight, 1 January, 1970
-	// datetime: number of days from midnight, 30 December, 1899
-	if(TimeStamp==-1) return 0;
-	TimeStamp+=2209161600; // number of seconds between 30 December 1899 and 1 January 1970
-	return ((double)TimeStamp)/3600/24; // convert number of sec. to number of days
 }
 //---------------------------------------------------------------------------------
 X2FDEXPORT(int) X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime)

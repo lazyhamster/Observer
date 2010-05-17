@@ -132,7 +132,7 @@ X2FDEXPORT(int) X2FD_GetLastError();
  * in: nErrorCode - the error code, pszBuffer - buffer that will receive the
  *     string, nBufferSize - size of the buffer in bytes, pNeeded - pointer to
  *     int to get the required buffer size (including the terminating zero)
- * ret: number of copyied bytes or -1 if error code is invalid
+ * ret: number of copied bytes or -1 if error code is invalid
  ************************************************/
 X2FDEXPORT(X2FDULONG) X2FD_TranslateError(int nErrorCode, char *pszBuffer,
 X2FDLONG nBuffSize, X2FDLONG *pNeeded);
@@ -161,7 +161,7 @@ X2FDLONG nBuffSize, X2FDLONG *pNeeded);
  * it will be created and treated as PCK. If file exists and contains data, then
  * it must really be a PCK file.
  *
- * This function can open physical files from OS filesystem, trasparently open
+ * This function can open physical files from OS filesystem, transparently open
  * PCK files and transparently open files within CAT archives.
  *
  * To open file within a CAT archive use this syntax:
@@ -187,27 +187,9 @@ X2FDEXPORT(X2FILE) X2FD_OpenFile(const char *pszName, int nAccess, int
 nCreateDisposition, int nFileType);
 
 /************************************************
- * X2FD_OpenFileConvert
- *
- * Operates like OpenFile but opened file is converted to specified file type
- * File is always opened with X2FD_WRITE access
- *
- * in: pszName - name of file, nAccess - desired access X2FD_READ, X2FD_WRITE
- *     nCreateDisposition - whether file should be created if it does not exist
- *     (X2FD_OPEN_EXISTING, X2FD_CREATE_NEW)
- *     nFileType - type of file (X2FD_FILETYPE_AUTO, X2FD_FILETYPE_PLAIN,
- *                 X2FD_FILETYPE_PCK)
- *     nConvertToFileType - desired type of file (X2FD_FILETYPE_PLAIN,
- *                          X2FD_FILETYPE_PCK)
- * ret: handle of opened file or 0 on failure
- ************************************************/
-X2FDEXPORT(X2FILE) X2FD_OpenFileConvert(const char *pszName, int
-nCreateDisposition, int nFileType, int nConvertToFileType);
-
-/************************************************
  * X2FD_CloseFile
  *
- * Close handle from previous call to X2FD_OpenFile. Does not neccessarily close
+ * Close handle from previous call to X2FD_OpenFile. Does not necessarily close
  * the physical file itself if it has been opened more than once.
  * If the file is opened for writing and it is PCK or it is opened from CAT,
  * then the data will be saved to the file while the last reference to such file
@@ -232,101 +214,10 @@ X2FDEXPORT(int) X2FD_CloseFile(X2FILE hFile);
 X2FDEXPORT(X2FDLONG) X2FD_FileSize(X2FILE hFile);
 
 /************************************************
- * X2FD_EOF
- *
- * Check if file pointer is at the file end (beyond last readable position)
- *
- * in: handle of file
- * ret: non zero if EOF is true, 0 otherwise
- ************************************************/
-X2FDEXPORT(int) X2FD_EOF(X2FILE hFile);
-
-/************************************************
- * X2FD_ReadFile
- *
- * Works like C runtime function fread()
- * It will read up to <size> bytes from specified file and write them to
- * <buffer>.
- * If file is opened as PCK then the data readed are also unpacked.
- * The reading will begin at location specified by internal file pointer and
- * this pointer will be shifted by number of bytes readed.
- *
- * in: hFile - file to read from, buffer - buffer to hold the readed data
- *     size - number of bytes to read from file
- * ret: number of bytes readed or -1 on error
- ************************************************/
-X2FDEXPORT(X2FDLONG) X2FD_ReadFile(X2FILE hFile, void *buffer,
-X2FDULONG size);
-
-/************************************************
- * X2FD_SeekFile
- *
- * Works as C runtime function fseek()
- * Will set the internal file pointer at specified location.
- *
- * in: hFile - file to seek, offset - offset in bytes from origin
- *     origin - X2FD_SEEK_SET - begining of file, X2FD_SEEK_CUR - current
- *              position, X2FD_SEEK_END - end of file
- * ret: new offset or -1 on failure
- ************************************************/
-X2FDEXPORT(X2FDULONG) X2FD_SeekFile(X2FILE hFile, int offset,
-int origin);
-
-/************************************************
- * X2FD_FileTell
- *
- * in: hFile - file
- * ret: internal pointer position or -1 on failure
- ************************************************/
-X2FDEXPORT(X2FDULONG) X2FD_FileTell(X2FILE hFile);
-
-/************************************************
- * X2FD_SetEndOfFile
- *
- * Works like WINAPI SetEndOfFile() function
- * Will enlarge/shrink the file size so its end will be at location specified by
- * internal file pointer.
- *
- * in: handle of file to change
- * ret: 0 on error, non zero on success
- ************************************************/
-X2FDEXPORT(int) X2FD_SetEndOfFile(X2FILE hFile);
-
-/************************************************
- * X2FD_WriteFile
- *
- * Works like C function fwrite()
- * Will write nCount bytes from pData to file, begining at location specified by
- * internal file pointer.
- *
- * This function will not write anything to physical file if it's PCK or it's
- * opneded from CAT archive.
- * Such file will be saved with last call to X2FD_CloseFile.
- *
- * in: hFile - file to write to, pData - data to write, nCount- count of bytes
- *     to write
- * ret: number of bytes written or -1 on failure
- ************************************************/
-X2FDEXPORT(X2FDLONG) X2FD_WriteFile(X2FILE hFile, const void *pData,
-X2FDULONG nCount);
-
-/************************************************
- * X2FD_FileStat
- *
- * Will return X2FILEINFO structure with information about file type
- * (PCK/PLAIN), size and modifiation time.
- *
- * in: name of file, pointer to structure to get the info
- * ret: zero on failure, non zero otherwise
- ************************************************/
-X2FDEXPORT(int) X2FD_FileStat(const char *pszFileName, X2FILEINFO
-*pInfo);
-
-/************************************************
  * X2FD_FileStatByHandle
  *
  * Will return X2FILEINFO structure with information about file type
- * (PCK/PLAIN), size and modifiation time
+ * (PCK/PLAIN), size and modification time
  *
  * in: handle to file, pointer to structure to get the info
  * ret: zero on failure, non zero otherwise
@@ -356,32 +247,6 @@ X2FDEXPORT(int) X2FD_FileExists(const char *pszFileName);
  ************************************************/
 X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName);
 
-/************************************************
- * X2FD_DeleteFile
- *
- * Delete a file. It can be PCK, PLAIN or from catalog.
- * Use the same syntax as in X2FD_OpenFile to delete file from catalog.
- * Catalog does not need to be open in order to delete from it.
- *
- * in: file name
- * ret: zero if file doesn't exist or cannot be deleted, non zero otherwise
- ************************************************/
-X2FDEXPORT(int) X2FD_DeleteFile(const char *pszFileName);
-
-/************************************************
- * X2FD_MoveFile
- *
- * Moves a file from one destination to another
- * Currently supports only moving files within catalog or across catalogs
- * but does not support moving on real file system or between real and cat
- * filesystem
- *
- * in: file name, new name where to move
- * ret: zero on failure, non zero otherwise
- ************************************************/
-X2FDEXPORT(int) X2FD_MoveFile(const char *pszFileName,
-const char *pszNewName);
-
 /* catalogs */
 
 /************************************************
@@ -409,30 +274,19 @@ int nCreateDisposition);
 /************************************************
  * X2FD_CloseCatalog
  *
- * Will close handle associated with catalog, but not neccessarily the catalog
+ * Will close handle associated with catalog, but not necessarily the catalog
  * itself if it's opened by another call to X2FD_OpenCatalog or X2FD_OpenFile
  *
  * If some file was modified inside the catalog, the CAT file (the index file
- * with extension .cat) will be overwriten upon closing to match to order of
+ * with extension .cat) will be overwritten upon closing to match to order of
  * files in the modified DAT file.
  *
- * There is no way to verify that it was sucessfull.
+ * There is no way to verify that it was successful.
  *
  * in: catalog to close
  * ret: 0 if handle is 0 - otherwise non zero
  ************************************************/
 X2FDEXPORT(int) X2FD_CloseCatalog(X2CATALOG hCat);
-
-/************************************************
- * X2FD_DeleteCatalog
- *
- * Delete given catalog (both .cat and .dat file)
- *
- * in: catalog to delete
- * ret: 0 if catalog cannot be deleted (is opened for example), non-zero
- *      otherwise
- ************************************************/
-X2FDEXPORT(int) X2FD_DeleteCatalog(const char *pszFileName);
 
 /************************************************
  * X2FD_TimeStampToLocalTimeStamp
@@ -445,17 +299,6 @@ X2FDEXPORT(int) X2FD_DeleteCatalog(const char *pszFileName);
  ************************************************/
 X2FDEXPORT(X2FDLONG) X2FD_TimeStampToLocalTimeStamp(X2FDLONG
 TimeStamp);
-
-/************************************************
- * X2FD_TimeStampToOLEDateTime
- *
- * Convert time stamp to OLE DataTime (Variant Date)
- * If input is -1, output is 0
- *
- * in: timestamp
- * ret: converted time
- ************************************************/
-X2FDEXPORT(double) X2FD_TimeStampToOLEDateTime(unsigned long TimeStamp);
 
 /************************************************
  * X2FD_SetFileTime
@@ -472,12 +315,12 @@ X2FDEXPORT(int) X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime);
  * X2FD_CatFindFirstFile
  *
  * works like API FindFirstFile but within catalog
- * it will find all occurencies of file pszFileName in catalog
+ * it will find all occurrences of file pszFileName in catalog
  *
  * you can use wildcards (* ?) in file name the same way as in
  * API FindFirstFile
  *
- * in: catalog, file name to look for, address of strucure for info
+ * in: catalog, file name to look for, address of structure for info
  * ret: search handle for use with X2FD_CatFindNextFile and X2FD_CatFindClose
  *      0 if no file name was found, nonzero otherwise
  ************************************************/
@@ -488,12 +331,12 @@ const char *pszFileName, X2CATFILEINFO *pInfo);
  * X2FD_CatFindNextFile
  *
  * works like API FindNextFile but within catalog
- * it will find next occurence of file specified with call to
+ * it will find next occurrence of file specified with call to
  * X2FD_CatFindFirstFile
  *
- * in: search handle returned by X2FD_CatFindFirstFile, address of strucure for
+ * in: search handle returned by X2FD_CatFindFirstFile, address of structure for
  *     info
- * ret: 0 if no more occurences were found, nonzero if there are more
+ * ret: 0 if no more occurrences were found, nonzero if there are more
  ************************************************/
 X2FDEXPORT(int) X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo);
 
