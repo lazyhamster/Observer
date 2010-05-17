@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-//---------------------------------------------------------------------------------
+
 void ParseCATPath(const char *pszName, char **ppszCATName, char **ppszFile)
 {
 	const char *pos=strstr(pszName, "::"), *end=(char*)(pszName + strlen(pszName));
@@ -17,3 +17,36 @@ void ParseCATPath(const char *pszName, char **ppszCATName, char **ppszFile)
 	strcpy(*ppszFile, pos + 2);
 }
 //---------------------------------------------------------------------------------
+
+bool FileExists(const wchar_t* path)
+{
+	WIN32_FIND_DATAW fdata;
+
+	HANDLE sr = FindFirstFileW(path, &fdata);
+	if (sr != INVALID_HANDLE_VALUE)
+	{
+		FindClose(sr);
+		return true;
+	}
+
+	return false;
+}
+
+void UnixTimeToFileTime(time_t t, LPFILETIME pft)
+{
+	// Note that LONGLONG is a 64-bit value
+	LONGLONG ll;
+
+	ll = Int32x32To64(t, 10000000) + 116444736000000000;
+	pft->dwLowDateTime = (DWORD)ll;
+	pft->dwHighDateTime = ll >> 32;
+}
+
+const char* GetFileName(const char* path)
+{
+	const char* fileName = strrchr(path, '\\');
+	if (fileName)
+		return ++fileName;
+	else
+		return path;
+}

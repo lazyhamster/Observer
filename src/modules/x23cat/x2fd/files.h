@@ -2,6 +2,7 @@
 #define X2FILES_INCLUDED
 
 #include <time.h>
+#include "common.h"
 #include "cat.h"
 #include "x2fd.h"
 #include "common/gzip.h"

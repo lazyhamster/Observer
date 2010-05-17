@@ -1074,6 +1074,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\x2fd\common.h"
+				>
+			</File>
+			<File
 				RelativePath=".\x2fd\common\ext_list.h"
 				>
 			</File>

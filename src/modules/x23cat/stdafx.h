@@ -18,6 +18,3 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-typedef unsigned char byte;
-void ParseCATPath(const char *pszName, char **ppszCATName, char **ppszFile);

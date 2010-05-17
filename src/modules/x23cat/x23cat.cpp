@@ -5,6 +5,7 @@
 #include "ModuleDef.h"
 
 #include "x2fd/x2fd.h"
+#include "x2fd/common.h"
 #include "x2fd/common/ext_list.h"
 
 struct XStorage
@@ -35,41 +36,6 @@ struct XStorage
 		return false;
 	}
 };
-
-//////////////////////////////////////////////////////////////////////////
-
-static bool FileExists(const wchar_t* path)
-{
-	WIN32_FIND_DATAW fdata;
-
-	HANDLE sr = FindFirstFileW(path, &fdata);
-	if (sr != INVALID_HANDLE_VALUE)
-	{
-		FindClose(sr);
-		return true;
-	}
-
-	return false;
-}
-
-static void UnixTimeToFileTime(X2FDLONG t, LPFILETIME pft)
-{
-	// Note that LONGLONG is a 64-bit value
-	LONGLONG ll;
-
-	ll = Int32x32To64(t, 10000000) + 116444736000000000;
-	pft->dwLowDateTime = (DWORD)ll;
-	pft->dwHighDateTime = ll >> 32;
-}
-
-static const char* GetFileName(const char* path)
-{
-	const char* fileName = strrchr(path, '\\');
-	if (fileName)
-		return ++fileName;
-	else
-		return path;
-}
 
 //////////////////////////////////////////////////////////////////////////
 
