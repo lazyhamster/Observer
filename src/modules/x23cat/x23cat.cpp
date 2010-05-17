@@ -190,8 +190,12 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		wcscpy_s(item_data->cAlternateFileName, 14, L"");
 		item_data->nFileSizeLow = finfo.size;
 		
-		X2FDLONG localTime = X2FD_TimeStampToLocalTimeStamp(finfo.mtime);
-		UnixTimeToFileTime(localTime, &item_data->ftLastWriteTime);
+		if (finfo.mtime != -1)
+		{
+			FILETIME ftMTime;
+			UnixTimeToFileTime(finfo.mtime, &ftMTime);
+			FileTimeToLocalFileTime(&ftMTime, &item_data->ftLastWriteTime);
+		}
 
 		return GET_ITEM_OK;
 	}

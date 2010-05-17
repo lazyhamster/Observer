@@ -1032,10 +1032,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\time2.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\x2fd\libwdmatch\wdmatch.c"
 				>
 				<FileConfiguration
@@ -1103,10 +1099,6 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
-				>
-			</File>
-			<File
-				RelativePath=".\x2fd\time2.h"
 				>
 			</File>
 			<File

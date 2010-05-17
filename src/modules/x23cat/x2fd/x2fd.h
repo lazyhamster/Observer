@@ -315,18 +315,6 @@ X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName);
 X2FDEXPORT(int) X2FD_CloseCatalog(X2CATALOG hCat);
 
 /************************************************
- * X2FD_TimeStampToLocalTimeStamp
- *
- * Convert time stamp to local time stamp
- * If input is -1, output is also -1
- *
- * in: timestamp
- * ret: timestamp converted to localtime (or -1)
- ************************************************/
-X2FDEXPORT(X2FDLONG) X2FD_TimeStampToLocalTimeStamp(X2FDLONG
-TimeStamp);
-
-/************************************************
  * X2FD_SetFileTime
  *
  * change the last modification, last access and creation time on a file

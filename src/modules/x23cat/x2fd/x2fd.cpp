@@ -5,7 +5,6 @@
 #include "cat.h"
 #include "files.h"
 #include "catpck.h"
-#include "time2.h"
 #include "local_error.h"
 
 #define getfile(handle) (xfile*) handle
@@ -24,31 +23,6 @@ struct CATFINDFILEINFO
 
 	char *pattern;
 };
-//---------------------------------------------------------------------------------
-#ifdef _WINDLL
-int finalCloseFiles()
-{
-	for(bufferlist::iterator it=g_bufflist.begin(); it!=g_bufflist.end(); ++it){
-		if(it->dirty()) 
-			it->save();
-		delete *it;
-	}
-	int i=(int) g_bufflist.size();
-	g_bufflist.clear();
-	return i;
-}
-//---------------------------------------------------------------------------------
-int finalCloseCatalogs()
-{
-	for(catlist::iterator it=g_catlist.begin(); it!=g_catlist.end(); ++it){
-		delete *it;
-	}
-	int i=(int) g_catlist.size();
-	g_bufflist.clear();
-	return i;
-}
-//---------------------------------------------------------------------------------
-#endif // defined(_WINDLL)
 //---------------------------------------------------------------------------------
 bool checkBuffMode(filebuffer *b, int mode)
 {
@@ -435,15 +409,6 @@ X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName)
 	return nRes;
 }
 //---------------------------------------------------------------------------------
-// converts timestamp in GTM to local time using current TZ and daylight saving
-// if applicable at given date
-X2FDEXPORT(X2FDLONG) X2FD_TimeStampToLocalTimeStamp(X2FDLONG TimeStamp)
-{
-	if(TimeStamp==-1) return -1;
-
-	return (X2FDLONG) TimeStampToLocalTimeStamp((time_t*)&TimeStamp);
-}
-//---------------------------------------------------------------------------------
 X2FDEXPORT(int) X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime)
 {
 	xfile *f=getfile(hFile);
@@ -518,7 +483,7 @@ X2FDEXPORT(int) X2FD_CatFindClose(X2FIND hFind)
 //---------------------------------------------------------------------------------
 /*
 	copy data from one file to another
-	uses some optimalizations
+	uses some optimizations
 
 	both source and destination files are set to EOF after the copy
 	Furthermore SetEndOfFile(destination) is called
