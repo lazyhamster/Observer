@@ -705,7 +705,7 @@ int CMsiViewer::generateLicenseText()
 	UINT res;
 	PMSIHANDLE hQueryLicense;
 	
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM `Control` WHERE `Control`.`Control` = 'AgreementText'", &hQueryLicense) );
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM `Control` WHERE (`Control`.`Control` = 'AgreementText') OR (`Control`.`Control` = 'LicenseText')", &hQueryLicense) );
 	OK( MsiViewExecute(hQueryLicense, 0) );
 
 	// Retrieve all registry entries
