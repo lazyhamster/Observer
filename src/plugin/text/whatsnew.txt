@@ -1,4 +1,9 @@
-История изменений:
+Changes history:
+
+1.6
+- Added support for Egosoft packages from X-series games.
+- Added "Skip All" button to extraction error dialog.
+- Fixed extraction to disk root.
 
 1.5.2
 - Fixed overwrite dialog in Unicode version.

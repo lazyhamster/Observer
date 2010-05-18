@@ -96,7 +96,10 @@ int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &tot
 
 bool IsDiskRoot(const wchar_t* path)
 {
-	return (wcslen(path) == 3) && (path[1] == ':') && (path[2] == '\\');
+	size_t nPathLen = wcslen(path);
+	
+	return ((nPathLen == 3) && (path[1] == ':') && (path[2] == '\\'))
+		|| ((nPathLen == 2) && (path[1] == ':'));
 }
 
 bool IsEnoughSpaceInPath(const wchar_t* path, __int64 requiredSize)

@@ -188,15 +188,16 @@ static int ExtractError(int errorReason, HANDLE context)
 {
 	ProgressContext* pctx = (ProgressContext*) context;
 	
-	static const wchar_t* InfoLines[6];
+	static const wchar_t* InfoLines[7];
 	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
 	InfoLines[1] = GetLocMsg(MSG_EXTRACT_FAILED);
 	InfoLines[2] = pctx->wszFilePath;
 	InfoLines[3] = L"Retry";
 	InfoLines[4] = L"Skip";
-	InfoLines[5] = L"Abort";
+	InfoLines[5] = L"Skip All";
+	InfoLines[6] = L"Abort";
 
-	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 3);
+	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 4);
 
 	switch (nMsg)
 	{
@@ -205,6 +206,8 @@ static int ExtractError(int errorReason, HANDLE context)
 		case 1:
 			return EEN_SKIP;
 		case 2:
+			return EEN_SKIPALL;
+		case 3:
 			return EEN_ABORT;
 	}
 
@@ -266,7 +269,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir())
 		return SER_ERROR_READ;
@@ -306,8 +309,10 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	wstring strTargetDir;
 	size_t nLastSlash = strFullTargetPath.find_last_of('\\');
 	if (nLastSlash != wstring::npos)
+	{
 		// Copy directory name without trailing backslash or following existence checker won't work
 		strTargetDir = strFullTargetPath.substr(0, nLastSlash);
+	}
 
 	// Create target directory if needed
 	if (strTargetDir.length() > 0)
@@ -337,7 +342,12 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 
 		if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
 		{
-			int errorResp = silent ? EEN_ABORT : ExtractError(ret, callbackContext);
+			int errorResp = EEN_ABORT;
+			if (skipOnError)
+				errorResp = EEN_SKIP;
+			else if (!silent)
+				errorResp = ExtractError(ret, callbackContext);
+
 			switch (errorResp)
 			{
 				case EEN_ABORT:
@@ -345,6 +355,10 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 					break;
 				case EEN_SKIP:
 					ret = SER_SUCCESS;
+					break;
+				case EEN_SKIPALL:
+					ret = SER_SUCCESS;
+					skipOnError = true;
 					break;
 			}
 		}
@@ -378,6 +392,7 @@ int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSi
 
 	int nExtractResult = TRUE;
 	int doOverwrite = EXTR_OVERWRITE_ASK;
+	bool skipOnError = false;
 
 	ProgressContext pctx;
 	pctx.nTotalFiles = (int) items.size();
@@ -388,7 +403,7 @@ int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSi
 	{
 		ContentTreeNode* nextItem = info->GetItem(*cit);
 
-		nExtractResult = ExtractStorageItem(info, nextItem, DestPath, silent, doOverwrite, &pctx);
+		nExtractResult = ExtractStorageItem(info, nextItem, DestPath, silent, doOverwrite, skipOnError, &pctx);
 
 		if (nExtractResult != SER_SUCCESS) break;
 	}
