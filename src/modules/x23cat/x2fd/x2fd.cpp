@@ -387,26 +387,7 @@ X2FDEXPORT(int) X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
 //---------------------------------------------------------------------------------
 X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName)
 {
-	char *pszCat, *pszFile;
-	int nRes = X2FD_FILETYPE_PLAIN;
-
-	clrerr();
-
-	ParseCATPath(pszFileName, &pszCat, &pszFile);
-
-	if(pszCat==0)
-		nRes = GetFileCompressionType(pszFileName);
-	else{
-		x2catbuffer *cat=_OpenCatalog(pszCat);
-		if(cat){
-			nRes = cat->getFileCompressionType(pszFile);
-			error(cat->error());
-			ReleaseCatalog(cat);
-		}
-	}
-	delete[] pszCat;
-	delete[] pszFile;
-	return nRes;
+	return GetFileCompressionType(pszFileName);
 }
 //---------------------------------------------------------------------------------
 X2FDEXPORT(int) X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime)
