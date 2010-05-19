@@ -15,25 +15,25 @@ struct XStorage
 	
 	X2FILE FilePtr;		// User for .pck files
 	x2catalog* Catalog;	// User for .cat/.dat pair
-	ext::list<X2CATFILEINFO> Files;
 
-	bool GetItemByIndex(int index, X2CATFILEINFO &fileInfo)
+	x2catentry* GetEntryByIndex(int index)
 	{
-		if (!IsCatalog) return false;
+		if (!IsCatalog) return NULL;
 		
 		int cnt = 0;
-		ext::list<X2CATFILEINFO>::iterator it = Files.begin();
-		while ((cnt < index) && (it != Files.end()))
+		x2catbuffer* buff = Catalog->buffer();
+		ext::list<x2catentry*>::iterator it = buff->begin();
+		while ((cnt < index) && (it != buff->end()))
 		{
 			cnt++;
 			it++;
 		}
 		if (cnt == index)
 		{
-			fileInfo = *it;
-			return true;
+			x2catentry* entry = *it;
+			return entry;
 		}
-		return false;
+		return NULL;
 	}
 };
 
@@ -62,17 +62,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 			xst->Path = _wcsdup(path);
 			xst->IsCatalog = true;
 			xst->Catalog = hCat;
-
-			// Do files listing		
-			X2CATFILEINFO finfo;
-			X2FIND hFind = X2FD_CatFindFirstFile(hCat, "*", &finfo);
-			if(hFind){
-				do{
-					xst->Files.push_back(finfo);
-				}
-				while(X2FD_CatFindNextFile(hFind, &finfo) !=0 );
-			}
-			X2FD_CatFindClose(hFind);
+			xst->FilePtr = 0;
 
 			*storage = (INT_PTR*) xst;
 			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"X-CAT");
@@ -125,14 +115,9 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 		
 		free(xst->Path);
 		if (xst->IsCatalog)
-		{
 			X2FD_CloseCatalog(xst->Catalog);
-			xst->Files.clear();
-		}
 		else
-		{
 			X2FD_CloseFile(xst->FilePtr);
-		}
 		
 		delete xst;
 	}
@@ -146,15 +131,14 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	XStorage* xst = (XStorage*) storage;
 	if (xst->IsCatalog)
 	{
-		if (item_index >= (int) xst->Files.size())
+		if (item_index >= (int) xst->Catalog->buffer()->size())
 			return GET_ITEM_NOMOREITEMS;
 
-		X2CATFILEINFO finfo;
-		if (!xst->GetItemByIndex(item_index, finfo))
-			return GET_ITEM_ERROR;
+		x2catentry* entry = xst->GetEntryByIndex(item_index);
+		if (entry == NULL) return GET_ITEM_ERROR;
 
 		memset(item_path, 0, path_size * sizeof(wchar_t));
-		MultiByteToWideChar(CP_ACP, 0, finfo.szFileName, strlen(finfo.szFileName), item_path, path_size);
+		MultiByteToWideChar(CP_ACP, 0, entry->pszFileName, strlen(entry->pszFileName), item_path, path_size);
 
 		const wchar_t* fileName = wcsrchr(item_path, L'\\');
 		if (fileName == NULL)
@@ -165,7 +149,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
 		wcscpy_s(item_data->cFileName, MAX_PATH, fileName);
 		wcscpy_s(item_data->cAlternateFileName, 14, L"");
-		item_data->nFileSizeLow = finfo.size;
+		item_data->nFileSizeLow = (DWORD) entry->size;
 
 		return GET_ITEM_OK;
 	}
@@ -213,24 +197,23 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	XStorage* xst = (XStorage*) storage;
 	if (xst->IsCatalog)
 	{
-		if (params.item >= (int) xst->Files.size())
+		if (params.item >= (int) xst->Catalog->buffer()->size())
 			return GET_ITEM_NOMOREITEMS;
 
-		X2CATFILEINFO finfo;
-		if (!xst->GetItemByIndex(params.item, finfo))
-			return GET_ITEM_ERROR;
+		x2catentry* entry = xst->GetEntryByIndex(params.item);
+		if (entry == NULL) return GET_ITEM_ERROR;
 		
 		char szSrc[MAX_PATH] = {0};
 		WideCharToMultiByte(CP_ACP, 0, xst->Path, wcslen(xst->Path), szSrc, MAX_PATH, NULL, NULL);
 		strcat_s(szSrc, MAX_PATH, "::");
-		strcat_s(szSrc, MAX_PATH, finfo.szFileName);
+		strcat_s(szSrc, MAX_PATH, entry->pszFileName);
 		
 		X2FILE hInput = X2FD_OpenFile(szSrc, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_PLAIN);
 		if (hInput == 0) return SER_ERROR_READ;
 
 		char szDest[MAX_PATH] = {0};
 		WideCharToMultiByte(CP_ACP, 0, params.dest_path, wcslen(params.dest_path), szDest, MAX_PATH, NULL, NULL);
-		strcat_s(szDest, MAX_PATH, GetFileName(finfo.szFileName));
+		strcat_s(szDest, MAX_PATH, GetFileName(entry->pszFileName));
 		
 		X2FILE hOutput = X2FD_OpenFile(szDest, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0)
@@ -244,7 +227,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		X2FD_CloseFile(hInput);
 		X2FD_CloseFile(hOutput);
 
-		pctx->nProcessedBytes += finfo.size;
+		pctx->nProcessedBytes += entry->size;
 		if (res > 0) return SER_SUCCESS;
 	}
 	else if (params.item == 0)

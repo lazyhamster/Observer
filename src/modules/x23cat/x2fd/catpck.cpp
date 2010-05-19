@@ -2,7 +2,6 @@
 #include "catpck.h"
 #include "local_error.h"
 #include "file_io.h"
-#include "x2fd.h"
 //---------------------------------------------------------------------------------
 /* size must be multiple of 5! */
 void DecryptCAT(unsigned char *buffer, const io64::file::size& size)
