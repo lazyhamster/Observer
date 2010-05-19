@@ -118,6 +118,7 @@ int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 	buildFlatIndex(m_pRootDir);
 
 	m_strStorageLocation = path;
+	m_pCabControl->SetOwner(m_hMsi);
 	
 	return ERROR_SUCCESS;
 }
@@ -1074,6 +1075,14 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 	else if (cab[0] == L'#')
 	{
 		// For files in internal cab
+		WIN32_FIND_DATAW fd;
+		if (m_pCabControl->GetFileAttributes(cab, NULL, file->Key, fd))
+		{
+			file->ftCreationTime = fd.ftCreationTime;
+			file->ftModificationTime = fd.ftLastWriteTime;
+
+			return true;
+		}
 	}
 	else
 	{
