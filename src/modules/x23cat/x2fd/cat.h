@@ -4,7 +4,7 @@
 #include <io.h>
 #include "common/ext_list.h"
 #include "common/strutils.h"
-#include "x2fd.h"
+#include "common.h"
 #include "file_io.h"
 #include "libwdmatch/libwdmatch.h"
 

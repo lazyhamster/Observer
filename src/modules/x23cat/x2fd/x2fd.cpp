@@ -186,7 +186,7 @@ X2FILE OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nF
 	return (f==NULL ? NULL : (X2FILE) f);
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2FILE) X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
+X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
 {
 	clrerr();
 	// check the flags so we can rely on them later
@@ -224,7 +224,7 @@ X2FDEXPORT(X2FILE) X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDi
 	return f;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2FDLONG) X2FD_FileSize(X2FILE hFile)
+X2FDLONG X2FD_FileSize(X2FILE hFile)
 {
 	xfile *f=getfile(hFile);
 	X2FDLONG s=-1;
@@ -238,12 +238,12 @@ X2FDEXPORT(X2FDLONG) X2FD_FileSize(X2FILE hFile)
 	return s;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_GetLastError()
+int X2FD_GetLastError()
 {
 	return error();
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2FDULONG) X2FD_TranslateError(int nErrCode, char *pszBuffer, X2FDLONG nBuffSize, X2FDLONG *pNeeded)
+X2FDULONG X2FD_TranslateError(int nErrCode, char *pszBuffer, X2FDLONG nBuffSize, X2FDLONG *pNeeded)
 {
 	size_t m=0, errlen;
 	const char *msg=errormsg(nErrCode);
@@ -260,7 +260,7 @@ X2FDEXPORT(X2FDULONG) X2FD_TranslateError(int nErrCode, char *pszBuffer, X2FDLON
 	return m;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2FDLONG) X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size)
+X2FDLONG X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size)
 {
 	xfile *f=getfile(hFile);
 	X2FDLONG r=-1;
@@ -274,7 +274,7 @@ X2FDEXPORT(X2FDLONG) X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size)
 	return r;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_EOF(X2FILE hFile)
+int X2FD_EOF(X2FILE hFile)
 {
 	xfile *f=getfile(hFile);
 	clrerr();
@@ -286,7 +286,7 @@ X2FDEXPORT(int) X2FD_EOF(X2FILE hFile)
 	}
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2FDULONG) X2FD_SeekFile(X2FILE hFile, int offset, int origin)
+X2FDULONG X2FD_SeekFile(X2FILE hFile, int offset, int origin)
 {
 	xfile *f=getfile(hFile);
 	X2FDULONG newoff = (X2FDULONG)-1;
@@ -300,7 +300,7 @@ X2FDEXPORT(X2FDULONG) X2FD_SeekFile(X2FILE hFile, int offset, int origin)
 	return newoff;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName)
+x2catalog* X2FD_OpenCatalog(const char *pszName)
 {
 	x2catalog *cat=NULL;
 	x2catbuffer *cbuff;
@@ -320,18 +320,17 @@ X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName)
 		cbuff->release();
 	}
 	delete[] pszFullName;
-	return (X2CATALOG) cat;
+	return cat;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_CloseCatalog(X2CATALOG hCat)
+int X2FD_CloseCatalog(x2catalog* hCat)
 {
-	x2catalog *cat=(x2catalog*) hCat;
 	clrerr();
-	if(cat!=NULL){
-		if(cat->buffer()->refcount()==1){
-			g_catlist.erase(g_catlist.find(cat->buffer()));
+	if(hCat!=NULL){
+		if(hCat->buffer()->refcount()==1){
+			g_catlist.erase(g_catlist.find(hCat->buffer()));
 		}
-		delete cat;
+		delete hCat;
 		return true;
 	}
 	else{
@@ -340,7 +339,7 @@ X2FDEXPORT(int) X2FD_CloseCatalog(X2CATALOG hCat)
 	}
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_CloseFile(X2FILE hFile)
+int X2FD_CloseFile(X2FILE hFile)
 {
 	xfile *f = getfile(hFile);
 	bool bRes = false;
@@ -368,7 +367,7 @@ X2FDEXPORT(int) X2FD_CloseFile(X2FILE hFile)
 	return bRes;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
+int X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
 {
 	xfile *f = getfile(hFile);
 	if(f == NULL){
@@ -385,12 +384,12 @@ X2FDEXPORT(int) X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
 	return 1;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName)
+int X2FD_GetFileCompressionType(const char *pszFileName)
 {
 	return GetFileCompressionType(pszFileName);
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime)
+int X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime)
 {
 	xfile *f=getfile(hFile);
 	if(f==0){
@@ -401,23 +400,22 @@ X2FDEXPORT(int) X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime)
 	return true;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(X2FIND) X2FD_CatFindFirstFile(X2CATALOG hCat, const char *pszFileName, X2CATFILEINFO *pInfo)
+X2FIND X2FD_CatFindFirstFile(x2catalog* hCat, const char *pszFileName, X2CATFILEINFO *pInfo)
 {
 	CATFINDFILEINFO *ffi=0;
 
 	clrerr();
 
-	x2catalog *c=getcat(hCat);
-	if(c==0){
+	if(hCat == NULL){
 		error(X2FD_E_HANDLE);
 		return false;
 	}
 
-	x2catbuffer::iterator it=c->findFirstFile(pszFileName);
+	x2catbuffer::iterator it=hCat->findFirstFile(pszFileName);
 
-	if(it!=c->buffer()->end()){
+	if(it!=hCat->buffer()->end()){
 		ffi=new CATFINDFILEINFO();
-		ffi->buffer=c->buffer();
+		ffi->buffer=hCat->buffer();
 		ffi->it=it;
 
 		ffi->pattern=0;
@@ -430,7 +428,7 @@ X2FDEXPORT(X2FIND) X2FD_CatFindFirstFile(X2CATALOG hCat, const char *pszFileName
 	return (X2FIND)ffi;
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo)
+int X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo)
 {
 	clrerr();
 
@@ -449,7 +447,7 @@ X2FDEXPORT(int) X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo)
 	return ffi->it!=ffi->buffer->end();
 }
 //---------------------------------------------------------------------------------
-X2FDEXPORT(int) X2FD_CatFindClose(X2FIND hFind)
+int X2FD_CatFindClose(X2FIND hFind)
 {
 	clrerr();
 	CATFINDFILEINFO *ffi=(CATFINDFILEINFO*) hFind;
@@ -469,7 +467,7 @@ X2FDEXPORT(int) X2FD_CatFindClose(X2FIND hFind)
 	both source and destination files are set to EOF after the copy
 	Furthermore SetEndOfFile(destination) is called
 */
-X2FDEXPORT(int) X2FD_CopyFile(X2FILE hSource, X2FILE hDestination)
+int X2FD_CopyFile(X2FILE hSource, X2FILE hDestination)
 {
 	xfile *src, *dest;
 	src=getfile(hSource);

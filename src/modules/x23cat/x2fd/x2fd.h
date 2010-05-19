@@ -14,11 +14,7 @@
 #define X2_FILE_DRIVER_INCLUDED
 
 #include <stddef.h>
-
-typedef intptr_t X2FDLONG; // 32bits on W32, 64 bits on W64, signed
-typedef uintptr_t X2FDULONG; // 32bits on W32, 64 bits on W64, unsigned
-
-#define X2FDEXPORT(ret) ret __stdcall
+#include "cat.h"
 
 // open mode
 #define X2FD_READ           0
@@ -85,12 +81,7 @@ typedef uintptr_t X2FDULONG; // 32bits on W32, 64 bits on W64, unsigned
 #define X2FD_FI_PCK         4
 #define X2FD_FI_DEFLATE     8
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 typedef uintptr_t X2FILE;
-typedef uintptr_t X2CATALOG;
 typedef uintptr_t X2FIND;
 
 // used by X2FD_CatFindFirst/Next
@@ -98,16 +89,6 @@ struct X2CATFILEINFO
 {
     char szFileName[260];
     size_t size;
-};
-
-// used by X2FD_FindFirst/Next
-struct X2FILEINFO
-{
-    char szFileName[260];
-    X2FDLONG mtime;
-    X2FDLONG size;
-    X2FDLONG BinarySize;
-    int flags;
 };
 
 /************************************************
@@ -119,7 +100,7 @@ struct X2FILEINFO
  * in: none
  * ret: error code
  ************************************************/
-X2FDEXPORT(int) X2FD_GetLastError();
+int X2FD_GetLastError();
 
 /************************************************
  * X2FD_TranslateError
@@ -134,8 +115,7 @@ X2FDEXPORT(int) X2FD_GetLastError();
  *     int to get the required buffer size (including the terminating zero)
  * ret: number of copied bytes or -1 if error code is invalid
  ************************************************/
-X2FDEXPORT(X2FDULONG) X2FD_TranslateError(int nErrorCode, char *pszBuffer,
-X2FDLONG nBuffSize, X2FDLONG *pNeeded);
+X2FDULONG X2FD_TranslateError(int nErrorCode, char *pszBuffer, X2FDLONG nBuffSize, X2FDLONG *pNeeded);
 
 /* files */
 
@@ -144,7 +124,7 @@ X2FDLONG nBuffSize, X2FDLONG *pNeeded);
  *
  * Opens a file and return its handle. Works like WINAPI CreateFile function.
  * You can open file more that once for reading, but you cannot open file for
- * reading if is already opened for writing and you cannot opend it for writing
+ * reading if is already opened for writing and you cannot open it for writing
  * if it's already opened for reading.
  * Every handle opened with X2FD_OpenFile must be closed with call to
  * X2FD_CloseFile
@@ -183,8 +163,7 @@ X2FDLONG nBuffSize, X2FDLONG *pNeeded);
  *                 X2FD_FILETYPE_PCK)
  * ret: handle of opened file or 0 on failure
  ************************************************/
-X2FDEXPORT(X2FILE) X2FD_OpenFile(const char *pszName, int nAccess, int
-nCreateDisposition, int nFileType);
+X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType);
 
 /************************************************
  * X2FD_CloseFile
@@ -199,7 +178,7 @@ nCreateDisposition, int nFileType);
  * ret: non zero if file has been really closed and was saved ok, if the file
  *      was not closed or there was an error while saving, zero is returned
  ************************************************/
-X2FDEXPORT(int) X2FD_CloseFile(X2FILE hFile);
+int X2FD_CloseFile(X2FILE hFile);
 
 /************************************************
  * X2FD_FileSize
@@ -211,7 +190,7 @@ X2FDEXPORT(int) X2FD_CloseFile(X2FILE hFile);
  * in: handle of file
  * ret: size of file or -1 on failure
  ************************************************/
-X2FDEXPORT(X2FDLONG) X2FD_FileSize(X2FILE hFile);
+X2FDLONG X2FD_FileSize(X2FILE hFile);
 
 /************************************************
  * X2FD_EOF
@@ -221,7 +200,7 @@ X2FDEXPORT(X2FDLONG) X2FD_FileSize(X2FILE hFile);
  * in: handle of file
  * ret: non zero if EOF is true, 0 otherwise
  ************************************************/
-X2FDEXPORT(int) X2FD_EOF(X2FILE hFile);
+int X2FD_EOF(X2FILE hFile);
 
 /************************************************
  * X2FD_ReadFile
@@ -237,7 +216,7 @@ X2FDEXPORT(int) X2FD_EOF(X2FILE hFile);
  *     size - number of bytes to read from file
  * ret: number of bytes readed or -1 on error
  ************************************************/
-X2FDEXPORT(X2FDLONG) X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size);
+X2FDLONG X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size);
 
 /************************************************
  * X2FD_SeekFile
@@ -250,7 +229,7 @@ X2FDEXPORT(X2FDLONG) X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size);
  *              position, X2FD_SEEK_END - end of file
  * ret: new offset or -1 on failure
  ************************************************/
-X2FDEXPORT(X2FDULONG) X2FD_SeekFile(X2FILE hFile, int offset, int origin);
+X2FDULONG X2FD_SeekFile(X2FILE hFile, int offset, int origin);
 
 /************************************************
  * X2FD_FileStatByHandle
@@ -261,7 +240,7 @@ X2FDEXPORT(X2FDULONG) X2FD_SeekFile(X2FILE hFile, int offset, int origin);
  * in: handle to file, pointer to structure to get the info
  * ret: zero on failure, non zero otherwise
  ************************************************/
-X2FDEXPORT(int) X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo);
+int X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo);
 
 /************************************************
  * X2FD_GetFileCompressionType
@@ -272,7 +251,7 @@ X2FDEXPORT(int) X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo);
  * in: name of file
  * ret: one of X2FD_FILETYPE_ constants (on error PLAIN is returned)
  ************************************************/
-X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName);
+int X2FD_GetFileCompressionType(const char *pszFileName);
 
 /* catalogs */
 
@@ -295,7 +274,7 @@ X2FDEXPORT(int) X2FD_GetFileCompressionType(const char *pszFileName);
  *     otherwise it's opened)
  * ret: catalog handle or 0 on failure
  ************************************************/
-X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName);
+x2catalog* X2FD_OpenCatalog(const char *pszName);
 
 /************************************************
  * X2FD_CloseCatalog
@@ -312,7 +291,7 @@ X2FDEXPORT(X2CATALOG) X2FD_OpenCatalog(const char *pszName);
  * in: catalog to close
  * ret: 0 if handle is 0 - otherwise non zero
  ************************************************/
-X2FDEXPORT(int) X2FD_CloseCatalog(X2CATALOG hCat);
+int X2FD_CloseCatalog(x2catalog* hCat);
 
 /************************************************
  * X2FD_SetFileTime
@@ -323,7 +302,7 @@ X2FDEXPORT(int) X2FD_CloseCatalog(X2CATALOG hCat);
  * in: file handle, time as time_t
  * ret: 0 on failure, nonzero in success
  ************************************************/
-X2FDEXPORT(int) X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime);
+int X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime);
 
 /************************************************
  * X2FD_CatFindFirstFile
@@ -338,8 +317,7 @@ X2FDEXPORT(int) X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime);
  * ret: search handle for use with X2FD_CatFindNextFile and X2FD_CatFindClose
  *      0 if no file name was found, nonzero otherwise
  ************************************************/
-X2FDEXPORT(X2FIND) X2FD_CatFindFirstFile(X2CATALOG hCat,
-const char *pszFileName, X2CATFILEINFO *pInfo);
+X2FIND X2FD_CatFindFirstFile(x2catalog* hCat, const char *pszFileName, X2CATFILEINFO *pInfo);
 
 /************************************************
  * X2FD_CatFindNextFile
@@ -352,7 +330,7 @@ const char *pszFileName, X2CATFILEINFO *pInfo);
  *     info
  * ret: 0 if no more occurrences were found, nonzero if there are more
  ************************************************/
-X2FDEXPORT(int) X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo);
+int X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo);
 
 /************************************************
  * X2FD_CatFindClose
@@ -364,7 +342,7 @@ X2FDEXPORT(int) X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo);
  * in: search handle returned by X2FD_CatFindFirst
  * ret: 0 on failure, nonzero otherwise
  ************************************************/
-X2FDEXPORT(int) X2FD_CatFindClose(X2FIND hFind);
+int X2FD_CatFindClose(X2FIND hFind);
 
 /************************************************
  * X2FD_CopyFile
@@ -374,10 +352,6 @@ X2FDEXPORT(int) X2FD_CatFindClose(X2FIND hFind);
  * in: source file, destination file
  * ret: 0 on failure, nonzero otherwise
  ************************************************/
-X2FDEXPORT(int) X2FD_CopyFile(X2FILE hSource, X2FILE hDestination);
-
-#ifdef __cplusplus
-}
-#endif
+int X2FD_CopyFile(X2FILE hSource, X2FILE hDestination);
 
 #endif // !defined(X2_FILE_DRIVER_INCLUDED)

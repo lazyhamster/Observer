@@ -14,7 +14,7 @@ struct XStorage
 	wchar_t* Path;
 	
 	X2FILE FilePtr;		// User for .pck files
-	X2CATALOG Catalog;	// User for .cat/.dat pair
+	x2catalog* Catalog;	// User for .cat/.dat pair
 	ext::list<X2CATFILEINFO> Files;
 
 	bool GetItemByIndex(int index, X2CATFILEINFO &fileInfo)
@@ -55,7 +55,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 	if (_wcsicmp(fileExt, L".cat") == 0)
 	{
-		X2CATALOG hCat = X2FD_OpenCatalog(tmp);
+		x2catalog* hCat = X2FD_OpenCatalog(tmp);
 		if (hCat != 0)
 		{
 			XStorage* xst = new XStorage();
