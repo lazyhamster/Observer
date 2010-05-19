@@ -4,6 +4,9 @@ Changes history:
 - Added support for Egosoft packages from X-series games.
 - Added "Skip All" button to extraction error dialog.
 - Fixed extraction to disk root.
+- MSI: Added file attributes reading from embedded cab.
+- VP: Fixed extraction progress.
+- Small fixes.
 
 1.5.2
 - Fixed overwrite dialog in Unicode version.
