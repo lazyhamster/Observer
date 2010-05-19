@@ -1104,6 +1104,7 @@ bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, 
 	wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN, node->TargetShortName);
 	dataBuf->dwFileAttributes = node->GetSytemAttributes();
 	dataBuf->nFileSizeLow = (DWORD) node->GetSize();
+	dataBuf->nFileSizeHigh = (DWORD) (node->GetSize() >> 32);
 
 	// Retrieve file attributes from real files
 	if (!node->IsDir())

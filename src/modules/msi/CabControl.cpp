@@ -7,23 +7,20 @@ struct CabCacheItem
 {
 	mscab_decompressor* decomp;
 	mscabd_cabinet* data;
-	char* fileName;
+	char realFilePath[MAX_PATH];
 
 	CabCacheItem()
 	{
 		decomp = NULL;
 		data = NULL;
-		fileName = NULL;
+		memset(realFilePath, 0, MAX_PATH);
 	}
 
 	~CabCacheItem()
 	{
-		if (fileName)
-			free(fileName);
 		if (decomp)
 		{
-			if (data)
-				decomp->close(decomp, data);
+			if (data) decomp->close(decomp, data);
 			mspack_destroy_cab_decompressor(decomp);
 		}
 	}
@@ -185,15 +182,17 @@ CabCacheItem* CCabControl::getCacheItem( const wchar_t* cabName, const wchar_t* 
 		return NULL;
 
 	CabCacheItem *newItem = new CabCacheItem();
+	newItem->decomp = newDecomp;
 	
-	newItem->fileName = (char *) malloc(MAX_PATH);
-	memset(newItem->fileName, 0, MAX_PATH);
-	WideCharToMultiByte(CP_UTF8, 0, cabPath, wcslen(cabPath), newItem->fileName, MAX_PATH, NULL, NULL);
+	if (cabPath != NULL)
+	{
+		memset(newItem->realFilePath, 0, MAX_PATH);
+		WideCharToMultiByte(CP_UTF8, 0, cabPath, wcslen(cabPath), newItem->realFilePath, MAX_PATH, NULL, NULL);
+	}
 
-	mscabd_cabinet* cabData = newDecomp->open(newDecomp, newItem->fileName);
+	mscabd_cabinet* cabData = newDecomp->open(newDecomp, newItem->realFilePath);
 	if (cabData)
 	{
-		newItem->decomp = newDecomp;
 		newItem->data = cabData;
 		
 		m_mCabCache[cabName] = newItem;
