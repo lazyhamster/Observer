@@ -73,4 +73,25 @@ struct RegistryEntry
 	wchar_t Component[73];		// s72
 };
 
+// Table: Shortcut
+struct ShortcutEntry
+{
+	wchar_t Key[256];			// s72
+	wchar_t Directory[256];		// s72
+	wchar_t Name[512];			// l128
+	wchar_t Component[256];		// s72
+	wchar_t Target[256];		// s72
+	wchar_t Arguments[512];		// S255
+	wchar_t Description[512];	// L255
+	// Hotkey	I2
+	// Icon_S72
+	// IconIndex I2
+	// ShowCmd I2
+	// WkDir S72
+	// DisplayResourceDLL S255
+	// DisplayResourceId I2
+	// DescriptionResourceDLL S255
+	// DescriptionResourceId I2
+};
+
 #endif //_PACKAGE_STRUCT_H_

@@ -588,6 +588,11 @@ int CMsiViewer::generateInfoText()
 	sstr << L"[Registry]" << endl;
 	OK ( dumpRegistryKeys(sstr) );
 
+	// Shortcuts list
+	sstr << endl;
+	sstr << L"[Shortcuts]" << endl;
+	OK ( dumpShortcuts(sstr) );
+
 	wstring content = sstr.str();
 	
 	// Add fake file with general info to root folder
@@ -696,6 +701,43 @@ int CMsiViewer::dumpFeatures(wstringstream &sstr)
 			if (wcslen(featEntry.Description) > 0)
 				sstr << L"    " << featEntry.Description << L"\n";
 		}
+	}
+
+	return ERROR_SUCCESS;
+}
+
+int CMsiViewer::dumpShortcuts(wstringstream &sstr)
+{
+	UINT res;
+	PMSIHANDLE hQueryShortcut;
+
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Shortcut", &hQueryShortcut) );
+	OK( MsiViewExecute(hQueryShortcut, 0) );
+
+	// Retrieve all feature entries
+	PMSIHANDLE hShortcutRec;
+	DWORD nCellSize;
+	ShortcutEntry sEntry;
+	while ((res = MsiViewFetch(hQueryShortcut, &hShortcutRec)) != ERROR_NO_MORE_ITEMS)
+	{
+		OK(res);
+
+		READ_STR(hShortcutRec, 1, sEntry.Key);
+		READ_STR(hShortcutRec, 2, sEntry.Directory);
+		READ_STR(hShortcutRec, 3, sEntry.Name);
+		READ_STR(hShortcutRec, 4, sEntry.Component);
+		READ_STR(hShortcutRec, 5, sEntry.Target);
+		READ_STR(hShortcutRec, 6, sEntry.Arguments);
+		READ_STR(hShortcutRec, 7, sEntry.Description);
+
+		wchar_t *wszNamePtr = wcschr(sEntry.Name, '|');
+		wszNamePtr = (wszNamePtr != NULL) ? wszNamePtr + 1 : sEntry.Name;
+
+		sstr << L"- " << sEntry.Key << L" (" << wszNamePtr << L")\n";
+		sstr << sEntry.Directory << L" -> " << sEntry.Target;
+		if (wcslen(sEntry.Arguments) > 0)
+			sstr << L" " << sEntry.Arguments;
+		sstr << L"\n";
 	}
 
 	return ERROR_SUCCESS;

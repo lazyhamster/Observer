@@ -49,6 +49,7 @@ private:
 	int generateLicenseText();
 	int dumpRegistryKeys(wstringstream &sstr);
 	int dumpFeatures(wstringstream &sstr);
+	int dumpShortcuts(wstringstream &sstr);
 
 	wstring getStoragePath();
 	int cacheInternalStream(const wchar_t* streamName);
