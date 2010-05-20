@@ -8,7 +8,6 @@
 #include "local_error.h"
 
 #define getfile(handle) (xfile*) handle
-#define getcat(handle) (x2catalog*) handle
 
 typedef ext::list<x2catbuffer*> catlist;
 typedef ext::list<filebuffer*> bufferlist;
@@ -16,13 +15,6 @@ typedef ext::list<filebuffer*> bufferlist;
 catlist g_catlist;
 bufferlist g_bufflist;
 
-struct CATFINDFILEINFO
-{
-	x2catbuffer *buffer;
-	x2catbuffer::iterator it;
-
-	char *pattern;
-};
 //---------------------------------------------------------------------------------
 bool checkBuffMode(filebuffer *b, int mode)
 {

@@ -15,27 +15,46 @@ struct XStorage
 	
 	X2FILE FilePtr;		// User for .pck files
 	x2catalog* Catalog;	// User for .cat/.dat pair
-
-	x2catentry* GetEntryByIndex(int index)
-	{
-		if (!IsCatalog) return NULL;
-		
-		int cnt = 0;
-		x2catbuffer* buff = Catalog->buffer();
-		ext::list<x2catentry*>::iterator it = buff->begin();
-		while ((cnt < index) && (it != buff->end()))
-		{
-			cnt++;
-			it++;
-		}
-		if (cnt == index)
-		{
-			x2catentry* entry = *it;
-			return entry;
-		}
-		return NULL;
-	}
 };
+
+static x2catentry* GetCatEntryByIndex(x2catalog* catalog, int index)
+{
+	int cnt = 0;
+	x2catbuffer* buff = catalog->buffer();
+	x2catbuffer::iterator it = buff->begin();
+	while ((cnt < index) && (it != buff->end()))
+	{
+		cnt++;
+		it++;
+	}
+	if (cnt == index)
+	{
+		x2catentry* entry = *it;
+		return entry;
+	}
+	return NULL;
+}
+
+static wchar_t* GetInternalFileExt(X2FILE xf, wchar_t* originalPath)
+{
+	if (xf == 0) return L"";
+	
+	wchar_t* oldExt = wcsrchr(originalPath, '.');
+	if (wcscmp(oldExt, L".pck") == 0)
+	{
+		char buf[50] = {0};
+		
+		X2FD_SeekFile(xf, 0, X2FD_SEEK_SET);
+		X2FDLONG ret = X2FD_ReadFile(xf, buf, sizeof(buf));
+
+		if ((ret >= 0) && strstr(buf, "<?xml"))
+			return L".xml";
+		else
+			return L".txt";
+	}
+	
+	return oldExt;
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -134,7 +153,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		if (item_index >= (int) xst->Catalog->buffer()->size())
 			return GET_ITEM_NOMOREITEMS;
 
-		x2catentry* entry = xst->GetEntryByIndex(item_index);
+		x2catentry* entry = GetCatEntryByIndex(xst->Catalog, item_index);
 		if (entry == NULL) return GET_ITEM_ERROR;
 
 		memset(item_path, 0, path_size * sizeof(wchar_t));
@@ -167,7 +186,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		// Change extension
 		size_t nNameLen = wcslen(item_path);
 		if (nNameLen > 4)
-			wcscpy_s(item_path + nNameLen - 4, 5, L".txt");
+			wcscpy_s(item_path + nNameLen - 4, 5, GetInternalFileExt(xst->FilePtr, xst->Path));
 
 		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
 		wcscpy_s(item_data->cFileName, MAX_PATH, item_path);
@@ -200,7 +219,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		if (params.item >= (int) xst->Catalog->buffer()->size())
 			return GET_ITEM_NOMOREITEMS;
 
-		x2catentry* entry = xst->GetEntryByIndex(params.item);
+		x2catentry* entry = GetCatEntryByIndex(xst->Catalog, params.item);
 		if (entry == NULL) return GET_ITEM_ERROR;
 		
 		char szSrc[MAX_PATH] = {0};
@@ -241,9 +260,10 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		strcat_s(tmp, MAX_PATH, GetFileName(finfo.szFileName));
 		
 		// Change extension
-		size_t nNameLen = strlen(tmp);
-		if (nNameLen > 4)
-			strcpy_s(tmp + nNameLen - 4, 5, ".txt");
+		char* curExt = strrchr(tmp, '.');
+		const wchar_t* intExt = GetInternalFileExt(xst->FilePtr, xst->Path);
+		if (intExt && curExt)
+			WideCharToMultiByte(CP_ACP, 0, intExt, wcslen(intExt), curExt, strlen(curExt) + 1, NULL, NULL);
 		
 		X2FILE hOutput = X2FD_OpenFile(tmp, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0) return SER_ERROR_WRITE;
