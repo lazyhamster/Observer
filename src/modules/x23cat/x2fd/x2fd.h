@@ -82,14 +82,6 @@
 #define X2FD_FI_DEFLATE     8
 
 typedef uintptr_t X2FILE;
-typedef uintptr_t X2FIND;
-
-// used by X2FD_CatFindFirst/Next
-struct X2CATFILEINFO
-{
-    char szFileName[260];
-    size_t size;
-};
 
 /************************************************
  * X2FD_GetLastError
@@ -303,46 +295,6 @@ int X2FD_CloseCatalog(x2catalog* hCat);
  * ret: 0 on failure, nonzero in success
  ************************************************/
 int X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime);
-
-/************************************************
- * X2FD_CatFindFirstFile
- *
- * works like API FindFirstFile but within catalog
- * it will find all occurrences of file pszFileName in catalog
- *
- * you can use wildcards (* ?) in file name the same way as in
- * API FindFirstFile
- *
- * in: catalog, file name to look for, address of structure for info
- * ret: search handle for use with X2FD_CatFindNextFile and X2FD_CatFindClose
- *      0 if no file name was found, nonzero otherwise
- ************************************************/
-X2FIND X2FD_CatFindFirstFile(x2catalog* hCat, const char *pszFileName, X2CATFILEINFO *pInfo);
-
-/************************************************
- * X2FD_CatFindNextFile
- *
- * works like API FindNextFile but within catalog
- * it will find next occurrence of file specified with call to
- * X2FD_CatFindFirstFile
- *
- * in: search handle returned by X2FD_CatFindFirstFile, address of structure for
- *     info
- * ret: 0 if no more occurrences were found, nonzero if there are more
- ************************************************/
-int X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo);
-
-/************************************************
- * X2FD_CatFindClose
- *
- * works like API FindClose
- * it will delete all data associated with given search handle
- * you cannot call any search functions with this handle after that
- *
- * in: search handle returned by X2FD_CatFindFirst
- * ret: 0 on failure, nonzero otherwise
- ************************************************/
-int X2FD_CatFindClose(X2FIND hFind);
 
 /************************************************
  * X2FD_CopyFile

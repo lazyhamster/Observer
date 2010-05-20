@@ -400,66 +400,6 @@ int X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime)
 	return true;
 }
 //---------------------------------------------------------------------------------
-X2FIND X2FD_CatFindFirstFile(x2catalog* hCat, const char *pszFileName, X2CATFILEINFO *pInfo)
-{
-	CATFINDFILEINFO *ffi=0;
-
-	clrerr();
-
-	if(hCat == NULL){
-		error(X2FD_E_HANDLE);
-		return false;
-	}
-
-	x2catbuffer::iterator it=hCat->findFirstFile(pszFileName);
-
-	if(it!=hCat->buffer()->end()){
-		ffi=new CATFINDFILEINFO();
-		ffi->buffer=hCat->buffer();
-		ffi->it=it;
-
-		ffi->pattern=0;
-		strcreate(ffi->pattern, pszFileName);
-
-		pInfo->size=(size_t)it->size;
-		strncpy(pInfo->szFileName, it->pszFileName, sizeof(pInfo->szFileName));
-	}
-
-	return (X2FIND)ffi;
-}
-//---------------------------------------------------------------------------------
-int X2FD_CatFindNextFile(X2FIND hFind, X2CATFILEINFO *pInfo)
-{
-	clrerr();
-
-	CATFINDFILEINFO *ffi=(CATFINDFILEINFO*) hFind;
-	if(ffi==NULL){
-		error(X2FD_E_HANDLE);
-		return false;
-	}
-
-	ffi->it=ffi->buffer->findNextFile(++(ffi->it), ffi->pattern);
-
-	if(ffi->it!=ffi->buffer->end()){
-		pInfo->size=(size_t)ffi->it->size;
-		strncpy(pInfo->szFileName, ffi->it->pszFileName, sizeof(pInfo->szFileName));
-	}
-	return ffi->it!=ffi->buffer->end();
-}
-//---------------------------------------------------------------------------------
-int X2FD_CatFindClose(X2FIND hFind)
-{
-	clrerr();
-	CATFINDFILEINFO *ffi=(CATFINDFILEINFO*) hFind;
-	if(ffi==NULL) {
-		error(X2FD_E_HANDLE);
-		return false;
-	}
-	delete[] ffi->pattern;
-	delete ffi;
-	return true;
-}
-//---------------------------------------------------------------------------------
 /*
 	copy data from one file to another
 	uses some optimizations
