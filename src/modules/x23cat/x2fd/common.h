@@ -20,6 +20,9 @@ void ParseCATPath(const char *pszName, char **ppszCATName, char **ppszFile);
 
 bool FileExists(const wchar_t* path);
 void UnixTimeToFileTime(time_t t, LPFILETIME pft);
+
 const char* GetFileName(const char* path);
+const wchar_t* GetFileName(const wchar_t* path);
+wchar_t* GetFileExt(wchar_t* path);
 
 #endif // common_h__

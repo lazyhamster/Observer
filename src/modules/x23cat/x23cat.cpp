@@ -178,15 +178,16 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		if (X2FD_FileStatByHandle(xst->FilePtr, &finfo) == 0)
 			return GET_ITEM_ERROR;
 
-		const char* fileName = GetFileName(finfo.szFileName);
-
-		memset(item_path, 0, path_size * sizeof(wchar_t));
-		MultiByteToWideChar(CP_ACP, 0, fileName, strlen(fileName), item_path, path_size);
+		const wchar_t* fileName = GetFileName(xst->Path);
+		wcscpy_s(item_path, path_size, fileName);
 
 		// Change extension
-		size_t nNameLen = wcslen(item_path);
-		if (nNameLen > 4)
-			wcscpy_s(item_path + nNameLen - 4, 5, GetInternalFileExt(xst->FilePtr, xst->Path));
+		wchar_t *oldExt = GetFileExt(item_path);
+		if (oldExt)
+		{
+			*oldExt = 0;
+			wcscat_s(item_path, path_size, GetInternalFileExt(xst->FilePtr, xst->Path));
+		}
 
 		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
 		wcscpy_s(item_data->cFileName, MAX_PATH, item_path);

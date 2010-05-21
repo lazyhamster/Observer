@@ -50,3 +50,18 @@ const char* GetFileName(const char* path)
 	else
 		return path;
 }
+
+const wchar_t* GetFileName(const wchar_t* path)
+{
+	const wchar_t* fileName = wcsrchr(path, '\\');
+	if (fileName)
+		return ++fileName;
+	else
+		return path;
+}
+
+wchar_t* GetFileExt(wchar_t* path)
+{
+	wchar_t* ext = wcsrchr(path, '.');
+	return ext;
+}
