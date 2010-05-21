@@ -49,7 +49,7 @@ bool x2catbuffer::open(const char *pszName)
 	size=filesize + ((filesize % 5U) ? 5U - (filesize % 5U) : 0);
 	//byte *buffer=new byte[size + 1];
 	byte *buffer=new byte[(size_t)size + 1];
-	buffer[filesize]=0;
+	buffer[(INT_PTR) filesize]=0;
 	m_hCATFile.read(buffer, filesize);
 	DecryptCAT(buffer, filesize);
 	
@@ -61,7 +61,7 @@ bool x2catbuffer::open(const char *pszName)
 	bool first=true;
 	io64::file::size offset=0;
 	pos=(char*)buffer;
-	end = pos + filesize;
+	end = pos + (INT_PTR) filesize;
 	do{
 		old=pos;
 		pos=(char*)memchr(pos, 0, end - pos);

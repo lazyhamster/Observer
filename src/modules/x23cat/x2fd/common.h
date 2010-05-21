@@ -10,7 +10,7 @@ typedef unsigned char byte;
 struct X2FILEINFO
 {
 	char szFileName[260];
-	X2FDLONG mtime;
+	time_t mtime;
 	X2FDLONG size;
 	X2FDLONG BinarySize;
 	int flags;
