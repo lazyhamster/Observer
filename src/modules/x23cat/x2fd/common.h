@@ -16,8 +16,6 @@ struct X2FILEINFO
 	int flags;
 };
 
-void ParseCATPath(const char *pszName, char **ppszCATName, char **ppszFile);
-
 bool FileExists(const wchar_t* path);
 void UnixTimeToFileTime(time_t t, LPFILETIME pft);
 

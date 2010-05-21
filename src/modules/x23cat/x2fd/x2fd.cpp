@@ -9,10 +9,8 @@
 
 #define getfile(handle) (xfile*) handle
 
-typedef ext::list<x2catbuffer*> catlist;
 typedef ext::list<filebuffer*> bufferlist;
 
-catlist g_catlist;
 bufferlist g_bufflist;
 
 //---------------------------------------------------------------------------------
@@ -36,98 +34,6 @@ filebuffer* findBuffer(const char *pszName)
 	}
 	else
 		return NULL;
-}
-//---------------------------------------------------------------------------------
-x2catbuffer * findCatBuff(const char *pszName)
-{
-	catlist::iterator it;
-	for(it=g_catlist.begin(); it!=g_catlist.end(); ++it){
-		if(_stricmp(it->fileName(), pszName)==0)
-			break;
-	}
-	if(it!=g_catlist.end()){
-		it->addref();
-		return *it;
-	}
-	else
-		return NULL;
-}
-//---------------------------------------------------------------------------------
-x2catbuffer * _OpenCatalog(const char *pszName)
-{
-	x2catbuffer *cbuff;
-	bool bRes;
-	cbuff=findCatBuff(pszName);
-	if(cbuff==NULL){
-		cbuff=new x2catbuffer();
-		bRes=cbuff->open(pszName);
-
-		if(bRes==false){
-			error(cbuff->error());
-			cbuff->release();
-			cbuff=NULL;
-		}
-		else
-			g_catlist.push_back(cbuff);
-	}
-	return cbuff;
-}
-//---------------------------------------------------------------------------------
-int ReleaseCatalog(x2catbuffer *catalog)
-{
-	if(catalog->refcount()==1)
-		g_catlist.erase(g_catlist.find(catalog));
-
-	return catalog->release();
-}
-//---------------------------------------------------------------------------------
-X2FILE OpenFileCAT(const char *pszName, int nAccess, int nFileType)
-{
-	char *pszCATName=0, *pszFile=0;
-
-	const char *pos = strstr(pszName, "::");
-	if(pos==NULL) return 0;
-
-	// look if buffer is already open
-	filebuffer *buff=findBuffer(pszName);
-	if(buff!=NULL){
-		if(checkBuffMode(buff, nAccess)==false){
-			buff->release();
-			buff=NULL;
-			error(X2FD_E_FILE_BADMODE);
-		}
-	}
-	// we must open it
-	else{
-		ParseCATPath(pszName, &pszCATName, &pszFile);
-		// find or open catalog
-		x2catbuffer *catbuff=_OpenCatalog(pszCATName);
-		if(catbuff!=NULL){
-			buff=catbuff->loadFile(pszFile, nFileType);
-
-			if(buff)
-				g_bufflist.push_back(buff);
-			else
-				error(catbuff->error());
-
-			if(catbuff->release()==0) g_catlist.erase(g_catlist.find(catbuff));
-		}
-	}
-
-	xfile *f;
-	if(buff){
-		f=new xfile();
-		f->buffer(buff);
-		f->mode(nAccess);
-		buff->release();
-	}
-	else
-		f=NULL;
-
-	delete[] pszCATName;
-	delete[] pszFile;
-
-	return (f==NULL ? NULL : (X2FILE) f);
 }
 //---------------------------------------------------------------------------------
 X2FILE OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
@@ -199,21 +105,53 @@ X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, i
 		return 0;
 	}
 
-	// get the normalized full name
-	char *pszFullName=_fullpath(0, pszName, 0);
-	if(pszFullName==0){
-		error(X2FD_E_ERROR);
+	X2FILE f = OpenFile(pszName, nAccess, nCreateDisposition, nFileType);
+	
+	return f;
+}
+//---------------------------------------------------------------------------------
+X2FILE X2FD_OpenFileInCatalog(const x2catalog* catalog, x2catentry* entry, int nFileType)
+{
+	clrerr();
+	if(nFileType != X2FD_FILETYPE_PCK && nFileType != X2FD_FILETYPE_DEFLATE && nFileType != X2FD_FILETYPE_PLAIN && nFileType != X2FD_FILETYPE_AUTO){
+		error(X2FD_E_BAD_FLAGS);
 		return 0;
 	}
 
-	X2FILE f;
-	if(strstr(pszFullName, "::")==NULL)
-		f=OpenFile(pszFullName, nAccess, nCreateDisposition, nFileType);
-	else
-		f=OpenFileCAT(pszFullName, nAccess, nFileType);
+	// look if buffer is already open
+	filebuffer *buff=findBuffer(entry->pszFileName);
+	if(buff!=NULL){
+		if(checkBuffMode(buff, X2FD_READ)==false){
+			buff->release();
+			buff=NULL;
+			error(X2FD_E_FILE_BADMODE);
+		}
+	}
+	// we must open it
+	else{
+		x2catbuffer *catbuff = catalog->buffer();
+		if (catbuff!=NULL)
+		{
+			buff=catbuff->loadFile(entry, nFileType);
 
-	delete[] pszFullName;
-	return f;
+			if(buff)
+				g_bufflist.push_back(buff);
+			else
+				error(catbuff->error());
+		}
+	}
+
+	xfile *f;
+	if(buff){
+		f=new xfile();
+		f->buffer(buff);
+		f->mode(X2FD_READ);
+		buff->release();
+	}
+	else
+		f=NULL;
+
+	return (f==NULL ? NULL : (X2FILE) f);
 }
 //---------------------------------------------------------------------------------
 X2FDLONG X2FD_FileSize(X2FILE hFile)
@@ -299,19 +237,22 @@ x2catalog* X2FD_OpenCatalog(const char *pszName)
 
 	clrerr();
 
-	// convert to normalized fullname
-	char *pszFullName=_fullpath(0, pszName, 0);
-	if(pszFullName==0){
-		error(X2FD_E_ERROR);
-		return false;
+	bool bRes;
+
+	cbuff=new x2catbuffer();
+	bRes=cbuff->open(pszName);
+
+	if(bRes==false){
+		error(cbuff->error());
+		cbuff->release();
+		cbuff=NULL;
 	}
 
-	cbuff=_OpenCatalog(pszFullName);
 	if(cbuff) {
 		cat=new x2catalog(cbuff);
 		cbuff->release();
 	}
-	delete[] pszFullName;
+
 	return cat;
 }
 //---------------------------------------------------------------------------------
@@ -319,9 +260,6 @@ int X2FD_CloseCatalog(x2catalog* hCat)
 {
 	clrerr();
 	if(hCat!=NULL){
-		if(hCat->buffer()->refcount()==1){
-			g_catlist.erase(g_catlist.find(hCat->buffer()));
-		}
 		delete hCat;
 		return true;
 	}
@@ -338,10 +276,6 @@ int X2FD_CloseFile(X2FILE hFile)
 
 	clrerr();
 	if(f)	{
-		// remove cat from list if it will be deleted
-		if(f->buffer()->cat() && f->buffer()->cat()->refcount() == 1)
-			g_catlist.erase(g_catlist.find(f->buffer()->cat()));
-
 		// remove and save filebuffer if it will be deleted
 		if(f->buffer()->refcount() == 1){
 			g_bufflist.erase(g_bufflist.find(f->buffer()));

@@ -129,17 +129,6 @@ bool x2catbuffer::open(const char *pszName)
 	return bRes;
 }
 //---------------------------------------------------------------------------------
-filebuffer * x2catbuffer::loadFile(const char *pszFile, int fileType)
-{
-	x2catentry *entry=findFile(pszFile);
-	if(entry==NULL){
-		error(X2FD_E_CAT_NOENTRY);
-		return NULL;
-	}
-	else
-		return loadFile(entry, fileType);
-}
-//---------------------------------------------------------------------------------
 filebuffer * x2catbuffer::loadFile(x2catentry *entry, int fileType)
 {
 	filebuffer *buff=NULL;
@@ -210,16 +199,6 @@ void x2catbuffer::closeFile(filebuffer *buff)
 	}
 }
 //---------------------------------------------------------------------------------
-bool x2catbuffer::isValidFileName(const char *pszFileName)
-{
-	if(pszFileName==0) return false;
-	for(const char *ch=pszFileName; *ch!=0; ch++){
-		if(*ch=='/' || *ch==':' || *ch=='*' || *ch=='<' || *ch=='>' || *ch=='|')
-			return false;
-	}
-	return true;
-}
-//---------------------------------------------------------------------------------
 int x2catbuffer::getFileCompressionType(const char *pszFileName)
 {
 	int nRes;
@@ -254,21 +233,5 @@ bool x2catbuffer::fileStat(const char *pszFileName, X2FILEINFO *info)
 	return true;
 }
 //---------------------------------------------------------------------------------
-x2catbuffer::iterator x2catbuffer::findFirstFile(const char *pattern)
-{
-	iterator it;
-	for(it=begin(); it!=end(); ++it){
-		if(libwdmatch_match_i(pattern, it->pszFileName)) break;
-	}
-	return it;
-}
-//---------------------------------------------------------------------------------
-x2catbuffer::iterator x2catbuffer::findNextFile(x2catbuffer::iterator it, const char *pattern)
-{
-	for( ; it!=end(); ++it){
-		if(libwdmatch_match_i(pattern, it->pszFileName)) break;
-	}
-	return it;
-}
-//---------------------------------------------------------------------------------
+
 

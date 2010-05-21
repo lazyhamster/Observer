@@ -306,4 +306,6 @@ int X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime);
  ************************************************/
 int X2FD_CopyFile(X2FILE hSource, X2FILE hDestination);
 
+X2FILE X2FD_OpenFileInCatalog(const x2catalog* catalog, x2catentry* entry, int nFileType);
+
 #endif // !defined(X2_FILE_DRIVER_INCLUDED)

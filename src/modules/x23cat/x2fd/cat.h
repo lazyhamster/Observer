@@ -6,7 +6,6 @@
 #include "common/strutils.h"
 #include "common.h"
 #include "file_io.h"
-#include "libwdmatch/libwdmatch.h"
 
 struct filebuffer;
 //---------------------------------------------------------------------------------
@@ -55,8 +54,7 @@ class x2catbuffer : public ext::list<x2catentry *>
 			return size;
 		}
 		
-		bool isValidFileName(const char *pszFileName);
-		
+
 	public:		
 		x2catbuffer() { m_nRefCount=1; m_pszFileName=0; m_pszDATName=0; }
 		~x2catbuffer() 
@@ -99,15 +97,11 @@ class x2catbuffer : public ext::list<x2catentry *>
 		
 		bool open(const char *pszName);
 		
-		filebuffer * loadFile(const char *pszFile, int fileType);
 		filebuffer * loadFile(x2catentry *entry, int fileType);
 		void closeFile(filebuffer *buff);
 		
 		int getFileCompressionType(const char *pszFileName);
 		bool fileStat(const char *pszFileName, X2FILEINFO *info);
-		
-		iterator findFirstFile(const char *pattern);
-		iterator findNextFile(iterator it, const char *pattern);
 };
 //---------------------------------------------------------------------------------
 class x2catalog
@@ -123,9 +117,6 @@ class x2catalog
 		x2catalog(x2catbuffer *buff) { m_buff=buff; buff->addref(); }
 		
 		~x2catalog() { if(m_buff) m_buff->release(); }
-		
-		x2catbuffer::iterator findFirstFile(const char *pattern) { return m_buff->findFirstFile(pattern); }
-		x2catbuffer::iterator findNextFile(x2catbuffer::iterator it, const char *pattern) { return m_buff->findNextFile(it, pattern); }
 };
 //---------------------------------------------------------------------------------
 inline char * x2catbuffer::getDATName() const

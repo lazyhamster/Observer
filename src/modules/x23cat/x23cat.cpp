@@ -222,13 +222,8 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 
 		x2catentry* entry = GetCatEntryByIndex(xst->Catalog, params.item);
 		if (entry == NULL) return GET_ITEM_ERROR;
-		
-		char szSrc[MAX_PATH] = {0};
-		WideCharToMultiByte(CP_ACP, 0, xst->Path, wcslen(xst->Path), szSrc, MAX_PATH, NULL, NULL);
-		strcat_s(szSrc, MAX_PATH, "::");
-		strcat_s(szSrc, MAX_PATH, entry->pszFileName);
-		
-		X2FILE hInput = X2FD_OpenFile(szSrc, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_PLAIN);
+
+		X2FILE hInput = X2FD_OpenFileInCatalog(xst->Catalog, entry, X2FD_FILETYPE_PLAIN);
 		if (hInput == 0) return SER_ERROR_READ;
 
 		char szDest[MAX_PATH] = {0};
