@@ -159,11 +159,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		memset(item_path, 0, path_size * sizeof(wchar_t));
 		MultiByteToWideChar(CP_ACP, 0, entry->pszFileName, strlen(entry->pszFileName), item_path, path_size);
 
-		const wchar_t* fileName = wcsrchr(item_path, L'\\');
-		if (fileName == NULL)
-			fileName = item_path;
-		else
-			fileName++;
+		const wchar_t* fileName = GetFileName(item_path);
 
 		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
 		wcscpy_s(item_data->cFileName, MAX_PATH, fileName);
