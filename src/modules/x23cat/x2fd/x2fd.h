@@ -173,18 +173,6 @@ X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, i
 int X2FD_CloseFile(X2FILE hFile);
 
 /************************************************
- * X2FD_FileSize
- *
- * Return size of file's buffer. For files opened as PLAIN the returned size is
- * same as physical file size. For PCK files, it's the size of data it PCK file
- * not the physical size!
- *
- * in: handle of file
- * ret: size of file or -1 on failure
- ************************************************/
-X2FDLONG X2FD_FileSize(X2FILE hFile);
-
-/************************************************
  * X2FD_EOF
  *
  * Check if file pointer is at the file end (beyond last readable position)
@@ -284,17 +272,6 @@ x2catalog* X2FD_OpenCatalog(const char *pszName);
  * ret: 0 if handle is 0 - otherwise non zero
  ************************************************/
 int X2FD_CloseCatalog(x2catalog* hCat);
-
-/************************************************
- * X2FD_SetFileTime
- *
- * change the last modification, last access and creation time on a file
- * (for real files) and modification time (for files inside archives)
- *
- * in: file handle, time as time_t
- * ret: 0 on failure, nonzero in success
- ************************************************/
-int X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime);
 
 /************************************************
  * X2FD_CopyFile

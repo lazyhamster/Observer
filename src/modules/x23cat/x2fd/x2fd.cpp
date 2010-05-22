@@ -154,20 +154,6 @@ X2FILE X2FD_OpenFileInCatalog(const x2catalog* catalog, x2catentry* entry, int n
 	return (f==NULL ? NULL : (X2FILE) f);
 }
 //---------------------------------------------------------------------------------
-X2FDLONG X2FD_FileSize(X2FILE hFile)
-{
-	xfile *f=getfile(hFile);
-	X2FDLONG s=-1;
-
-	clrerr();
-	if(!f)
-		error(X2FD_E_HANDLE);
-	else
-		s=(X2FDLONG)f->filesize();
-
-	return s;
-}
-//---------------------------------------------------------------------------------
 int X2FD_GetLastError()
 {
 	return error();
@@ -313,17 +299,6 @@ int X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
 int X2FD_GetFileCompressionType(const char *pszFileName)
 {
 	return GetFileCompressionType(pszFileName);
-}
-//---------------------------------------------------------------------------------
-int X2FD_SetFileTime(X2FILE hFile, X2FDLONG mtime)
-{
-	xfile *f=getfile(hFile);
-	if(f==0){
-		error(X2FD_E_HANDLE);
-		return false;
-	}
-	f->mtime(mtime);
-	return true;
 }
 //---------------------------------------------------------------------------------
 /*
