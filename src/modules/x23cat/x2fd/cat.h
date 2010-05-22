@@ -78,7 +78,6 @@ class x2catbuffer : public ext::list<x2catentry *>
 		bool open(const char *pszName);
 		
 		filebuffer * loadFile(x2catentry *entry, int fileType);
-		void closeFile(filebuffer *buff);
 		
 		int getFileCompressionType(const char *pszFileName);
 		bool fileStat(const char *pszFileName, X2FILEINFO *info);

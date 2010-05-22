@@ -146,10 +146,7 @@ io64::file::size filebuffer::read(void *buffer, const io64::file::size& size, io
 bool filebuffer::save()
 {
 	bool bRes = false;
-	if(m_cat){
-		error(X2FD_E_FILE_ACCESS);
-	}
-	else if(type & ISFILE){
+	if(type & ISFILE){
 		if(type & ISPLAIN)
 			bRes = file.flush();
 		else {

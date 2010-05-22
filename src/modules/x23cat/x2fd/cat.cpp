@@ -177,7 +177,6 @@ filebuffer * x2catbuffer::loadFile(x2catentry *entry, int fileType)
 	}
 	if(buff){
 		entry->buffer=buff;
-		buff->cat(this);
 		buff->data(outdata, (size_t)outsize, (size_t)outsize);
 		buff->mtime(mtime);
 		buff->binarysize((size_t)entry->size);			
@@ -185,18 +184,6 @@ filebuffer * x2catbuffer::loadFile(x2catentry *entry, int fileType)
 	}
 
 	return buff;
-}
-//---------------------------------------------------------------------------------
-void x2catbuffer::closeFile(filebuffer *buff)
-{
-	if(buff->cat()==this){
-		for(iterator it=begin(); it!=end(); ++it){
-			if(it->buffer==buff) {
-				it->buffer=NULL;
-				break;
-			}
-		}
-	}
 }
 //---------------------------------------------------------------------------------
 int x2catbuffer::getFileCompressionType(const char *pszFileName)

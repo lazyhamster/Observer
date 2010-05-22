@@ -17,7 +17,6 @@ struct filebuffer
 		int m_nRefCount;
 		int m_lockw;
 		int m_lockr;
-		x2catbuffer *m_cat;
 		size_t m_allocated;
 		size_t m_size;
 		size_t m_binarysize;
@@ -47,7 +46,7 @@ struct filebuffer
 		
 		filebuffer() 
 		{ 
-			m_cat=NULL; m_data=NULL; m_size=0; m_binarysize=0; m_nRefCount=1; 
+			m_data=NULL; m_size=0; m_binarysize=0; m_nRefCount=1; 
 			pszName=0; m_lockw=0; m_lockr=0; type=0; m_allocated=0; m_bDirty=0; m_mtime=-1;
 			m_nErrCode=0;
 		}
@@ -56,7 +55,6 @@ struct filebuffer
 		{ 
 			delete[] pszName; 
 			delete[] m_data;
-			if(m_cat) m_cat->release();
 			file.close(); 
 		}
 		
@@ -104,9 +102,6 @@ struct filebuffer
 		
 		bool dirty() const { return m_bDirty; }
 		void dirty(bool val) { m_bDirty=val; }
-		
-		x2catbuffer* cat() const { return m_cat; }
-		void cat(x2catbuffer *buff) { buff->addref(); if(m_cat) m_cat->release(); m_cat=buff; }
 		
 		io64::file::size write(byte *pData, const io64::file::size& size, io64::file::position offset);
 		bool allocate(size_t newsize);
