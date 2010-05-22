@@ -1,0 +1,8 @@
+LIBRARY	"vise.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetStorageItem
+	ExtractItem
