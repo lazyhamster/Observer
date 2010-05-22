@@ -110,7 +110,7 @@ X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, i
 	return f;
 }
 //---------------------------------------------------------------------------------
-X2FILE X2FD_OpenFileInCatalog(const x2catalog* catalog, x2catentry* entry, int nFileType)
+X2FILE X2FD_OpenFileInCatalog(x2catbuffer* catalog, x2catentry* entry, int nFileType)
 {
 	clrerr();
 	if(nFileType != X2FD_FILETYPE_PCK && nFileType != X2FD_FILETYPE_DEFLATE && nFileType != X2FD_FILETYPE_PLAIN && nFileType != X2FD_FILETYPE_AUTO){
@@ -129,15 +129,14 @@ X2FILE X2FD_OpenFileInCatalog(const x2catalog* catalog, x2catentry* entry, int n
 	}
 	// we must open it
 	else{
-		x2catbuffer *catbuff = catalog->buffer();
-		if (catbuff!=NULL)
+		if (catalog!=NULL)
 		{
-			buff=catbuff->loadFile(entry, nFileType);
+			buff=catalog->loadFile(entry, nFileType);
 
 			if(buff)
 				g_bufflist.push_back(buff);
 			else
-				error(catbuff->error());
+				error(catalog->error());
 		}
 	}
 
@@ -214,45 +213,6 @@ X2FDULONG X2FD_SeekFile(X2FILE hFile, int offset, int origin)
 		if(newoff==-1) error(f->error());
 	}
 	return newoff;
-}
-//---------------------------------------------------------------------------------
-x2catalog* X2FD_OpenCatalog(const char *pszName)
-{
-	x2catalog *cat=NULL;
-	x2catbuffer *cbuff;
-
-	clrerr();
-
-	bool bRes;
-
-	cbuff=new x2catbuffer();
-	bRes=cbuff->open(pszName);
-
-	if(bRes==false){
-		error(cbuff->error());
-		cbuff->release();
-		cbuff=NULL;
-	}
-
-	if(cbuff) {
-		cat=new x2catalog(cbuff);
-		cbuff->release();
-	}
-
-	return cat;
-}
-//---------------------------------------------------------------------------------
-int X2FD_CloseCatalog(x2catalog* hCat)
-{
-	clrerr();
-	if(hCat!=NULL){
-		delete hCat;
-		return true;
-	}
-	else{
-		error(X2FD_E_HANDLE);
-		return false;
-	}
 }
 //---------------------------------------------------------------------------------
 int X2FD_CloseFile(X2FILE hFile)

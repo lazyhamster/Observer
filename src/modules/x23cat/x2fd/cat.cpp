@@ -186,39 +186,5 @@ filebuffer * x2catbuffer::loadFile(x2catentry *entry, int fileType)
 	return buff;
 }
 //---------------------------------------------------------------------------------
-int x2catbuffer::getFileCompressionType(const char *pszFileName)
-{
-	int nRes;
-	unsigned char data[3];
-	iterator it=find(pszFileName);
-	
-	error(0);
-	
-	if(it==end())
-		error(X2FD_E_CAT_NOENTRY);
-	else{
-		if(it->size >= 3){
-			m_hDATFile.seek((io64::file::offset)it->offset, SEEK_SET);
-			m_hDATFile.read(data, 3);
-			nRes = GetBufferCompressionType(data, 3) == X2FD_FILETYPE_PCK;
-		}
-	}
-	return nRes;
-}
-//---------------------------------------------------------------------------------
-bool x2catbuffer::fileStat(const char *pszFileName, X2FILEINFO *info)
-{
-	iterator it=find(pszFileName);
-	if(it==end()){
-		error(X2FD_E_CAT_NOENTRY);
-		return false;
-	}
-	char *name=strcat2(3, m_pszFileName, "::", it->pszFileName);
-	m_hDATFile.seek((io64::file::offset)it->offset, SEEK_SET);
-	FileStat(true, name, m_hDATFile, it->size, info);
-	delete[] name;
-	return true;
-}
-//---------------------------------------------------------------------------------
 
 

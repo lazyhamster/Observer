@@ -14,15 +14,14 @@ struct XStorage
 	wchar_t* Path;
 	
 	X2FILE FilePtr;		// User for .pck files
-	x2catalog* Catalog;	// User for .cat/.dat pair
+	x2catbuffer* Catalog;	// User for .cat/.dat pair
 };
 
-static x2catentry* GetCatEntryByIndex(x2catalog* catalog, int index)
+static x2catentry* GetCatEntryByIndex(x2catbuffer* catalog, int index)
 {
 	int cnt = 0;
-	x2catbuffer* buff = catalog->buffer();
-	x2catbuffer::iterator it = buff->begin();
-	while ((cnt < index) && (it != buff->end()))
+	x2catbuffer::iterator it = catalog->begin();
+	while ((cnt < index) && (it != catalog->end()))
 	{
 		cnt++;
 		it++;
@@ -74,8 +73,8 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 	if (_wcsicmp(fileExt, L".cat") == 0)
 	{
-		x2catalog* hCat = X2FD_OpenCatalog(tmp);
-		if (hCat != 0)
+		x2catbuffer* hCat = new x2catbuffer();
+		if (hCat->open(tmp))
 		{
 			XStorage* xst = new XStorage();
 			xst->Path = _wcsdup(path);
@@ -90,6 +89,8 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 			return TRUE;
 		}
+		else
+			delete hCat;
 	}
 	else if (_wcsicmp(fileExt, L".pck") == 0)
 	{
@@ -134,7 +135,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 		
 		free(xst->Path);
 		if (xst->IsCatalog)
-			X2FD_CloseCatalog(xst->Catalog);
+			delete xst->Catalog;
 		else
 			X2FD_CloseFile(xst->FilePtr);
 		
@@ -150,7 +151,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	XStorage* xst = (XStorage*) storage;
 	if (xst->IsCatalog)
 	{
-		if (item_index >= (int) xst->Catalog->buffer()->size())
+		if (item_index >= (int) xst->Catalog->size())
 			return GET_ITEM_NOMOREITEMS;
 
 		x2catentry* entry = GetCatEntryByIndex(xst->Catalog, item_index);
@@ -213,7 +214,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	XStorage* xst = (XStorage*) storage;
 	if (xst->IsCatalog)
 	{
-		if (params.item >= (int) xst->Catalog->buffer()->size())
+		if (params.item >= (int) xst->Catalog->size())
 			return GET_ITEM_NOMOREITEMS;
 
 		x2catentry* entry = GetCatEntryByIndex(xst->Catalog, params.item);

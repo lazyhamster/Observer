@@ -233,46 +233,6 @@ int X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo);
  ************************************************/
 int X2FD_GetFileCompressionType(const char *pszFileName);
 
-/* catalogs */
-
-/************************************************
- * X2FD_OpenCatalog
- *
- * Opens catalog (with extension CAT) or create new one and return its handle.
- * Every handle opened with this function must be closed with call to
- * X2FD_CloseCatalog.
- *
- * You do not need to open catalog prior to opening file from it. It's done
- * automatically. However you must use this function when creating new catalog.
- *
- * Once the catalog is open, both its files (.cat and .dat) are exclusively
- * locked so no other processes can access them.
- *
- * in: pszName - catalog name, nCreateDisposition - whether catalog should be
- *     created if it does not exist (X2FD_OPEN_EXISTING - catalog must already
- *     exist, X2FD_CREATE_NEW - catalog will be created if it doesn't exist,
- *     otherwise it's opened)
- * ret: catalog handle or 0 on failure
- ************************************************/
-x2catalog* X2FD_OpenCatalog(const char *pszName);
-
-/************************************************
- * X2FD_CloseCatalog
- *
- * Will close handle associated with catalog, but not necessarily the catalog
- * itself if it's opened by another call to X2FD_OpenCatalog or X2FD_OpenFile
- *
- * If some file was modified inside the catalog, the CAT file (the index file
- * with extension .cat) will be overwritten upon closing to match to order of
- * files in the modified DAT file.
- *
- * There is no way to verify that it was successful.
- *
- * in: catalog to close
- * ret: 0 if handle is 0 - otherwise non zero
- ************************************************/
-int X2FD_CloseCatalog(x2catalog* hCat);
-
 /************************************************
  * X2FD_CopyFile
  *
@@ -283,6 +243,6 @@ int X2FD_CloseCatalog(x2catalog* hCat);
  ************************************************/
 int X2FD_CopyFile(X2FILE hSource, X2FILE hDestination);
 
-X2FILE X2FD_OpenFileInCatalog(const x2catalog* catalog, x2catentry* entry, int nFileType);
+X2FILE X2FD_OpenFileInCatalog(x2catbuffer* catalog, x2catentry* entry, int nFileType);
 
 #endif // !defined(X2_FILE_DRIVER_INCLUDED)
