@@ -45,17 +45,7 @@ class x2catbuffer : public ext::list<x2catentry *>
 			return it;
 		}
 		
-		io64::file::size dataSize()
-		{
-			io64::file::size size=0;
-			for(iterator it=begin(); it!=end(); ++it){
-				size+=it->size;
-			}
-			return size;
-		}
-		
-
-	public:		
+	public:
 		x2catbuffer() { m_nRefCount=1; m_pszFileName=0; m_pszDATName=0; }
 		~x2catbuffer() 
 		{ 
@@ -83,16 +73,6 @@ class x2catbuffer : public ext::list<x2catentry *>
 			}
 			else
 				return m_nRefCount;
-		}
-		
-		x2catentry * findFile(const char* pszName)
-		{
-			iterator it;
-			for(it=begin(); it!=end(); ++it){
-				if(_stricmp(it->pszFileName, pszName)==0)
-					break;
-			}
-			return (it==end() ? NULL : *it);
 		}
 		
 		bool open(const char *pszName);

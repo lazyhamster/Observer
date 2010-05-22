@@ -72,19 +72,6 @@ int DecompressFile(io64::file& file, int compressionMethod, unsigned char **out_
 	return nRes;
 }
 //---------------------------------------------------------------------------------
-int DecompressFile(const char *pszName, int compressionMethod, unsigned char **out_data, io64::file::size *out_size, time_t *mtime)
-{
-	io64::file file=io64::file::open(pszName, _O_RDONLY | _O_BINARY);
-	int nRes;
-	if(!file.valid())
-		nRes=fileerror(file.error());
-	else{
-		nRes=DecompressFile(file, compressionMethod, out_data, out_size, mtime);
-	}
-	file.close();
-	return nRes;
-}
-//---------------------------------------------------------------------------------
 int DecompressBuffer(unsigned char *in_data, const io64::file::size& in_size, int compressionMethod, unsigned char **out_data, io64::file::size *out_size, time_t *mtime)
 {
 	if(in_size <= 0)
