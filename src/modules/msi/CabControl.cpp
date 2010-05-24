@@ -148,7 +148,7 @@ static void msp_fake_close(struct mspack_file *file)
 	{
 		MsiCloseHandle(fh->hQuery);
 		MsiCloseHandle(fh->hStreamRec);
-		free(fh->pMemCache);
+		if (fh->pMemCache) free(fh->pMemCache);
 		free(fh->streamName);
 		free(fh);
 	}
@@ -183,7 +183,7 @@ static int msp_fake_read(struct mspack_file *file, void *buffer, int bytes)
 		if ((fh->nPos + nCopySize) > fh->nStreamSize)
 			nCopySize = fh->nStreamSize - fh->nPos;
 		
-		// Copy data from mem cache
+		// Copy data from memory cache
 		memcpy(buffer, fh->pMemCache + fh->nPos, nCopySize);
 		fh->nPos += nCopySize;
 		return nCopySize;
@@ -212,6 +212,11 @@ static int msp_fake_seek(struct mspack_file *file, off_t offset, int mode)
 				fh->nPos += offset;
 				return 0;
 			case MSPACK_SYS_SEEK_END:
+				if (offset <= 0)
+				{
+					fh->nPos = fh->nStreamSize + offset;
+					return 0;
+				}
 				break;
 		}
 	}
@@ -222,7 +227,10 @@ static int msp_fake_seek(struct mspack_file *file, off_t offset, int mode)
 static off_t msp_fake_tell(struct mspack_file *file)
 {
 	mspack_file_s* fh = (mspack_file_s*) file;
-	return fh->nPos;
+	if (fh)
+		return fh->nPos;
+
+	return -1;
 }
 
 static void msp_fake_msg(struct mspack_file *file, char *format, ...) {
