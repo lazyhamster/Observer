@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include <stdarg.h>
-#include <math.h>
 #include "strutils.h"
 //---------------------------------------------------------------------------------
 char * strcat2(int num, ...)

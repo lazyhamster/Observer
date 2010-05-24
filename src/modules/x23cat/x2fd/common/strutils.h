@@ -10,8 +10,6 @@
 #ifndef STRUTILS_INCLUDED
 #define STRUTILS_INCLUDED
 
-#include <locale.h>
-
 #define STRUTILS_MACRO
 
 //---------------------------------------------------------------------------------
