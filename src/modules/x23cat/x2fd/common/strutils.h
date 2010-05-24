@@ -18,21 +18,14 @@
 size_t memrep(void *buffer, int c, int n, size_t count, size_t limit=0);
 size_t strrep(char *string, char c, char n, size_t limit=0);
 bool isinteger(const char *string);
-bool isfloat(const char *string);
-bool isblank(const char *string);
-char ** strexplode(char separator, char *string, size_t *size, size_t limit=0);
-char ** lineexplode(char *string, size_t size, size_t *count);
 char * ExtractFileName(const char *pszPath, bool bNoExtension=false);
 #ifdef STRUTILS_WIN_WCHAR
 wchar_t * ExtractFileNameW(const wchar_t *pszPath, bool bNoExtension=false);
 #endif
 char * ExtractFilePath(const char *pszPath);
 char * strcat2(int num, ...);
-bool isblank(const char *str);
 char * ChangeFileExtension(const char *pszFileName, const char *pszExt);
 const char * GetFileExtension(const char *pszFileName);
-int hextoi(const char *str);
-bool ishexa(const char *str);
 
 #ifdef STRUTILS_WIN_WCHAR
 wchar_t * str2wchar(const char *sz);
@@ -125,45 +118,6 @@ inline bool isinteger(const char *string)
 		}
 	}
 	return bRes;
-}
-//---------------------------------------------------------------------------------
-inline bool isfloat(const char *string)
-{
-	lconv *lc=localeconv();
-	size_t size=strlen(string), i=0;
-	int dec=0;
-	bool bRes = (size > 0);
-	if(bRes){
-		if(string[i]=='+' || string[i]=='-') i++;
-		// no decimal point on begining or end
-		if((bRes=(string[i]!=*(lc->decimal_point) && string[size-1]!=*(lc->decimal_point)))==true){
-			for( ; i < size; i++){
-				// only one decimal point allowed
-				if(string[i]==*(lc->decimal_point) && ++dec > 1) return false;
-				// allowed chars are 0-9 and decimal point
-				if((bRes=((string[i] >= '0' && string[i] <= '9') || string[i]==*(lc->decimal_point)))==false) break;
-			}
-		}
-	}
-	if(bRes==false){
-		if((string[i]|0x20)=='e' || (string[i]|0x20)=='d'){
-			i++;
-			if(string[i]=='+' || string[i]=='-') i++;
-			for( ; i < size; i++){
-				if((bRes=(string[i] >= '0' && string[i] <= '9'))==false) break;
-			}
-		}
-	}
-	return bRes;
-}
-//---------------------------------------------------------------------------------
-inline bool isblank(const char *str)
-{
-	size_t i;
-	for(i=0; str[i]!=0; i++){
-		if(str[i]!=' ') return false;
-	}
-	return true;
 }
 //---------------------------------------------------------------------------------
 #ifdef STRUTILS_WIN_WCHAR
