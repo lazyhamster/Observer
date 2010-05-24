@@ -30,7 +30,6 @@ class x2catbuffer : public ext::list<x2catentry *>
 		io64::file m_hCATFile;
 		int m_nError;
 		
-		inline char * getDATName() const;
 		int error(int err) { return (m_nError=err); }
 		void fileerror(int ferr);
 		
@@ -56,14 +55,6 @@ class x2catbuffer : public ext::list<x2catentry *>
 		
 		filebuffer * loadFile(x2catentry *entry, int fileType);
 };
-//---------------------------------------------------------------------------------
-inline char * x2catbuffer::getDATName() const
-{
-	char *base=ExtractFileName(fileName(), true);
-	char *datname=strcat2(2, base, ".dat");
-	delete[] base;
-	return datname;
-}
 //---------------------------------------------------------------------------------
 
 #endif // !defined(CAT_INCLUDED)

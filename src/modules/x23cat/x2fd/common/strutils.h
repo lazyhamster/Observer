@@ -18,11 +18,6 @@
 size_t memrep(void *buffer, int c, int n, size_t count, size_t limit=0);
 size_t strrep(char *string, char c, char n, size_t limit=0);
 bool isinteger(const char *string);
-char * ExtractFileName(const char *pszPath, bool bNoExtension=false);
-#ifdef STRUTILS_WIN_WCHAR
-wchar_t * ExtractFileNameW(const wchar_t *pszPath, bool bNoExtension=false);
-#endif
-char * ExtractFilePath(const char *pszPath);
 char * strcat2(int num, ...);
 char * ChangeFileExtension(const char *pszFileName, const char *pszExt);
 const char * GetFileExtension(const char *pszFileName);

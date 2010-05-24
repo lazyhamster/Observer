@@ -96,28 +96,12 @@ bool x2catbuffer::open(const char *pszName)
 		error(X2FD_E_FILE_BADDATA);
 	else{
 		// we must open the corresponding DAT file as well
-		
 		// do not use stored dat name because it is always 01.dat even for 02.cat and 03.cat
-		char *path=ExtractFilePath(pszName);
-		/*char *name=strcat2(3, path, "\\", fileNameDAT());
-		
-		m_hDATFile=fopen(name, "rb");
-		delete[] name;
-		if(m_hDATFile==NULL){ */
-			char *datname=getDATName();
-			char *name=0;
-			if(path) {
-				// don't remove the parenthesis in this if block - strcat2 is a macro!
-				name=strcat2(3, path, "\\", datname);
-			}
-			else{
-				strcreate(name, datname); 
-			}
-			delete[] datname;
-			m_hDATFile=io64::file::open(name, _O_RDWR | _O_BINARY, 0, _SH_DENYRW);
-			delete[] name;
-		//}
+
+		char *path = ChangeFileExtension(pszName, "dat");
+		m_hDATFile=io64::file::open(path, _O_RDWR | _O_BINARY, 0, _SH_DENYRW);
 		delete[] path;
+
 		bRes=m_hDATFile.valid();
 		if(!bRes){
 			if(m_hDATFile.error()==ENOENT)
