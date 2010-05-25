@@ -106,8 +106,6 @@ struct filebuffer
 		io64::file::size write(byte *pData, const io64::file::size& size, io64::file::position offset);
 		bool allocate(size_t newsize);
 		
-		bool convert(int nNewFileType);
-	
 		bool openFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType);
 		
 		static int fileTypeToBufferType(int fileType)
@@ -217,8 +215,6 @@ struct xfile
 		
 		bool dirty() const { return m_buffer->dirty(); }
 		
-		byte* data() const { return m_buffer->data(); }
-		
 		filebuffer * buffer() const { return m_buffer; }
 		void buffer(filebuffer *b) 
 		{ 
@@ -237,25 +233,6 @@ struct xfile
 				m_buffer->lock_r();
 				m_buffer->addref();
 			}
-		}
-		
-		bool convert(int nNewFileType)
-		{
-			bool bRes;
-				
-			if(mode() != X2FD_WRITE) {
-				error(X2FD_E_FILE_BADMODE);
-				return false;
-			}
-			
-			io64::file::position pos = tell();	
-			
-			if((bRes=m_buffer->convert(nNewFileType))==false)
-				error(m_buffer->error());
-			else
-				seek((io64::file::offset)pos, X2FD_SEEK_SET);
-			
-			return bRes;
 		}
 };
 //---------------------------------------------------------------------------------

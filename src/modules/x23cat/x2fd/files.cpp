@@ -57,61 +57,6 @@ bool filebuffer::allocate(size_t newsize)
 	return true;
 }
 //---------------------------------------------------------------------------------
-bool filebuffer::convert(int nNewFileType)
-{
-	if(nNewFileType != X2FD_FILETYPE_PCK && nNewFileType != X2FD_FILETYPE_PLAIN && nNewFileType != X2FD_FILETYPE_DEFLATE){
-		error(X2FD_E_BAD_FLAGS);
-		return false;
-	}
-	if(nNewFileType==X2FD_FILETYPE_PCK && (type & filebuffer::ISPCK)) 
-		return true;
-	else if(nNewFileType==X2FD_FILETYPE_PLAIN && (type & filebuffer::ISPLAIN)) 
-		return true;
-	else if(nNewFileType==X2FD_FILETYPE_DEFLATE && (type & filebuffer::ISDEFLATE)) 
-		return true;
-	
-	int mask = 0;
-	if((type & ISPCK) > 0) mask = ISPCK;
-	else if((type & ISDEFLATE) > 0) mask = ISDEFLATE;
-	else if((type & ISPLAIN) > 0) mask = ISPLAIN;
-	
-	if((type & ISFILE) > 0){
-		// no plain -> pck to deflate or vice versa - just change the type
-		if(nNewFileType != X2FD_FILETYPE_PLAIN && (type & ISPLAIN) == 0) {
-			type &= ~mask;
-		}
-		// plain -> compressed
-		else if((type & ISPLAIN) > 0){
-			io64::file::size size=file.getSize();
-			unsigned char *buff=new unsigned char[(size_t)size];
-			if(buff==NULL){
-				error(X2FD_E_MALLOC);
-				return false;
-			}
-			file.read(buff, size);
-			data(buff, (size_t)size, (size_t)size);
-			type &= ~mask;
-		}
-		// compressed -> plain
-		else {
-			file.seek(0, SEEK_SET);
-			file.write(data(), size());
-			delete[] m_data;
-			m_data=NULL;
-			m_allocated=0;
-			type &= mask;
-		}
-	}
-	// cat
-	else {
-		type &= ~mask;
-	}
-	type |= fileTypeToBufferType(nNewFileType);
-	mtime(time(0));
-	dirty(true);
-	return true;
-}
-//---------------------------------------------------------------------------------
 io64::file::size filebuffer::filesize()
 {
 	io64::file::size s;
