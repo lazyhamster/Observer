@@ -9,66 +9,19 @@
 
 #define getfile(handle) (xfile*) handle
 
-typedef ext::list<filebuffer*> bufferlist;
-
-bufferlist g_bufflist;
-
-//---------------------------------------------------------------------------------
-bool checkBuffMode(filebuffer *b, int mode)
-{
-	if(mode!=X2FD_READ && mode!=X2FD_WRITE) return false;
-	return !((mode==X2FD_WRITE) || (b->locked_w() > 0 && (mode==X2FD_READ)));
-}
-//---------------------------------------------------------------------------------
-filebuffer* findBuffer(const char *pszName)
-{
-	bufferlist::iterator it;
-
-	for(it=g_bufflist.begin(); it!=g_bufflist.end(); ++it)	{
-		if(_stricmp(it->pszName, pszName)==0)
-			break;
-	}
-	if(it!=g_bufflist.end()){
-		it->addref();
-		return *it;
-	}
-	else
-		return NULL;
-}
 //---------------------------------------------------------------------------------
 X2FILE OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
 {
-	filebuffer *buff;
-
 	clrerr();
 	if(nFileType == X2FD_FILETYPE_AUTO)
 		nFileType = GetFileCompressionType(pszName);
 
-	buff=findBuffer(pszName);
-	if(buff){
-		// check the filemode
-		if(checkBuffMode(buff, nAccess)==false){
-			error(X2FD_E_FILE_BADMODE);
-			buff->release();
-			return 0;
-		}
-	}
-	// plain files - we will always open new filebuffer
-	if(nFileType==X2FD_FILETYPE_PLAIN){
-		if(buff) buff->release();
+	filebuffer *buff = new filebuffer();
+	bool bRes = buff->openFile(pszName, nAccess, nCreateDisposition, nFileType);
+	error(buff->error()); // always set the error
+	if(bRes==false){
+		buff->release();
 		buff=NULL;
-	}
-
-	if(buff==NULL){
-		buff=new filebuffer();
-		bool bRes=buff->openFile(pszName, nAccess, nCreateDisposition, nFileType);
-		error(buff->error()); // always set the error
-		if(bRes==false){
-			buff->release();
-			buff=NULL;
-		}
-		else
-			g_bufflist.push_back(buff);
 	}
 
 	xfile *f;
@@ -113,32 +66,20 @@ X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, i
 X2FILE X2FD_OpenFileInCatalog(x2catbuffer* catalog, x2catentry* entry, int nFileType)
 {
 	clrerr();
-	if(nFileType != X2FD_FILETYPE_PCK && nFileType != X2FD_FILETYPE_DEFLATE && nFileType != X2FD_FILETYPE_PLAIN && nFileType != X2FD_FILETYPE_AUTO){
+	if(nFileType != X2FD_FILETYPE_PCK && nFileType != X2FD_FILETYPE_DEFLATE && nFileType != X2FD_FILETYPE_PLAIN && nFileType != X2FD_FILETYPE_AUTO)
+	{
 		error(X2FD_E_BAD_FLAGS);
 		return 0;
 	}
 
-	// look if buffer is already open
-	filebuffer *buff=findBuffer(entry->pszFileName);
-	if(buff!=NULL){
-		if(checkBuffMode(buff, X2FD_READ)==false){
-			buff->release();
-			buff=NULL;
-			error(X2FD_E_FILE_BADMODE);
-		}
+	if (catalog == NULL || entry == NULL)
+	{
+		error(X2FD_E_CAT_NOTOPEN);
+		return 0;
 	}
-	// we must open it
-	else{
-		if (catalog!=NULL)
-		{
-			buff=catalog->loadFile(entry, nFileType);
 
-			if(buff)
-				g_bufflist.push_back(buff);
-			else
-				error(catalog->error());
-		}
-	}
+	filebuffer *buff = catalog->loadFile(entry, nFileType);
+	if (!buff) error(catalog->error());
 
 	xfile *f;
 	if(buff){
@@ -221,19 +162,16 @@ int X2FD_CloseFile(X2FILE hFile)
 	bool bRes = false;
 
 	clrerr();
-	if(f)	{
-		// remove and save filebuffer if it will be deleted
-		if(f->buffer()->refcount() == 1){
-			g_bufflist.erase(g_bufflist.find(f->buffer()));
+	if(f)
+	{
+		if(f->dirty())
+			bRes = f->save();
+		else
+			bRes = true;
 
-			if(f->dirty())
-				bRes = f->save();
-			else
-				bRes = true;
+		if(bRes == false)
+			error(f->error());
 
-			if(bRes == false)
-				error(f->error());
-		}
 		delete f;
 	}
 	return bRes;
