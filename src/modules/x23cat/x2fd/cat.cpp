@@ -4,7 +4,6 @@
 #include "catpck.h"
 #include "common/strutils.h"
 #include "common/gzip.h"
-#include "common/string_builder.h"
 //---------------------------------------------------------------------------------
 void x2catbuffer::fileerror(int ferr)
 {  
