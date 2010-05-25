@@ -163,7 +163,7 @@ filebuffer * x2catbuffer::loadFile(x2catentry *entry, int fileType)
 		buff->data(outdata, (size_t)outsize, (size_t)outsize);
 		buff->mtime(mtime);
 		buff->binarysize((size_t)entry->size);			
-		buff->pszName=strcat2(3, fileName(), "::", entry->pszFileName);
+		strcreate(buff->pszName, entry->pszFileName);
 	}
 
 	return buff;

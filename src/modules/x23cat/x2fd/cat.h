@@ -46,9 +46,6 @@ class x2catbuffer : public ext::list<x2catentry *>
 			}
 		}
 		
-		const char * fileName() const { return m_pszFileName; }
-		const char * fileNameDAT() const { return m_pszDATName; }
-		
 		int error() const { return m_nError; }
 		
 		bool open(const char *pszName);

@@ -147,14 +147,7 @@ struct xfile
 		void offset(const io64::file::position& off) { m_offset=off; }
 		
 	public:
-		/* 
-			it's pretty unsafe to store the dataptr as the underlying 
-			data pointer (in filebuff) my be reallocated (but it shouldn't happen due to r/w locks)
-			
-			I should rewrite this to use offset instead...
-		*/
-		//byte *dataptr; 
-		
+
 		xfile() { m_buffer=0; m_mode=0; m_offset=0; m_nErrCode=0; }
 		~xfile() 
 		{ 
