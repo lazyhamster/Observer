@@ -1,10 +1,8 @@
 #include "StdAfx.h"
 #include <io.h>
 #include "files.h"
-#include "x2fd.h"
 #include "catpck.h"
 #include "local_error.h"
-//#include "../common/filetime.h"
 //---------------------------------------------------------------------------------
 io64::file::size filebuffer::write(byte *pData, const io64::file::size& size, io64::file::position offset)
 {
@@ -23,7 +21,7 @@ io64::file::size filebuffer::write(byte *pData, const io64::file::size& size, io
 //---------------------------------------------------------------------------------
 io64::file::size filebuffer::writeBuffer(byte *pData, const io64::file::size& size, io64::file::position offset)
 {
-	// resize the buffer if neccessary
+	// resize the buffer if necessary
 	if((allocated() - offset) < size){
 		io64::file::size newsize = this->size() + size;
 		io64::file::size s = (newsize / GROWBY) + (newsize % GROWBY ? 1 : 0 + 1);
@@ -80,7 +78,7 @@ io64::file::size filebuffer::read(void *buffer, const io64::file::size& size, io
 			return 0;
 		
 		readed=size;
-		if(size > (this->allocated() - offset)) // shring the size so we won't read past eof
+		if(size > (this->allocated() - offset)) // shrink the size so we won't read past eof
 			readed=this->allocated() - offset;
 		memcpy(buffer, data() + offset, (size_t)readed);
 	}
