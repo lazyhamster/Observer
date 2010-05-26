@@ -50,6 +50,7 @@ private:
 	int dumpRegistryKeys(wstringstream &sstr);
 	int dumpFeatures(wstringstream &sstr);
 	int dumpShortcuts(wstringstream &sstr);
+	int dumpProperties(wstringstream &sstr);
 
 	wstring getStoragePath();
 	int cacheInternalStream(const wchar_t* streamName);

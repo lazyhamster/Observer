@@ -593,6 +593,11 @@ int CMsiViewer::generateInfoText()
 	sstr << L"[Shortcuts]" << endl;
 	OK ( dumpShortcuts(sstr) );
 
+	// Properties
+	sstr << endl;
+	sstr << L"[Properties]" << endl;
+	OK ( dumpProperties(sstr) );
+
 	wstring content = sstr.str();
 	
 	// Add fake file with general info to root folder
@@ -738,6 +743,34 @@ int CMsiViewer::dumpShortcuts(wstringstream &sstr)
 		if (wcslen(sEntry.Arguments) > 0)
 			sstr << L" " << sEntry.Arguments;
 		sstr << L"\n";
+	}
+
+	return ERROR_SUCCESS;
+}
+
+int CMsiViewer::dumpProperties(wstringstream &sstr)
+{
+	UINT res;
+	PMSIHANDLE hQueryProps;
+
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Property", &hQueryProps) );
+	OK( MsiViewExecute(hQueryProps, 0) );
+
+	wchar_t wszPropertyName[256];
+	wchar_t wszPropertyData[4096];
+
+	// Retrieve all feature entries
+	PMSIHANDLE hPropRec;
+	DWORD nCellSize;
+	while ((res = MsiViewFetch(hQueryProps, &hPropRec)) != ERROR_NO_MORE_ITEMS)
+	{
+		OK(res);
+
+		READ_STR(hPropRec, 1, wszPropertyName);
+		READ_STR(hPropRec, 2, wszPropertyData);
+
+		if (wszPropertyName[0])
+			sstr << wszPropertyName << L" = " << wszPropertyData << endl;
 	}
 
 	return ERROR_SUCCESS;
