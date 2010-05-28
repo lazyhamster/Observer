@@ -51,6 +51,10 @@ static wchar_t* GetInternalFileExt(X2FILE xf, wchar_t* originalPath)
 		else
 			return L".txt";
 	}
+	else if (wcscmp(oldExt, L".pbd") == 0)
+		return L".bod";
+	else if (wcscmp(oldExt, L".pbb") == 0)
+		return L".bob";
 	
 	return oldExt;
 }
@@ -92,7 +96,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		else
 			delete hCat;
 	}
-	else if (_wcsicmp(fileExt, L".pck") == 0)
+	else if ((_wcsicmp(fileExt, L".pck") == 0) || (_wcsicmp(fileExt, L".pbd") == 0) || (_wcsicmp(fileExt, L".pbb") == 0))
 	{
 		X2FILE hFile = X2FD_OpenFile(tmp, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_AUTO);
 		if (hFile != 0)
