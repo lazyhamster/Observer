@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="mime"
-	ProjectGUID="{FBD3F0D6-F516-436C-990A-9125D49D71C5}"
-	RootNamespace="mime"
+	Name="pst"
+	ProjectGUID="{8080F13B-9628-4106-8A08-6DCEE05B3EC2}"
+	RootNamespace="pst"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -68,7 +68,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
@@ -124,7 +124,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -146,7 +146,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
@@ -203,7 +203,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -224,7 +224,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -284,7 +284,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -305,7 +305,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -364,7 +364,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -385,7 +385,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -445,7 +445,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -466,7 +466,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -523,7 +523,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -545,7 +545,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
@@ -601,7 +601,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -623,7 +623,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
@@ -680,7 +680,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -701,7 +701,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -761,7 +761,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MIME_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;PST_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -782,7 +782,7 @@
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="mime.def"
+				ModuleDefinitionFile="pst.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -916,6 +916,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\pst.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\pst.def"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -998,14 +1006,6 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\mime.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\mime.def"
-				>
 			</File>
 		</Filter>
 		<Filter
