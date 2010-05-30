@@ -13,8 +13,6 @@
 X2FILE OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
 {
 	clrerr();
-	if(nFileType == X2FD_FILETYPE_AUTO)
-		nFileType = GetFileCompressionType(pszName);
 
 	filebuffer *buff = new filebuffer();
 	bool bRes = buff->openFile(pszName, nAccess, nCreateDisposition, nFileType);
