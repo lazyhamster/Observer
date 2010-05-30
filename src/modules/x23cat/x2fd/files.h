@@ -191,7 +191,7 @@ struct xfile
 		}
 		
 		bool eof() const;
-		io64::file::position seek(const io64::file::offset& offset, int origin);
+		io64::file::position seek(const io64::file::position& offset, int origin);
 		io64::file::position tell() const;
 		io64::file::size write(const void *data, const io64::file::size& count);
 		bool seteof();

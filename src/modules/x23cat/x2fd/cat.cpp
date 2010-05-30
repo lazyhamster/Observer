@@ -128,7 +128,7 @@ filebuffer * x2catbuffer::loadFile(x2catentry *entry, int fileType)
 	}
 	else{
 		byte *data=new byte[(size_t)entry->size];
-		m_hDATFile.seek((io64::file::offset)entry->offset, SEEK_SET);
+		m_hDATFile.seek(entry->offset, SEEK_SET);
 		if(m_hDATFile.read(data, entry->size)!=entry->size){
 			error(X2FD_E_CAT_INVALIDSIZE);
 			return NULL;

@@ -218,7 +218,7 @@ bool xfile::eof()  const
 		return offset() == size();
 }
 //---------------------------------------------------------------------------------
-io64::file::position xfile::seek(const io64::file::offset& offset, int origin)
+io64::file::position xfile::seek(const io64::file::position& offset, int origin)
 {
 	io64::file::position newoff=-1;
 	
@@ -243,16 +243,16 @@ io64::file::position xfile::seek(const io64::file::offset& offset, int origin)
 			error(X2FD_E_SEEK);
 	}
 	else{
-		io64::file::offset p;
+		io64::file::position p;
 		switch(origin){
 			case X2FD_SEEK_END:
-				p=(io64::file::offset)size();
+				p=(io64::file::position)size();
 				break;
 			case X2FD_SEEK_SET:
 				p=0;
 				break;
 			case X2FD_SEEK_CUR:
-				p = (io64::file::offset)(io64::file::position)this->offset();
+				p = (io64::file::position)this->offset();
 				break;
 			default:
 				error(X2FD_E_BAD_SEEK_SPEC);

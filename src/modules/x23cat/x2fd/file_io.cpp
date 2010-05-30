@@ -177,7 +177,7 @@ io64::file::size io64::file::read(void *buffer, const size& size)
 	return readed;
 }
 
-io64::file::position io64::file::seek(const offset& offset, int origin)
+io64::file::position io64::file::seek(const position& offset, int origin)
 {
 	//                         SEEK_SET    SEEK_CUR      SEEK_END
 	static DWORD win_way[] = { FILE_BEGIN, FILE_CURRENT, FILE_END };
@@ -208,7 +208,7 @@ io64::file::position io64::file::tell()
 bool io64::file::setSize(const size& size)
 {
 	error(0);
-	if(seek((offset)size, SEEK_SET)==size){
+	if(seek((position)size, SEEK_SET)==size){
 		bool res=SetEndOfFile(handle())!=0;
 		werror();
 		return res;
@@ -246,7 +246,7 @@ bool io64::file::eof()
 	if(current==seek(0, SEEK_END))
 		return true;
 	else{
-		seek((offset)current, SEEK_SET);
+		seek(current, SEEK_SET);
 		return false;
 	}
 }

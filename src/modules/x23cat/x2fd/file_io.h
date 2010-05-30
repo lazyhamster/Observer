@@ -49,23 +49,6 @@ class file
 
 		typedef size position;
 
-		class offset
-		{
-			private:
-				__int64 value;
-			public:
-				offset() : value(0) {}
-				offset(int i) : value(i) {}
-				offset(__int64 i) : value(i) {}
-				offset(void *i) : value((intptr_t)i) {}
-
-				explicit offset(const size& s) : value(s) { }
-
-				operator __int64() const { return value; }
-
-				offset& operator+=(const offset& o) { value+=o.value; return *this; }
-		};
-
 		struct stat
 		{
 			time_t ctime, atime, mtime;
@@ -94,7 +77,7 @@ class file
 		int error() const { return m_error; }
 
 		position tell();
-		position seek(const offset& offset, int origin);
+		position seek(const position& offset, int origin);
 
 		bool setSize(const size& size);
 		size getSize();
