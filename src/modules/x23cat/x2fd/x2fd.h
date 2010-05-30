@@ -173,16 +173,6 @@ X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, i
 int X2FD_CloseFile(X2FILE hFile);
 
 /************************************************
- * X2FD_EOF
- *
- * Check if file pointer is at the file end (beyond last readable position)
- *
- * in: handle of file
- * ret: non zero if EOF is true, 0 otherwise
- ************************************************/
-int X2FD_EOF(X2FILE hFile);
-
-/************************************************
  * X2FD_ReadFile
  *
  * Works like C runtime function fread()

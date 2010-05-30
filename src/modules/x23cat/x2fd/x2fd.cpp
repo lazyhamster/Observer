@@ -128,18 +128,6 @@ X2FDLONG X2FD_ReadFile(X2FILE hFile, void *buffer, X2FDULONG size)
 	return r;
 }
 //---------------------------------------------------------------------------------
-int X2FD_EOF(X2FILE hFile)
-{
-	xfile *f=getfile(hFile);
-	clrerr();
-	if(f)
-		return f->eof();
-	else{
-		error(X2FD_E_HANDLE);
-		return 0;
-	}
-}
-//---------------------------------------------------------------------------------
 X2FDULONG X2FD_SeekFile(X2FILE hFile, int offset, int origin)
 {
 	xfile *f=getfile(hFile);
