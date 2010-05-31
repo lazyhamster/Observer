@@ -41,7 +41,7 @@ static wchar_t* GetInternalFileExt(X2FILE xf, wchar_t* originalPath)
 	wchar_t* oldExt = wcsrchr(originalPath, '.');
 	if (wcscmp(oldExt, L".pck") == 0)
 	{
-		char buf[50] = {0};
+		char buf[20] = {0};
 		
 		X2FD_SeekFile(xf, 0, X2FD_SEEK_SET);
 		X2FDLONG ret = X2FD_ReadFile(xf, buf, sizeof(buf));

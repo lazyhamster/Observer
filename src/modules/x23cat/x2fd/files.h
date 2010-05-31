@@ -80,11 +80,9 @@ struct filebuffer
 		time_t mtime() const { return m_mtime; }
 		void mtime(time_t modtime) { m_mtime=modtime; }
 		
-		int locked_w() const { return m_lockw; }
 		int lock_w() { return ++m_lockw; }
 		int unlock_w() { return (m_lockw ? --m_lockw : 0); }
 		
-		int locked_r() const { return m_lockr; }
 		int lock_r() { return ++m_lockr; }
 		int unlock_r() { return (m_lockr ? --m_lockr : 0); }
 		

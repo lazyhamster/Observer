@@ -10,31 +10,6 @@
 #define getfile(handle) (xfile*) handle
 
 //---------------------------------------------------------------------------------
-X2FILE OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
-{
-	clrerr();
-
-	filebuffer *buff = new filebuffer();
-	bool bRes = buff->openFile(pszName, nAccess, nCreateDisposition, nFileType);
-	error(buff->error()); // always set the error
-	if(bRes==false){
-		buff->release();
-		buff=NULL;
-	}
-
-	xfile *f;
-	if(buff){
-		f=new xfile();
-		f->buffer(buff);
-		f->mode(nAccess);
-		buff->release();
-	}
-	else
-		f=NULL;
-
-	return (f==NULL ? NULL : (X2FILE) f);
-}
-//---------------------------------------------------------------------------------
 X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
 {
 	clrerr();
@@ -56,9 +31,25 @@ X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, i
 		return 0;
 	}
 
-	X2FILE f = OpenFile(pszName, nAccess, nCreateDisposition, nFileType);
-	
-	return f;
+	filebuffer *buff = new filebuffer();
+	bool bRes = buff->openFile(pszName, nAccess, nCreateDisposition, nFileType);
+	error(buff->error()); // always set the error
+	if(bRes==false){
+		buff->release();
+		buff=NULL;
+	}
+
+	xfile *f;
+	if(buff){
+		f=new xfile();
+		f->buffer(buff);
+		f->mode(nAccess);
+		buff->release();
+	}
+	else
+		f=NULL;
+
+	return (f==NULL ? NULL : (X2FILE) f);
 }
 //---------------------------------------------------------------------------------
 X2FILE X2FD_OpenFileInCatalog(x2catbuffer* catalog, x2catentry* entry, int nFileType)
