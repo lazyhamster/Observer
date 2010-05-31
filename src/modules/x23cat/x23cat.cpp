@@ -15,6 +15,13 @@ struct XStorage
 	
 	X2FILE FilePtr;		// User for .pck files
 	x2catbuffer* Catalog;	// User for .cat/.dat pair
+
+	XStorage()
+	{
+		FilePtr = 0;
+		Catalog = NULL;
+		Path = NULL;
+	}
 };
 
 static x2catentry* GetCatEntryByIndex(x2catbuffer* catalog, int index)
@@ -84,7 +91,6 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 			xst->Path = _wcsdup(path);
 			xst->IsCatalog = true;
 			xst->Catalog = hCat;
-			xst->FilePtr = 0;
 
 			*storage = (INT_PTR*) xst;
 			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"X-CAT");
