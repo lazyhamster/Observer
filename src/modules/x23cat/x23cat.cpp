@@ -116,7 +116,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"X-PCK");
 			//wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
 			
-			int nCompression = X2FD_GetFileCompressionType(tmp);
+			int nCompression = X2FD_GetFileCompressionType(hFile);
 			switch (nCompression)
 			{
 				case X2FD_FILETYPE_PCK:

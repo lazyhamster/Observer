@@ -171,9 +171,21 @@ int X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
 	return 1;
 }
 //---------------------------------------------------------------------------------
-int X2FD_GetFileCompressionType(const char *pszFileName)
+int X2FD_GetFileCompressionType(X2FILE hFile)
 {
-	return GetFileCompressionType(pszFileName);
+	xfile* f = getfile(hFile);
+	if(f == NULL){
+		error(X2FD_E_HANDLE);
+		return 0;
+	}
+
+	int nCompression = X2FD_FILETYPE_PLAIN;
+	if (f->buffer()->type & filebuffer::ISDEFLATE)
+		nCompression = X2FD_FILETYPE_DEFLATE;
+	else if (f->buffer()->type & filebuffer::ISPCK)
+		nCompression = X2FD_FILETYPE_PCK;
+
+	return nCompression;
 }
 //---------------------------------------------------------------------------------
 /*

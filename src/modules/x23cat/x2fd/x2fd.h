@@ -218,10 +218,10 @@ int X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo);
  * Returns the compression format used in file.
  * Test is based on reading GZIP/PCK header from file.
  *
- * in: name of file
+ * in: handle to file
  * ret: one of X2FD_FILETYPE_ constants (on error PLAIN is returned)
  ************************************************/
-int X2FD_GetFileCompressionType(const char *pszFileName);
+int X2FD_GetFileCompressionType(X2FILE hFile);
 
 /************************************************
  * X2FD_CopyFile
