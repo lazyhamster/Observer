@@ -25,14 +25,14 @@ void x2catbuffer::fileerror(int ferr)
 	error(e);
 }
 //---------------------------------------------------------------------------------
-bool x2catbuffer::open(const char *pszName)
+bool x2catbuffer::open(const wchar_t *pszName)
 {
 	io64::file::size size, filesize;
 	bool bRes=true;
 	
 	error(0);
 
-	strcreate(m_pszFileName, pszName);
+	wstrcreate(m_pszFileName, pszName);
 	m_hCATFile=io64::file::open(pszName, _O_RDWR | _O_BINARY, 0, _SH_DENYRW);
 	if(!m_hCATFile.valid()) {
 		fileerror(m_hCATFile.error());
@@ -66,7 +66,10 @@ bool x2catbuffer::open(const char *pszName)
 		pos=(char*)memchr(pos, 0, end - pos);
 		if(pos){
 			if(first){
-				strcreate(m_pszDATName, old);
+				size_t nNameLen = strlen(old);
+				m_pszDATName = new wchar_t[nNameLen + 1];
+				MultiByteToWideChar(CP_ACP, 0, old, nNameLen, m_pszDATName, nNameLen + 1);
+				m_pszDATName[nNameLen] = 0;
 				first=false;
 			}
 			else{
@@ -77,14 +80,17 @@ bool x2catbuffer::open(const char *pszName)
 				}
 				mid[0]=0;
 				info=new x2catentry();
-				strcreate(info->pszFileName, old);
-				strrep(info->pszFileName, '/', '\\');
+				MultiByteToWideChar(CP_ACP, 0, old, strlen(old), info->pszFileName, MAX_PATH);
+				for (int i=0; i < (int) wcslen(info->pszFileName); i++) // Normalize path
+				{
+					if (info->pszFileName[i] == '/') info->pszFileName[i] = '\\';
+				}
 				info->offset=offset;
 				info->size=atoi(++mid);
 				push_back(info);
 				offset+=info->size;
 			}
-			for( ; *pos==0 && (pos < end); pos++); // skip zeroes
+			for( ; *pos==0 && (pos < end); pos++); // skip zeros
 		}
 	}
 	while(pos && (pos < end));
@@ -97,7 +103,7 @@ bool x2catbuffer::open(const char *pszName)
 		// we must open the corresponding DAT file as well
 		// do not use stored dat name because it is always 01.dat even for 02.cat and 03.cat
 
-		char *path = ChangeFileExtension(pszName, "dat");
+		wchar_t *path = ChangeFileExtension(pszName, L"dat");
 		m_hDATFile=io64::file::open(path, _O_RDWR | _O_BINARY, 0, _SH_DENYRW);
 		delete[] path;
 
@@ -163,7 +169,7 @@ filebuffer * x2catbuffer::loadFile(x2catentry *entry, int fileType)
 		buff->data(outdata, (size_t)outsize, (size_t)outsize);
 		buff->mtime(mtime);
 		buff->binarysize((size_t)entry->size);			
-		strcreate(buff->pszName, entry->pszFileName);
+		wstrcreate(buff->pszName, entry->pszFileName);
 	}
 
 	return buff;

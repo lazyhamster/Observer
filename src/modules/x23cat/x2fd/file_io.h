@@ -94,7 +94,7 @@ class file
 		bool ctime(const time_t& time);
 		bool fstat(stat *stat);
 
-		static file open(const char *name, int mode, int createAttr=_S_IREAD | _S_IWRITE, int share=_SH_DENYNO);
+		static file open(const wchar_t *name, int mode, int createAttr=_S_IREAD | _S_IWRITE, int share=_SH_DENYNO);
 		bool close() { bool bRes=(CloseHandle(m_hFile)!=0); m_hFile=INVALID_HANDLE_VALUE; return bRes; }
 
 };

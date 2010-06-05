@@ -14,9 +14,8 @@
 
 //---------------------------------------------------------------------------------
 size_t memrep(void *buffer, int c, int n, size_t count, size_t limit=0);
-size_t strrep(char *string, char c, char n, size_t limit=0);
 bool isinteger(const char *string);
-char * ChangeFileExtension(const char *pszFileName, const char *pszExt);
+wchar_t * ChangeFileExtension(const wchar_t *pszFileName, const wchar_t *pszExt);
 const char * GetFileExtension(const char *pszFileName);
 
 #ifdef STRUTILS_WIN_WCHAR
@@ -87,11 +86,6 @@ inline size_t memrep(void *buffer, int c, int n, size_t count, size_t limit)
 	}
 	while(pos && (pos < end));
 	return rep;
-}
-//---------------------------------------------------------------------------------
-inline size_t strrep(char *string, char c, char n, size_t limit)
-{
-	return memrep(string, c, n, strlen(string), limit);
 }
 //---------------------------------------------------------------------------------
 inline bool isinteger(const char *string)

@@ -10,7 +10,7 @@
 #define getfile(handle) (xfile*) handle
 
 //---------------------------------------------------------------------------------
-X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
+X2FILE X2FD_OpenFile(const wchar_t *pszName, int nAccess, int nCreateDisposition, int nFileType)
 {
 	clrerr();
 	// check the flags so we can rely on them later
@@ -166,7 +166,7 @@ int X2FD_FileStatByHandle(X2FILE hFile, X2FILEINFO *pInfo)
 	pInfo->mtime = f->buffer()->mtime();
 	pInfo->size = (X2FDLONG)f->size();
 	pInfo->BinarySize = (X2FDLONG)f->binarysize();
-	strncpy(pInfo->szFileName, f->buffer()->pszName, sizeof(pInfo->szFileName));
+	wcscpy(pInfo->szFileName, f->buffer()->pszName);
 
 	return 1;
 }

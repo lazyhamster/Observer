@@ -117,7 +117,7 @@ bool io64::file::setTime(const time_t *ctime, const time_t *atime, const time_t 
 	return true;
 }
 
-io64::file io64::file::open(const char *name, int mode, int createAttr, int share)
+io64::file io64::file::open(const wchar_t *name, int mode, int createAttr, int share)
 {
 	DWORD winmode=0, winshare=0, wincreat=0, winattr=0;
 	
@@ -162,7 +162,7 @@ io64::file io64::file::open(const char *name, int mode, int createAttr, int shar
 	if(((createAttr & _S_IREAD) > 0) && ((createAttr & _S_IWRITE) == 0))
 		winattr|=FILE_ATTRIBUTE_READONLY;
 	
-	HANDLE h=CreateFileA(name, winmode, winshare, NULL, wincreat, winattr, 0);
+	HANDLE h=CreateFile(name, winmode, winshare, NULL, wincreat, winattr, 0);
 	file f(h);
 	f.werror();
 	return f;

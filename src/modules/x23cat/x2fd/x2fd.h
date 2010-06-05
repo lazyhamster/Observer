@@ -155,7 +155,7 @@ X2FDULONG X2FD_TranslateError(int nErrorCode, char *pszBuffer, X2FDLONG nBuffSiz
  *                 X2FD_FILETYPE_PCK)
  * ret: handle of opened file or 0 on failure
  ************************************************/
-X2FILE X2FD_OpenFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType);
+X2FILE X2FD_OpenFile(const wchar_t *pszName, int nAccess, int nCreateDisposition, int nFileType);
 
 /************************************************
  * X2FD_CloseFile

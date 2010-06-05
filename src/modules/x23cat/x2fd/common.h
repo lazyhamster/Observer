@@ -9,7 +9,7 @@ typedef unsigned char byte;
 // used by X2FD_FindFirst/Next
 struct X2FILEINFO
 {
-	char szFileName[260];
+	wchar_t szFileName[260];
 	time_t mtime;
 	X2FDLONG size;
 	X2FDLONG BinarySize;

@@ -79,13 +79,10 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	const wchar_t* fileExt = wcsrchr(path, '.');
 	if (!fileExt || (wcslen(fileExt) != 4)) return FALSE;
 
-	char tmp[MAX_PATH] = {0};
-	WideCharToMultiByte(CP_ACP, 0, path, wcslen(path), tmp, MAX_PATH, NULL, NULL);
-
 	if (_wcsicmp(fileExt, L".cat") == 0)
 	{
 		x2catbuffer* hCat = new x2catbuffer();
-		if (hCat->open(tmp))
+		if (hCat->open(path))
 		{
 			XStorage* xst = new XStorage();
 			xst->Path = _wcsdup(path);
@@ -104,7 +101,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	}
 	else if ((_wcsicmp(fileExt, L".pck") == 0) || (_wcsicmp(fileExt, L".pbd") == 0) || (_wcsicmp(fileExt, L".pbb") == 0))
 	{
-		X2FILE hFile = X2FD_OpenFile(tmp, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_AUTO);
+		X2FILE hFile = X2FD_OpenFile(path, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_AUTO);
 		if (hFile != 0)
 		{
 			XStorage* xst = new XStorage();
@@ -168,7 +165,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		if (entry == NULL) return GET_ITEM_ERROR;
 
 		memset(item_path, 0, path_size * sizeof(wchar_t));
-		MultiByteToWideChar(CP_ACP, 0, entry->pszFileName, strlen(entry->pszFileName), item_path, path_size);
+		wcscpy_s(item_path, path_size, entry->pszFileName);
 
 		const wchar_t* fileName = GetFileName(item_path);
 
@@ -233,9 +230,9 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		X2FILE hInput = X2FD_OpenFileInCatalog(xst->Catalog, entry, X2FD_FILETYPE_PLAIN);
 		if (hInput == 0) return SER_ERROR_READ;
 
-		char szDest[MAX_PATH] = {0};
-		WideCharToMultiByte(CP_ACP, 0, params.dest_path, wcslen(params.dest_path), szDest, MAX_PATH, NULL, NULL);
-		strcat_s(szDest, MAX_PATH, GetFileName(entry->pszFileName));
+		wchar_t szDest[MAX_PATH] = {0};
+		wcscpy_s(szDest, MAX_PATH, params.dest_path);
+		wcscat_s(szDest, MAX_PATH, GetFileName(entry->pszFileName));
 		
 		X2FILE hOutput = X2FD_OpenFile(szDest, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0)
@@ -254,21 +251,24 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	}
 	else if (params.item == 0)
 	{
-		char tmp[MAX_PATH] = {0};
-		WideCharToMultiByte(CP_ACP, 0, params.dest_path, wcslen(params.dest_path), tmp, MAX_PATH, NULL, NULL);
+		wchar_t wszOutputName[MAX_PATH] = {0};
+		wcscpy_s(wszOutputName, MAX_PATH, params.dest_path);
 
 		// Append name
 		X2FILEINFO finfo = {0};
 		X2FD_FileStatByHandle(xst->FilePtr, &finfo);
-		strcat_s(tmp, MAX_PATH, GetFileName(finfo.szFileName));
+		wcscat_s(wszOutputName, MAX_PATH, GetFileName(finfo.szFileName));
 		
 		// Change extension
-		char* curExt = strrchr(tmp, '.');
+		wchar_t* curExt = wcsrchr(wszOutputName, '.');
 		const wchar_t* intExt = GetInternalFileExt(xst->FilePtr, xst->Path);
-		if (intExt && curExt)
-			WideCharToMultiByte(CP_ACP, 0, intExt, wcslen(intExt), curExt, strlen(curExt) + 1, NULL, NULL);
+		if (curExt && intExt)
+		{
+			*curExt = 0;
+			wcscat_s(wszOutputName, MAX_PATH, intExt);
+		}
 		
-		X2FILE hOutput = X2FD_OpenFile(tmp, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
+		X2FILE hOutput = X2FD_OpenFile(wszOutputName, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0) return SER_ERROR_WRITE;
 
 		int res = X2FD_CopyFile(xst->FilePtr, hOutput);

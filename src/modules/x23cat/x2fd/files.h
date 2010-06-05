@@ -31,8 +31,8 @@ struct filebuffer
 		io64::file::size writeBuffer(byte *data, const io64::file::size& size, io64::file::position offset);
 		int error(int errcode) { return (m_nErrCode=errcode); }
 		
-		bool openFilePlain(const char *pszName, int nAccess, int nCreateDisposition);
-		bool openFileCompressed(const char *pszName, int nAccess, int nCreateDisposition, int compressionType);
+		bool openFilePlain(const wchar_t *pszName, int nAccess, int nCreateDisposition);
+		bool openFileCompressed(const wchar_t *pszName, int nAccess, int nCreateDisposition, int compressionType);
 		
 	public:
 		static const int ISFILE = 1;
@@ -41,7 +41,7 @@ struct filebuffer
 		static const int ISDEFLATE = 8;
 		
 		io64::file file;
-		char *pszName;
+		wchar_t *pszName;
 		int type;
 		
 		filebuffer() 
@@ -104,7 +104,7 @@ struct filebuffer
 		io64::file::size write(byte *pData, const io64::file::size& size, io64::file::position offset);
 		bool allocate(size_t newsize);
 		
-		bool openFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType);
+		bool openFile(const wchar_t *pszName, int nAccess, int nCreateDisposition, int nFileType);
 		
 		static int fileTypeToBufferType(int fileType)
 		{

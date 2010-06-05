@@ -27,7 +27,7 @@ void DecryptDAT(unsigned char *buffer, const io64::file::size& size)
 	}
 }
 //---------------------------------------------------------------------------------
-int GetFileCompressionType(const char *pszName)
+int GetFileCompressionType(const wchar_t *pszName)
 {
 	unsigned char data[3];
 	io64::file file=io64::file::open(pszName, _O_RDONLY | _O_BINARY);

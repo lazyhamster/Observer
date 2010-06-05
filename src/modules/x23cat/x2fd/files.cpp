@@ -102,7 +102,7 @@ bool filebuffer::save()
 	return bRes;
 }
 //---------------------------------------------------------------------------------
-bool filebuffer::openFile(const char *pszName, int nAccess, int nCreateDisposition, int nFileType)
+bool filebuffer::openFile(const wchar_t *pszName, int nAccess, int nCreateDisposition, int nFileType)
 {	
 	bool bRes;
 	
@@ -119,7 +119,7 @@ bool filebuffer::openFile(const char *pszName, int nAccess, int nCreateDispositi
 	return bRes;
 }
 //---------------------------------------------------------------------------------
-bool filebuffer::openFilePlain(const char *pszName, int nAccess, int nCreateDisposition)
+bool filebuffer::openFilePlain(const wchar_t *pszName, int nAccess, int nCreateDisposition)
 {
 	int omode=_O_BINARY, share = _SH_DENYNO;
 	bool bRes=true;
@@ -140,7 +140,7 @@ bool filebuffer::openFilePlain(const char *pszName, int nAccess, int nCreateDisp
 		bRes=false;
 	} 
 	else{
-		strcreate(this->pszName, pszName);
+		wstrcreate(this->pszName, pszName);
 		type|=filebuffer::ISFILE;
 		type|=filebuffer::ISPLAIN;
 		io64::file::stat fs;
@@ -152,7 +152,7 @@ bool filebuffer::openFilePlain(const char *pszName, int nAccess, int nCreateDisp
 	return bRes;
 }
 //---------------------------------------------------------------------------------
-bool filebuffer::openFileCompressed(const char *pszName, int nAccess, int nCreateDisposition, int compressionType)
+bool filebuffer::openFileCompressed(const wchar_t *pszName, int nAccess, int nCreateDisposition, int compressionType)
 {
 	bool bEmptyFile=false, bRes=true;
 	io64::file::size filesize;
@@ -197,7 +197,7 @@ bool filebuffer::openFileCompressed(const char *pszName, int nAccess, int nCreat
 			dirty(true);
 		}
 		if(bRes){
-			strcreate(this->pszName, pszName);
+			wstrcreate(this->pszName, pszName);
 			if(compressionType == X2FD_FILETYPE_PCK)
 				type|=filebuffer::ISPCK;
 			else if(compressionType == X2FD_FILETYPE_DEFLATE)

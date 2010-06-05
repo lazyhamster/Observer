@@ -11,21 +11,20 @@ struct filebuffer;
 //---------------------------------------------------------------------------------
 struct x2catentry
 {
-	char *pszFileName;
+	wchar_t pszFileName[MAX_PATH];
 	io64::file::position offset;
 	io64::file::size size;
 	
 	filebuffer *buffer;
 	
-	x2catentry() { pszFileName=0; offset=0; size=0; buffer=0; }
-	~x2catentry() { delete[] pszFileName; }
+	x2catentry() { memset(pszFileName, 0, sizeof(pszFileName)); offset=0; size=0; buffer=0; }
 };
 //---------------------------------------------------------------------------------
 class x2catbuffer : public ext::list<x2catentry *> 
 {
 	private:
-		char *m_pszFileName;
-		char *m_pszDATName;
+		wchar_t *m_pszFileName;
+		wchar_t *m_pszDATName;
 		io64::file m_hDATFile;
 		io64::file m_hCATFile;
 		int m_nError;
@@ -48,7 +47,7 @@ class x2catbuffer : public ext::list<x2catentry *>
 		
 		int error() const { return m_nError; }
 		
-		bool open(const char *pszName);
+		bool open(const wchar_t *pszName);
 		
 		filebuffer * loadFile(x2catentry *entry, int fileType);
 };
