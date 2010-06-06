@@ -25,23 +25,6 @@ char * wchar2str(const wchar_t *ws);
 //---------------------------------------------------------------------------------
 #ifdef STRUTILS_MACRO
 
-#define strcreate(buffer, src) { delete[] buffer; \
-buffer=new char[(src==NULL ? 0 : strlen(src)) + 1]; \
-buffer[0]=0; \
-if(src) strcpy(buffer, src); }
-
-#else
-
-inline void strcreate(char *&buffer, const char *src)
-{
-	buffer=new char[(src==NULL ? 0 : strlen(src)) + 1];
-	buffer[0]=0;
-	if(src) strcpy(buffer, src);
-}
-#endif
-//---------------------------------------------------------------------------------
-#ifdef STRUTILS_MACRO
-
 #define wstrcreate(buffer, src) delete[] buffer; \
 buffer=new wchar_t[(src==NULL ? 0 : wcslen(src)) + 1]; \
 buffer[0]=0; \

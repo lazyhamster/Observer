@@ -24,15 +24,6 @@ void UnixTimeToFileTime(time_t t, LPFILETIME pft)
 	pft->dwHighDateTime = ll >> 32;
 }
 
-const char* GetFileName(const char* path)
-{
-	const char* fileName = strrchr(path, '\\');
-	if (fileName)
-		return ++fileName;
-	else
-		return path;
-}
-
 const wchar_t* GetFileName(const wchar_t* path)
 {
 	const wchar_t* fileName = wcsrchr(path, '\\');
