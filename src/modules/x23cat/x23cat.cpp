@@ -230,14 +230,18 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		X2FILE hInput = X2FD_OpenFileInCatalog(xst->Catalog, entry, X2FD_FILETYPE_PLAIN);
 		if (hInput == 0) return SER_ERROR_READ;
 
-		wchar_t szDest[MAX_PATH] = {0};
-		wcscpy_s(szDest, MAX_PATH, params.dest_path);
-		wcscat_s(szDest, MAX_PATH, GetFileName(entry->pszFileName));
+		const wchar_t* fileNamePart = GetFileName(entry->pszFileName);
+		size_t nNameBufLen = wcslen(params.dest_path) + wcslen(fileNamePart) + 1;
+		wchar_t *szDest = (wchar_t*) malloc(nNameBufLen * sizeof(wchar_t));
+		
+		wcscpy_s(szDest, nNameBufLen, params.dest_path);
+		wcscat_s(szDest, nNameBufLen, fileNamePart);
 		
 		X2FILE hOutput = X2FD_OpenFile(szDest, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0)
 		{
 			X2FD_CloseFile(hInput);
+			free(szDest);
 			return SER_ERROR_WRITE;
 		}
 
@@ -245,6 +249,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		
 		X2FD_CloseFile(hInput);
 		X2FD_CloseFile(hOutput);
+		free(szDest);
 
 		pctx->nProcessedBytes += entry->size;
 		if (res > 0) return SER_SUCCESS;
