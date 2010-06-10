@@ -1059,7 +1059,6 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 
 	UINT res;
 	PMSIHANDLE hQueryStream;
-	//OK( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQueryStream) );
 	
 	res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQueryStream);
 	if (res == ERROR_INVALID_HANDLE)
@@ -1107,7 +1106,6 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 			break;
 		}
 	}
-	MsiCloseHandle(hQueryStream);
 
 	return nResult;
 }

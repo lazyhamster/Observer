@@ -105,7 +105,7 @@ static struct mspack_file *msp_fake_open(struct mspack_system *thisPtr,	char *fi
 
 	// Go through streams list and copy to temp folder
 	DWORD nCellSize;
-	wchar_t wszStreamName[256];
+	wchar_t wszStreamName[256] = {0};
 	while ((res = MsiViewFetch(hQueryStream, &hStreamRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		if (res != ERROR_SUCCESS) break;
@@ -130,12 +130,14 @@ static struct mspack_file *msp_fake_open(struct mspack_system *thisPtr,	char *fi
 			pResult = (mspack_file *) fh;
 			break;
 		}
+
+		MsiCloseHandle(hStreamRec);
 	}
 
 	if (!pResult)
 	{
-		MsiCloseHandle(hQueryStream);
 		MsiCloseHandle(hStreamRec);
+		MsiCloseHandle(hQueryStream);
 	}
 
 	return pResult;
@@ -146,8 +148,8 @@ static void msp_fake_close(struct mspack_file *file)
 	mspack_file_s* fh = (mspack_file_s*) file;
 	if (fh)
 	{
-		MsiCloseHandle(fh->hQuery);
 		MsiCloseHandle(fh->hStreamRec);
+		MsiCloseHandle(fh->hQuery);
 		if (fh->pMemCache) free(fh->pMemCache);
 		free(fh->streamName);
 		free(fh);
