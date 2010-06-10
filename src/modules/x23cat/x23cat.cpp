@@ -45,7 +45,7 @@ static wchar_t* GetInternalFileExt(X2FILE xf, wchar_t* originalPath)
 {
 	if (xf == 0) return L"";
 	
-	wchar_t* oldExt = wcsrchr(originalPath, '.');
+	wchar_t* oldExt = GetFileExt(originalPath);
 	if (wcscmp(oldExt, L".pck") == 0)
 	{
 		char buf[20] = {0};
@@ -76,7 +76,7 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
 {
 	// Check extension first
-	const wchar_t* fileExt = wcsrchr(path, '.');
+	const wchar_t* fileExt = GetFileExt(path);
 	if (!fileExt || (wcslen(fileExt) != 4)) return FALSE;
 
 	if (_wcsicmp(fileExt, L".cat") == 0)
@@ -265,7 +265,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		wcscat_s(wszOutputName, MAX_PATH, GetFileName(finfo.szFileName));
 		
 		// Change extension
-		wchar_t* curExt = wcsrchr(wszOutputName, '.');
+		wchar_t* curExt = GetFileExt(wszOutputName);
 		const wchar_t* intExt = GetInternalFileExt(xst->FilePtr, xst->Path);
 		if (curExt && intExt)
 		{

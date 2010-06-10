@@ -21,5 +21,6 @@ void UnixTimeToFileTime(time_t t, LPFILETIME pft);
 
 const wchar_t* GetFileName(const wchar_t* path);
 wchar_t* GetFileExt(wchar_t* path);
+const wchar_t* GetFileExt(const wchar_t* path);
 
 #endif // common_h__
