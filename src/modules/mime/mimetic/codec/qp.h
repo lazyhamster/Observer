@@ -15,12 +15,8 @@
  ***************************************************************************/
 #ifndef _MIMETIC_CODEC_QP_H_
 #define _MIMETIC_CODEC_QP_H_
-#include <iostream>
 #include <string>
-#include <sstream>
-#include <cassert>
 #include <mimetic/libconfig.h>
-#include <mimetic/utils.h>
 #include <mimetic/circular_buffer.h>
 #include <mimetic/codec/codec_base.h>
 #include <mimetic/codec/codec_chain.h>

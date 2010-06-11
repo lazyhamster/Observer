@@ -16,7 +16,6 @@
 #ifndef _MIMETIC_TREE_H_
 #define _MIMETIC_TREE_H_
 #include <list>
-#include <iostream>
 
 namespace mimetic
 {

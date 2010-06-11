@@ -15,7 +15,6 @@
  ***************************************************************************/
 #ifndef _MIMETIC_CODEC_CODEC_CHAIN_
 #define _MIMETIC_CODEC_CODEC_CHAIN_
-#include <iterator>
 #include <string>
 #include <mimetic/codec/codec_base.h>
 

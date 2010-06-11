@@ -16,10 +16,6 @@
 #ifndef _MIMETIC_STRINGUTILS_H_
 #define _MIMETIC_STRINGUTILS_H_
 #include <string>
-#include <cstring>
-#include <iostream>
-#include <algorithm>
-#include <cstring>
 
 namespace mimetic
 {

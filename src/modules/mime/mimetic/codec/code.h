@@ -17,12 +17,9 @@
 #define _MIMETIC_CODEC_CODE_H_
 #include <mimetic/codec/codec_base.h>
 #include <mimetic/codec/codec_chain.h>
-#include <mimetic/codec/other_codecs.h>
-#include <mimetic/utils.h>
 
 namespace mimetic
 {
-
 
 
 template<typename InIt, typename OutIt, typename Codec>

@@ -15,9 +15,7 @@
  ***************************************************************************/
 #ifndef _MIMETIC_UTILS_H_
 #define _MIMETIC_UTILS_H_
-#include <iostream>
 #include <string>
-#include <ctype.h>
 #include <mimetic/libconfig.h>
 #include <mimetic/strutils.h>
 

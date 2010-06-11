@@ -16,7 +16,6 @@
 #ifndef _MIMETIC_VERSION_H_
 #define _MIMETIC_VERSION_H_
 #include <string>
-#include <iostream>
 
 namespace mimetic
 {

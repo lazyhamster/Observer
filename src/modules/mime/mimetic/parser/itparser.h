@@ -3,7 +3,6 @@
 #include <iterator>
 #include <algorithm>
 #include <stack>
-#include <iostream>
 #include <mimetic/tree.h>
 #include <mimetic/utils.h>
 #include <mimetic/mimeentity.h>

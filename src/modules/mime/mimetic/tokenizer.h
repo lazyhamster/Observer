@@ -15,11 +15,9 @@
  ***************************************************************************/
 #ifndef _MIMETIC_TOKENIZER_H_
 #define _MIMETIC_TOKENIZER_H_
-#include <iterator>
 #include <algorithm>
 #include <set>
 #include <string>
-#include <cstring>
 
 namespace mimetic
 {

@@ -16,6 +16,7 @@
 #include <mimetic/rfc822/header.h>
 #include <mimetic/rfc822/field.h>
 #include <mimetic/strutils.h>
+#include <algorithm>
 
 namespace mimetic
 {
