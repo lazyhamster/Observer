@@ -21,9 +21,6 @@
 #include <mimetic/mimeentity.h>
 #include <mimetic/utils.h>
 #include <mimetic/codec/codec.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
 
 namespace mimetic
 {

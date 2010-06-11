@@ -14,7 +14,6 @@
  *                                                                         *
  ***************************************************************************/
 #include <mimetic/fieldparam.h>
-#include <mimetic/utils.h>
 
 namespace mimetic
 {

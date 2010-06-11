@@ -13,9 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <iostream>
 #include <mimetic/mimeversion.h>
-#include <mimetic/utils.h>
 
 namespace mimetic
 {

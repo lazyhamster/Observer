@@ -13,11 +13,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <fstream>
-#include <cstdlib>
 #include <mimetic/message.h>
 #include <mimetic/contenttype.h>
-#include <mimetic/utils.h>
 
 namespace mimetic
 {

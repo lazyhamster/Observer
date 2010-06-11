@@ -13,28 +13,11 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <iostream>
-#include <iomanip>
-#include <iterator>
-#include <fstream>
-#include <sys/stat.h>
-#include <stdio.h>
-#include <time.h>
-#include <fcntl.h>
 #include <errno.h>
 #include <mimetic/libconfig.h>
 #include <mimetic/os/file_iterator.h>
 #include <mimetic/os/file.h>
 #include <mimetic/libconfig.h>
-#ifdef HAVE_DIRENT_H
-#include <dirent.h>
-#endif
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-#ifdef HAVE_SYS_TIME_H
-#include <sys/time.h>
-#endif
 
 namespace mimetic
 {

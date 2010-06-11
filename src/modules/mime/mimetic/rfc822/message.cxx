@@ -15,7 +15,6 @@
  ***************************************************************************/
 #include <mimetic/rfc822/message.h>
 #include <mimetic/strutils.h>
-#include <mimetic/utils.h>
 
 
 namespace mimetic 

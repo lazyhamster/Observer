@@ -13,11 +13,8 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <cstdlib>
 #include <ctime>
 #include <sstream>
-#include <iomanip>
-#include <cassert>
 #include <mimetic/contenttype.h>
 #include <mimetic/tokenizer.h>
 #include <mimetic/utils.h>
@@ -41,7 +38,7 @@ ContentType::Boundary::Boundary()
                 "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
                 "-_."; // "=+,()/"
         stringstream ss;
-        srand(time(0));
+        srand((unsigned int) time(0));
         short tbSize = sizeof(tb)-1;
         for(uint i=0; i < 48; ++i)
         {
