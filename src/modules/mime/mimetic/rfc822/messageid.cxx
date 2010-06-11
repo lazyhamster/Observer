@@ -15,6 +15,7 @@
  ***************************************************************************/
 #include <ctime>
 #include <mimetic/rfc822/messageid.h>
+#include <mimetic/utils.h>
 
 namespace mimetic
 {

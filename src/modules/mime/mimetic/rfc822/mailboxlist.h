@@ -17,7 +17,6 @@
 #define _MIMETIC_RFC822_MAILBOXLIST_H_
 #include <string>
 #include <vector>
-#include <mimetic/utils.h>
 #include <mimetic/rfc822/mailbox.h>
 
 

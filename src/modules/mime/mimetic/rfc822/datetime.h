@@ -16,8 +16,6 @@
 #ifndef _MIMETIC_RFC822_DATETIME_H
 #define _MIMETIC_RFC822_DATETIME_H
 #include <string>
-#include <iostream>
-#include <mimetic/strutils.h>
 #include <mimetic/rfc822/fieldvalue.h>
 
 namespace mimetic

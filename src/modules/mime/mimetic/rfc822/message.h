@@ -16,7 +16,6 @@
 #ifndef _MIMETIC_RFC822_MESSAGE_H_
 #define _MIMETIC_RFC822_MESSAGE_H_
 #include <string>
-#include <iostream>
 #include <mimetic/rfc822/header.h>
 #include <mimetic/rfc822/body.h>
 
