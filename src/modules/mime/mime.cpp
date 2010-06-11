@@ -6,8 +6,10 @@
 
 #include <vector>
 #include <fstream>
+#include <sstream>
 
 #include "mimetic/mimetic.h"
+#include "mimetic/rfc822/datetime.h"
 
 using namespace mimetic;
 using namespace std;
@@ -20,13 +22,73 @@ struct MimeFileInfo
 	vector<wstring> childNames;
 };
 
-wstring GetEntityName(MimeEntity* entity)
+static wstring GetEntityName(MimeEntity* entity, int &unk_iter)
 {
-	static int i = 0;
-	
-	wchar_t buf[100] = {0};
-	swprintf_s(buf, 100, L"file%d.bin", i++);
+	Header& head = entity->header();
+	Field& flLocation = head.field("Content-Location");
+	string strLocation = flLocation.value();
+
+	wchar_t buf[MAX_PATH] = {0};
+	if (strLocation.length() == 0)
+	{
+		swprintf_s(buf, MAX_PATH, L"file%d.bin", unk_iter);
+		unk_iter++;
+	}
+	else
+	{
+		// Erase URL part after ? (parameters)
+		size_t nPos = strLocation.find('?');
+		if (nPos != string::npos)
+			strLocation.erase(nPos);
+		// Leave only file name
+		nPos = strLocation.find_last_of('/');
+		if (nPos != string::npos)
+			strLocation.erase(0, nPos + 1);
+
+		MultiByteToWideChar(CP_UTF8, 0, strLocation.c_str(), strLocation.length(), buf, 100);
+	}
+		
 	return buf;
+}
+
+static wstring int2wstr(int val)
+{
+	wstringstream sstr;
+	sstr << val;
+	return sstr.str();
+}
+
+static void AppendDigit(wstring &fileName, int num)
+{
+	size_t p = fileName.find_last_of('.');
+	if (p == string::npos)
+		fileName += int2wstr(num);
+	else
+		fileName.insert(p, int2wstr(num));
+}
+
+static FILETIME ConvertDateTime(DateTime &dt)
+{
+	SYSTEMTIME stime = {0};
+	stime.wYear = dt.year();
+	stime.wMonth = dt.month().ordinal();
+	stime.wDay = dt.day();
+	stime.wHour = dt.hour();
+	stime.wMinute = dt.minute();
+	stime.wSecond = dt.second();
+
+	FILETIME res = {0};
+	SystemTimeToFileTime(&stime, &res);
+
+	// Apply time-zone shift to convert to UTC
+	int nTimeZoneShift = dt.zone().ordinal() / 100;
+	if (nTimeZoneShift != 0)
+	{
+		__int64* li = (__int64*)&res;
+		*li -= nTimeZoneShift * (__int64)10000000*60*60;
+	}
+
+	return res;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -46,37 +108,66 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 	MimeEntity *me = new MimeEntity();
 	me->load(filePtr.begin(), filePtr.end());
-	if (me->body().parts().size() > 0)
+	if (me->body().parts().size() <= 0)
 	{
-		MimeFileInfo *minfo = new MimeFileInfo();
-		minfo->path = _wcsdup(path);
-		minfo->entity = me;
-
-		*storage = (INT_PTR*) minfo;
-
-		Header &head = me->header();
-		MimeVersion &mimeVer = head.mimeVersion();
-		ContentType &ctype = head.contentType();
-
-		memset(info, 0, sizeof(StorageGeneralInfo));
-		swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MIME %d.%d", mimeVer.maj(), mimeVer.minor());
-		swprintf_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"%S/%S", ctype.type().c_str(), ctype.subtype().c_str());
-		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"Mixed");
-
-		// Cache child list
-		MimeEntityList& parts = me->body().parts();
-		MimeEntityList::iterator mbit = parts.begin(), meit = parts.end();
-		for(; mbit != meit; ++mbit)
-		{
-			MimeEntity *childEn = *mbit;
-			minfo->children.push_back(childEn);
-			minfo->childNames.push_back(GetEntityName(childEn));
-		}
-
-		return TRUE;
+		delete me;
+		return FALSE;
 	}
-	
-	return FALSE;
+
+	MimeFileInfo *minfo = new MimeFileInfo();
+	minfo->path = _wcsdup(path);
+	minfo->entity = me;
+
+	*storage = (INT_PTR*) minfo;
+
+	Header &head = me->header();
+	MimeVersion &mimeVer = head.mimeVersion();
+	ContentType &ctype = head.contentType();
+
+	memset(info, 0, sizeof(StorageGeneralInfo));
+	swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MIME %d.%d", mimeVer.maj(), mimeVer.minor());
+	swprintf_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"%S/%S", ctype.type().c_str(), ctype.subtype().c_str());
+	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"Mixed");
+
+	// Read creation date if present
+	Field& fdDate = head.field("Date");
+	if (fdDate.value().length() > 0)
+	{
+		DateTime dt(fdDate.value());
+		info->Created = ConvertDateTime(dt);
+	}
+
+	// Cache child list
+	int unk_iter = 0;
+	MimeEntityList& parts = me->body().parts();
+	MimeEntityList::iterator mbit = parts.begin(), meit = parts.end();
+	for(; mbit != meit; ++mbit)
+	{
+		MimeEntity *childEn = *mbit;
+		minfo->children.push_back(childEn);
+
+		wstring strChildName = GetEntityName(childEn, unk_iter);
+		minfo->childNames.push_back(strChildName);
+	}
+
+	// Resolve same name problem
+	for (int i = 0; i < (int) minfo->childNames.size(); i++)
+	{
+		int cnt = 1;
+		wstring strVal = minfo->childNames[i];
+		for (int j = i+1; j < (int) minfo->childNames.size(); j++)
+		{
+			wstring strNext = minfo->childNames[j];
+			if (_wcsicmp(strVal.c_str(), strNext.c_str()) == 0)
+			{
+				cnt++;
+				AppendDigit(strNext, cnt);
+				minfo->childNames[i] = strNext;
+			}
+		}
+	}
+
+	return TRUE;
 }
 
 void MODULE_EXPORT CloseStorage(INT_PTR *storage)
@@ -112,7 +203,6 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	wcscpy_s(item_data->cAlternateFileName, 14, L"");
 	item_data->dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
 	item_data->nFileSizeLow = entity->size();
-	//item_data->ftLastWriteTime = ;
 
 	return GET_ITEM_OK;
 }
