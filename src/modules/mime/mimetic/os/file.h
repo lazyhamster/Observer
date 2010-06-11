@@ -16,11 +16,6 @@
 #ifndef _MIMETIC_OS_FILE_H
 #define _MIMETIC_OS_FILE_H
 #include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <cstdio>
-#include <string>
-#include <iterator>
 #include <mimetic/libconfig.h>
 #include <mimetic/os/stdfile.h>
 #ifdef HAVE_MMAP

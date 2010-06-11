@@ -15,6 +15,7 @@
  ***************************************************************************/
 #include <stdio.h>
 #include <errno.h>
+#include <sys/stat.h>
 #include <mimetic/os/file.h>
 #include <mimetic/libconfig.h>
 

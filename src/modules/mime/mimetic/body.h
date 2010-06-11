@@ -17,6 +17,7 @@
 #define _MIMETIC_BODY_H_
 #include <string>
 #include <math.h>
+#include <sys/stat.h>
 #include <mimetic/rfc822/body.h>
 #include <mimetic/codec/code.h>
 #include <mimetic/mimeentitylist.h>

@@ -16,11 +16,8 @@
 #ifndef _MIMETIC_OS_STDFILE_H
 #define _MIMETIC_OS_STDFILE_H
 #include <sys/types.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <cstdio>
 #include <string>
-#include <iterator>
 #include <mimetic/os/fileop.h>
 #include <mimetic/os/file_iterator.h>
 
