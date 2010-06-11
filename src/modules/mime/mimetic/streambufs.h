@@ -15,10 +15,8 @@
  ***************************************************************************/
 #ifndef _MIMETIC_MIMESTREAMBUF_H_
 #define _MIMETIC_MIMESTREAMBUF_H_
-#include <iostream>
 #include <string>
 #include <mimetic/libconfig.h>
-#include <mimetic/strutils.h>
 
 namespace mimetic
 {

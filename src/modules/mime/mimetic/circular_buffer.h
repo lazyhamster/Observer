@@ -16,7 +16,6 @@
 #ifndef _MIMETIC_CODEC_CIRCULAR_BUFFER_H_
 #define _MIMETIC_CODEC_CIRCULAR_BUFFER_H_
 #include <string>
-#include <iostream>
 
 namespace mimetic
 {

@@ -3,7 +3,9 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
+
 #include <vector>
+#include <fstream>
 
 #include "mimetic/mimetic.h"
 

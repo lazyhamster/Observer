@@ -16,7 +16,6 @@
 #ifndef _MIMETIC_MIMEVERSION_H_
 #define _MIMETIC_MIMEVERSION_H_
 #include <string>
-#include <iostream>
 #include <mimetic/rfc822/fieldvalue.h>
 #include <mimetic/version.h>
 namespace mimetic

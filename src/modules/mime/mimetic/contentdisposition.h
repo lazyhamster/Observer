@@ -16,7 +16,6 @@
 #ifndef _MIMETIC_CONTENT_DISPOSITION_H_
 #define _MIMETIC_CONTENT_DISPOSITION_H_
 #include <string>
-#include <iostream>
 #include <mimetic/fieldparam.h>
 #include <mimetic/rfc822/fieldvalue.h>
 

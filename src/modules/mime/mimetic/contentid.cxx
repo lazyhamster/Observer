@@ -14,6 +14,7 @@
  *                                                                         *
  ***************************************************************************/
 #include <mimetic/contentid.h>
+#include <mimetic/utils.h>
 #include <ctime>
 
 namespace mimetic

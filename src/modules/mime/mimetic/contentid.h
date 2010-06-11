@@ -16,7 +16,6 @@
 #ifndef _MIMETIC_CONTENTID_H_
 #define _MIMETIC_CONTENTID_H_
 #include <string>
-#include <mimetic/utils.h>
 #include <mimetic/rfc822/fieldvalue.h>
 
 namespace mimetic

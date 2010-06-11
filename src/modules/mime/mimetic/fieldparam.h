@@ -16,7 +16,6 @@
 #ifndef _MIMETIC_FIELD_PARAM_H_
 #define _MIMETIC_FIELD_PARAM_H_
 #include <string>
-#include <iostream>
 #include <list>
 #include <mimetic/strutils.h>
 
