@@ -15,6 +15,7 @@ struct MimeFileInfo
 	wchar_t *path;
 	MimeEntity *entity;
 	vector<MimeEntity*> children;
+	vector<wstring> childNames;
 };
 
 wstring GetEntityName(MimeEntity* entity)
@@ -67,6 +68,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		{
 			MimeEntity *childEn = *mbit;
 			minfo->children.push_back(childEn);
+			minfo->childNames.push_back(GetEntityName(childEn));
 		}
 
 		return TRUE;
@@ -97,10 +99,9 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	if (item_index >= (int) minfo->children.size())
 		return GET_ITEM_NOMOREITEMS;
 	
-	MimeEntity* entiry = minfo->children[item_index];
-	if (!entiry) return GET_ITEM_ERROR;
-
-	wstring name = GetEntityName(entiry);
+	MimeEntity* entity = minfo->children[item_index];
+	if (!entity) return GET_ITEM_ERROR;
+	wstring name = minfo->childNames[item_index];
 	
 	wcscpy_s(item_path, path_size, name.c_str());
 
@@ -108,7 +109,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	wcscpy_s(item_data->cFileName, MAX_PATH, name.c_str());
 	wcscpy_s(item_data->cAlternateFileName, 14, L"");
 	item_data->dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-	item_data->nFileSizeLow = entiry->size();
+	item_data->nFileSizeLow = entity->size();
 	//item_data->ftLastWriteTime = ;
 
 	return GET_ITEM_OK;
@@ -116,5 +117,48 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
+	MimeFileInfo *minfo = (MimeFileInfo*) storage;
+	if (minfo == NULL) return SER_ERROR_SYSTEM;
+
+	if ( (params.item < 0) || (params.item >= (int) minfo->children.size()) )
+		return SER_ERROR_SYSTEM;
+
+	MimeEntity* entity = minfo->children[params.item];
+	if (!entity) return GET_ITEM_ERROR;
+	wstring itemName = minfo->childNames[params.item];
+
+	wstring fullPath(params.dest_path);
+	fullPath.append(itemName);
+
+	char szDest[MAX_PATH] = {0};
+	WideCharToMultiByte(CP_ACP, 0, fullPath.c_str(), fullPath.length(), szDest, MAX_PATH, NULL, NULL);
+
+	Body& body = entity->body();
+	ContentTransferEncoding& enc = entity->header().contentTransferEncoding();
+	fstream fs(szDest, ios_base::out | ios_base::binary | ios_base::trunc);
+	if (fs.is_open())
+	{
+		string encName = enc.str();
+		if (_stricmp(encName.c_str(), "base64") == 0)
+		{
+			Base64::Decoder dec;
+			ostream_iterator<char> oit(fs);
+			decode(body.begin(), body.end(), dec, oit);
+		}
+		else if (_stricmp(encName.c_str(), "quoted-printable") == 0)
+		{
+			QP::Decoder dec;
+			ostream_iterator<char> oit(fs);
+			decode(body.begin(), body.end(), dec, oit);
+		}
+		else
+		{
+			fs << body;
+		}
+
+		fs.close();
+		return SER_SUCCESS;
+	}
+	
 	return SER_ERROR_SYSTEM;
 }
