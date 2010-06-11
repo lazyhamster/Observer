@@ -1492,10 +1492,6 @@
 					Name="os"
 					>
 					<File
-						RelativePath=".\mimetic\os\directory.h"
-						>
-					</File>
-					<File
 						RelativePath=".\mimetic\os\file.h"
 						>
 					</File>
