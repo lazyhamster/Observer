@@ -25,11 +25,8 @@ const char ContentId::label[] = "Content-ID";
 
 ContentId::ContentId()
 {
-    std::string host;// = gethostname();
-    if(!host.length())
-        host = "unknown";
-	m_cid = "c" + utils::int2str(time(0)) + "." + utils::int2str(::_getpid()) +
-        "." + utils::int2str(++ms_sequence_number) + "@" + host;
+	m_cid = "c" + utils::int2str((int) time(0)) + "." + utils::int2str(::_getpid()) +
+        "." + utils::int2str(++ms_sequence_number) + "@localhost";
 }
 
 ContentId::ContentId(const char* cstr)
