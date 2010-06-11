@@ -45,10 +45,10 @@ struct Version
     Version(const std::string&);
     Version(ver_type, ver_type, ver_type build = 0);
     void maj(ver_type);
-    void min(ver_type);
+    void minor(ver_type);
     void build(ver_type);
     ver_type maj() const;
-    ver_type min() const;
+    ver_type minor() const;
     ver_type build() const;
     
     void set(ver_type, ver_type, ver_type build = 0);

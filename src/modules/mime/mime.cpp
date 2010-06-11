@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "ModuleDef.h"
 
+#include "mimetic/mimetic.h"
+
 
 int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 {

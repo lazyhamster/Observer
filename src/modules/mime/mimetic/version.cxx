@@ -13,8 +13,6 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <iostream>
-//#include <mimetic/config.h>
 #include <mimetic/version.h>
 #include <mimetic/utils.h>
 #include <mimetic/tokenizer.h>
@@ -47,7 +45,7 @@ Version::ver_type Version::maj() const
     return m_maj;
 }
 
-Version::ver_type Version::min() const
+Version::ver_type Version::minor() const
 {
     return m_min;
 }
@@ -62,7 +60,7 @@ void Version::maj(Version::ver_type maj)
     m_maj = maj;
 }
 
-void Version::min(Version::ver_type min)
+void Version::minor(Version::ver_type min)
 {
     m_min = min;
 }
