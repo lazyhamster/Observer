@@ -33,9 +33,9 @@ struct FileOp
     static bool exists(const std::string&);
 
     static uint size(const std::string&);
-    static uint ctime(const std::string&); // creation time
-    static uint atime(const std::string&); // last time accessed(r/w)
-    static uint mtime(const std::string&); // last time written
+    static time_t ctime(const std::string&); // creation time
+    static time_t atime(const std::string&); // last time accessed(r/w)
+    static time_t mtime(const std::string&); // last time written
 };
 
 }

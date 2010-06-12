@@ -175,7 +175,7 @@ ostream& Field::write(ostream& os, unsigned int fold) const
             in_quote = 0;
             sp = 0;
 
-            for(i = skip; i < ostr.length(); ++i)
+            for(i = skip; i < (int) ostr.length(); ++i)
             {
                 if(ostr[i] == '"' && prev != '\\')
                     in_quote = !in_quote;

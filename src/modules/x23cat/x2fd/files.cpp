@@ -27,7 +27,7 @@ io64::file::size filebuffer::writeBuffer(byte *pData, const io64::file::size& si
 		io64::file::size s = (newsize / GROWBY) + (newsize % GROWBY ? 1 : 0 + 1);
 		if(allocate((size_t)s * GROWBY) == false) return -1;
 	}
-	memcpy(m_data + offset, pData, (size_t)size);
+	memcpy(m_data + (INT_PTR)offset, pData, (size_t)size);
 	m_size = __max(m_size, (size_t)(offset + size));
 	return size;
 }
@@ -80,7 +80,7 @@ io64::file::size filebuffer::read(void *buffer, const io64::file::size& size, io
 		readed=size;
 		if(size > (this->allocated() - offset)) // shrink the size so we won't read past eof
 			readed=this->allocated() - offset;
-		memcpy(buffer, data() + offset, (size_t)readed);
+		memcpy(buffer, data() + (INT_PTR)offset, (size_t)readed);
 	}
 	return readed;
 }
