@@ -2,6 +2,7 @@ Changes history:
 
 1.6
 - Added support for Egosoft packages from X-series games.
+- Added support for multipart MIME messages (e.g. *.mht, *.eml).
 - Added "Skip All" button to extraction error dialog.
 - Fixed extraction to disk root.
 - MSI: Added file attributes reading from embedded cab.
