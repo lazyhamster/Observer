@@ -53,10 +53,15 @@ static wchar_t* GetInternalFileExt(X2FILE xf, wchar_t* originalPath)
 		X2FD_SeekFile(xf, 0, X2FD_SEEK_SET);
 		X2FDLONG ret = X2FD_ReadFile(xf, buf, sizeof(buf));
 
-		if ((ret >= 0) && strstr(buf, "<?xml"))
-			return L".xml";
-		else
-			return L".txt";
+		if (ret >= 0)
+		{
+			if (strstr(buf, "<?xml") != NULL)
+				return L".xml";
+			else if (strncmp(buf, "DDS", 3) == 0)
+				return L".dds";
+		}
+
+		return L".txt";
 	}
 	else if (wcscmp(oldExt, L".pbd") == 0)
 		return L".bod";
