@@ -13,6 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "StdAfx.h"
 #include <ctime>
 #include <sstream>
 #include <mimetic/contenttype.h>

@@ -13,7 +13,9 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "StdAfx.h"
 #include <mimetic/rfc822/fieldvalue.h>
+
 namespace mimetic
 {
 using namespace std;

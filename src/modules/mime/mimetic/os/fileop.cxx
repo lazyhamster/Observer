@@ -13,6 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "StdAfx.h"
 #include <mimetic/os/fileop.h>
 #include <mimetic/libconfig.h>
 #ifdef HAVE_SYS_TYPES_H

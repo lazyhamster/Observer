@@ -13,6 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "StdAfx.h"
 #include <mimetic/rfc822/field.h>
 #include <mimetic/strutils.h>
 #include <mimetic/utils.h>

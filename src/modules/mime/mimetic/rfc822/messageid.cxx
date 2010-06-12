@@ -13,6 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "StdAfx.h"
 #include <ctime>
 #include <mimetic/rfc822/messageid.h>
 #include <mimetic/utils.h>

@@ -13,6 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "StdAfx.h"
 #include <mimetic/version.h>
 #include <mimetic/utils.h>
 #include <mimetic/tokenizer.h>

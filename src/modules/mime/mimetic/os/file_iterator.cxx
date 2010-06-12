@@ -13,6 +13,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
+#include "StdAfx.h"
 #include <errno.h>
 #include <mimetic/libconfig.h>
 #include <mimetic/os/file_iterator.h>
