@@ -19,34 +19,7 @@ class file
 	public:
 		static const int EUNKNOWN=0xffff;
 
-		class size
-		{
-			public:
-				typedef __int64 size_type;
-			private:
-				size_type value;
-			public:
-				size() : value(0) {}
-
-				size(__int64 i) : value(i) {}
-				size(void *i) : value((intptr_t)i) {}
-				size(size_t i) : value(i) {}
-				size(unsigned long i) : value(i) {}
-				size(int i) : value(i) {}
-
-				operator __int64() const { return (__int64)value; }
-
-				__int64 operator %(unsigned int i) { return value % i; }
-
-				size& operator =(const size& s) { value=s.value; return *this; }
-
-				size& operator+=(const size& s) { value+=s.value; return *this; }
-				size& operator-=(const size& s) { value-=s.value; return *this; }
-
-				size operator++(int) { size r=*this; ++value; return r; }
-
-		};
-
+		typedef __int64 size;
 		typedef size position;
 
 		struct stat
