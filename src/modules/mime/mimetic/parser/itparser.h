@@ -154,13 +154,13 @@ protected:
             return m_lastBoundary = NoBoundary;
 
         int level = 0; // multipart nesting level
-        int lineLen = line.length();
+        size_t lineLen = line.length();
         BoundaryList::const_iterator bit,eit;
         bit = m_boundaryList.begin(), eit = m_boundaryList.end();
         for(;bit != eit; ++bit, ++level)
         {
             const std::string& b = *bit;
-            int bLen = b.length();
+            size_t bLen = b.length();
             if(line.compare(0, bLen, b) == 0)
             { 
                 // not the expected boundary, malformed msg
@@ -204,7 +204,7 @@ protected:
         {
             // allocate and init buffer
             char* tmp = buf;
-            int oldBufsz = bufsz;
+            size_t oldBufsz = bufsz;
             while(pos >= bufsz)
                 bufsz = bufsz + alloc_block;
             buf = new char[bufsz+1];    

@@ -68,7 +68,7 @@ bool x2catbuffer::open(const wchar_t *pszName)
 			if(first){
 				size_t nNameLen = strlen(old);
 				m_pszDATName = new wchar_t[nNameLen + 1];
-				MultiByteToWideChar(CP_ACP, 0, old, nNameLen, m_pszDATName, nNameLen + 1);
+				MultiByteToWideChar(CP_ACP, 0, old, (int) nNameLen, m_pszDATName, (int) nNameLen + 1);
 				m_pszDATName[nNameLen] = 0;
 				first=false;
 			}
@@ -80,7 +80,7 @@ bool x2catbuffer::open(const wchar_t *pszName)
 				}
 				mid[0]=0;
 				info=new x2catentry();
-				MultiByteToWideChar(CP_ACP, 0, old, strlen(old), info->pszFileName, MAX_PATH);
+				MultiByteToWideChar(CP_ACP, 0, old, (int) strlen(old), info->pszFileName, MAX_PATH);
 				for (int i=0; i < (int) wcslen(info->pszFileName); i++) // Normalize path
 				{
 					if (info->pszFileName[i] == '/') info->pszFileName[i] = '\\';

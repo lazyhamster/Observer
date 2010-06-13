@@ -45,7 +45,7 @@ static wstring GetEntityName(MimeEntity* entity, int &unk_iter)
 		if (nPos != string::npos)
 			strLocation.erase(0, nPos + 1);
 
-		MultiByteToWideChar(CP_UTF8, 0, strLocation.c_str(), strLocation.length(), buf, 100);
+		MultiByteToWideChar(CP_UTF8, 0, strLocation.c_str(), (int) strLocation.length(), buf, 100);
 	}
 		
 	return buf;
