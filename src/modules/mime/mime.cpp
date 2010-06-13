@@ -100,10 +100,7 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 
 int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
 {
-	char szInput[MAX_PATH] = {0};
-	WideCharToMultiByte(CP_ACP, 0, path, wcslen(path), szInput, MAX_PATH, NULL, NULL);
-	
-	File filePtr(szInput);
+	File filePtr(path);
 	if (!filePtr) return FALSE;
 
 	MimeEntity *me = new MimeEntity();
@@ -222,12 +219,9 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	wstring fullPath(params.dest_path);
 	fullPath.append(itemName);
 
-	char szDest[MAX_PATH] = {0};
-	WideCharToMultiByte(CP_ACP, 0, fullPath.c_str(), fullPath.length(), szDest, MAX_PATH, NULL, NULL);
-
 	Body& body = entity->body();
 	ContentTransferEncoding& enc = entity->header().contentTransferEncoding();
-	fstream fs(szDest, ios_base::out | ios_base::binary | ios_base::trunc);
+	fstream fs(fullPath.c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
 	if (fs.is_open())
 	{
 		string encName = enc.str();

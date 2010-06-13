@@ -33,7 +33,7 @@ StdFile::StdFile()
 {
 }
 
-StdFile::StdFile(const string& fqn, int mode)
+StdFile::StdFile(const wstring& fqn, int mode)
 : m_fqn(fqn), m_stated(false), m_fd(-1)
 {
     memset(&m_st,0, sizeof(m_st));
@@ -42,20 +42,21 @@ StdFile::StdFile(const string& fqn, int mode)
     open(mode);
 }
 
-void StdFile::open(const std::string& fqn, int mode /*= O_RDONLY*/)
+void StdFile::open(const std::wstring& fqn, int mode /*= O_RDONLY*/)
 {
     m_fqn = fqn;
     open(mode);
 }
 
+
 void StdFile::open(int mode)
 {
-    m_fd = ::_open(m_fqn.c_str(), mode);
+	::_wsopen_s(&m_fd, m_fqn.c_str(), mode, _SH_DENYWR, _S_IREAD | _S_IWRITE);
 }
 
 StdFile::~StdFile()
 {
-    if(m_fd)
+    if(m_fd > 0)
         close();
 }
 
@@ -86,7 +87,7 @@ StdFile::operator bool() const
 
 bool StdFile::stat()
 {
-    return m_stated || (m_stated = (::stat(m_fqn.c_str(), &m_st) == 0));
+    return m_stated || (m_stated = (::_wstat(m_fqn.c_str(), &m_st) == 0));
 }
 
 void StdFile::close() 

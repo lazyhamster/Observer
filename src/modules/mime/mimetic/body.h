@@ -107,7 +107,8 @@ protected:
 template<typename Codec>
 bool Body::load(const std::string& fqn, const Codec& cc)
 {
-    File in(fqn);
+    //File in(fqn);
+	File in; //NOTE: Disabled
     if(!in)
         return false;
 

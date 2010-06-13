@@ -29,10 +29,10 @@ struct StdFile: public FileOp
 {
     typedef ifile_iterator iterator;
     StdFile();
-    StdFile(const std::string&, int mode = O_RDONLY);
+    StdFile(const std::wstring& fqn, int mode = O_RDONLY);
     ~StdFile();
     operator bool() const;
-    void open(const std::string&, int mode = O_RDONLY);
+    void open(const std::wstring& fqn, int mode = O_RDONLY);
     void close();
     uint read(char*, int);
 
@@ -42,9 +42,9 @@ protected:
     void open(int flags);
     bool stat();
 
-    std::string m_fqn;
+    std::wstring m_fqn;
     bool m_stated;
-    struct stat m_st;
+    struct _stat m_st;
     int m_fd;
 };
 

@@ -48,7 +48,8 @@ const MimeEntity* Body::owner() const
 
 bool Body::load(const string& fqn)
 {
-    File in(fqn);
+    //File in(fqn);
+	File in; //NOTE: Disabled
     if(!in)
         return false;
     File::iterator beg = in.begin(), end = in.end();
