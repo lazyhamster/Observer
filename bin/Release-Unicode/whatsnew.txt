@@ -1,4 +1,14 @@
-История изменений:
+Changes history:
+
+1.6
+- Added support for Egosoft packages from X-series games.
+- Added support for multipart MIME messages (e.g. *.mht, *.eml).
+- Added "Skip All" button to extraction error dialog.
+- Fixed extraction to disk root.
+- MSI: Added file attributes reading from embedded cab.
+- MSI: Extended container information in "{msi_info}.txt".
+- VP: Fixed extraction progress.
+- Small fixes.
 
 1.5.2
 - Fixed overwrite dialog in Unicode version.
