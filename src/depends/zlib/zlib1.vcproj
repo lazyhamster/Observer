@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="x23cat"
-	ProjectGUID="{9C0CA064-296B-42B7-909A-F8E2806A93A0}"
-	RootNamespace="x23cat"
+	Name="zlib1"
+	ProjectGUID="{C50A5BD9-34C8-4050-AD28-784AEC221B1E}"
+	RootNamespace="zlib"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -45,12 +45,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS;ZLIB_DLL;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -65,11 +65,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
@@ -125,7 +123,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -144,11 +142,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
@@ -204,11 +200,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS;ZLIB_DLL;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -223,11 +219,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -287,7 +281,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -305,11 +299,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -367,11 +359,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS;ZLIB_DLL;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -386,11 +378,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -450,7 +440,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -468,11 +458,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -528,12 +516,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS;ZLIB_DLL;_CRT_SECURE_NO_WARNINGS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -548,11 +536,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
@@ -608,7 +594,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -627,11 +613,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
@@ -687,11 +671,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				AdditionalIncludeDirectories=""
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS;ZLIB_DLL;_CRT_SECURE_NO_WARNINGS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -706,11 +690,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -770,7 +752,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;X23CAT_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ZLIB_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
@@ -788,11 +770,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
-				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
-				ModuleDefinitionFile="x23cat.def"
+				ModuleDefinitionFile="zlib.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -832,221 +812,63 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\x2fd\cat.cpp"
+				RelativePath=".\adler32.c"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\catpck.cpp"
+				RelativePath=".\compress.c"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\common.cpp"
+				RelativePath=".\crc32.c"
 				>
 			</File>
 			<File
-				RelativePath=".\dllmain.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug-Unicode|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-						CompileAsManaged="0"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\x2fd\file_io.cpp"
+				RelativePath=".\deflate.c"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\files.cpp"
+				RelativePath=".\gzclose.c"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\common\gzip.cpp"
+				RelativePath=".\gzlib.c"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\local_error.cpp"
+				RelativePath=".\gzread.c"
 				>
 			</File>
 			<File
-				RelativePath=".\stdafx.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug-Unicode|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\x23cat.cpp"
+				RelativePath=".\gzwrite.c"
 				>
 			</File>
 			<File
-				RelativePath=".\x23cat.def"
+				RelativePath=".\infback.c"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\x2fd.cpp"
+				RelativePath=".\inffast.c"
+				>
+			</File>
+			<File
+				RelativePath=".\inflate.c"
+				>
+			</File>
+			<File
+				RelativePath=".\inftrees.c"
+				>
+			</File>
+			<File
+				RelativePath=".\trees.c"
+				>
+			</File>
+			<File
+				RelativePath=".\uncompr.c"
+				>
+			</File>
+			<File
+				RelativePath=".\zutil.c"
 				>
 			</File>
 		</Filter>
@@ -1056,47 +878,47 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\x2fd\cat.h"
+				RelativePath=".\crc32.h"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\catpck.h"
+				RelativePath=".\deflate.h"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\common.h"
+				RelativePath=".\gzguts.h"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\common\ext_list.h"
+				RelativePath=".\inffast.h"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\file_io.h"
+				RelativePath=".\inffixed.h"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\files.h"
+				RelativePath=".\inflate.h"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\local_error.h"
+				RelativePath=".\inftrees.h"
 				>
 			</File>
 			<File
-				RelativePath=".\stdafx.h"
+				RelativePath=".\trees.h"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\common\strutils.h"
+				RelativePath=".\zconf.h"
 				>
 			</File>
 			<File
-				RelativePath=".\targetver.h"
+				RelativePath=".\zlib.h"
 				>
 			</File>
 			<File
-				RelativePath=".\x2fd\x2fd.h"
+				RelativePath=".\zutil.h"
 				>
 			</File>
 		</Filter>
@@ -1105,6 +927,10 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+			<File
+				RelativePath=".\zlib1.rc"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

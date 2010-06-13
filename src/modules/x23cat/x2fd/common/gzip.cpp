@@ -4,8 +4,6 @@
 
 #include "gzip.h"
 
-#pragma comment(lib, "../../common/zlib.lib")
-
 #define flagsvalid(f) ((f & (GZ_F_RES1 | GZ_F_RES2 | GZ_F_RES3))==0)
 //---------------------------------------------------------------------------------
 bool gzreader::openFile(const char *pszName)
