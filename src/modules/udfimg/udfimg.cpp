@@ -27,7 +27,7 @@ void CopyArcParam(wchar_t* dest, UString src)
 	else if ((size_t) src.Length() <= maxSize)
 		wcscpy_s(dest, maxSize + 1, src);
 	else
-		wcscpy_s(dest, maxSize + 1, src.Left(maxSize));
+		wcscpy_s(dest, maxSize + 1, src.Left((int) maxSize));
 }
 
 int MODULE_EXPORT LoadSubModule(const wchar_t* settings)

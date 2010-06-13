@@ -201,7 +201,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
 		wcscpy_s(item_data->cFileName, MAX_PATH, item_path);
 		wcscpy_s(item_data->cAlternateFileName, 14, L"");
-		item_data->nFileSizeLow = finfo.size;
+		item_data->nFileSizeLow = (DWORD) finfo.size;
 		
 		if (finfo.mtime != -1)
 		{

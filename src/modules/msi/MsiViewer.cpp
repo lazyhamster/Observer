@@ -638,7 +638,7 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 		READ_STR(hRegRec, 3, regEntry.RegKeyName);
 		READ_STR(hRegRec, 4, regEntry.Name);
 
-		while ((res = MsiRecordGetStringW(hRegRec, 5, &regval[0], &(nVlen = regval.size()))) == ERROR_MORE_DATA)
+		while ((res = MsiRecordGetStringW(hRegRec, 5, &regval[0], &(nVlen = (DWORD)regval.size()))) == ERROR_MORE_DATA)
 			regval.resize(nVlen + 1);
 		OK (res);
 

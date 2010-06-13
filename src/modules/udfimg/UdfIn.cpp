@@ -951,7 +951,8 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 		{
 			//TODO: find WTF it is (when isinline is true)
 			DWORD dwWritten;
-			if (!WriteFile(hFile, (const Byte *) itemObj.InlineData, itemObj.InlineData.GetCapacity(), &dwWritten, NULL))
+			size_t nNumWrite = itemObj.InlineData.GetCapacity();
+			if (!WriteFile(hFile, (const Byte *) itemObj.InlineData, (DWORD) nNumWrite, &dwWritten, NULL))
 				result = SER_ERROR_WRITE;
 		}
 		else
