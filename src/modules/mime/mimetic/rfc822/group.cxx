@@ -43,7 +43,7 @@ Group::Group(const string& text)
 
 static string::size_type find_not_in_quote(const string& s, const string::value_type& c)
 {
-    int len = s.length();
+    size_t len = s.length();
     bool in_dquote = false;
     for(int i =0; i < len; ++i)
     {

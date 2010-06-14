@@ -70,11 +70,11 @@ void Mailbox::set(const string& input)
     // string::erase, etc) so we must reset all pointers after
     // the string::erase or/and we cannot cache begin() end()
 
-    int t = input.length() -1;
+    size_t t = input.length() -1;
     if(input[t] == '>')
     {
         bool in_dquote = false, in_comment = false;
-        int endoff = t - 1;
+        size_t endoff = t - 1;
         for(int x = input.length() -1 ; x >= 0; --x)
         {
             string::value_type ch = input[x];
