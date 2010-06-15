@@ -22,20 +22,21 @@ struct MimeFileInfo
 	vector<wstring> childNames;
 };
 
-static wstring GetEntityName(MimeEntity* entity, int &unk_iter)
+static wstring GetEntityName(MimeEntity* entity)
 {
 	Header& head = entity->header();
-	Field& flLocation = head.field("Content-Location");
-	string strLocation = flLocation.value();
-
-	wchar_t buf[MAX_PATH] = {0};
-	if (strLocation.length() == 0)
+	string strFileName;	
+	
+	// First try to get direct file name
+	ContentDisposition &cd = head.contentDisposition();
+	strFileName = cd.param("filename");
+	
+	// If previous check failed, extract name from Content-Location field
+	if (strFileName.length() == 0)
 	{
-		swprintf_s(buf, MAX_PATH, L"file%d.bin", unk_iter);
-		unk_iter++;
-	}
-	else
-	{
+		Field& flLocation = head.field("Content-Location");
+		string strLocation = flLocation.value();
+		
 		// Erase URL part after ? (parameters)
 		size_t nPos = strLocation.find('?');
 		if (nPos != string::npos)
@@ -45,9 +46,28 @@ static wstring GetEntityName(MimeEntity* entity, int &unk_iter)
 		if (nPos != string::npos)
 			strLocation.erase(0, nPos + 1);
 
-		MultiByteToWideChar(CP_UTF8, 0, strLocation.c_str(), (int) strLocation.length(), buf, 100);
+		strFileName = strLocation;
 	}
-		
+
+	// If previous check failed, get name from conten type
+	if (strFileName.length() == 0)
+	{
+		ContentType &ctype = head.contentType();
+		strFileName = ctype.param("name");
+
+		// If location didn't gave us name, then get generic one
+		if (strFileName.length() == 0)
+		{
+			string strType = ctype.type();
+			if (strType.compare("image") == 0)
+				strFileName = "image" + ctype.subtype();
+			else
+				strFileName = "file.bin";
+		}
+	}
+
+	wchar_t buf[MAX_PATH] = {0};
+	MultiByteToWideChar(CP_UTF8, 0, strFileName.c_str(), (int) strFileName.length(), buf, 100);
 	return buf;
 }
 
@@ -60,11 +80,14 @@ static wstring int2wstr(int val)
 
 static void AppendDigit(wstring &fileName, int num)
 {
+	wchar_t buf[10] = {0};
+	swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L",%d", num);
+	
 	size_t p = fileName.find_last_of('.');
 	if (p == string::npos)
-		fileName += int2wstr(num);
+		fileName += buf;
 	else
-		fileName.insert(p, int2wstr(num));
+		fileName.insert(p, buf);
 }
 
 static FILETIME ConvertDateTime(DateTime &dt)
@@ -135,7 +158,6 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	}
 
 	// Cache child list
-	int unk_iter = 0;
 	MimeEntityList& parts = me->body().parts();
 	MimeEntityList::iterator mbit = parts.begin(), meit = parts.end();
 	for(; mbit != meit; ++mbit)
@@ -143,7 +165,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		MimeEntity *childEn = *mbit;
 		minfo->children.push_back(childEn);
 
-		wstring strChildName = GetEntityName(childEn, unk_iter);
+		wstring strChildName = GetEntityName(childEn);
 		minfo->childNames.push_back(strChildName);
 	}
 
@@ -159,8 +181,14 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 			{
 				cnt++;
 				AppendDigit(strNext, cnt);
-				minfo->childNames[i] = strNext;
+				minfo->childNames[j] = strNext;
 			}
+		}
+
+		if (cnt > 1)
+		{
+			AppendDigit(strVal, 1);
+			minfo->childNames[i] = strVal;
 		}
 	}
 
