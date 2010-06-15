@@ -6,7 +6,6 @@
 
 #include <vector>
 #include <fstream>
-#include <sstream>
 
 #include "mimetic/mimetic.h"
 #include "mimetic/rfc822/datetime.h"
@@ -69,13 +68,6 @@ static wstring GetEntityName(MimeEntity* entity)
 	wchar_t buf[MAX_PATH] = {0};
 	MultiByteToWideChar(CP_UTF8, 0, strFileName.c_str(), (int) strFileName.length(), buf, 100);
 	return buf;
-}
-
-static wstring int2wstr(int val)
-{
-	wstringstream sstr;
-	sstr << val;
-	return sstr.str();
 }
 
 static void AppendDigit(wstring &fileName, int num)
