@@ -78,7 +78,6 @@ LONGLONG GetBlockOffset( const IsoImage* image, DWORD block )
 DWORD ReadBlock( const IsoImage* image, DWORD block, DWORD size, void* data )
 {
     //DebugString( "ReadBlock" );
-    //assert( image && block && size && data );
 	assert( image && size && data );
 
     return ReadDataByPos( image->hFile, GetBlockOffset( image, block ), size, data );
@@ -135,11 +134,14 @@ static DWORD GetVolumeDescriptor( const IsoImage* image, PrimaryVolumeDescriptor
 
     bool step1 = false;
 
+	DWORD iterations = 0;
+	DWORD max_iterations = 1024 * 1024 * 100 / image->RealBlockSize; // max 100 Mb between sessions
+
     for( DWORD i = startblk;
-         !step1 &&
+         !step1 && iterations < max_iterations &&
          ReadBlock( image, i, sizeof( descriptor->VolumeDescriptor ),
                     &descriptor->VolumeDescriptor ) == sizeof( descriptor->VolumeDescriptor );
-         i++, step1 = sharp )
+         i++, step1 = sharp, iterations++ )
     {
         if( !lstrcmpn( (char*)descriptor->VolumeDescriptor.StandardIdentifier, CDSignature, sizeof(CDSignature)) &&
             descriptor->VolumeDescriptor.VolumeDescriptorType == 1 )
@@ -147,6 +149,7 @@ static DWORD GetVolumeDescriptor( const IsoImage* image, PrimaryVolumeDescriptor
             DWORD block = i;
             // Found it!
             DebugString("Found it");
+			iterations = 0;
             // trying to read root directory
             char* buffer = (char*)malloc( (WORD)descriptor->VolumeDescriptor.LogicalBlockSize );
             if( buffer )
@@ -203,8 +206,8 @@ static DWORD GetVolumeDescriptor( const IsoImage* image, PrimaryVolumeDescriptor
                             (short unsigned int)catalog.Validation.KeyWord == (short unsigned int)0xaa55 )
                         {
                             unsigned short sum = 0;
-                            for( int i = 0; i < sizeof( catalog.Validation ) / sizeof( catalog.Validation.Checksum ); i++ )
-                                sum = (unsigned short)(sum + *((unsigned short*)(&catalog.Validation) + i));
+                            for( int j = 0; j < sizeof( catalog.Validation ) / sizeof( catalog.Validation.Checksum ); j++ )
+                                sum = (unsigned short)(sum + *((unsigned short*)(&catalog.Validation) + j));
                             if( sum )
                             {
                                 assert( "checksum is wrong :(" );
