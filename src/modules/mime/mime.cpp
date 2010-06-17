@@ -59,9 +59,20 @@ static wstring GetEntityName(MimeEntity* entity)
 		{
 			string strType = ctype.type();
 			if (strType.compare("image") == 0)
+			{
 				strFileName = "image" + ctype.subtype();
+			}
+			else if (strType.compare("text") == 0)
+			{
+				if (ctype.subtype().compare("html") == 0)
+					strFileName = "index.html";
+				else
+					strFileName = "message.txt";
+			}
 			else
+			{
 				strFileName = "file.bin";
+			}
 		}
 	}
 
