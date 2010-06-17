@@ -1,5 +1,9 @@
 Changes history:
 
+1.6.1
+- MIME: Improved recognition of file names inside container.
+- MIME: Fixed reading of file with nested 'multipart/*' sections.
+
 1.6
 - Added support for Egosoft packages from X-series games.
 - Added support for multipart MIME messages (e.g. *.mht, *.eml).

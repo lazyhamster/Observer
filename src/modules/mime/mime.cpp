@@ -9,6 +9,7 @@
 
 #include "mimetic/mimetic.h"
 #include "mimetic/rfc822/datetime.h"
+#include "NameDecode.h"
 
 using namespace mimetic;
 using namespace std;
@@ -20,78 +21,6 @@ struct MimeFileInfo
 	vector<MimeEntity*> children;
 	vector<wstring> childNames;
 };
-
-static wstring GetEntityName(MimeEntity* entity)
-{
-	Header& head = entity->header();
-	string strFileName;	
-	
-	// First try to get direct file name
-	ContentDisposition &cd = head.contentDisposition();
-	strFileName = cd.param("filename");
-	
-	// If previous check failed, extract name from Content-Location field
-	if (strFileName.length() == 0)
-	{
-		Field& flLocation = head.field("Content-Location");
-		string strLocation = flLocation.value();
-		
-		// Erase URL part after ? (parameters)
-		size_t nPos = strLocation.find('?');
-		if (nPos != string::npos)
-			strLocation.erase(nPos);
-		// Leave only file name
-		nPos = strLocation.find_last_of('/');
-		if (nPos != string::npos)
-			strLocation.erase(0, nPos + 1);
-
-		strFileName = strLocation;
-	}
-
-	// If previous check failed, get name from conten type
-	if (strFileName.length() == 0)
-	{
-		ContentType &ctype = head.contentType();
-		strFileName = ctype.param("name");
-
-		// If location didn't gave us name, then get generic one
-		if (strFileName.length() == 0)
-		{
-			string strType = ctype.type();
-			if (strType.compare("image") == 0)
-			{
-				strFileName = "image" + ctype.subtype();
-			}
-			else if (strType.compare("text") == 0)
-			{
-				if (ctype.subtype().compare("html") == 0)
-					strFileName = "index.html";
-				else
-					strFileName = "message.txt";
-			}
-			else
-			{
-				strFileName = "file.bin";
-			}
-		}
-	}
-
-	wchar_t buf[MAX_PATH] = {0};
-	MultiByteToWideChar(CP_UTF8, 0, strFileName.c_str(), (int) strFileName.length(), buf, 100);
-	return buf;
-}
-
-static void AppendDigit(wstring &fileName, int num)
-{
-	wchar_t buf[10] = {0};
-	swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L",%d", num);
-	
-	size_t p = fileName.find_last_of('.');
-	if (p == string::npos)
-		fileName += buf;
-	else
-		fileName.insert(p, buf);
-}
 
 static FILETIME ConvertDateTime(DateTime &dt)
 {
@@ -115,6 +44,28 @@ static FILETIME ConvertDateTime(DateTime &dt)
 	}
 
 	return res;
+}
+
+static void CacheFilesList(MimeEntity* entity, MimeFileInfo* info)
+{
+	MimeEntityList& parts = entity->body().parts();
+	MimeEntityList::iterator mbit = parts.begin(), meit = parts.end();
+	for(; mbit != meit; ++mbit)
+	{
+		MimeEntity *childEn = *mbit;
+		ContentType &ctype = childEn->header().contentType();
+		if (ctype.type().compare("multipart") == 0)
+		{
+			CacheFilesList(childEn, info);
+		}
+		else
+		{
+			info->children.push_back(childEn);
+
+			wstring strChildName = GetEntityName(childEn);
+			info->childNames.push_back(strChildName);
+		}
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -161,16 +112,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	}
 
 	// Cache child list
-	MimeEntityList& parts = me->body().parts();
-	MimeEntityList::iterator mbit = parts.begin(), meit = parts.end();
-	for(; mbit != meit; ++mbit)
-	{
-		MimeEntity *childEn = *mbit;
-		minfo->children.push_back(childEn);
-
-		wstring strChildName = GetEntityName(childEn);
-		minfo->childNames.push_back(strChildName);
-	}
+	CacheFilesList(me, minfo);
 
 	// Resolve same name problem
 	for (int i = 0; i < (int) minfo->childNames.size(); i++)
