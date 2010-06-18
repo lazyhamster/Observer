@@ -25,7 +25,8 @@ static bool SplitEncodedFilename(string filename, vector<EncodedWordEntry> &ewor
 	{
 		// Find board sequences
 		size_t startPos = str.find("=?");
-		size_t endPos = str.find("?=");
+		size_t qmPos = (startPos != string::npos) ? str.find('?', startPos + 2) : string::npos;
+		size_t endPos = (qmPos != string::npos) ? str.find("?=", qmPos + 3) : string::npos;
 
 		if (startPos != 0 || endPos == string::npos)
 		{
@@ -33,21 +34,19 @@ static bool SplitEncodedFilename(string filename, vector<EncodedWordEntry> &ewor
 			return false;
 		}
 
-		string eWord = str.substr(startPos + 2, endPos - 3);
+		string eWord = str.substr(startPos + 2, endPos - 2);
 		if (eWord.length() > 0)
 		{
-			size_t qmPos = eWord.find('?');
-			if ((qmPos != string::npos) && (qmPos + 2 < eWord.length()))
-			{
-				EncodedWordEntry nextEntry;
-				nextEntry.Charset = eWord.substr(0, qmPos);
-				nextEntry.Encoding = eWord[qmPos + 1];
-				nextEntry.EncodedFilename = eWord.substr(qmPos + 2);
+			qmPos -= 2; // Because be removed leading sequence
 
-				// Check for recognizable encoding
-				if (nextEntry.Encoding == 'Q' || nextEntry.Encoding == 'B')
-					ewordlist.push_back(nextEntry);
-			}
+			EncodedWordEntry nextEntry;
+			nextEntry.Charset = eWord.substr(0, qmPos);
+			nextEntry.Encoding = eWord[qmPos + 1];
+			nextEntry.EncodedFilename = eWord.substr(qmPos + 3);
+
+			// Check for recognizable encoding
+			if ((nextEntry.Encoding == 'Q' || nextEntry.Encoding == 'B') && (nextEntry.EncodedFilename.length() > 0))
+				ewordlist.push_back(nextEntry);
 		}
 
 		str.erase(0, endPos + 2);
@@ -59,7 +58,7 @@ static bool SplitEncodedFilename(string filename, vector<EncodedWordEntry> &ewor
 static UINT Charset2Codepage(string &charset)
 {
 	// Convert charset string to upper case
-	string strCharsetUp;
+	string strCharsetUp(charset);
 	transform(charset.begin(), charset.end(), strCharsetUp.begin(), toupper);
 	
 	if (strCharsetUp.compare("UTF-8") == 0)
@@ -118,7 +117,8 @@ static wstring DecodeFileName(string filename)
 			}
 
 			nCodePage = Charset2Codepage(encName.Charset);
-			MultiByteToWideChar(CP_ACP, 0, filename.c_str(), (int) filename.length(), buf, 100);
+			memset(buf, 0, sizeof(buf));
+			MultiByteToWideChar(nCodePage, 0, decodedName.c_str(), (int) decodedName.length(), buf, 100);
 
 			retval += buf;
 		}  // for
