@@ -1,100 +1,135 @@
 #include "StdAfx.h"
 
 #include <sstream>
+#include <vector>
 #include "mimetic/mimetic.h"
 
 using namespace mimetic;
 using namespace std;
 
-struct EncodedMIMEFilename
+struct EncodedWordEntry
 {
 	string Charset;
 	char Encoding;
 	string EncodedFilename;
 };
 
-static bool SplitEncodedFilename(string filename, EncodedMIMEFilename &retval)
+// See RFC2047 for full definition of the encoded-word in MIME
+// Format: encoded-word = "=?" charset "?" encoding "?" encoded-text "?="
+static bool SplitEncodedFilename(string filename, vector<EncodedWordEntry> &ewordlist)
 {
-	if (filename.find("=?") != 0)
-		return false;
+	string str = filename;
+	ewordlist.clear();
 
-	// Get rid of leading symbols
-	string str = filename.substr(2);
+	while (str.length() > 0)
+	{
+		// Find board sequences
+		size_t startPos = str.find("=?");
+		size_t endPos = str.find("?=");
 
-	// Find Charset
-	size_t pos = str.find('?');
-	if (pos == string::npos) return false;
+		if (startPos != 0 || endPos == string::npos)
+		{
+			ewordlist.clear();
+			return false;
+		}
 
-	string strCharset = str.substr(0, pos);
-	char cEnc = str[pos + 1];
+		string eWord = str.substr(startPos + 2, endPos - 3);
+		if (eWord.length() > 0)
+		{
+			size_t qmPos = eWord.find('?');
+			if ((qmPos != string::npos) && (qmPos + 2 < eWord.length()))
+			{
+				EncodedWordEntry nextEntry;
+				nextEntry.Charset = eWord.substr(0, qmPos);
+				nextEntry.Encoding = eWord[qmPos + 1];
+				nextEntry.EncodedFilename = eWord.substr(qmPos + 2);
 
-	if (cEnc != 'Q' && cEnc != 'B')
-		return false;
+				// Check for recognizable encoding
+				if (nextEntry.Encoding == 'Q' || nextEntry.Encoding == 'B')
+					ewordlist.push_back(nextEntry);
+			}
+		}
 
-	// Find terminating sequence
-	size_t lastPos = str.find("?=");
-	if (lastPos == string::npos) return false;
-	string encodedName = str.substr(pos + 3, lastPos - pos - 4);
+		str.erase(0, endPos + 2);
+	} // while
 
+	return (ewordlist.size() > 0);
+}
+
+static UINT Charset2Codepage(string &charset)
+{
 	// Convert charset string to upper case
-	transform(strCharset.begin(), strCharset.end(), strCharset.begin(), toupper);
+	string strCharsetUp;
+	transform(charset.begin(), charset.end(), strCharsetUp.begin(), toupper);
+	
+	if (strCharsetUp.compare("UTF-8") == 0)
+	{
+		return CP_UTF8;
+	}
+	else if (strCharsetUp.compare("KOI8-R") == 0)
+	{
+		return 20866;
+	}
+	else if (strCharsetUp.find("WINDOWS-") == 0)
+	{
+		string strVal = strCharsetUp.substr(8);
+		istringstream i(strVal);
+		UINT nCP;
+		if (i >> nCP)
+			return nCP;
+	}
 
-	retval.Encoding = cEnc;
-	retval.Charset = strCharset;
-	retval.EncodedFilename = encodedName;
-	return true;
+	return CP_ACP;
 }
 
 static wstring DecodeFileName(string filename)
 {
-	string decodedName = filename;
-	UINT nCodePage = CP_ACP;
-	EncodedMIMEFilename encName;
-
-	if (filename.find("=?") == 0 && SplitEncodedFilename(filename, encName))
-	{
-		// Decode name
-		if (encName.Encoding == 'Q')
-		{
-			QP::Decoder dec;
-			stringstream sstrm;
-			ostream_iterator<char> oit(sstrm);
-			decode(encName.EncodedFilename.begin(), encName.EncodedFilename.end(), dec, oit);
-
-			decodedName = sstrm.str();
-		}
-		else //if (encName.Encoding == 'B')
-		{
-			Base64::Decoder dec;
-			stringstream sstrm;
-			ostream_iterator<char> oit(sstrm);
-			decode(encName.EncodedFilename.begin(), encName.EncodedFilename.end(), dec, oit);
-
-			decodedName = sstrm.str();
-		}
-
-		// Detect required codepage
-		if (encName.Charset.compare("UTF-8") == 0)
-		{
-			nCodePage = CP_UTF8;
-		}
-		else if (encName.Charset.compare("KOI8-R") == 0)
-		{
-			nCodePage = 20866;
-		}
-		else if (encName.Charset.find("WINDOWS-") == 0)
-		{
-			string strVal = encName.Charset.substr(8);
-			istringstream i(strVal);
-			UINT nCP;
-			if (i >> nCP)
-				nCodePage = nCP;
-		}
-	}
-
+	vector<EncodedWordEntry> encList;
 	wchar_t buf[MAX_PATH] = {0};
-	MultiByteToWideChar(nCodePage, 0, decodedName.c_str(), (int) decodedName.length(), buf, 100);
-	return buf;
+
+	if (SplitEncodedFilename(filename, encList))
+	{
+		wstring retval;
+		UINT nCodePage = CP_ACP;
+
+		for (size_t i = 0; i < encList.size(); i++)
+		{
+			EncodedWordEntry &encName = encList[i];
+			string decodedName;
+			
+			// Decode name
+			if (encName.Encoding == 'Q')
+			{
+				QP::Decoder dec;
+				stringstream sstrm;
+				ostream_iterator<char> oit(sstrm);
+				decode(encName.EncodedFilename.begin(), encName.EncodedFilename.end(), dec, oit);
+
+				decodedName = sstrm.str();
+			}
+			else //if (encName.Encoding == 'B')
+			{
+				Base64::Decoder dec;
+				stringstream sstrm;
+				ostream_iterator<char> oit(sstrm);
+				decode(encName.EncodedFilename.begin(), encName.EncodedFilename.end(), dec, oit);
+
+				decodedName = sstrm.str();
+			}
+
+			nCodePage = Charset2Codepage(encName.Charset);
+			MultiByteToWideChar(CP_ACP, 0, filename.c_str(), (int) filename.length(), buf, 100);
+
+			retval += buf;
+		}  // for
+
+		return retval;
+	}
+	else
+	{
+		MultiByteToWideChar(CP_ACP, 0, filename.c_str(), (int) filename.length(), buf, 100);
+		return buf;
+	}
 }
 
 wstring GetEntityName(MimeEntity* entity)
