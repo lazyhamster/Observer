@@ -323,6 +323,7 @@ typedef struct PrimaryVolumeDescriptorEx
     DWORD                    BootImageEntries;
     bool                     Unicode;
     bool                     XBOX;
+	bool                     SystemUseAreas;
 } PrimaryVolumeDescriptorEx;
 
 typedef struct Directory
@@ -370,6 +371,15 @@ typedef struct MBR
     Partition                Partition[4];      // partitions
     unsigned short           Signature;
 } MBR;
+
+//////////////////////////////////////////////////////////////////////////
+
+struct SystemUseEntryHeader
+{
+	char Signature[2];
+	unsigned char Length;
+	unsigned char Version;
+};
 
 #pragma pack(pop)
 

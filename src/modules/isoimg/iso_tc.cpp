@@ -520,6 +520,27 @@ static bool LoadXBOXTree(IsoImage* image, PrimaryVolumeDescriptorEx* desc, const
     return result;
 }
 
+static SystemUseEntryHeader* GetSystemUseEntry(const char *entrySig, int entryVer, const DirectoryRecord *record)
+{
+	int nSysUseStart = sizeof(DirectoryRecord) + record->LengthOfFileIdentifier - 1;
+	nSysUseStart += (nSysUseStart & 1); // Align to even number of bytes
+
+	if (record->LengthOfDirectoryRecord > nSysUseStart)
+	{
+		int nPos = nSysUseStart;
+		while (nPos + 4 <= record->LengthOfDirectoryRecord)
+		{
+			SystemUseEntryHeader* suh = (SystemUseEntryHeader*) ((char*) record + nPos);
+			if (suh->Signature[0] == entrySig[0] && suh->Signature[1] == entrySig[1] && suh->Version == entryVer)
+			{
+				return suh;
+			}
+			nPos += suh->Length;
+		} // while
+	}
+	
+	return NULL;
+}
 
 static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wchar_t* path, DirectoryRecord* root,
                       Directory** dirs, DWORD* count, bool boot = false )
@@ -647,15 +668,41 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
             }
             else if( !desc->Unicode && record->LengthOfFileIdentifier > 0 && num > 1 )
             {
-			    directory.FileName = (wchar_t*) malloc((record->LengthOfFileIdentifier + 2) * sizeof(*directory.FileName));
-			    assert(directory.FileName);
-                if(!directory.FileName)
-                {
-                    free(data);
-                    return false;
-                }
-                MultiByteToWideChar(GetACP(), 0, (char*)record->FileIdentifier, record->LengthOfFileIdentifier, directory.FileName, record->LengthOfFileIdentifier + 2);
-                directory.FileName[record->LengthOfFileIdentifier] = 0;
+			    // Search for NM record (RockRidge extension)
+				bool fNMRecFound = false;
+				if (desc->SystemUseAreas)
+				{
+					SystemUseEntryHeader* suh = GetSystemUseEntry("NM", 1, record);
+					if (suh)
+					{
+						size_t nNameBufLen = (suh->Length - 4);
+						directory.FileName = (wchar_t*) malloc(nNameBufLen * sizeof(*directory.FileName));
+						assert(directory.FileName);
+						if(!directory.FileName)
+						{
+							free(data);
+							return false;
+						}
+						MultiByteToWideChar(GetACP(), 0, (char*)suh + 5, nNameBufLen - 1, directory.FileName, nNameBufLen);
+						directory.FileName[nNameBufLen] = 0;
+							
+						fNMRecFound = true;
+					}
+				}
+
+				// If extended name not found or not searched for use standard one
+				if (!fNMRecFound)
+				{
+					directory.FileName = (wchar_t*) malloc((record->LengthOfFileIdentifier + 2) * sizeof(*directory.FileName));
+					assert(directory.FileName);
+					if(!directory.FileName)
+					{
+	                    free(data);
+		                return false;
+			        }
+				    MultiByteToWideChar(GetACP(), 0, (char*)record->FileIdentifier, record->LengthOfFileIdentifier, directory.FileName, record->LengthOfFileIdentifier + 2);
+					directory.FileName[record->LengthOfFileIdentifier] = 0;
+				}
 
                 if( wcsrchr( directory.FileName, ';' ) )
                     *wcsrchr( directory.FileName, ';' ) = 0;
@@ -672,6 +719,18 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
 
                 (*dirs)[*count] = directory;
             }
+
+			// Check for System Use Entries
+			if (!desc->Unicode && (record->LengthOfFileIdentifier == 1) && (*count == 0) && (!path || !*path) && !num)
+			{
+				SystemUseEntryHeader* suh = GetSystemUseEntry("SP", 1, record);
+				if (suh)
+				{
+					unsigned char* rawSuh = (unsigned char*) suh + sizeof(SystemUseEntryHeader);
+					if (suh->Length == 7 && rawSuh[0] == 0xBE && rawSuh[1] == 0xEF)
+						desc->SystemUseAreas = true;
+				}
+			}
         } //if dirs
 
         if((!desc->Unicode && record->LengthOfFileIdentifier > 0 ||
