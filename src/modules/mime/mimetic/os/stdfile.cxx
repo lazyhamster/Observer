@@ -87,7 +87,8 @@ StdFile::operator bool() const
 
 bool StdFile::stat()
 {
-    return m_stated || (m_stated = (::_wstat(m_fqn.c_str(), &m_st) == 0));
+    int stres = ::_wstat(m_fqn.c_str(), &m_st);
+	return m_stated || (m_stated = (stres == 0));
 }
 
 void StdFile::close() 
