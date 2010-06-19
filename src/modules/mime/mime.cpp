@@ -49,21 +49,31 @@ static FILETIME ConvertDateTime(DateTime &dt)
 static void CacheFilesList(MimeEntity* entity, MimeFileInfo* info)
 {
 	MimeEntityList& parts = entity->body().parts();
-	MimeEntityList::iterator mbit = parts.begin(), meit = parts.end();
-	for(; mbit != meit; ++mbit)
+	if (parts.size() > 0)
 	{
-		MimeEntity *childEn = *mbit;
-		if (childEn->body().parts().size() > 0)
+		MimeEntityList::iterator mbit = parts.begin(), meit = parts.end();
+		for(; mbit != meit; ++mbit)
 		{
-			CacheFilesList(childEn, info);
-		}
-		else
-		{
-			info->children.push_back(childEn);
+			MimeEntity *childEn = *mbit;
+			if (childEn->body().parts().size() > 0)
+			{
+				CacheFilesList(childEn, info);
+			}
+			else
+			{
+				info->children.push_back(childEn);
 
-			wstring strChildName = GetEntityName(childEn);
-			info->childNames.push_back(strChildName);
-		}
+				wstring strChildName = GetEntityName(childEn);
+				info->childNames.push_back(strChildName);
+			}
+		} //for
+	}
+	else
+	{
+		info->children.push_back(entity);
+		
+		wstring strChildName = GetEntityName(entity);
+		info->childNames.push_back(strChildName);
 	}
 }
 
@@ -81,7 +91,10 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 	MimeEntity *me = new MimeEntity();
 	me->load(filePtr.begin(), filePtr.end());
-	if (me->body().parts().size() <= 0)
+
+	// Check if file was loaded
+	Header &head = me->header();
+	if (head.size() == 0)
 	{
 		delete me;
 		return FALSE;
@@ -93,7 +106,6 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 	*storage = (INT_PTR*) minfo;
 
-	Header &head = me->header();
 	MimeVersion &mimeVer = head.mimeVersion();
 	ContentType &ctype = head.contentType();
 
