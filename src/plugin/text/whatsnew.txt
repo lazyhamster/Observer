@@ -3,6 +3,7 @@ Changes history:
 1.6.1
 - MIME: Improved recognition of file names inside container.
 - MIME: Fixed reading of file with nested 'multipart/*' sections.
+- MIME: Fixed reading of single-part messages.
 - ISO: Added RockRidge support.
 
 1.6
