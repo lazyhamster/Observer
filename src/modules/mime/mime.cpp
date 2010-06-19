@@ -53,8 +53,7 @@ static void CacheFilesList(MimeEntity* entity, MimeFileInfo* info)
 	for(; mbit != meit; ++mbit)
 	{
 		MimeEntity *childEn = *mbit;
-		ContentType &ctype = childEn->header().contentType();
-		if (_stricmp(ctype.type().c_str(), "multipart") == 0)
+		if (childEn->body().parts().size() > 0)
 		{
 			CacheFilesList(childEn, info);
 		}

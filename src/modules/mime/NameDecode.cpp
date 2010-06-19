@@ -163,6 +163,11 @@ static string GenerateFileName(ContentType &ctype)
 		if (strSybType.compare("postscript") == 0)
 			strResult = "file.ps";
 	}
+	else if (strType.compare("message") == 0)
+	{
+		if (strSybType.compare("rfc822") == 0)
+			strResult = "message.eml";
+	}
 	
 	return strResult;
 }
