@@ -73,6 +73,10 @@ static UINT Charset2Codepage(string &charset)
 	{
 		return 20866;
 	}
+	else if (strCharsetUp.compare("KOI8-U") == 0)
+	{
+		return 21866;
+	}
 	else if (strCharsetUp.find("WINDOWS-") == 0)
 	{
 		string strVal = strCharsetUp.substr(8);
@@ -80,6 +84,14 @@ static UINT Charset2Codepage(string &charset)
 		UINT nCP;
 		if (i >> nCP)
 			return nCP;
+	}
+	else if (strCharsetUp.find("ISO-8859-") == 0)
+	{
+		string strVal = strCharsetUp.substr(9);
+		istringstream i(strVal);
+		UINT nCP;
+		if (i >> nCP)
+			return (28590 + nCP);
 	}
 
 	return CP_ACP;
