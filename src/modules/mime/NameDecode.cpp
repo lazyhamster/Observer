@@ -136,6 +136,37 @@ static wstring DecodeFileName(string filename)
 	}
 }
 
+static string GenerateFileName(ContentType &ctype)
+{
+	string strType = ctype.type();
+	string strSybType = ctype.subtype();
+
+	transform(strType.begin(), strType.end(), strType.begin(), tolower);
+	transform(strSybType.begin(), strSybType.end(), strSybType.begin(), tolower);
+
+	string strResult = "file.bin";
+	if (strType.compare("image") == 0)
+	{
+		strResult = "image." + strSybType;
+	}
+	else if (strType.compare("text") == 0)
+	{
+		if (strSybType.compare("html") == 0)
+			strResult = "index.html";
+		else if (strSybType.compare("richtext") == 0)
+			strResult = "message.rtf";
+		else
+			strResult = "message.txt";
+	}
+	else if (strType.compare("application") == 0)
+	{
+		if (strSybType.compare("postscript") == 0)
+			strResult = "file.ps";
+	}
+	
+	return strResult;
+}
+
 wstring GetEntityName(MimeEntity* entity)
 {
 	Header& head = entity->header();
@@ -179,22 +210,7 @@ wstring GetEntityName(MimeEntity* entity)
 		// If location didn't gave us name, then get generic one
 		if (strFileName.length() == 0)
 		{
-			string strType = ctype.type();
-			if (strType.compare("image") == 0)
-			{
-				strFileName = "image" + ctype.subtype();
-			}
-			else if (strType.compare("text") == 0)
-			{
-				if (ctype.subtype().compare("html") == 0)
-					strFileName = "index.html";
-				else
-					strFileName = "message.txt";
-			}
-			else
-			{
-				strFileName = "file.bin";
-			}
+			strFileName = GenerateFileName(ctype);
 		}
 	}
 
