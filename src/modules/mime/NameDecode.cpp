@@ -49,7 +49,11 @@ static bool SplitEncodedFilename(string filename, vector<EncodedWordEntry> &ewor
 				ewordlist.push_back(nextEntry);
 		}
 
+		// Delete decoded part
 		str.erase(0, endPos + 2);
+		// Delete all leading whitespace characters
+		while (str[0] == ' ')
+			str.erase(0, 1);
 	} // while
 
 	return (ewordlist.size() > 0);
@@ -118,7 +122,7 @@ static wstring DecodeFileName(string filename)
 
 			nCodePage = Charset2Codepage(encName.Charset);
 			memset(buf, 0, sizeof(buf));
-			MultiByteToWideChar(nCodePage, 0, decodedName.c_str(), (int) decodedName.length(), buf, 100);
+			MultiByteToWideChar(nCodePage, 0, decodedName.c_str(), (int) decodedName.length(), buf, sizeof(buf) / sizeof(buf[0]));
 
 			retval += buf;
 		}  // for
@@ -127,7 +131,7 @@ static wstring DecodeFileName(string filename)
 	}
 	else
 	{
-		MultiByteToWideChar(CP_ACP, 0, filename.c_str(), (int) filename.length(), buf, 100);
+		MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), (int) filename.length(), buf, sizeof(buf) / sizeof(buf[0]));
 		return buf;
 	}
 }
@@ -145,18 +149,25 @@ wstring GetEntityName(MimeEntity* entity)
 	if (strFileName.length() == 0)
 	{
 		Field& flLocation = head.field("Content-Location");
-		string strLocation = flLocation.value();
+		string strLocationVal = flLocation.value();
+		if (strLocationVal.length() > 0)
+		{
+			wstring strLocation = DecodeFileName(strLocationVal);
+			if (strLocation.length() > 0)
+			{
+				// Erase URL part after ? (parameters)
+				size_t nPos = strLocation.find('?');
+				if (nPos != string::npos)
+					strLocation.erase(nPos);
+				// Leave only file name
+				nPos = strLocation.find_last_of(L"/\\");
+				if (nPos != string::npos)
+					strLocation.erase(0, nPos + 1);
 
-		// Erase URL part after ? (parameters)
-		size_t nPos = strLocation.find('?');
-		if (nPos != string::npos)
-			strLocation.erase(nPos);
-		// Leave only file name
-		nPos = strLocation.find_last_of('/');
-		if (nPos != string::npos)
-			strLocation.erase(0, nPos + 1);
-
-		strFileName = strLocation;
+				if (strLocation.length() > 0)
+					return strLocation;
+			}
+		}
 	}
 
 	// If previous check failed, get name from content type
