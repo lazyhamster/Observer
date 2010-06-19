@@ -175,7 +175,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	
 	MimeEntity* entity = minfo->children[item_index];
 	if (!entity) return GET_ITEM_ERROR;
-	wstring name = minfo->childNames[item_index];
+	wstring &name = minfo->childNames[item_index];
 	
 	wcscpy_s(item_path, path_size, name.c_str());
 
@@ -183,7 +183,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	wcscpy_s(item_data->cFileName, MAX_PATH, name.c_str());
 	wcscpy_s(item_data->cAlternateFileName, 14, L"");
 	item_data->dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-	item_data->nFileSizeLow = entity->size();
+	item_data->nFileSizeLow = entity->body().length();
 
 	return GET_ITEM_OK;
 }
