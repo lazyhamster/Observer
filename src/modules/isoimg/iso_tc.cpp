@@ -531,6 +531,8 @@ static SystemUseEntryHeader* GetSystemUseEntry(const char *entrySig, int entryVe
 		while (nPos + 4 <= record->LengthOfDirectoryRecord)
 		{
 			SystemUseEntryHeader* suh = (SystemUseEntryHeader*) ((char*) record + nPos);
+			if (suh->Length <= 0) break;
+
 			if (suh->Signature[0] == entrySig[0] && suh->Signature[1] == entrySig[1] && suh->Version == entryVer)
 			{
 				return suh;
@@ -676,14 +678,14 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
 					if (suh)
 					{
 						size_t nNameBufLen = (suh->Length - 4);
-						directory.FileName = (wchar_t*) malloc(nNameBufLen * sizeof(*directory.FileName));
+						directory.FileName = (wchar_t*) malloc((nNameBufLen + 1) * sizeof(wchar_t));
 						assert(directory.FileName);
 						if(!directory.FileName)
 						{
 							free(data);
 							return false;
 						}
-						MultiByteToWideChar(GetACP(), 0, (char*)suh + 5, nNameBufLen - 1, directory.FileName, nNameBufLen);
+						MultiByteToWideChar(GetACP(), 0, (char*)suh + 5, nNameBufLen - 1, directory.FileName, nNameBufLen + 1);
 						directory.FileName[nNameBufLen] = 0;
 							
 						fNMRecFound = true;
