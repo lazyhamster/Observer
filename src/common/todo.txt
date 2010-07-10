@@ -4,3 +4,8 @@ MSI:
 - fix problem with real file and non showing the special folders mode
 - (?) registry list is more close to valid reg files
 
+Plugin:
+- add support for empty folders extraction
+
+MIME:
+- Improve parser
