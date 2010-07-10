@@ -412,7 +412,7 @@ HRESULT CUdfArchive::ReadItem(int volIndex, int fsIndex, const CLongAllocDesc &l
   CTag tag;
   const Byte *p = buf;
   RINOK(tag.Parse(p, size));
-  if (tag.Id != DESC_TYPE_File)
+  if (tag.Id != DESC_TYPE_File && tag.Id != DESC_TYPE_ExtendedFile)
     return S_FALSE;
 
   item.IcbTag.Parse(p + 16);
@@ -424,14 +424,31 @@ HRESULT CUdfArchive::ReadItem(int volIndex, int fsIndex, const CLongAllocDesc &l
 
   _processedProgressBytes += (UInt64)item.NumLogBlockRecorded * vol.BlockSize + size;
 
-  UInt32 extendedAttrLen = Get32(p + 168);
-  UInt32 allocDescriptorsLen = Get32(p + 172);
+  UInt32 extendedAttrLen;
+  UInt32 allocDescriptorsLen;
+  int pos;
+  if (tag.Id == DESC_TYPE_File)
+  {
+	  extendedAttrLen = Get32(p + 168);
+	  allocDescriptorsLen = Get32(p + 172);
 
-  if ((extendedAttrLen & 3) != 0)
-    return S_FALSE;
-  int pos = 176;
-  if (extendedAttrLen > size - pos)
-    return S_FALSE;
+	  if ((extendedAttrLen & 3) != 0)
+		return S_FALSE;
+	  pos = 176;
+	  if (extendedAttrLen > size - pos)
+		return S_FALSE;
+  }
+  else
+  {
+	  extendedAttrLen = Get32(p + 208);
+	  allocDescriptorsLen = Get32(p + 212);
+
+	  if ((extendedAttrLen & 3) != 0)
+		  return S_FALSE;
+	  pos = 216;
+	  if (extendedAttrLen > size - pos)
+		  return S_FALSE;
+  }
   /*
   if (extendedAttrLen != 16)
   {
