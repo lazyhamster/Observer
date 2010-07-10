@@ -5,6 +5,7 @@ Changes history:
 - MIME: Fixed reading of file with nested 'multipart/*' sections.
 - MIME: Fixed reading of single-part messages.
 - ISO: Added RockRidge support.
+- UDF: Improved support for newer UDF revisions.
 
 1.6
 - Added support for Egosoft packages from X-series games.
