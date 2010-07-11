@@ -60,7 +60,7 @@ struct CTime
 
   BOOL GetFileTime(FILETIME &ft) const
   {
-	  SYSTEMTIME st;
+	  SYSTEMTIME st = {0};
 	  st.wYear = GetYear();
 	  st.wMonth = Data[4];
 	  st.wDay = Data[5];
@@ -69,6 +69,19 @@ struct CTime
 	  st.wSecond = Data[8];
 	  st.wMilliseconds = Data[9] * 10;
 
+	  if (IsLocal())
+	  {
+		  Int32 tzBias = GetMinutesOffset();
+		  if (tzBias != 0)
+		  {
+			  SYSTEMTIME ust = {0};
+			  TIME_ZONE_INFORMATION tzi = {0};
+			  tzi.Bias = -tzBias;
+			  if (TzSpecificLocalTimeToSystemTime(&tzi, &st, &ust))
+				  st = ust;
+		  }
+	  }
+	  
 	  return SystemTimeToFileTime(&st, &ft);
   }
 };
@@ -174,6 +187,9 @@ struct CPartitionMap
   // UInt16 VolSeqNumber;
   UInt16 PartitionNumber;
 
+  // Type - 2
+  char PartitionIdentifier[62];
+  
   // Byte Data[256];
 
   int PartitionIndex;
