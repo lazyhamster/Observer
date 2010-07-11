@@ -6,6 +6,7 @@ Changes history:
 - MIME: Fixed reading of single-part messages.
 - ISO: Added RockRidge support.
 - UDF: Improved support for newer UDF revisions.
+- UDF: Fixed time zone value for files modification time.
 
 1.6
 - Added support for Egosoft packages from X-series games.

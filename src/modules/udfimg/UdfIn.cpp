@@ -317,6 +317,18 @@ void CItem::Parse(const Byte *p)
   // ExtendedAttrIcb.Parse(p + 112);
   // ImplId.Parse(p + 128);
   // UniqueId = Get64(p + 160);
+  
+  CreateTime.Parse(p + 84); // Same as MTime
+}
+
+// Support for Extended File Entry
+void CItem::ParseExt(const Byte *p)
+{
+	Size = Get64(p + 56);
+	NumLogBlockRecorded = Get64(p + 72);
+	ATime.Parse(p + 80);
+	MTime.Parse(p + 92);
+	CreateTime.Parse(p + 104);
 }
 
 // 4/14.4
@@ -420,15 +432,15 @@ HRESULT CUdfArchive::ReadItem(int volIndex, int fsIndex, const CLongAllocDesc &l
       item.IcbTag.FileType != ICB_FILE_TYPE_FILE)
     return S_FALSE;
 
-  item.Parse(p);
-
-  _processedProgressBytes += (UInt64)item.NumLogBlockRecorded * vol.BlockSize + size;
-
   UInt32 extendedAttrLen;
   UInt32 allocDescriptorsLen;
   int pos;
+
   if (tag.Id == DESC_TYPE_File)
   {
+	  item.Parse(p);
+	  _processedProgressBytes += (UInt64)item.NumLogBlockRecorded * vol.BlockSize + size;
+
 	  extendedAttrLen = Get32(p + 168);
 	  allocDescriptorsLen = Get32(p + 172);
 
@@ -440,6 +452,9 @@ HRESULT CUdfArchive::ReadItem(int volIndex, int fsIndex, const CLongAllocDesc &l
   }
   else
   {
+	  item.ParseExt(p);
+	  _processedProgressBytes += (UInt64)item.NumLogBlockRecorded * vol.BlockSize + size;
+	  
 	  extendedAttrLen = Get32(p + 208);
 	  allocDescriptorsLen = Get32(p + 212);
 
@@ -709,15 +724,19 @@ HRESULT CUdfArchive::Open2()
         // memcpy(pm.Data, buf + pos + 2, pm.Length - 2);
         if (pm.Type == 1)
         {
-          if (pos + 6 > bufSize)
-            return S_FALSE;
           // pm.VolSeqNumber = Get16(buf + pos + 2);
           pm.PartitionNumber = Get16(buf + pos + 4);
+		  memset(pm.PartitionIdentifier, 0, sizeof(pm.PartitionIdentifier));
         }
+		else if (pm.Type == 2)
+		{
+			pm.PartitionNumber = 0;
+			memcpy(pm.PartitionIdentifier, buf + 2, sizeof(pm.PartitionIdentifier));
+		}
         else
           return S_FALSE;
         pos += len;
-        vol.PartitionMaps.Add(pm);
+        if(pm.Type == 1) vol.PartitionMaps.Add(pm);
       }
       LogVols.Add(vol);
     }
@@ -976,7 +995,6 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 	{
 		if (itemObj.IsInline)
 		{
-			//TODO: find WTF it is (when isinline is true)
 			DWORD dwWritten;
 			size_t nNumWrite = itemObj.InlineData.GetCapacity();
 			if (!WriteFile(hFile, (const Byte *) itemObj.InlineData, (DWORD) nNumWrite, &dwWritten, NULL))
@@ -1041,7 +1059,7 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 				if (result != SER_SUCCESS) break;
 			}  //for
 			free(buf);
-		}
+		} // if inline
 
 		FILETIME ft;
 		itemObj.MTime.GetFileTime(ft);

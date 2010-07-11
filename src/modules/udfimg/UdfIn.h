@@ -267,6 +267,7 @@ struct CItem
   UInt64 NumLogBlockRecorded;
   CTime ATime;
   CTime MTime;
+  CTime CreateTime; // Only for extended entries
   // CTime AttrtTime;
   // UInt32 CheckPoint;
   // CLongAllocDesc ExtendedAttrIcb;
@@ -278,7 +279,8 @@ struct CItem
   CRecordVector<CMyExtent> Extents;
   CRecordVector<int> SubFiles;
 
-  void Parse(const Byte *buf);
+  void Parse(const Byte *p);
+  void ParseExt(const Byte *p);
 
   bool IsRecAndAlloc() const
   {
