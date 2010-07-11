@@ -231,6 +231,13 @@ void CLongAllocDesc::Parse(const Byte *buf)
   // adImpUse.Parse(ImplUse);
 }
 
+void CEntityIdentifier::Parse(const Byte *p)
+{
+	Flags = p[0];
+	memcpy(Identifier, p + 1, 23);
+	memcpy(IdentifierSuffix, p + 24, 8);
+}
+
 bool CUdfArchive::CheckExtent(int volIndex, int partitionRef, UInt32 blockPos, UInt32 len) const
 {
   const CLogVol &vol = LogVols[volIndex];
@@ -726,17 +733,17 @@ HRESULT CUdfArchive::Open2()
         {
           // pm.VolSeqNumber = Get16(buf + pos + 2);
           pm.PartitionNumber = Get16(buf + pos + 4);
-		  memset(pm.PartitionIdentifier, 0, sizeof(pm.PartitionIdentifier));
         }
 		else if (pm.Type == 2)
 		{
-			pm.PartitionNumber = 0;
-			memcpy(pm.PartitionIdentifier, buf + 2, sizeof(pm.PartitionIdentifier));
+			pm.PartitionTypeIdentifier.Parse(buf + pos + 4);
+			// pm.VolSeqNumber = Get16(buf + pos + 36);
+			pm.PartitionNumber = Get16(buf + pos + 38);
 		}
         else
           return S_FALSE;
         pos += len;
-        if(pm.Type == 1) vol.PartitionMaps.Add(pm);
+        vol.PartitionMaps.Add(pm);
       }
       LogVols.Add(vol);
     }
@@ -762,7 +769,8 @@ HRESULT CUdfArchive::Open2()
           pm.PartitionIndex = i;
           part.VolIndex = volIndex;
 
-          totalSize += (UInt64)part.Len << SecLogSize;
+          if (pm.Type == 1)
+			totalSize += (UInt64)part.Len << SecLogSize;
           break;
         }
       }
