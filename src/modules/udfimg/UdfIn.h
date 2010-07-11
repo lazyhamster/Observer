@@ -178,6 +178,22 @@ struct CLongAllocDesc
   void Parse(const Byte *buf);
 };
 
+struct CEntityIdentifier
+{
+	Byte Flags;
+	char Identifier[23];
+	char IdentifierSuffix[8];
+
+	CEntityIdentifier()
+	{
+		Flags = 0;
+		memset(Identifier, 0, sizeof(Identifier));
+		memset(IdentifierSuffix, 0, sizeof(IdentifierSuffix));
+	}
+
+	void Parse(const Byte *p);
+};
+
 struct CPartitionMap
 {
   Byte Type;
@@ -188,7 +204,7 @@ struct CPartitionMap
   UInt16 PartitionNumber;
 
   // Type - 2
-  char PartitionIdentifier[62];
+  CEntityIdentifier PartitionTypeIdentifier;
   
   // Byte Data[256];
 
