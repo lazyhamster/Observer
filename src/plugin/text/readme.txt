@@ -22,6 +22,8 @@ Supported formats:
 
 - Egosoft packages (for X-series games)
 
+- Volition Pack V2 files (from FreeSpace 1/2/Open)
+
 2. License and copyright.
 
 Plug-in includes several third-party code by different authors.
