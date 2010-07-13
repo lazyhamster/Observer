@@ -37,7 +37,7 @@ struct ProgressContext
 };
 
 #define STORAGE_FORMAT_NAME_MAX_LEN 16
-#define STORAGE_PARAM_MAX_LEN 32
+#define STORAGE_PARAM_MAX_LEN 64
 
 struct StorageGeneralInfo
 {
