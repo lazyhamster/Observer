@@ -1,4 +1,4 @@
-Observer 1.6
+Observer 1.6.1
 Plugin for FAR 1.7x / 2.x
 ---------------------------
 
@@ -10,7 +10,7 @@ Supported file formats:
 - NSIS installation packages
 - UDF (ISO 13346) images.
 - CD disk images : ISO-9660 (incl. Joliet), CUE/BIN, MDF/MDS
-- Volition Pack V2 files
+- Volition Pack V2 files (from FreeSpace 1/2/Open)
 - Egosoft packages (for X-series games)
 
 (c) 2009-2010, Ariman

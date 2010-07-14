@@ -1,5 +1,14 @@
 Changes history:
 
+1.6.1
+- Fixed problem with very long volume labels.
+- MIME: Improved recognition of file names inside container.
+- MIME: Fixed reading of file with nested 'multipart/*' sections.
+- MIME: Fixed reading of single-part messages.
+- ISO: Added RockRidge support.
+- UDF: Improved support for newer UDF revisions (UDF 2.0x).
+- UDF: Fixed time zone value for files modification time.
+
 1.6
 - Added support for Egosoft packages from X-series games.
 - Added support for multipart MIME messages (e.g. *.mht, *.eml).
