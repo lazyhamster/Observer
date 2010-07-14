@@ -719,7 +719,7 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	static InfoPanelLine pInfoLinesData[8];
 	memset(pInfoLinesData, 0, sizeof(pInfoLinesData));
 
-	pInfoLinesData[0].Data = wszHostFile;
+	pInfoLinesData[0].Text = wszHostFile;
 	pInfoLinesData[0].Separator = 1;
 	
 	pInfoLinesData[IL_FORMAT].Text = GetLocMsg(MSG_INFOL_FORMAT);
