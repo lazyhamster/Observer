@@ -65,13 +65,13 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 	{
 		if (m_nBufOutAvail > 0)
 		{
-			size_t nCopySize = ((size_t) m_nBufOutAvail > size) ? size : (size_t) m_nBufOutAvail;
+			size_t nCopySize = (m_nBufOutAvail > size) ? size : m_nBufOutAvail;
 			memcpy(data, m_pBufOut, nCopySize);
 			m_nBufOutAvail -= nCopySize;
 			if (m_nBufOutAvail > 0)
 				memmove(m_pBufOut, m_pBufOut + nCopySize, m_nBufOutAvail);
 
-			if (processedSize) *processedSize = nCopySize;
+			if (processedSize) *processedSize = (UInt32) nCopySize;
 		}
 		return S_OK;
 	}
@@ -105,12 +105,12 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 		do 
 		{
 			m_bzState->next_out = m_pBufOut + m_nBufOutAvail;
-			m_bzState->avail_out = OBUFSIZE - m_nBufOutAvail;
+			m_bzState->avail_out = OBUFSIZE - (unsigned int) m_nBufOutAvail;
 
 			dec_res = BZ2_bzDecompress(m_bzState);
 			if (dec_res < 0) return S_FALSE;
 
-			UInt32 nDataSize = m_bzState->next_out - m_pBufOut;
+			size_t nDataSize = m_bzState->next_out - m_pBufOut;
 			m_nBufOutAvail = 0;
 			
 			// if there's no output, more input is needed
@@ -131,8 +131,8 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 			if (m_nBufOutAvail > 0)
 				memmove(m_pBufOut, m_pBufOut + nCopySize, m_nBufOutAvail);
 
-			nProcessedCount += nCopySize;
-			nBytesLeft -= nCopySize;
+			nProcessedCount += (UInt32) nCopySize;
+			nBytesLeft -= (UInt32) nCopySize;
 		} while (m_bzState->avail_in && (dec_res != BZ_STREAM_END) && nBytesLeft);
 
 		if (dec_res == BZ_STREAM_END)

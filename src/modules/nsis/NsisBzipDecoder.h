@@ -27,7 +27,7 @@ private:
 	char m_pBufIn[IBUFSIZE];
 	char m_pBufOut[OBUFSIZE];
 	int m_nBufInAvail;
-	int m_nBufOutAvail;
+	size_t m_nBufOutAvail;
 	bool m_fStreamEnd;
 
 public:
