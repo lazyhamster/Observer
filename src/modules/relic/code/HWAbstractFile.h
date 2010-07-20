@@ -12,6 +12,7 @@ struct HWStorageItem
 	FILETIME ModTime;
 	uint32_t CRC;
 	uint32_t DataOffset;
+	int CustomData;
 };
 
 class CHWClassFactory;
@@ -29,6 +30,7 @@ protected:
 	virtual void Close() = 0;
 
 	bool ReadData(void* buf, size_t size);
+	bool ReadData(void* buf, size_t size, size_t* numRead);
 	bool SeekPos(__int64 newPos, DWORD moveMethod);
 
 public:
@@ -42,7 +44,7 @@ public:
 	virtual const wchar_t* GetFormatName() const { return L"Generic"; }
 	virtual const wchar_t* GetCompression() const { return L"None"; }
 
-	virtual int ExtractFile(int index, const wchar_t* destPath, const ExtractProcessCallbacks* epc) = 0;
+	virtual bool ExtractFile(int index, HANDLE outfile) = 0;
 };
 
 #endif // HWAbstractFile_h__

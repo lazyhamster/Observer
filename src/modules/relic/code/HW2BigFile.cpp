@@ -15,7 +15,8 @@ static void UnixTimeToFileTime(uint32_t t, LPFILETIME pft)
 
 CHW2BigFile::CHW2BigFile()
 {
-
+	memset(&m_archHeader, 0, sizeof(m_archHeader));
+	m_vFileInfoList = NULL;
 }
 
 CHW2BigFile::~CHW2BigFile()
@@ -46,11 +47,10 @@ bool CHW2BigFile::Open( HANDLE inFile )
 
 	BIG_TOCListEntry* vTOC = NULL;
 	BIG_FolderListEntry* vFolderList = NULL;
-	BIG_FileInfoListEntry* vFileInfoList = NULL;
 
 	RETNOK( ReadStructArray<BIG_TOCListEntry>(m_sectionHeader.TOCList, &vTOC) );
 	RETNOK( ReadStructArray<BIG_FolderListEntry>(m_sectionHeader.FolderList, &vFolderList) );
-	RETNOK( ReadStructArray<BIG_FileInfoListEntry>(m_sectionHeader.FileInfoList, &vFileInfoList) );
+	RETNOK( ReadStructArray<BIG_FileInfoListEntry>(m_sectionHeader.FileInfoList, &m_vFileInfoList) );
 
 	bool fResult = true;
 
@@ -66,13 +66,15 @@ bool CHW2BigFile::Open( HANDLE inFile )
 		{
 			BIG_TOCListEntry &tocEntry = vTOC[i];
 			char* szPathPrefix = tocEntry.CharacterAliasName[0] != 0 ? tocEntry.CharacterAliasName : tocEntry.CharacterName;
-			fResult = FetchFolder(vFolderList, tocEntry.StartFolderIndexForHierarchy, vFileInfoList, szPathPrefix, szNamesListCache);
+			fResult = FetchFolder(vFolderList, tocEntry.StartFolderIndexForHierarchy, m_vFileInfoList, szPathPrefix, szNamesListCache);
 
 			if (!fResult) break;
 		} // for i
 	}
 
 	free(szNamesListCache);
+	free(vTOC);
+	free(vFolderList);
 	
 	m_bIsValid = fResult;
 	return fResult;
@@ -123,6 +125,7 @@ bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BI
 		new_item.UncompressedSize = fileInfo.DecompressedLength;
 		new_item.DataOffset = fileInfo.FileDataOffset;
 		new_item.Flags = fileInfo.Flags;
+		new_item.CustomData = i;
 
 		BIG_FileHeader fileHeader;
 		RETNOK( SeekPos(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset - sizeof(fileHeader), FILE_BEGIN) );
@@ -137,7 +140,29 @@ bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BI
 	return true;
 }
 
-int CHW2BigFile::ExtractFile( int index, const wchar_t* destPath, const ExtractProcessCallbacks* epc )
+bool CHW2BigFile::ExtractFile( int index, HANDLE outfile )
 {
-	return SER_ERROR_SYSTEM;
+	if (m_vFileInfoList == NULL) return false;
+	
+	HWStorageItem item = m_vItems[index];
+	BIG_FileInfoListEntry &fileInfo = m_vFileInfoList[item.CustomData];
+
+	RETNOK( SeekPos(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset, FILE_BEGIN) );
+
+	const size_t nBufSize = 32 * 1024;
+	char buf[nBufSize];
+	size_t nRead;
+	DWORD nWritten;
+	
+	uint32_t nBytesLeft = fileInfo.CompressedLength;
+	while (nBytesLeft > 0)
+	{
+		size_t nReadSize = (nBytesLeft > nBufSize) ? nBufSize : nBytesLeft;
+		
+		RETNOK( ReadData(buf, nReadSize, &nRead) );
+		WriteFile(outfile, buf, nRead, &nWritten, NULL);
+		nBytesLeft -= nRead;
+	}
+	
+	return true;
 }

@@ -83,5 +83,31 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	if (params.item < 0 || params.item >= fileObj->NumFiles())
 		return SER_ERROR_SYSTEM;
 
-	return fileObj->ExtractFile(params.item, params.dest_path, &(params.callbacks));
+	HWStorageItem item = {0};
+	if (fileObj->GetFileInfo(params.item, &item))
+	{
+		size_t nFilePathLen = wcslen(params.dest_path) + wcslen(item.Name) + 1;
+		wchar_t* fullFilePath = (wchar_t*) malloc(nFilePathLen * sizeof(wchar_t));
+		swprintf_s(fullFilePath, nFilePathLen, L"%s%s", params.dest_path, GetFileName(item.Name));
+		
+		HANDLE hOutputFile = CreateFile(fullFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+		if (hOutputFile == INVALID_HANDLE_VALUE)
+			return SER_ERROR_WRITE;
+
+		ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
+		bool fOpRes = fileObj->ExtractFile(params.item, hOutputFile);
+		pctx->nProcessedBytes += item.UncompressedSize;
+
+		CloseHandle(hOutputFile);
+
+		if (!fOpRes)
+		{
+			DeleteFile(params.dest_path);
+			return SER_ERROR_READ;
+		}
+
+		return SER_SUCCESS;
+	}
+
+	return SER_ERROR_SYSTEM;
 }

@@ -9,6 +9,7 @@ class CHW2BigFile : public CHWAbstractStorage
 private:
 	BIG_ArchHeader m_archHeader;
 	BIG_SectionHeader m_sectionHeader;
+	BIG_FileInfoListEntry* m_vFileInfoList;
 
 	template<typename T>
 	bool ReadStructArray(BIG_SectionRef secref, T** list);
@@ -27,7 +28,7 @@ public:
 	virtual const wchar_t* GetFormatName() const { return L"HomeWorld 2 BIG"; }
 	virtual const wchar_t* GetCompression() const { return L"ZLib/None"; }
 
-	virtual int ExtractFile(int index, const wchar_t* destPath, const ExtractProcessCallbacks* epc);
+	virtual bool ExtractFile(int index, HANDLE outfile);
 };
 
 template<typename T>

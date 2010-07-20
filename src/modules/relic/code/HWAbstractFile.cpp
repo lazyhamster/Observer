@@ -12,13 +12,23 @@ bool CHWAbstractStorage::GetFileInfo(int index, HWStorageItem *item) const
 
 bool CHWAbstractStorage::ReadData( void* buf, size_t size )
 {
+	size_t nRead;
+	bool opRes = ReadData(buf, size, &nRead);
+	
+	return opRes && (nRead == size);
+}
+
+bool CHWAbstractStorage::ReadData( void* buf, size_t size, size_t* numRead )
+{
 	if (!buf) return false;
 	if (!size) return true;
 
 	DWORD dwRead;
 	BOOL opRes = ReadFile(m_hInputFile, buf, size, &dwRead, NULL);
-	
-	return opRes && (dwRead == size);
+	if (opRes)
+		*numRead = dwRead;
+
+	return (opRes == TRUE);
 }
 
 bool CHWAbstractStorage::SeekPos( __int64 pos, DWORD moveMethod )
