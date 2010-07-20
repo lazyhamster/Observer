@@ -23,6 +23,11 @@ protected:
 public:
 	CHW2BigFile();
 	virtual ~CHW2BigFile();
+
+	virtual const wchar_t* GetFormatName() const { return L"HomeWorld 2 BIG"; }
+	virtual const wchar_t* GetCompression() const { return L"ZLib/None"; }
+
+	virtual int ExtractFile(int index, const wchar_t* destPath, const ExtractProcessCallbacks* epc);
 };
 
 template<typename T>

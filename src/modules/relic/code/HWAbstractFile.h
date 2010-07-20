@@ -1,6 +1,8 @@
 #ifndef HWAbstractFile_h__
 #define HWAbstractFile_h__
 
+#include "ModuleDef.h"
+
 struct HWStorageItem
 {
 	wchar_t Name[MAX_PATH];
@@ -33,9 +35,14 @@ public:
 	CHWAbstractStorage() : m_hInputFile(INVALID_HANDLE_VALUE), m_bIsValid(false) {}
 	virtual ~CHWAbstractStorage() {};
 	
-	int NumFiles() { return m_vItems.size(); }
-	bool GetFileInfo(int index, HWStorageItem *item);
-	bool IsValid() { return m_bIsValid; }
+	int NumFiles() const { return m_vItems.size(); }
+	bool GetFileInfo(int index, HWStorageItem *item) const;
+	bool IsValid() const { return m_bIsValid; }
+
+	virtual const wchar_t* GetFormatName() const { return L"Generic"; }
+	virtual const wchar_t* GetCompression() const { return L"None"; }
+
+	virtual int ExtractFile(int index, const wchar_t* destPath, const ExtractProcessCallbacks* epc) = 0;
 };
 
 #endif // HWAbstractFile_h__

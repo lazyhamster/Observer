@@ -3,6 +3,16 @@
 
 #define RETNOK(x) if (!x) return false
 
+static void UnixTimeToFileTime(uint32_t t, LPFILETIME pft)
+{
+	// Note that LONGLONG is a 64-bit value
+	LONGLONG ll;
+
+	ll = Int32x32To64(t, 10000000) + 116444736000000000;
+	pft->dwLowDateTime = (DWORD)ll;
+	pft->dwHighDateTime = ll >> 32;
+}
+
 CHW2BigFile::CHW2BigFile()
 {
 
@@ -119,10 +129,15 @@ bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BI
 		RETNOK( ReadData(&fileHeader, sizeof(fileHeader)) );
 
 		new_item.CRC = fileHeader.UncompressedDataCRC;
-		// TODO: convert timestamp to FILETIME
+		UnixTimeToFileTime(fileHeader.FileModificationDate, &new_item.ModTime);
 
 		m_vItems.push_back(new_item);
 	}
 
 	return true;
+}
+
+int CHW2BigFile::ExtractFile( int index, const wchar_t* destPath, const ExtractProcessCallbacks* epc )
+{
+	return SER_ERROR_SYSTEM;
 }

@@ -30,9 +30,9 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		*storage = (INT_PTR*) fileObj;
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Relic File");
-		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
-		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
+		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, fileObj->GetFormatName());
+		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
+		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, fileObj->GetCompression());
 
 		return TRUE;
 	}
@@ -77,5 +77,11 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
-	return SER_ERROR_SYSTEM;
+	CHWAbstractStorage* fileObj = (CHWAbstractStorage*) storage;
+	if (!fileObj) return SER_ERROR_SYSTEM;
+
+	if (params.item < 0 || params.item >= fileObj->NumFiles())
+		return SER_ERROR_SYSTEM;
+
+	return fileObj->ExtractFile(params.item, params.dest_path, &(params.callbacks));
 }
