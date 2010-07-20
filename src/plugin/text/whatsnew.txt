@@ -1,5 +1,8 @@
 Changes history:
 
+1.6.2
+- MIME: Fixed opening of the wrong files.
+
 1.6.1
 - Fixed problem with very long volume labels.
 - MIME: Improved recognition of file names inside container.

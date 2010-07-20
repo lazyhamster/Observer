@@ -28,7 +28,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"Version 2");
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
 
-		return true;
+		return TRUE;
 	}
 	
 	delete file;
