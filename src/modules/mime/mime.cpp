@@ -92,9 +92,12 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	MimeEntity *me = new MimeEntity();
 	me->load(filePtr.begin(), filePtr.end());
 
-	// Check if file was loaded
 	Header &head = me->header();
-	if (head.size() == 0)
+	MimeVersion &mimeVer = head.mimeVersion();
+	ContentType &ctype = head.contentType();
+
+	// Check if file was loaded
+	if (head.size() == 0 || ctype.type().size() == 0)
 	{
 		delete me;
 		return FALSE;
@@ -105,9 +108,6 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	minfo->entity = me;
 
 	*storage = (INT_PTR*) minfo;
-
-	MimeVersion &mimeVer = head.mimeVersion();
-	ContentType &ctype = head.contentType();
 
 	memset(info, 0, sizeof(StorageGeneralInfo));
 	swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MIME %d.%d", mimeVer.maj(), mimeVer.minor());
