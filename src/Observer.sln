@@ -30,6 +30,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pst", "modules\pst\pst.vcpr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib1", "depends\zlib\zlib1.vcproj", "{C50A5BD9-34C8-4050-AD28-784AEC221B1E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "relic", "modules\relic\relic.vcproj", "{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -296,6 +298,26 @@ Global
 		{C50A5BD9-34C8-4050-AD28-784AEC221B1E}.Release-Unicode|Win32.Build.0 = Release-Unicode|Win32
 		{C50A5BD9-34C8-4050-AD28-784AEC221B1E}.Release-Unicode|x64.ActiveCfg = Release-Unicode|x64
 		{C50A5BD9-34C8-4050-AD28-784AEC221B1E}.Release-Unicode|x64.Build.0 = Release-Unicode|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Debug|Win32.Build.0 = Debug|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Debug|x64.ActiveCfg = Debug|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Debug|x64.Build.0 = Debug|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Debug-Unicode|Win32.ActiveCfg = Debug-Unicode|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Debug-Unicode|Win32.Build.0 = Debug-Unicode|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Debug-Unicode|x64.ActiveCfg = Debug-Unicode|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Debug-Unicode|x64.Build.0 = Debug-Unicode|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release|Win32.ActiveCfg = Release|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release|Win32.Build.0 = Release|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release|x64.ActiveCfg = Release|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release|x64.Build.0 = Release|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-MD|Win32.ActiveCfg = Release-MD|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-MD|Win32.Build.0 = Release-MD|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-MD|x64.ActiveCfg = Release-MD|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-MD|x64.Build.0 = Release-MD|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-Unicode|Win32.ActiveCfg = Release-Unicode|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-Unicode|Win32.Build.0 = Release-Unicode|Win32
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-Unicode|x64.ActiveCfg = Release-Unicode|x64
+		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-Unicode|x64.Build.0 = Release-Unicode|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
