@@ -764,7 +764,7 @@ HRESULT CUdfArchive::Open2()
         CPartition &part = Partitions[i];
         if (part.Number == pm.PartitionNumber)
         {
-          if (part.VolIndex >= 0)
+          if ((part.VolIndex >= 0) && (pm.Type == 1))
             return S_FALSE;
           pm.PartitionIndex = i;
           part.VolIndex = volIndex;
