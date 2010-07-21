@@ -149,7 +149,40 @@ bool CHW2BigFile::ExtractFile( int index, HANDLE outfile )
 	BIG_FileInfoListEntry &fileInfo = m_vFileInfoList[item.CustomData];
 
 	RETNOK( SeekPos(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset, FILE_BEGIN) );
+	bool fShouldDecompress = (fileInfo.Flags != BIGARCH_FILE_FLAG_UNCOMPRESSED);
 
+	if (fShouldDecompress)
+		return ExtractCompressed(fileInfo, outfile, item.CRC);
+	else
+		return ExtractPlain(fileInfo, outfile, item.CRC);
+}
+
+bool CHW2BigFile::ExtractPlain( BIG_FileInfoListEntry &fileInfo, HANDLE outfile, uint32_t fileCRC )
+{
+	const uint32_t BUF_SIZE = 32 * 1024;
+	unsigned char inbuf[BUF_SIZE] = {0};
+
+	uLong crc = crc32(0, Z_NULL, 0);
+
+	DWORD nWritten;
+	uint32_t nBytesLeft = fileInfo.CompressedLength;
+	while (nBytesLeft > 0)
+	{
+		uint32_t nReadSize = (nBytesLeft > BUF_SIZE) ? BUF_SIZE : nBytesLeft;
+		RETNOK( ReadData(inbuf, nReadSize) );
+
+		if (!WriteFile(outfile, inbuf, nReadSize, &nWritten, NULL) || (nWritten != nReadSize))
+			return false;
+
+		crc = crc32(crc, inbuf, nReadSize);
+		nBytesLeft -= nReadSize;
+	} // while
+
+	return (crc == fileCRC);
+}
+
+bool CHW2BigFile::ExtractCompressed( BIG_FileInfoListEntry &fileInfo, HANDLE outfile, uint32_t fileCRC )
+{
 	z_stream strm = {0};
 	int ret = inflateInit(&strm);
 	if (ret != Z_OK) return false;
@@ -189,6 +222,6 @@ bool CHW2BigFile::ExtractFile( int index, HANDLE outfile )
 
 		nBytesLeft -= nReadSize;
 	} // while
-	
-	return (ret == Z_STREAM_END) && (crc == item.CRC);
+
+	return (ret == Z_STREAM_END) && (crc == fileCRC);
 }

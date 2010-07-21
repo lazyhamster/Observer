@@ -65,6 +65,10 @@ struct BIG_FileInfoListEntry
 	uint32_t DecompressedLength;
 };
 
+#define BIGARCH_FILE_FLAG_UNCOMPRESSED 0x00
+#define BIGARCH_FILE_FLAG_COMPRESSED_STREAM 0x10
+#define BIGARCH_FILE_FLAG_COMPRESSED_ONCE 0x20
+
 // Total size : 264 bytes
 struct BIG_FileHeader
 {

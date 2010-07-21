@@ -16,6 +16,8 @@ private:
 
 	bool FetchFolder(BIG_FolderListEntry* folders, int folderIndex, BIG_FileInfoListEntry* files,
 		const char* prefix, const char* namesBuf);
+	bool ExtractPlain(BIG_FileInfoListEntry &fileInfo, HANDLE outfile, uint32_t fileCRC);
+	bool ExtractCompressed(BIG_FileInfoListEntry &fileInfo, HANDLE outfile, uint32_t fileCRC);
 
 protected:
 	virtual bool Open(HANDLE inFile);
