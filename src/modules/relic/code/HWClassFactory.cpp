@@ -2,6 +2,7 @@
 #include "HWClassFactory.h"
 
 #include "HW2BigFile.h"
+#include "HW1BigFile.h"
 
 CHWAbstractStorage* CHWClassFactory::LoadFile( const wchar_t *FilePath )
 {
@@ -14,6 +15,16 @@ CHWAbstractStorage* CHWClassFactory::LoadFile( const wchar_t *FilePath )
 	if (!reader)
 	{
 		reader = new CHW2BigFile();
+		if (!reader->Open(hFile))
+		{
+			delete reader;
+			reader = NULL;
+		}
+	}
+
+	if (!reader)
+	{
+		reader = new CHW1BigFile();
 		if (!reader->Open(hFile))
 		{
 			delete reader;

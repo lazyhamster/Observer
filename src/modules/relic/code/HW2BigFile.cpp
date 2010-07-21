@@ -188,7 +188,7 @@ bool CHW2BigFile::ExtractFile( int index, HANDLE outfile )
 		} while (strm.avail_out == 0);
 
 		nBytesLeft -= nReadSize;
-	}
+	} // while
 	
 	return (ret == Z_STREAM_END) && (crc == item.CRC);
 }
