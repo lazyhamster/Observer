@@ -10,15 +10,15 @@ bool CHWAbstractStorage::GetFileInfo(int index, HWStorageItem *item) const
 	return true;
 }
 
-bool CHWAbstractStorage::ReadData( void* buf, size_t size )
+bool CHWAbstractStorage::ReadData( void* buf, DWORD size )
 {
-	size_t nRead;
+	DWORD nRead;
 	bool opRes = ReadData(buf, size, &nRead);
 	
 	return opRes && (nRead == size);
 }
 
-bool CHWAbstractStorage::ReadData( void* buf, size_t size, size_t* numRead )
+bool CHWAbstractStorage::ReadData( void* buf, DWORD size, DWORD* numRead )
 {
 	if (!buf) return false;
 	if (!size) return true;

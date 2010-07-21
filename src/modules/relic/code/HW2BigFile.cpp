@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "HW2BigFile.h"
+#include "zlib.h"
 
 #define RETNOK(x) if (!x) return false
 
@@ -57,7 +58,7 @@ bool CHW2BigFile::Open( HANDLE inFile )
 	RETNOK( SeekPos(m_sectionHeader.FileNameList.Offset + sizeof(BIG_ArchHeader), FILE_BEGIN) );
 	size_t nNameArraySize = m_archHeader.sectionHeaderSize - m_sectionHeader.FileNameList.Offset;
 	char* szNamesListCache = (char *) malloc(nNameArraySize);
-	fResult = ReadData(szNamesListCache, nNameArraySize);
+	fResult = ReadData(szNamesListCache, (DWORD) nNameArraySize);
 
 	// Compose items list
 	if (fResult)
@@ -149,20 +150,45 @@ bool CHW2BigFile::ExtractFile( int index, HANDLE outfile )
 
 	RETNOK( SeekPos(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset, FILE_BEGIN) );
 
-	const size_t nBufSize = 32 * 1024;
-	char buf[nBufSize];
-	size_t nRead;
+	z_stream strm = {0};
+	int ret = inflateInit(&strm);
+	if (ret != Z_OK) return false;
+
+	const uint32_t BUF_SIZE = 32 * 1024;
+	unsigned char inbuf[BUF_SIZE] = {0};
+	unsigned char outbuf[BUF_SIZE] = {0};
+
+	uLong crc = crc32(0, Z_NULL, 0);
+
 	DWORD nWritten;
-	
 	uint32_t nBytesLeft = fileInfo.CompressedLength;
 	while (nBytesLeft > 0)
 	{
-		size_t nReadSize = (nBytesLeft > nBufSize) ? nBufSize : nBytesLeft;
-		
-		RETNOK( ReadData(buf, nReadSize, &nRead) );
-		WriteFile(outfile, buf, nRead, &nWritten, NULL);
-		nBytesLeft -= nRead;
+		uint32_t nReadSize = (nBytesLeft > BUF_SIZE) ? BUF_SIZE : nBytesLeft;
+		RETNOK( ReadData(inbuf, nReadSize) );
+
+		strm.next_in = inbuf;
+		strm.avail_in = nReadSize;
+		do 
+		{
+			strm.avail_out = BUF_SIZE;
+			strm.next_out = outbuf;
+
+			ret = inflate(&strm, Z_NO_FLUSH);
+			if (ret == Z_NEED_DICT) ret = Z_DATA_ERROR;
+			if (ret < 0) break;
+
+			unsigned int have = BUF_SIZE - strm.avail_out;
+			if (have == 0) break;
+
+			if (!WriteFile(outfile, outbuf, have, &nWritten, NULL) || (nWritten != have))
+				return false;
+
+			crc = crc32(crc, outbuf, have);
+		} while (strm.avail_out == 0);
+
+		nBytesLeft -= nReadSize;
 	}
 	
-	return true;
+	return (ret == Z_STREAM_END) && (crc == item.CRC);
 }

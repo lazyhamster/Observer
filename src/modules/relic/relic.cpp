@@ -102,7 +102,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 
 		if (!fOpRes)
 		{
-			DeleteFile(params.dest_path);
+			DeleteFile(fullFilePath);
 			return SER_ERROR_READ;
 		}
 

@@ -29,8 +29,8 @@ protected:
 	virtual bool Open(HANDLE inFile) = 0;
 	virtual void Close() = 0;
 
-	bool ReadData(void* buf, size_t size);
-	bool ReadData(void* buf, size_t size, size_t* numRead);
+	bool ReadData(void* buf, DWORD size);
+	bool ReadData(void* buf, DWORD size, DWORD* numRead);
 	bool SeekPos(__int64 newPos, DWORD moveMethod);
 
 public:
