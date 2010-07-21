@@ -66,7 +66,7 @@ bool CHW2BigFile::Open( HANDLE inFile )
 		for (uint16_t i = 0; i < m_sectionHeader.TOCList.Count; i++)
 		{
 			BIG_TOCListEntry &tocEntry = vTOC[i];
-			char* szPathPrefix = tocEntry.CharacterAliasName[0] != 0 ? tocEntry.CharacterAliasName : tocEntry.CharacterName;
+			char* szPathPrefix = (tocEntry.CharacterAliasName[0] && (m_sectionHeader.TOCList.Count == 1)) ? tocEntry.CharacterAliasName : tocEntry.CharacterName;
 			fResult = FetchFolder(vFolderList, tocEntry.StartFolderIndexForHierarchy, m_vFileInfoList, szPathPrefix, szNamesListCache);
 
 			if (!fResult) break;
