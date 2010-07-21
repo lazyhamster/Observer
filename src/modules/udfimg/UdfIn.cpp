@@ -987,14 +987,12 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 {
 	if (itemIndex <= 0) return SER_ERROR_SYSTEM;
 
-	UString strDestFilePath = destPath + Files[fileIndex].GetName();
-
 	HANDLE context = NULL;
 
 	int result = SER_SUCCESS;
 	CItem itemObj = Items[itemIndex];
 
-	HANDLE hFile = CreateFileW(strDestFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hFile = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		result = SER_ERROR_WRITE;
@@ -1077,7 +1075,7 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 		CloseHandle(hFile);
 
 		if (result != SER_SUCCESS)
-			DeleteFileW(strDestFilePath);
+			DeleteFileW(destPath);
 	}
 
 	return result;

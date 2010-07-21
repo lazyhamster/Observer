@@ -913,16 +913,13 @@ const wchar_t* CMsiViewer::getFileStorageName( FileNode* file )
 	return (mediaIndex < 0) ? NULL : m_vMedias[mediaIndex].Cabinet;
 }
 
-int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath, ExtractProcessCallbacks callbacks )
+int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, ExtractProcessCallbacks callbacks )
 {
-	wstring strFilePath(destPath);
-	strFilePath.append(file->TargetName);
-
 	int result = SER_ERROR_SYSTEM;
 
 	if (file->IsFake)
 	{
-		HANDLE hFile = CreateFileW(strFilePath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, file->GetSytemAttributes(), NULL);
+		HANDLE hFile = CreateFileW(destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, file->GetSytemAttributes(), NULL);
 		if (hFile != INVALID_HANDLE_VALUE)
 		{
 			DWORD dwWritten;
@@ -947,7 +944,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath, Extrac
 			HANDLE hSourceFile = CreateFileW(strFullSourcePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			if (hSourceFile != INVALID_HANDLE_VALUE)
 			{
-				HANDLE hDestFile = CreateFileW(strFilePath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, file->GetSytemAttributes(), NULL);
+				HANDLE hDestFile = CreateFileW(destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, file->GetSytemAttributes(), NULL);
 				if (hDestFile != INVALID_HANDLE_VALUE)
 				{
 					result = SER_SUCCESS;
@@ -1006,7 +1003,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destPath, Extrac
 
 			if (strCabPath.length() > 0)
 			{
-				int extr_res = m_pCabControl->ExtractFile(cab, strCabPath.c_str(), file->Key, strFilePath.c_str());
+				int extr_res = m_pCabControl->ExtractFile(cab, strCabPath.c_str(), file->Key, destFilePath);
 				result = extr_res ? SER_SUCCESS : SER_ERROR_READ;
 			}
 		}

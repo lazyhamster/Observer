@@ -235,18 +235,10 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		X2FILE hInput = X2FD_OpenFileInCatalog(xst->Catalog, entry, X2FD_FILETYPE_PLAIN);
 		if (hInput == 0) return SER_ERROR_READ;
 
-		const wchar_t* fileNamePart = GetFileName(entry->pszFileName);
-		size_t nNameBufLen = wcslen(params.dest_path) + wcslen(fileNamePart) + 1;
-		wchar_t *szDest = (wchar_t*) malloc(nNameBufLen * sizeof(wchar_t));
-		
-		wcscpy_s(szDest, nNameBufLen, params.dest_path);
-		wcscat_s(szDest, nNameBufLen, fileNamePart);
-		
-		X2FILE hOutput = X2FD_OpenFile(szDest, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
+		X2FILE hOutput = X2FD_OpenFile(params.destFilePath, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0)
 		{
 			X2FD_CloseFile(hInput);
-			free(szDest);
 			return SER_ERROR_WRITE;
 		}
 
@@ -254,31 +246,17 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		
 		X2FD_CloseFile(hInput);
 		X2FD_CloseFile(hOutput);
-		free(szDest);
 
 		pctx->nProcessedBytes += entry->size;
 		if (res > 0) return SER_SUCCESS;
 	}
 	else if (params.item == 0)
 	{
-		wchar_t wszOutputName[MAX_PATH] = {0};
-		wcscpy_s(wszOutputName, MAX_PATH, params.dest_path);
-
 		// Append name
 		X2FILEINFO finfo = {0};
 		X2FD_FileStatByHandle(xst->FilePtr, &finfo);
-		wcscat_s(wszOutputName, MAX_PATH, GetFileName(finfo.szFileName));
 		
-		// Change extension
-		wchar_t* curExt = GetFileExt(wszOutputName);
-		const wchar_t* intExt = GetInternalFileExt(xst->FilePtr, xst->Path);
-		if (curExt && intExt)
-		{
-			*curExt = 0;
-			wcscat_s(wszOutputName, MAX_PATH, intExt);
-		}
-		
-		X2FILE hOutput = X2FD_OpenFile(wszOutputName, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
+		X2FILE hOutput = X2FD_OpenFile(params.destFilePath, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0) return SER_ERROR_WRITE;
 
 		int res = X2FD_CopyFile(xst->FilePtr, hOutput);

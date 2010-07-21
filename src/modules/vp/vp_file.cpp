@@ -157,14 +157,7 @@ int CVPFile::ExtractSingleFile( int index, const wchar_t* destPath, const Extrac
 	if (SetFilePointer(m_hFile, frec.offset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 		return SER_ERROR_READ;
 
-	const wchar_t* fileName = GetFileName(frec.full_path);
-	size_t nFullPathLen = wcslen(destPath) + wcslen(fileName) + 1;
-	wchar_t* fullPath = (wchar_t*) malloc(nFullPathLen * sizeof(wchar_t));
-	swprintf_s(fullPath, nFullPathLen, L"%s%s", destPath, fileName);
-	
-	HANDLE hOutput = CreateFile(fullPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-	
-	free(fullPath);
+	HANDLE hOutput = CreateFile(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (hOutput == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
 
 	int ret = SER_SUCCESS;

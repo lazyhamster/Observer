@@ -373,9 +373,14 @@ int CNsisArchive::GetItem(int itemIndex, WIN32_FIND_DATAW *itemData, wchar_t* it
 	return TRUE;
 }
 
-int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destDir, const ExtractProcessCallbacks* epc )
+int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destFilePath, const ExtractProcessCallbacks* epc )
 {	
 	if (itemIndex < 0) return SER_ERROR_READ;
+
+	UString destDir = destFilePath;
+	int nLastSlashPos = destDir.ReverseFind('\\');
+	if (nLastSlashPos >= 0)
+		destDir = destDir.Left(nLastSlashPos + 1);
 
 	CArchiveExtractCallback* callback = new CArchiveExtractCallback();
 	CMyComPtr<IArchiveExtractCallback> extractCallback(callback);

@@ -200,12 +200,9 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	if (!entity) return GET_ITEM_ERROR;
 	wstring itemName = minfo->childNames[params.item];
 
-	wstring fullPath(params.dest_path);
-	fullPath.append(itemName);
-
 	Body& body = entity->body();
 	ContentTransferEncoding& enc = entity->header().contentTransferEncoding();
-	fstream fs(fullPath.c_str(), ios_base::out | ios_base::binary | ios_base::trunc);
+	fstream fs(params.destFilePath, ios_base::out | ios_base::binary | ios_base::trunc);
 	if (fs.is_open())
 	{
 		string encName = enc.str();

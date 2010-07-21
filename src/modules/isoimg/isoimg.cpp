@@ -198,7 +198,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	Directory dir = image->DirectoryList[params.item];
 	if (!IsDirectory(&dir))
 	{
-		int nExtractRes = ExtractFile(image, &dir, params.dest_path, &(params.callbacks));
+		int nExtractRes = ExtractFile(image, &dir, params.destFilePath, &(params.callbacks));
 
 		return nExtractRes;
 	}

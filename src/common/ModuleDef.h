@@ -51,7 +51,7 @@ struct ExtractOperationParams
 {
 	int item;
 	int flags;
-	const wchar_t* dest_path;
+	const wchar_t* destFilePath;
 	ExtractProcessCallbacks callbacks;
 };
 

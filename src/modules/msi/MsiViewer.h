@@ -75,7 +75,7 @@ public:
 	DirectoryNode* GetDirectory(const wchar_t* path);
 	FileNode* GetFile(const int fileIndex);
 
-	int DumpFileContent(FileNode *file, const wchar_t *destPath, ExtractProcessCallbacks callbacks);
+	int DumpFileContent(FileNode *file, const wchar_t *destFilePath, ExtractProcessCallbacks callbacks);
 
 	bool FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, wchar_t* itemPathBuf, size_t itemPathBufSize);
 };

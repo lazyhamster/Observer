@@ -35,13 +35,9 @@ FILETIME VolumeDateTimeToFileTime(VolumeDateTime &vdtime)
 
 int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const ExtractProcessCallbacks* epc)
 {
-	wchar_t strDestFilePath[NAME_PATH_BUFSIZE] = {0};
-	wcscpy_s(strDestFilePath, NAME_PATH_BUFSIZE, destPath);
-	wcscat_s(strDestFilePath, NAME_PATH_BUFSIZE, dir->FileName);
-
 	int result = SER_SUCCESS;
 
-	HANDLE hFile = CreateFileW(strDestFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	HANDLE hFile = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		result = SER_ERROR_WRITE;
@@ -76,7 +72,7 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 			{
 				CloseHandle(hFile);
 				free( buffer );
-				DeleteFileW(strDestFilePath);
+				DeleteFileW(destPath);
 
 				return SER_ERROR_READ;
 			}
@@ -89,7 +85,7 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 				{
 					CloseHandle( hFile );
 					free( buffer );
-					DeleteFileW(strDestFilePath);
+					DeleteFileW(destPath);
 
 					return SER_ERROR_WRITE;
 				}
@@ -109,13 +105,13 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 					{
 						CloseHandle(hFile);
 						free(buffer);
-						DeleteFileW(strDestFilePath);
+						DeleteFileW(destPath);
 
 						return SER_USERABORT;
 					}
 				}
 			}
-		}
+		} //for
 
 		if(!xbox)
 		{
@@ -126,7 +122,7 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 		free( buffer );
 		CloseHandle(hFile);
 
-		SetFileAttributesW(strDestFilePath, GetDirectoryAttributes(dir));
+		SetFileAttributesW(destPath, GetDirectoryAttributes(dir));
 	}
 
 	return result;
