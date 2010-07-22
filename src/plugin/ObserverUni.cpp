@@ -332,7 +332,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 		ExtractOperationParams params;
 		params.item = item->storageIndex;
 		params.flags = 0;
-		params.dest_path = strTargetDir.c_str();
+		params.destFilePath = strFullTargetPath.c_str();
 		params.callbacks.FileProgress = ExtractProgress;
 		params.callbacks.signalContext = callbackContext;
 
