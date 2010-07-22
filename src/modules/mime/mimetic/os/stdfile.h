@@ -38,6 +38,8 @@ struct StdFile: public FileOp
 
     iterator begin();
     iterator end();
+
+	time_t GetMTime() { return m_st.st_mtime; }
 protected:
     void open(int flags);
     bool stat();

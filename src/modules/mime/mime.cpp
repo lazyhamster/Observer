@@ -17,6 +17,7 @@ using namespace std;
 struct MimeFileInfo
 {
 	wchar_t *path;
+	FILETIME mtime;
 	MimeEntity *entity;
 	vector<MimeEntity*> children;
 	vector<wstring> childNames;
@@ -44,6 +45,16 @@ static FILETIME ConvertDateTime(DateTime &dt)
 	}
 
 	return res;
+}
+
+static void UnixTimeToFileTime(time_t t, LPFILETIME pft)
+{
+	// Note that LONGLONG is a 64-bit value
+	LONGLONG ll;
+
+	ll = Int32x32To64(t, 10000000) + 116444736000000000;
+	pft->dwLowDateTime = (DWORD)ll;
+	pft->dwHighDateTime = ll >> 32;
 }
 
 static void CacheFilesList(MimeEntity* entity, MimeFileInfo* info)
@@ -106,6 +117,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	MimeFileInfo *minfo = new MimeFileInfo();
 	minfo->path = _wcsdup(path);
 	minfo->entity = me;
+	UnixTimeToFileTime(filePtr.GetMTime(), &minfo->mtime);
 
 	*storage = (INT_PTR*) minfo;
 
@@ -120,6 +132,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	{
 		DateTime dt(fdDate.value());
 		info->Created = ConvertDateTime(dt);
+		minfo->mtime = info->Created;
 	}
 
 	// Cache child list
@@ -222,8 +235,16 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		{
 			fs << body;
 		}
-
 		fs.close();
+
+		// Set proper file modification time
+		HANDLE hOutFile = CreateFile(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+		if (hOutFile != INVALID_HANDLE_VALUE)
+		{
+			SetFileTime(hOutFile, NULL, NULL, &minfo->mtime);
+			CloseHandle(hOutFile);
+		}
+
 		return SER_SUCCESS;
 	}
 	
