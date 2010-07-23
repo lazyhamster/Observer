@@ -216,7 +216,13 @@ struct CPartitionMap
 enum EIcbFileType
 {
   ICB_FILE_TYPE_DIR = 4,
-  ICB_FILE_TYPE_FILE = 5
+  ICB_FILE_TYPE_FILE = 5,
+  
+  // Added in UDF 2.50
+  ICB_FILE_TYPE_VAT = 248,
+  ICB_FILE_TYPE_METADATA = 250,
+  ICB_FILE_TYPE_METADATA_MIRROR = 251,
+  ICB_FILE_TYPE_MEDATADA_BITMAP = 252
 };
 
 enum EIcbDescriptorType
