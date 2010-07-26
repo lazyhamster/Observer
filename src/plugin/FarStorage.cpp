@@ -156,6 +156,10 @@ int StorageObject::ReadFileList(bool &aborted)
 		m_nNumFiles = nNumFiles;
 		m_nNumDirectories = nNumDirs;
 
+		// Calculate number of sub-directories if module does not supply ones
+		if (m_nNumDirectories == 0)
+			m_nNumDirectories = m_pRootDir->GetSubDirectoriesNum(true);
+
 		return TRUE;
 	}
 	

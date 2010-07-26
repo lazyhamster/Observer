@@ -170,3 +170,14 @@ ContentTreeNode* ContentTreeNode::GetChildByName(const wchar_t* name)
 
 	return NULL;
 }
+
+size_t ContentTreeNode::GetSubDirectoriesNum( bool recursive )
+{
+	size_t nres = subdirs.size();
+	if (recursive)
+	{
+		for (SubNodesMap::const_iterator citer = subdirs.begin(); citer != subdirs.end(); citer++)
+			nres += citer->second->GetSubDirectoriesNum(recursive);
+	}
+	return nres;
+}
