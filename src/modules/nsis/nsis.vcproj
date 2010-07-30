@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -123,7 +123,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -202,7 +202,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -283,7 +283,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -363,7 +363,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -444,7 +444,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -522,7 +522,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -600,7 +600,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -679,7 +679,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -760,7 +760,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\..\..\7z465_src\CPP\;..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\;..\..\common\"
+				AdditionalIncludeDirectories="..\..\depends\7zipSrc\CPP\;..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\;..\..\common\;."
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;NSIS_EXPORTS;NO_REGISTRY;INITGUID;EXTRACT_ONLY;NSIS_SCRIPT"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -1080,18 +1080,10 @@
 			Name="7zip"
 			>
 			<File
-				RelativePath="..\..\..\..\7z465_src\C\Alloc.c"
+				RelativePath="..\..\depends\7zipSrc\C\Alloc.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1107,23 +1099,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-MD|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1139,14 +1115,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-Unicode|Win32"
 					>
 					<Tool
@@ -1154,40 +1122,24 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BcjCoder.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\BcjCoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BcjRegister.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\BcjRegister.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BitlDecoder.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\BitlDecoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\C\Bra.c"
+				RelativePath="..\..\depends\7zipSrc\C\Bra.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1203,23 +1155,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-MD|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1235,23 +1171,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-Unicode|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1260,18 +1180,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\C\Bra86.c"
+				RelativePath="..\..\depends\7zipSrc\C\Bra86.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1287,23 +1199,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-MD|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1319,23 +1215,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-Unicode|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1344,18 +1224,10 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\C\BraIA64.c"
+				RelativePath="..\..\depends\7zipSrc\C\BraIA64.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1371,23 +1243,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-MD|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1403,14 +1259,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-Unicode|Win32"
 					>
 					<Tool
@@ -1418,100 +1266,84 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchCoder.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\BranchCoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchMisc.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\BranchMisc.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchRegister.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\BranchRegister.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\CodecExports.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\CodecExports.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\CopyCoder.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\CopyCoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\CopyRegister.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\CopyRegister.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\CreateCoder.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Common\CreateCoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\DeflateDecoder.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\DeflateDecoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\DeflateNsisRegister.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\DeflateNsisRegister.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileDir.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\Windows\FileDir.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileFind.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\Windows\FileFind.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileIO.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\Windows\FileIO.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileName.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\Windows\FileName.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\FileStreams.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Common\FileStreams.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\FilterCoder.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Common\FilterCoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\InBuffer.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Common\InBuffer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Common\IntToString.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\Common\IntToString.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\UI\Common\LoadCodecs.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\UI\Common\LoadCodecs.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\C\LzmaDec.c"
+				RelativePath="..\..\depends\7zipSrc\C\LzmaDec.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Debug|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1527,23 +1359,7 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-MD|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-MD|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1559,14 +1375,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Debug-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Release-Unicode|Win32"
 					>
 					<Tool
@@ -1574,173 +1382,49 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
-				<FileConfiguration
-					Name="Release-Unicode|x64"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="0"
-					/>
-				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\LzmaDecoder.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\LzmaDecoder.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\LzmaRegister.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\LzmaRegister.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\LzOutWindow.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\LzOutWindow.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Common\MyString.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\Common\MyString.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Common\MyVector.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\Common\MyVector.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\NsisDecode.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\NsisDecode.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\NsisRegister.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\NsisRegister.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\OutBuffer.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Common\OutBuffer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\PropVariant.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\Windows\PropVariant.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\StreamUtils.cpp"
+				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Common\StreamUtils.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Common\StringConvert.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="7zip_h"
-			>
-			<File
-				RelativePath="..\..\..\..\7z465_src\C\Alloc.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BcjCoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BitlDecoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\C\Bra.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchCoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\BranchMisc.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\CopyCoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\CreateCoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\DeflateDecoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileDir.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileFind.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileIO.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\FileName.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\FileStreams.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\FilterCoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\InBuffer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Common\IntToString.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\UI\Common\LoadCodecs.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\C\LzmaDec.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\LzmaDecoder.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Compress\LzOutWindow.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Common\MyString.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Common\MyVector.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Archive\Nsis\NsisDecode.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\OutBuffer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Windows\PropVariant.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\7zip\Common\StreamUtils.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\7z465_src\CPP\Common\StringConvert.h"
+				RelativePath="..\..\depends\7zipSrc\CPP\Common\StringConvert.cpp"
 				>
 			</File>
 		</Filter>
