@@ -518,11 +518,12 @@ void WINAPI ClosePlugin(HANDLE hPlugin)
 
 HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 {
-	// Unload plugin if no submodules loaded
+	// Unload plug-in if no submodules loaded
 	if (g_pController.NumModules() == 0)
 		return 0;
 	
 	char* szFullNameBuffer = new char[PATH_BUFFER_SIZE];
+	char* szContainerSubpath = NULL;
 	DWORD fpres = 0;
 	
 	if ((OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
@@ -533,6 +534,13 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 		FSF.Unquote(szLocalNameBuffer);
 		FSF.ExpandEnvironmentStr(szLocalNameBuffer, szLocalNameBuffer, PATH_BUFFER_SIZE);
 		fpres = GetFullPathNameA(szLocalNameBuffer, PATH_BUFFER_SIZE, szFullNameBuffer, NULL);
+
+		char* szColonPos = strrchr(szFullNameBuffer, ':');
+		if (szColonPos != NULL && (szColonPos - szFullNameBuffer) > 2)
+		{
+			*szColonPos = 0;
+			szContainerSubpath = szColonPos + 1;
+		}
 
 		delete [] szLocalNameBuffer;
 	}
@@ -553,6 +561,9 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 	}
 
 	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer) : INVALID_HANDLE_VALUE;
+
+	if (szContainerSubpath != NULL)
+		SetDirectoryW(hOpenResult, szContainerSubpath, 0);
 
 	delete [] szFullNameBuffer;
 	return hOpenResult;

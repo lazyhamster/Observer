@@ -541,16 +541,23 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 		return 0;
 	
 	wchar_t* szFullNameBuffer = new wchar_t[PATH_BUFFER_SIZE];
+	wchar_t* wszContainerSubpath = NULL;
 	DWORD fpres = 0;
 	
 	if ((OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
 	{
-		wchar_t* szLocalNameBuffer = new wchar_t[PATH_BUFFER_SIZE];
+		wchar_t* szLocalNameBuffer = _wcsdup((wchar_t *) Item);
 
-		wcscpy_s(szLocalNameBuffer, MAX_PATH, (wchar_t *) Item);
 		FSF.Unquote(szLocalNameBuffer);
 		//FSF.ExpandEnvironmentStr(szLocalNameBuffer, szLocalNameBuffer, PATH_BUFFER_SIZE);
 		fpres = GetFullPathName(szLocalNameBuffer, PATH_BUFFER_SIZE, szFullNameBuffer, NULL);
+
+		wchar_t* wszColonPos = wcsrchr(szFullNameBuffer, ':');
+		if (wszColonPos != NULL && (wszColonPos - szFullNameBuffer) > 2)
+		{
+			*wszColonPos = 0;
+			wszContainerSubpath = wszColonPos + 1;
+		}
 
 		delete [] szLocalNameBuffer;
 	}
@@ -577,6 +584,9 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 	}
 
 	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer) : INVALID_HANDLE_VALUE;
+
+	if (wszContainerSubpath != NULL)
+		SetDirectoryW(hOpenResult, wszContainerSubpath, 0);
 
 	delete [] szFullNameBuffer;
 	return hOpenResult;
