@@ -1,5 +1,4 @@
 MSI:
-- modification time for files in internal cab
 - extract progress
 - fix problem with real file and non showing the special folders mode
 - (?) registry list is more close to valid reg files
@@ -9,3 +8,6 @@ Plugin:
 
 MIME:
 - Improve parser
+
+UDF:
+- Add support for UDF 2.50+
