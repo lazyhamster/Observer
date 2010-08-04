@@ -629,6 +629,8 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 	DWORD nVlen = 0;
 	vector<wchar_t> regval(512);
 	RegistryEntry regEntry;
+	wchar_t wszPrevRegKeyName[512] = {0};
+	UINT16 nPrevRegRoot = UINT16(-1);
 	while ((res = MsiViewFetch(hQueryReg, &hRegRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
@@ -642,26 +644,35 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 			regval.resize(nVlen + 1);
 		OK (res);
 
-		sstr << L"[";
-		switch (regEntry.Root)
+		// Print registry key name (if not equal to previous one)
+		if (nPrevRegRoot != regEntry.Root || wcscmp(wszPrevRegKeyName, regEntry.RegKeyName) != 0)
 		{
-			case msidbRegistryRootClassesRoot:
-				sstr << L"HKEY_CLASSES_ROOT";
-				break;
-			case msidbRegistryRootCurrentUser:
-				sstr << L"HKEY_CURRENT_USER";
-				break;
-			case msidbRegistryRootLocalMachine:
-				sstr << L"HKEY_LOCAL_MACHINE";
-				break;
-			case msidbRegistryRootUsers:
-				sstr << L"HKEY_USERS";
-				break;
-			default:
-				sstr << L"HKEY_CURRENT_USER";
-				break;
+			sstr << L"[";
+			switch (regEntry.Root)
+			{
+				case msidbRegistryRootClassesRoot:
+					sstr << L"HKEY_CLASSES_ROOT";
+					break;
+				case msidbRegistryRootCurrentUser:
+					sstr << L"HKEY_CURRENT_USER";
+					break;
+				case msidbRegistryRootLocalMachine:
+					sstr << L"HKEY_LOCAL_MACHINE";
+					break;
+				case msidbRegistryRootUsers:
+					sstr << L"HKEY_USERS";
+					break;
+				default:
+					sstr << L"HKEY_CURRENT_USER";
+					break;
+			}
+			sstr << L"\\" << regEntry.RegKeyName << L"]" << endl;
+
+			nPrevRegRoot = regEntry.Root;
+			wcscpy_s(wszPrevRegKeyName, sizeof(wszPrevRegKeyName) / sizeof(wszPrevRegKeyName[0]), regEntry.RegKeyName);
 		}
-		sstr << L"\\" << regEntry.RegKeyName << L"]" << endl;
+
+		// Print registry key value
 		if (regEntry.Name[0])
 			sstr << L"\"" << regEntry.Name << L"\"";
 		else

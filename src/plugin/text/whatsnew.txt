@@ -5,6 +5,7 @@ Changes history:
 - Added ability to specify initial path in container when opening through prefix
 - MIME: Fixed opening of the wrong files.
 - MIME: Extracted files inherit last modification time from container.
+- MSI: Now registry values from the same key are printed together.
 
 1.6.1
 - Fixed problem with very long volume labels.
