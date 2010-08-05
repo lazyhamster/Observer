@@ -22,3 +22,5 @@
 #include <map>
 #include <algorithm>
 using namespace std;
+
+#define ARRAY_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
