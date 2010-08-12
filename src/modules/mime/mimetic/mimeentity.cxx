@@ -15,14 +15,10 @@
  ***************************************************************************/
 #include "StdAfx.h"
 #include <iostream>
-#include <fstream>
 #include <streambuf>
-#include <algorithm>
 #include <mimetic/mimeentity.h>
 #include <mimetic/tokenizer.h>
 #include <mimetic/strutils.h>
-#include <mimetic/libconfig.h>
-#include <mimetic/codec/codec.h>
 #include <mimetic/parser/itparser.h>
 #include <mimetic/streambufs.h>
 

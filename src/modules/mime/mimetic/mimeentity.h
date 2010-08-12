@@ -16,12 +16,7 @@
 #ifndef _MIMETIC_MIMEENTITY_H_
 #define _MIMETIC_MIMEENTITY_H_
 #include <string>
-#include <mimetic/contenttype.h>
-#include <mimetic/contenttransferencoding.h>
-#include <mimetic/contentdisposition.h>
-#include <mimetic/mimeversion.h>
 #include <mimetic/mimeentitylist.h>
-#include <mimetic/codec/codec.h>
 #include <mimetic/header.h>
 #include <mimetic/body.h>
 #include <mimetic/parser/itparserdecl.h>

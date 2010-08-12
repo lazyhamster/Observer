@@ -15,10 +15,8 @@
  ***************************************************************************/
 #include "StdAfx.h"
 #include <errno.h>
-#include <mimetic/libconfig.h>
 #include <mimetic/os/file_iterator.h>
 #include <mimetic/os/file.h>
-#include <mimetic/libconfig.h>
 
 namespace mimetic
 {
