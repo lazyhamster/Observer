@@ -75,7 +75,8 @@ protected:
     enum EntityType { 
         etRfc822, 
         etMsgRfc822, 
-        etMultipart 
+        etMultipart,
+		etUnknown
     };
     // vars
     MimeEntity& m_me;
@@ -133,10 +134,12 @@ protected:
         const ContentType& ct = h.contentType();
         if(ct.isMultipart())
             return etMultipart;
-        else if    (ct.type() == "message" && ct.subtype() == "rfc822") 
+        else if (ct.type() == "message" && ct.subtype() == "rfc822") 
             return etMsgRfc822;
-        else
+        else if (ct.type().size() > 0)
             return etRfc822;
+
+		return etUnknown;
     }
     
     void addField(const std::string& name, const std::string& value)
@@ -199,7 +202,7 @@ protected:
     }
     void append(char*& buf, size_t& bufsz, char c, size_t& pos)
     {
-        enum { alloc_block = 128};
+        enum { alloc_block = 256};
         if(pos == bufsz) 
         {
             // allocate and init buffer
@@ -238,6 +241,7 @@ protected:
         char *name, *value;
         size_t nBufSz, vBufSz, nPos, vPos;
         char prev, c = 0;
+		int nLineLen = 0;
 
         name = value = 0;
         pos = nBufSz = vBufSz = nPos = vPos = 0;
@@ -261,6 +265,7 @@ protected:
                 continue;
             case sNewline:
                 status = sWaitingName;
+				nLineLen = 0;
                 if(pos > 0)
                 {
                     pos = 0;
@@ -313,6 +318,7 @@ protected:
                 if(isblank(c))
                     break; // eat leading blanks
                 append(value, vBufSz, ' ', vPos);
+				nLineLen = 0;
                 status = sValue;
                 continue;
             case sName:
@@ -359,7 +365,12 @@ protected:
                     status = sNewline;
                     continue;
                 }
-                append(value, vBufSz, c, vPos);
+                nLineLen++;
+				if (nLineLen >= 1000)
+				{
+					goto out;
+				}
+				append(value, vBufSz, c, vPos);
                 break;
             case sIgnoreHeader:
                 if(isnl(c))
