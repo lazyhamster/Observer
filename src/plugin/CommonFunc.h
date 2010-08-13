@@ -13,5 +13,6 @@ bool CheckEsc();
 int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &totalSize, bool recursive);
 bool IsEnoughSpaceInPath(const wchar_t* path, __int64 requiredSize);
 bool ForceDirectoryExist(const wchar_t* path);
+const wchar_t* ExtractFileName(const wchar_t* fullPath);
 
 #endif // CommonFunc_h__

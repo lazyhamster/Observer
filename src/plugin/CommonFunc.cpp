@@ -119,3 +119,12 @@ bool ForceDirectoryExist(const wchar_t* path)
 	int nDirResult = !IsDiskRoot(path) ? SHCreateDirectory(0, path) : ERROR_SUCCESS;
 	return (nDirResult == ERROR_SUCCESS) || (nDirResult == ERROR_ALREADY_EXISTS);
 }
+
+const wchar_t* ExtractFileName(const wchar_t* fullPath)
+{
+	const wchar_t* lastSlash = wcsrchr(fullPath, '\\');
+	if (lastSlash)
+		return lastSlash + 1;
+	else
+		return fullPath;
+}

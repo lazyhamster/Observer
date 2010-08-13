@@ -484,7 +484,7 @@ int WINAPI Configure(int ItemNumber)
 		DI_FIXEDIT,	  7,4, 17, 3, 0, 0, 0,0, "",
 		DI_TEXT,	  5,5,  0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
 		DI_BUTTON,	  0,6,  0, 7, 1, 0, DIF_CENTERGROUP,1,"OK",
-		DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP,0,"Cancel"
+		DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP,0,(char*) GetLocMsg(MSG_CANCEL)
 	};
 	FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
 
@@ -562,8 +562,8 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 
 	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer) : INVALID_HANDLE_VALUE;
 
-	if (szContainerSubpath != NULL)
-		SetDirectoryW(hOpenResult, szContainerSubpath, 0);
+	if (szContainerSubpath != NULL && hOpenResult != INVALID_HANDLE_VALUE)
+		SetDirectory(hOpenResult, szContainerSubpath, 0);
 
 	delete [] szFullNameBuffer;
 	return hOpenResult;
@@ -639,7 +639,7 @@ void WINAPI FreeFindData(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int 
 
 int WINAPI SetDirectory(HANDLE hPlugin, const char *Dir, int OpMode)
 {
-	if (hPlugin == NULL)
+	if (hPlugin == NULL || hPlugin == INVALID_HANDLE_VALUE)
 		return FALSE;
 
 	StorageObject* info = (StorageObject *) hPlugin;
@@ -684,16 +684,12 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	info->CurrentDir()->GetPath(wszCurrentDirPath, PATH_BUFFER_SIZE);
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszCurrentDirPath, wcslen(wszCurrentDirPath), szCurrentDir, MAX_PATH, NULL, NULL);
 
-	const wchar_t* wszModuleName = info->GetModuleName();
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszModuleName, wcslen(wszModuleName), szTitle, sizeof(szTitle), NULL, NULL);
-	strcat_s(szTitle, sizeof(szTitle), ":\\");
-	strcat_s(szTitle, sizeof(szTitle), szCurrentDir);
+	char szModuleName[32] = {0};
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->GetModuleName(), -1, szModuleName, ARRAY_SIZE(szModuleName), NULL, NULL);
+	sprintf_s(szTitle, ARRAY_SIZE(szTitle), "%s:\\%s", szModuleName, szCurrentDir);
 
-	const wchar_t* wszStorageFileName = wcsrchr(info->StoragePath(), '\\');
-	if (wszStorageFileName) wszStorageFileName++;
-	else wszStorageFileName = info->StoragePath();
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszStorageFileName, wcslen(wszStorageFileName), szHostFile, MAX_PATH, NULL, NULL);
-	
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StoragePath(), -1, szHostFile, MAX_PATH, NULL, NULL);
+
 	Info->Flags = OPIF_USEFILTER | OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
 	Info->CurDir = szCurrentDir;
 	Info->PanelTitle = szTitle;

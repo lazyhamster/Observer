@@ -490,7 +490,7 @@ int WINAPI ConfigureW(int ItemNumber)
 		{DI_FIXEDIT,   7,4, 20, 3, 0, 0, 0,0, optPrefix, 0},
 		{DI_TEXT,	   3,5,  0, 5, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
 		{DI_BUTTON,	   0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 1, L"OK", 0},
-		{DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 0, L"Cancel", 0},
+		{DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_CANCEL), 0},
 	};
 
 	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 39, 9, L"ObserverConfig",
@@ -585,7 +585,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 
 	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer) : INVALID_HANDLE_VALUE;
 
-	if (wszContainerSubpath != NULL)
+	if (wszContainerSubpath != NULL && hOpenResult != INVALID_HANDLE_VALUE)
 		SetDirectoryW(hOpenResult, wszContainerSubpath, 0);
 
 	delete [] szFullNameBuffer;
@@ -661,7 +661,7 @@ void WINAPI FreeFindDataW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int
 
 int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 {
-	if (hPlugin == NULL)
+	if (hPlugin == NULL || hPlugin == INVALID_HANDLE_VALUE)
 		return FALSE;
 
 	StorageObject* info = (StorageObject *) hPlugin;
@@ -690,9 +690,8 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info) return;
 	
-	static wchar_t wszCurrentDir[MAX_PATH];
+	static wchar_t wszCurrentDir[PATH_BUFFER_SIZE];
 	static wchar_t wszTitle[512];
-	static const wchar_t *wszHostFile = NULL;
 	static KeyBarTitles KeyBar;
 	
 	static wchar_t wszStorageSizeInfo[32];
@@ -710,9 +709,6 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	// Ugly hack (FAR does not exit plug-in if root directory is \)
 	if (wcslen(wszCurrentDir) == 1) wszCurrentDir[0] = 0;
 
-	wszHostFile = wcsrchr(info->StoragePath(), '\\');
-	if (wszHostFile) wszHostFile++; else wszHostFile = info->StoragePath();
-
 	_i64tow_s(info->TotalSize(), wszStorageSizeInfo, sizeof(wszStorageSizeInfo)/sizeof(wszStorageSizeInfo[0]), 10);
 	InsertCommas(wszStorageSizeInfo);
 
@@ -729,7 +725,7 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	static InfoPanelLine pInfoLinesData[8];
 	memset(pInfoLinesData, 0, sizeof(pInfoLinesData));
 
-	pInfoLinesData[0].Text = wszHostFile;
+	pInfoLinesData[0].Text = ExtractFileName(info->StoragePath());
 	pInfoLinesData[0].Separator = 1;
 	
 	pInfoLinesData[IL_FORMAT].Text = GetLocMsg(MSG_INFOL_FORMAT);
@@ -757,7 +753,7 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	Info->Flags = OPIF_USEFILTER | OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
 	Info->CurDir = wszCurrentDir;
 	Info->PanelTitle = wszTitle;
-	Info->HostFile = wszHostFile;
+	Info->HostFile = info->StoragePath();
 	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
 	Info->InfoLines = pInfoLinesData;
 
