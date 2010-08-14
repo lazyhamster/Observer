@@ -700,8 +700,11 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	size_t nInfoTextSize = sizeof(pInfoLinesData[0].Text) / sizeof(pInfoLinesData[0].Text[0]);
 	size_t nInfoDataSize = sizeof(pInfoLinesData[0].Data) / sizeof(pInfoLinesData[0].Data[0]);
 
+	char *szHostFileName = strrchr(szHostFile, '\\');
+	if (szHostFileName) szHostFileName++; else szHostFileName = szHostFile;
+	
 	memset(pInfoLinesData, 0, sizeof(pInfoLinesData));
-	strncpy_s(pInfoLinesData[0].Text, nInfoTextSize, szHostFile, nInfoTextSize);
+	strncpy_s(pInfoLinesData[0].Text, nInfoTextSize, szHostFileName, nInfoTextSize-1);
 	pInfoLinesData[0].Separator = 1;
 	
 	strcpy_s(pInfoLinesData[IL_FORMAT].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));
