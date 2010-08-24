@@ -47,4 +47,6 @@ public:
 	virtual bool ExtractFile(int index, HANDLE outfile) = 0;
 };
 
+void UnixTimeToFileTime(time_t t, LPFILETIME pft);
+
 #endif // HWAbstractFile_h__

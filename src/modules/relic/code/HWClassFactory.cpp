@@ -32,5 +32,8 @@ CHWAbstractStorage* CHWClassFactory::LoadFile( const wchar_t *FilePath )
 		}
 	}
 	
+	if (!reader)
+		CloseHandle(hFile);
+	
 	return reader;
 }

@@ -4,16 +4,6 @@
 
 #define RETNOK(x) if (!x) return false
 
-static void UnixTimeToFileTime(uint32_t t, LPFILETIME pft)
-{
-	// Note that LONGLONG is a 64-bit value
-	LONGLONG ll;
-
-	ll = Int32x32To64(t, 10000000) + 116444736000000000;
-	pft->dwLowDateTime = (DWORD)ll;
-	pft->dwHighDateTime = ll >> 32;
-}
-
 CHW2BigFile::CHW2BigFile()
 {
 	memset(&m_archHeader, 0, sizeof(m_archHeader));
@@ -83,7 +73,7 @@ bool CHW2BigFile::Open( HANDLE inFile )
 
 void CHW2BigFile::Close()
 {
-	if (m_hInputFile != INVALID_HANDLE_VALUE)
+	if (m_bIsValid && m_hInputFile != INVALID_HANDLE_VALUE)
 	{
 		CloseHandle(m_hInputFile);
 		m_hInputFile = INVALID_HANDLE_VALUE;
