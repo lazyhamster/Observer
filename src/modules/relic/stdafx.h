@@ -11,11 +11,6 @@
 // Windows Header Files:
 #include <windows.h>
 
-
-// Additional headers
-#define WIN32_LEAN_AND_MEAN
-#include <Windows.h>
-
 #include <vector>
 
 typedef unsigned int uint32_t;
