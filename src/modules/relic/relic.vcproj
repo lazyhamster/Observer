@@ -920,6 +920,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\code\HW1Decomp.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\code\HW2BigFile.cpp"
 				>
 			</File>
@@ -1031,6 +1035,10 @@
 			>
 			<File
 				RelativePath=".\code\HW1BigFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\code\HW1Decomp.h"
 				>
 			</File>
 			<File

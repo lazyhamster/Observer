@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "HW1BigFile.h"
+#include "HW1Decomp.h"
 
 #define RETNOK(x) if (!x) return false
 
@@ -143,14 +144,14 @@ bool CHW1BigFile::ExtractFile( int index, HANDLE outfile )
 	bool fOpResult = false;
 	if (item.CustomData == 1)
 	{
-		/*
+		BIT_FILE *bitFile;
+		int expandedSize, storedSize;
+
 		// expand compressed file data directly into memory
-		bitFile = bitioFileInputStart(bigFP);
-		expandedSize = lzssExpandFileToBuffer(bitFile, *address, length);
+		bitFile = bitioFileInputStart(m_hInputFile);
+		expandedSize = lzssExpandFileToBuffer(bitFile, buf, nDataLen);
 		storedSize = bitioFileInputStop(bitFile);
-		dbgAssert(expandedSize == length);
-		dbgAssert(storedSize == entry->storedLength);
-		*/
+		fOpResult = (expandedSize == item.UncompressedSize) && (storedSize == item.CompressedSize);
 	}
 	else
 	{
