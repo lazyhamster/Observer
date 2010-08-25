@@ -101,7 +101,7 @@ bool CHW1BigFile::Open( HANDLE inFile )
 		item.CustomData = fileEntry.compressionType;
 		item.UncompressedSize = fileEntry.realLength;
 		item.CompressedSize = fileEntry.storedLength;
-		item.DataOffset = fileEntry.offset;
+		item.DataOffset = fileEntry.offset + fileEntry.nameLength + 1;
 		UnixTimeToFileTime(fileEntry.timeStamp, &item.ModTime);
 
 		// Read file name
@@ -134,5 +134,35 @@ void CHW1BigFile::Close()
 
 bool CHW1BigFile::ExtractFile( int index, HANDLE outfile )
 {
-	return false;
+	HWStorageItem &item = m_vItems[index];
+	RETNOK( SeekPos(item.DataOffset, FILE_BEGIN) );
+
+	int nDataLen = item.UncompressedSize;
+	char *buf = (char*) malloc(nDataLen);
+
+	bool fOpResult = false;
+	if (item.CustomData == 1)
+	{
+		/*
+		// expand compressed file data directly into memory
+		bitFile = bitioFileInputStart(bigFP);
+		expandedSize = lzssExpandFileToBuffer(bitFile, *address, length);
+		storedSize = bitioFileInputStop(bitFile);
+		dbgAssert(expandedSize == length);
+		dbgAssert(storedSize == entry->storedLength);
+		*/
+	}
+	else
+	{
+		fOpResult = ReadData(buf, nDataLen);
+	}
+
+	if (fOpResult)
+	{
+		DWORD nWritten;
+		fOpResult = WriteFile(outfile, buf, nDataLen, &nWritten, NULL) != FALSE;
+	}
+
+	free(buf);
+	return fOpResult;
 }

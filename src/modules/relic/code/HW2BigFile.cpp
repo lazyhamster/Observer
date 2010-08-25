@@ -149,7 +149,7 @@ bool CHW2BigFile::ExtractFile( int index, HANDLE outfile )
 
 bool CHW2BigFile::ExtractPlain( BIG_FileInfoListEntry &fileInfo, HANDLE outfile, uint32_t fileCRC )
 {
-	const uint32_t BUF_SIZE = 32 * 1024;
+	const uint32_t BUF_SIZE = 16 * 1024;
 	unsigned char inbuf[BUF_SIZE] = {0};
 
 	uLong crc = crc32(0, Z_NULL, 0);

@@ -5,7 +5,6 @@
 
 class CHW1BigFile : public CHWAbstractStorage
 {
-private:
 protected:
 	virtual bool Open(HANDLE inFile);
 	virtual void Close();
