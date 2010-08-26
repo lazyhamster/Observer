@@ -21,12 +21,13 @@ int ModulesController::Init( const wchar_t* basePath )
 
 	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
 
-	OptionsList::iterator cit;
-	for (cit = mModulesList.begin(); cit != mModulesList.end(); cit++)
+	for (size_t i = 0; i < mModulesList.NumOptions(); i++)
 	{
+		const OptionsItem &nextOpt = mModulesList[i];
+		
 		ExternalModule module;
-		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), cit->key);
-		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), cit->value);
+		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), nextOpt.key);
+		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), nextOpt.value);
 
 		// Get module specific settings section
 		DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, wszConfigFile);
