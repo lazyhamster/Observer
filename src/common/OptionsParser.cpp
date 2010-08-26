@@ -17,9 +17,8 @@ bool ParseOptions(const wchar_t* wszConfigFile, const wchar_t* wszSectionName, O
 int OptionsList::ParseLines( const wchar_t* Input )
 {
 	int nNumOptsFound = 0;
-	wchar_t *wszBuffer = _wcsdup(Input);
 	
-	wchar_t *wszBufPtr = wszBuffer;
+	const wchar_t *wszBufPtr = Input;
 	while (wszBufPtr && *wszBufPtr)
 	{
 		size_t nEntryLen = wcslen(wszBufPtr);
@@ -29,19 +28,22 @@ int OptionsList::ParseLines( const wchar_t* Input )
 			wszBufPtr++;
 
 		// Skip commented entries
-		if (wszBufPtr[0] == ';') continue;
-
-		wchar_t *wszSeparator = wcschr(wszBufPtr, '=');
-		if (!wszSeparator) continue;
-
-		*wszSeparator = 0;
-		AddOption(wszBufPtr, wszSeparator + 1);
-		nNumOptsFound++;
+		if (wszBufPtr[0] != ';')
+		{
+			wchar_t *wszEntry = _wcsdup(wszBufPtr);
+			wchar_t *wszSeparator = wcschr(wszEntry, '=');
+			if (wszSeparator)
+			{
+				*wszSeparator = 0;
+				AddOption(wszEntry, wszSeparator + 1);
+				nNumOptsFound++;
+			}
+			free(wszEntry);
+		}
 
 		wszBufPtr += nEntryLen + 1;
 	} //while
 
-	free(wszBuffer);
 	return nNumOptsFound;
 }
 
