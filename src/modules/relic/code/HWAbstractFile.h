@@ -33,12 +33,14 @@ protected:
 	bool ReadData(void* buf, DWORD size, DWORD* numRead);
 	bool SeekPos(__int64 newPos, DWORD moveMethod);
 
+	virtual void OnGetFileInfo(int index) = 0;
+
 public:
 	CHWAbstractStorage() : m_hInputFile(INVALID_HANDLE_VALUE), m_bIsValid(false) {}
 	virtual ~CHWAbstractStorage() {};
 	
 	int NumFiles() const { return m_vItems.size(); }
-	bool GetFileInfo(int index, HWStorageItem *item) const;
+	bool GetFileInfo(int index, HWStorageItem *item);
 	bool IsValid() const { return m_bIsValid; }
 
 	virtual const wchar_t* GetFormatName() const { return L"Generic"; }

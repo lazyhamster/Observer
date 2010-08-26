@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include "HWAbstractFile.h"
 
-bool CHWAbstractStorage::GetFileInfo(int index, HWStorageItem *item) const
+bool CHWAbstractStorage::GetFileInfo(int index, HWStorageItem *item)
 {
 	if ((index < 0) || index >= (int) m_vItems.size())
 		return false;
+
+	OnGetFileInfo(index);
 
 	*item = m_vItems[index];
 	return true;

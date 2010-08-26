@@ -95,22 +95,14 @@ bool CHW1BigFile::Open( HANDLE inFile )
 	for (int i = 0; i < toc.numFiles; i++)
 	{
 		HWStorageItem item = {0};
-		char szNameBuf[MAX_PATH] = {0};
-
 		bigTOCFileEntry &fileEntry = toc.fileEntries[i];
 
-		item.CustomData = fileEntry.compressionType;
+		item.CustomData = fileEntry.nameLength;
+		item.Flags = fileEntry.compressionType;
 		item.UncompressedSize = fileEntry.realLength;
 		item.CompressedSize = fileEntry.storedLength;
 		item.DataOffset = fileEntry.offset + fileEntry.nameLength + 1;
 		UnixTimeToFileTime(fileEntry.timeStamp, &item.ModTime);
-
-		// Read file name
-		fResult = SeekPos(fileEntry.offset, FILE_BEGIN) && ReadData(szNameBuf, fileEntry.nameLength);
-		if (!fResult) break;
-
-		bigFilenameDecrypt(szNameBuf, fileEntry.nameLength);
-		MultiByteToWideChar(CP_UTF8, 0, szNameBuf, fileEntry.nameLength, item.Name, MAX_PATH);
 		
 		m_vItems.push_back(item);
 	}
@@ -142,7 +134,7 @@ bool CHW1BigFile::ExtractFile( int index, HANDLE outfile )
 	char *buf = (char*) malloc(nDataLen);
 
 	bool fOpResult = false;
-	if (item.CustomData == 1)
+	if (item.Flags == 1)
 	{
 		BIT_FILE *bitFile;
 		int expandedSize, storedSize;
@@ -166,4 +158,20 @@ bool CHW1BigFile::ExtractFile( int index, HANDLE outfile )
 
 	free(buf);
 	return fOpResult;
+}
+
+void CHW1BigFile::OnGetFileInfo( int index )
+{
+	HWStorageItem &item = m_vItems[index];
+	if (item.Name[0]) return; // If name is already read then exit
+	
+	char szNameBuf[MAX_PATH] = {0};
+	int nFileNameLen = item.CustomData;
+	
+	// Read file name
+	bool fRetVal = SeekPos(item.DataOffset - nFileNameLen - 1, FILE_BEGIN)
+		&& ReadData(szNameBuf, nFileNameLen);
+
+	bigFilenameDecrypt(szNameBuf, nFileNameLen);
+	MultiByteToWideChar(CP_UTF8, 0, szNameBuf, -1, item.Name, MAX_PATH);
 }
