@@ -1122,6 +1122,14 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\depends\7zipSrc\CPP\7zip\Compress\BcjCoder.cpp"
@@ -1178,6 +1186,14 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\depends\7zipSrc\C\Bra86.c"
@@ -1222,6 +1238,14 @@
 						UsePrecompiledHeader="0"
 					/>
 				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|x64"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath="..\..\depends\7zipSrc\C\BraIA64.c"
@@ -1260,6 +1284,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release-Unicode|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"
@@ -1376,6 +1408,14 @@
 				</FileConfiguration>
 				<FileConfiguration
 					Name="Release-Unicode|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="0"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|x64"
 					>
 					<Tool
 						Name="VCCLCompilerTool"

@@ -39,7 +39,7 @@ public:
 	CHWAbstractStorage() : m_hInputFile(INVALID_HANDLE_VALUE), m_bIsValid(false) {}
 	virtual ~CHWAbstractStorage() {};
 	
-	int NumFiles() const { return m_vItems.size(); }
+	int NumFiles() const { return (int) m_vItems.size(); }
 	bool GetFileInfo(int index, HWStorageItem *item);
 	bool IsValid() const { return m_bIsValid; }
 

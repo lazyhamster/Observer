@@ -111,7 +111,7 @@ bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BI
 
 		// Fill item info
 		HWStorageItem new_item = {0};
-		MultiByteToWideChar(CP_ACP, 0, szFileNameBuf, strlen(szFileNameBuf), new_item.Name, MAX_PATH);
+		MultiByteToWideChar(CP_ACP, 0, szFileNameBuf, -1, new_item.Name, MAX_PATH);
 		new_item.CompressedSize = fileInfo.CompressedLength;
 		new_item.UncompressedSize = fileInfo.DecompressedLength;
 		new_item.DataOffset = fileInfo.FileDataOffset;

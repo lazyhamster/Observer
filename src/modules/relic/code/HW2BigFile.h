@@ -47,7 +47,7 @@ bool CHW2BigFile::ReadStructArray( BIG_SectionRef secref, T** list )
 	T* data = (T*) malloc(nMemSize);
 	if (data == NULL) return false;
 	
-	bool fOpRes = ReadData(data, nMemSize);
+	bool fOpRes = ReadData(data, (DWORD) nMemSize);
 	if (fOpRes)
 		*list = data;
 	else

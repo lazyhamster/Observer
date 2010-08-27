@@ -130,5 +130,5 @@ int lzssExpandFileToBuffer(BIT_FILE *input, char *output, int outputSize)
 		}
 	}
 
-	return (outBuffer - output);
+	return (int) (outBuffer - output);
 }

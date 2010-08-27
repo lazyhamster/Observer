@@ -83,7 +83,7 @@ int DecompressBuffer(unsigned char *in_data, const io64::file::size& in_size, in
 	
 	if(compressionMethod == X2FD_FILETYPE_PCK){
 		offset = 1;
-		for(size_t i=0; i < in_size; i++){
+		for(__int64 i=0; i < in_size; i++){
 			in_data[i] ^= magic;
 		}
 	}

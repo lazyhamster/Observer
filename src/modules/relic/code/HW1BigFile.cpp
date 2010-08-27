@@ -73,7 +73,7 @@ bool CHW1BigFile::Open( HANDLE inFile )
 
 	// Check header
 	char headerBytes[16] = {0};
-	RETNOK( ReadData(headerBytes, strlen(BIG_HEADER_NEED)) );
+	RETNOK( ReadData(headerBytes, (DWORD) strlen(BIG_HEADER_NEED)) );
 	if (strcmp(headerBytes, BIG_HEADER_NEED) != 0) return false;
 
 	// Read TOC
@@ -83,7 +83,7 @@ bool CHW1BigFile::Open( HANDLE inFile )
 
 	size_t nMemSize = toc.numFiles * sizeof(bigTOCFileEntry);
 	toc.fileEntries = (bigTOCFileEntry *) malloc(nMemSize);
-	if (!ReadData(toc.fileEntries, nMemSize))
+	if (!ReadData(toc.fileEntries, (DWORD) nMemSize))
 	{
 		free(toc.fileEntries);
 		return false;
