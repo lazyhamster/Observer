@@ -24,6 +24,8 @@ Supported formats:
 
 - Volition Pack V2 files (from FreeSpace 1/2/Open)
 
+- MIME containers (.eml, .mht, etc.)
+
 2. License and copyright.
 
 Plug-in includes several third-party code by different authors.
@@ -44,17 +46,17 @@ libmspack is a library which provides compressors and decompressors,
 archivers and dearchivers for Microsoft compression formats.
 
 - NSIS (http://nsis.sourceforge.net/)
-Code used is for bzip2 support. Upacker version is specific for NSIS.
+Code used is for bzip2 support. Unpacker version is specific for NSIS.
 
 - X2 FileDriver (http://x-tools.doubleshadow.wz.cz/)
 User for Egosoft (X2, X3, X3:TC) archives support.
 
 3. System requirements.
-Minimal FAR version is 1.71, build 2406 (и выше).
+Minimal FAR versions are 1.75 build 2587 / 2.0 build 1470
 Windows Installer 4+ is required for MSI support.
 OS: Win2k+ (tested on WinXP and Win2003, but 2k should be suported too).
 
-4. Guaranties.
+4. Diclaimer.
 This software is provided 'as-is', without any express or implied warranty.
 In no event will the author be held liable for any damages arising from the use or not use of this software.
 

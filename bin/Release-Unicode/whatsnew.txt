@@ -1,5 +1,14 @@
 Changes history:
 
+1.6.2
+- Added support for data archives from Homeworld 1/2.
+- Added ability to specify initial path in container when opening through prefix.
+- Fixed compatibility with "Folder Shortcuts" feature.
+- Added shortcuts to plugin configuration menu.
+- MIME: Fixed opening of the wrong files.
+- MIME: Extracted files inherit last modification time from container.
+- MSI: Now registry values from the same key are printed together.
+
 1.6.1
 - Fixed problem with very long volume labels.
 - MIME: Improved recognition of file names inside container.
