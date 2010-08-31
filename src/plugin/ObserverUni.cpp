@@ -8,6 +8,7 @@
 #include "ModulesController.h"
 #include "PlugLang.h"
 #include "FarStorage.h"
+#include "OptionsParser.h"
 
 extern HMODULE g_hDllHandle;
 static PluginStartupInfo FarSInfo;
@@ -23,6 +24,8 @@ static ModulesController g_pController;
 static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
 static wchar_t optPrefix[MAX_PREFIX_SIZE] = L"observe";
+// Extended settings
+static wchar_t optPanelHeaderPrefix[MAX_PREFIX_SIZE] = L"";
 
 //-----------------------------------  Local functions ----------------------------------------
 
@@ -33,33 +36,37 @@ static const wchar_t* GetLocMsg(int MsgID)
 
 static void LoadSettings()
 {
-	wstring strOptKey(FarSInfo.RootKey);
-	strOptKey.append(L"\\Observer");
+	// Load static settings from .ini file.
+	wchar_t wszConfigFile[MAX_PATH] = {0};
+	OptionsList opList;
+	swprintf_s(wszConfigFile, MAX_PATH, L"%s%s", wszPluginLocation, CONFIG_FILE);
+	if (ParseOptions(wszConfigFile, L"General", opList))
+	{
+		wstring strPanelPrefix = opList.GetValueAsString(L"PanelHeaderPrefix", L"");
+		wcscpy_s(optPanelHeaderPrefix, MAX_PREFIX_SIZE, strPanelPrefix.c_str());
+	}
 
-	HKEY reg;
-	if (RegOpenKey(HKEY_CURRENT_USER, strOptKey.c_str(), &reg) != ERROR_SUCCESS) return;
+	// Load dynamic settings from registry (they will overwrite static ones)
+	RegistrySettings regOpts(FarSInfo.RootKey);
+	if (regOpts.Open())
+	{
+		regOpts.GetValue(L"Enabled", optEnabled);
+		regOpts.GetValue(L"UsePrefix", optUsePrefix);
+		regOpts.GetValue(L"Prefix", optPrefix, MAX_PREFIX_SIZE);
 
-	DWORD dwValueSize;
-	RegQueryValueEx(reg, L"Enabled", NULL, NULL, (LPBYTE) &optEnabled, &(dwValueSize = sizeof(optEnabled)));
-	RegQueryValueEx(reg, L"UsePrefix", NULL, NULL, (LPBYTE) &optUsePrefix, &(dwValueSize = sizeof(optPrefix)));
-	RegQueryValueEx(reg, L"Prefix", NULL, NULL, (LPBYTE) &optPrefix, &(dwValueSize = MAX_PREFIX_SIZE));
-
-	RegCloseKey(reg);
+		regOpts.GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
+	}
 }
 
 static void SaveSettings()
 {
-	wstring strOptKey(FarSInfo.RootKey);
-	strOptKey.append(L"\\Observer");
-
-	HKEY reg;
-	if (RegCreateKey(HKEY_CURRENT_USER, strOptKey.c_str(), &reg) != ERROR_SUCCESS) return;
-
-	RegSetValueEx(reg, L"Enabled", 0, REG_DWORD, (BYTE *) &optEnabled, sizeof(optEnabled));
-	RegSetValueEx(reg, L"UsePrefix", 0, REG_DWORD, (BYTE *) &optUsePrefix, sizeof(optUsePrefix));
-	RegSetValueEx(reg, L"Prefix", 0, REG_SZ, (BYTE *) &optPrefix, (DWORD) (wcslen(optPrefix) + 1) * sizeof(wchar_t));
-	
-	RegCloseKey(reg);
+	RegistrySettings regOpts(FarSInfo.RootKey);
+	if (regOpts.Open(true))
+	{
+		regOpts.SetValue(L"Enabled", optEnabled);
+		regOpts.SetValue(L"UsePrefix", optUsePrefix);
+		regOpts.SetValue(L"Prefix", optPrefix);
+	}
 }
 
 static void InsertCommas(wchar_t *Dest)
@@ -552,6 +559,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 		//FSF.ExpandEnvironmentStr(szLocalNameBuffer, szLocalNameBuffer, PATH_BUFFER_SIZE);
 		fpres = GetFullPathName(szLocalNameBuffer, PATH_BUFFER_SIZE, szFullNameBuffer, NULL);
 
+		// Find starting subdirectory if specified
 		wchar_t* wszColonPos = wcsrchr(szFullNameBuffer, ':');
 		if (wszColonPos != NULL && (wszColonPos - szFullNameBuffer) > 2)
 		{
@@ -704,7 +712,7 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 
 	wszCurrentDir[0] = '\\';
 	info->CurrentDir()->GetPath(wszCurrentDir + 1, PATH_BUFFER_SIZE);
-	swprintf_s(wszTitle, L"%s:%s", info->GetModuleName(), wszCurrentDir);
+	swprintf_s(wszTitle, L"%s%s:%s", optPanelHeaderPrefix, info->GetModuleName(), wszCurrentDir);
 
 	// Ugly hack (FAR does not exit plug-in if root directory is \)
 	if (wcslen(wszCurrentDir) == 1) wszCurrentDir[0] = 0;

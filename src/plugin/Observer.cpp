@@ -8,6 +8,7 @@
 #include "ModulesController.h"
 #include "PlugLang.h"
 #include "FarStorage.h"
+#include "OptionsParser.h"
 
 extern HMODULE g_hDllHandle;
 static PluginStartupInfo FarSInfo;
@@ -23,6 +24,8 @@ static ModulesController g_pController;
 static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
 static char optPrefix[MAX_PREFIX_SIZE] = "observe";
+
+static char optPanelHeaderPrefix[MAX_PREFIX_SIZE] = "";
 
 //-----------------------------------  Local functions ----------------------------------------
 
@@ -68,33 +71,37 @@ static const char* GetLocMsg(int MsgID)
 
 static void LoadSettings()
 {
-	string strOptKey(FarSInfo.RootKey);
-	strOptKey.append("\\Observer");
+	// Load static settings from .ini file.
+	wchar_t wszConfigFile[MAX_PATH] = {0};
+	OptionsList opList;
+	swprintf_s(wszConfigFile, MAX_PATH, L"%s%s", wszPluginLocation, CONFIG_FILE);
+	if (ParseOptions(wszConfigFile, L"General", opList))
+	{
+		string strPanelPrefix = opList.GetValueAsAnsiString(L"PanelHeaderPrefix", "");
+		strcpy_s(optPanelHeaderPrefix, MAX_PREFIX_SIZE, strPanelPrefix.c_str());
+	}
 
-	HKEY reg;
-	if (RegOpenKeyA(HKEY_CURRENT_USER, strOptKey.c_str(), &reg) != ERROR_SUCCESS) return;
+	// Load dynamic settings from registry (they will overwrite static ones)
+	RegistrySettings regOpts(FarSInfo.RootKey);
+	if (regOpts.Open())
+	{
+		regOpts.GetValue(L"Enabled", optEnabled);
+		regOpts.GetValue(L"UsePrefix", optUsePrefix);
+		regOpts.GetValue("Prefix", optPrefix, MAX_PREFIX_SIZE);
 
-	DWORD dwValueSize;
-	RegQueryValueExA(reg, "Enabled", NULL, NULL, (LPBYTE) &optEnabled, &(dwValueSize = sizeof(optEnabled)));
-	RegQueryValueExA(reg, "UsePrefix", NULL, NULL, (LPBYTE) &optUsePrefix, &(dwValueSize = sizeof(optPrefix)));
-	RegQueryValueExA(reg, "Prefix", NULL, NULL, (LPBYTE) &optPrefix, &(dwValueSize = MAX_PREFIX_SIZE));
-
-	RegCloseKey(reg);
+		regOpts.GetValue("PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
+	}
 }
 
 static void SaveSettings()
 {
-	string strOptKey(FarSInfo.RootKey);
-	strOptKey.append("\\Observer");
-
-	HKEY reg;
-	if (RegCreateKeyA(HKEY_CURRENT_USER, strOptKey.c_str(), &reg) != ERROR_SUCCESS) return;
-
-	RegSetValueExA(reg, "Enabled", 0, REG_DWORD, (BYTE *) &optEnabled, sizeof(optEnabled));
-	RegSetValueExA(reg, "UsePrefix", 0, REG_DWORD, (BYTE *) &optUsePrefix, sizeof(optUsePrefix));
-	RegSetValueExA(reg, "Prefix", 0, REG_SZ, (BYTE *) &optPrefix, strlen(optPrefix) + 1);
-	
-	RegCloseKey(reg);
+	RegistrySettings regOpts(FarSInfo.RootKey);
+	if (regOpts.Open(true))
+	{
+		regOpts.SetValue(L"Enabled", optEnabled);
+		regOpts.SetValue(L"UsePrefix", optUsePrefix);
+		regOpts.SetValue("Prefix", optPrefix);
+	}
 }
 
 static void InsertCommas(char *Dest)
@@ -686,7 +693,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 
 	char szModuleName[32] = {0};
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->GetModuleName(), -1, szModuleName, ARRAY_SIZE(szModuleName), NULL, NULL);
-	sprintf_s(szTitle, ARRAY_SIZE(szTitle), "%s:\\%s", szModuleName, szCurrentDir);
+	sprintf_s(szTitle, ARRAY_SIZE(szTitle), "%s%s:\\%s", optPanelHeaderPrefix, szModuleName, szCurrentDir);
 
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StoragePath(), -1, szHostFile, MAX_PATH, NULL, NULL);
 
