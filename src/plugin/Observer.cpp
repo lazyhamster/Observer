@@ -72,13 +72,12 @@ static const char* GetLocMsg(int MsgID)
 static void LoadSettings()
 {
 	// Load static settings from .ini file.
-	wchar_t wszConfigFile[MAX_PATH] = {0};
-	OptionsList opList;
-	swprintf_s(wszConfigFile, MAX_PATH, L"%s%s", wszPluginLocation, CONFIG_FILE);
-	if (ParseOptions(wszConfigFile, L"General", opList))
+	OptionsFile opFile(wszPluginLocation);
+	OptionsList *opList = opFile.GetSection(L"General");
+	if (opList != NULL)
 	{
-		string strPanelPrefix = opList.GetValueAsAnsiString(L"PanelHeaderPrefix", "");
-		strcpy_s(optPanelHeaderPrefix, MAX_PREFIX_SIZE, strPanelPrefix.c_str());
+		opList->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
+		delete opList;
 	}
 
 	// Load dynamic settings from registry (they will overwrite static ones)

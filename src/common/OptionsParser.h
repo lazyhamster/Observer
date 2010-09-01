@@ -20,13 +20,29 @@ private:
 public:
 	int ParseLines(const wchar_t* Input); // Array of strings, separated with \0
 	
-	bool GetValueAsBool(const wchar_t* Key, bool Default);
-	int GetValueAsInt(const wchar_t* Key, int Default);
-	wstring GetValueAsString(const wchar_t* Key, const wchar_t* Default);
-	string GetValueAsAnsiString(const wchar_t* Key, const char* Default);
+	bool GetValue(const wchar_t* Key, bool &Value) const;
+	bool GetValue(const wchar_t* Key, int &Value) const;
+	bool GetValue(const wchar_t* Key, wchar_t *Value, size_t MaxValueSize) const;
+	bool GetValue(const wchar_t* Key, char *Value, size_t MaxValueSize) const;
 
-	const OptionsItem& operator[](size_t index) { return m_vValues.at(index); }
-	size_t NumOptions() { return m_vValues.size(); }
+	OptionsItem GetOption(size_t index) { return m_vValues.at(index); }
+	size_t NumOptions() const { return m_vValues.size(); }
+};
+
+class OptionsFile
+{
+private:
+	wchar_t m_wszFilePath[MAX_PATH];
+	
+	// Make class non-copyable
+	OptionsFile(const OptionsFile &other) {}
+	OptionsFile& operator =(const OptionsFile &other) {}
+
+public:
+	OptionsFile(const wchar_t* ConfigLocation);
+
+	OptionsList* GetSection(const wchar_t* SectionName);
+	bool GetSectionLines(const wchar_t* SectionName, wchar_t* Buffer, size_t BufferSize);
 };
 
 class RegistrySettings
@@ -55,7 +71,5 @@ public:
 	bool SetValue(const wchar_t* ValueName, const wchar_t *Value);
 	bool SetValue(const char* ValueName, const char *Value);
 };
-
-bool ParseOptions(const wchar_t* wszConfigFile, const wchar_t* wszSectionName, OptionsList &opts);
 
 #endif // OptionsParser_h__

@@ -35,6 +35,4 @@ public:
 	void CloseStorageFile(int moduleIndex, INT_PTR *storage);
 };
 
-#define CONFIG_FILE L"observer.ini"
-
 #endif // _ModulesController_h__

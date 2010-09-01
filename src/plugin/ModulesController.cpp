@@ -8,32 +8,27 @@ int ModulesController::Init( const wchar_t* basePath )
 {
 	Cleanup();
 
-	wchar_t wszConfigFile[MAX_PATH] = {0};
-
-	wcscpy_s(wszConfigFile, MAX_PATH, basePath);
-	wcscat_s(wszConfigFile, MAX_PATH, CONFIG_FILE);
-
-	OptionsList mModulesList;
+	OptionsFile optFile(basePath);
 
 	// Get list of modules from config file
-	if (!ParseOptions(wszConfigFile, L"Modules", mModulesList))
-		return 0;
+	OptionsList *mModulesList = optFile.GetSection(L"Modules");
+	if (!mModulesList) return 0;
 
 	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
 
-	for (size_t i = 0; i < mModulesList.NumOptions(); i++)
+	for (size_t i = 0; i < mModulesList->NumOptions(); i++)
 	{
-		const OptionsItem &nextOpt = mModulesList[i];
+		OptionsItem nextOpt = mModulesList->GetOption(i);
 		
 		ExternalModule module;
 		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), nextOpt.key);
 		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), nextOpt.value);
 
 		// Get module specific settings section
-		DWORD readRes = GetPrivateProfileSectionW(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE, wszConfigFile);
-		const wchar_t* wszModuleSettings = (readRes > 0) && (readRes < SECTION_BUF_SIZE - 2) ? wszModuleSection : NULL;
+		memset(wszModuleSection, 0, sizeof(wszModuleSection));
+		optFile.GetSectionLines(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE);
 
-		if (LoadModule(basePath, module, wszModuleSettings))
+		if (LoadModule(basePath, module, wszModuleSection))
 			modules.push_back(module);
 	} // for
 	
