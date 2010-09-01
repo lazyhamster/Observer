@@ -8,7 +8,9 @@
 #include "ModulesController.h"
 #include "PlugLang.h"
 #include "FarStorage.h"
+
 #include "OptionsParser.h"
+#include "RegistrySettings.h"
 
 extern HMODULE g_hDllHandle;
 static PluginStartupInfo FarSInfo;

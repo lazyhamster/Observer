@@ -1020,6 +1020,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RegistrySettings.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -1135,6 +1139,10 @@
 			</File>
 			<File
 				RelativePath=".\PlugLang.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RegistrySettings.h"
 				>
 			</File>
 			<File

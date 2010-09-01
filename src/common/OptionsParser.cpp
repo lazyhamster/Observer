@@ -3,19 +3,7 @@
 #include <errno.h>
 
 #define SECTION_BUF_SIZE 1024
-#define SETTINGS_KEY_REGISTRY L"Observer"
 #define CONFIG_FILE L"observer.ini"
-
-static wstring ConvertString(const char* Input)
-{
-	int nNumWChars = MultiByteToWideChar(CP_ACP, 0, Input, -1, NULL, NULL);
-	wchar_t* buf = new wchar_t[nNumWChars + 1];
-	MultiByteToWideChar(CP_ACP, 0, Input, -1, buf, nNumWChars + 1);
-	wstring strResult(buf);
-	delete [] buf;
-
-	return strResult;
-}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -126,111 +114,6 @@ bool OptionsList::GetValue( const wchar_t* Key, char *Value, size_t MaxValueSize
 	}
 
 	return false;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-RegistrySettings::RegistrySettings( const wchar_t* RootKey )
-{
-	m_strRegKeyName = RootKey;
-	m_strRegKeyName.append(L"\\");
-	m_strRegKeyName.append(SETTINGS_KEY_REGISTRY);
-
-	m_hkRegKey = 0;
-}
-
-RegistrySettings::RegistrySettings( const char* RootKey )
-{
-	m_strRegKeyName = ConvertString(RootKey);
-	m_strRegKeyName.append(L"\\");
-	m_strRegKeyName.append(SETTINGS_KEY_REGISTRY);
-
-	m_hkRegKey = 0;
-}
-
-RegistrySettings::~RegistrySettings()
-{
-	if (m_hkRegKey != 0)
-	{
-		RegCloseKey(m_hkRegKey);
-		m_hkRegKey = 0;
-	}
-}
-
-bool RegistrySettings::Open(int CanWrite)
-{
-	if (m_hkRegKey != 0)
-		return true;
-	
-	LSTATUS retVal;
-	
-	if (CanWrite)
-		retVal = RegCreateKey(HKEY_CURRENT_USER, m_strRegKeyName.c_str(), &m_hkRegKey);
-	else
-		retVal = RegOpenKey(HKEY_CURRENT_USER, m_strRegKeyName.c_str(), &m_hkRegKey);
-
-	return (retVal == ERROR_SUCCESS);
-}
-
-bool RegistrySettings::GetValue( const wchar_t* ValueName, int &Output )
-{
-	if (!m_hkRegKey) return false;
-
-	int Value;
-	DWORD dwValueSize = sizeof(Value);
-
-	LSTATUS retVal = RegQueryValueEx(m_hkRegKey, ValueName, NULL, NULL, (LPBYTE) &Value, &dwValueSize);
-	if (retVal == ERROR_SUCCESS)
-	{
-		Output = Value;
-		return true;
-	}
-
-	return false;
-}
-
-bool RegistrySettings::GetValue( const wchar_t* ValueName, wchar_t *Output, size_t OutputMaxSize )
-{
-	if (!m_hkRegKey) return false;
-	
-	DWORD dwValueSize = (DWORD) OutputMaxSize;
-	LSTATUS retVal = RegQueryValueEx(m_hkRegKey, ValueName, NULL, NULL, (LPBYTE) Output, &dwValueSize);
-	return (retVal == ERROR_SUCCESS);
-}
-
-bool RegistrySettings::GetValue( const char* ValueName, char *Output, size_t OutputMaxSize )
-{
-	if (!m_hkRegKey) return false;
-
-	DWORD dwValueSize = (DWORD) OutputMaxSize;
-	LSTATUS retVal = RegQueryValueExA(m_hkRegKey, ValueName, NULL, NULL, (LPBYTE) &Output, &dwValueSize);
-	return (retVal == ERROR_SUCCESS);
-}
-
-bool RegistrySettings::SetValue( const wchar_t* ValueName, int Value )
-{
-	if (!m_fCanWrite || !m_hkRegKey) return false;
-
-	LSTATUS retVal = RegSetValueEx(m_hkRegKey, ValueName, 0, REG_DWORD, (LPBYTE) &Value, sizeof(Value));
-	return (retVal == ERROR_SUCCESS);
-}
-
-bool RegistrySettings::SetValue( const wchar_t* ValueName, const wchar_t *Value )
-{
-	if (!m_fCanWrite || !m_hkRegKey) return false;
-
-	size_t nDataSize = (wcslen(Value) + 1) * sizeof(wchar_t);
-	LSTATUS retVal = RegSetValueEx(m_hkRegKey, ValueName, 0, REG_SZ, (LPBYTE) Value, (DWORD) nDataSize);
-	return (retVal == ERROR_SUCCESS);
-}
-
-bool RegistrySettings::SetValue( const char* ValueName, const char *Value )
-{
-	if (!m_fCanWrite || !m_hkRegKey) return false;
-
-	size_t nDataSize = (strlen(Value) + 1) * sizeof(char);
-	LSTATUS retVal = RegSetValueExA(m_hkRegKey, ValueName, 0, REG_SZ, (LPBYTE) Value, (DWORD) nDataSize);
-	return (retVal == ERROR_SUCCESS);
 }
 
 //////////////////////////////////////////////////////////////////////////
