@@ -3,7 +3,7 @@
 
 using namespace std;
 
-bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &parentPath)
+bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &parentPath, int &NoNameCounter)
 {
 	try {
 		wstring strSubPath(parentPath);
@@ -14,9 +14,15 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 		{
 			wstring strFileName;
 			if (m.has_subject())
+			{
 				strFileName = m.get_subject() + L".eml";
+			}
 			else
-				strFileName = L"Message.eml";
+			{
+				wchar_t buf[50] = {0};
+				swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L"Message%d.eml", ++NoNameCounter);
+				strFileName = buf;
+			}
 
 			PstFileEntry fentry;
 			fentry.Type = fileInfoObj->ExpandEmlFile ? ETYPE_FOLDER : ETYPE_EML;
@@ -108,9 +114,10 @@ bool process_folder(const folder& f, PstFileInfo *fileInfoObj, const wstring &pa
 		fileInfoObj->Entries.push_back(entry);
 	}
 
+	int nNoNameCnt = 0;
 	for(folder::message_iterator iter = f.message_begin(); iter != f.message_end(); ++iter)
 	{
-		if (!process_message(*iter, fileInfoObj, strSubPath)) // *iter is a message in this folder
+		if (!process_message(*iter, fileInfoObj, strSubPath, nNoNameCnt)) // *iter is a message in this folder
 			return false;
 	}
 
