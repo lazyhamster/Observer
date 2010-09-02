@@ -1,0 +1,17 @@
+* GCC seemed to have trouble with the tertiary conditional in
+    database_impl<T>::read_extended_block; it gave link errors refering
+    to extended_block<T>::max_size and external_block<T>::max_size.
+
+* GCC refused to pack bidNextB next to rgbReserved, regardless of the pragma
+    or attribute I gave it.
+
+* fopen is deprecated in MSVC, so we're #ifdef'ed to use fopen_s
+
+* MSVC fires warning C4127 (constant conditional expression) during
+    instantiation of a few templates. What I'm doing is ideomatic enough
+    to just disable the warning.
+
+* MSVC really gets upset at the way the btree code works, and fires warning 
+    C4250 pretty much everywhere. This warning is pretty much pointing out
+    the obvious, so it's just disabled in btree.h and the files which include
+    it.
