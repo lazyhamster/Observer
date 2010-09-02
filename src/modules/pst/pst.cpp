@@ -8,7 +8,7 @@ using namespace pstsdk;
 using namespace std;
 
 static bool optExpandEmlFile = true;
-static bool optHideEmptyFolders = false;
+static bool optHideEmptyFolders = true;
 
 enum EntryType
 {
@@ -17,7 +17,8 @@ enum EntryType
 	ETYPE_EML,
 	ETYPE_MESSAGE_BODY,
 	ETYPE_MESSAGE_HTML,
-	ETYPE_ATTACHMENT
+	ETYPE_ATTACHMENT,
+	ETYPE_HEADER
 };
 
 struct PstFileEntry 
@@ -90,8 +91,8 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring p
 			{
 				PstFileEntry fentry;
 				fentry.Type = ETYPE_MESSAGE_BODY;
-				fentry.Name = L"Message.txt";
-				fentry.FullPath = strSubPath + L"Message.txt";
+				fentry.Name = L"{Message}.txt";
+				fentry.FullPath = strSubPath + fentry.Name;
 				fentry.Size = m.body_size();
 				fentry.msgRef = new message(m);
 
@@ -102,8 +103,8 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring p
 			{
 				PstFileEntry fentry;
 				fentry.Type = ETYPE_MESSAGE_HTML;
-				fentry.Name = L"Message.html";
-				fentry.FullPath = strSubPath + L"Message.html";
+				fentry.Name = L"{Message}.html";
+				fentry.FullPath = strSubPath + fentry.Name;
 				fentry.Size = m.html_body_size();
 				fentry.msgRef = new message(m);
 
@@ -140,9 +141,8 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring p
 bool process_folder(const folder& f, PstFileInfo *fileInfoObj, const wstring parentPath)
 {
 	size_t nMCount = f.get_message_count();
-	size_t nFCount = f.get_subfolder_count();
 
-	if (optHideEmptyFolders && nMCount == 0 && (f.sub_folder_begin() == f.sub_folder_end()))
+	if (optHideEmptyFolders && (nMCount == 0) && (f.sub_folder_begin() == f.sub_folder_end()))
 		return true;
 
 	wstring strSubPath(parentPath);
