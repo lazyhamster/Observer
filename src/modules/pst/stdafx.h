@@ -11,5 +11,7 @@
 // Windows Header Files:
 #include <windows.h>
 
+#define _SCL_SECURE_NO_WARNINGS 1
 
 // Additional headers
+#include "pstsdk/pst.h"
