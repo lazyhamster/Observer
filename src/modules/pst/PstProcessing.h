@@ -11,8 +11,16 @@ enum EntryType
 	ETYPE_MESSAGE_BODY,
 	ETYPE_MESSAGE_HTML,
 	ETYPE_ATTACHMENT,
-	ETYPE_HEADER
+	ETYPE_HEADER,
+	ETYPE_PROPERTIES
 };
+
+#define PR_TRANSPORT_MESSAGE_HEADERS 0x007D
+#define PR_CLIENT_SUBMIT_TIME 0x0039
+#define PR_MESSAGE_DELIVERY_TIME 0x0E06
+
+#define PR_CREATION_TIME 0x3007
+#define PR_LAST_MODIFICATION_TIME 0x3008
 
 struct PstFileEntry 
 {
@@ -20,11 +28,22 @@ struct PstFileEntry
 	std::wstring Name;
 	std::wstring FullPath;
 	__int64 Size;
+	FILETIME CreationTime;
+	FILETIME LastModificationTime;
 
 	message *msgRef;
 	attachment *attachRef;
 
-	PstFileEntry() : Type(ETYPE_UNKNOWN), Size(0), msgRef(NULL), attachRef(NULL) {}
+	PstFileEntry()
+	{
+		Type = ETYPE_UNKNOWN;
+		Size = 0;
+		msgRef = NULL;
+		attachRef = NULL;
+		memset(&CreationTime, 0, sizeof(CreationTime));
+		memset(&LastModificationTime, 0, sizeof(LastModificationTime));
+	}
+
 	PstFileEntry(const PstFileEntry &other)
 	{
 		Type = other.Type;
@@ -33,7 +52,10 @@ struct PstFileEntry
 		Size = other.Size;
 		msgRef = other.msgRef ? new message(*other.msgRef) : NULL;
 		attachRef = other.attachRef ? new attachment(*other.attachRef) : NULL;
+		CreationTime = other.CreationTime;
+		LastModificationTime = other.LastModificationTime;
 	}
+
 	~PstFileEntry()
 	{
 		if (msgRef) delete msgRef;

@@ -10,6 +10,16 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 		if (strSubPath.length() > 0)
 			strSubPath.append(L"\\");
 
+		// Set same creation/modification time for all message files.
+		FILETIME ftCreated = {0};
+		FILETIME ftModified = {0};
+
+		const property_bag &msgPropBag = m.get_property_bag();
+		if (msgPropBag.prop_exists(PR_CLIENT_SUBMIT_TIME))
+			ftCreated = msgPropBag.read_prop<FILETIME>(PR_CLIENT_SUBMIT_TIME);
+		if (msgPropBag.prop_exists(PR_MESSAGE_DELIVERY_TIME))
+			ftModified = msgPropBag.read_prop<FILETIME>(PR_MESSAGE_DELIVERY_TIME);
+
 		// Create entry for message itself (file or folder depending on options)
 		{
 			wstring strFileName;
@@ -29,6 +39,8 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			fentry.Name = strFileName;
 			fentry.FullPath = strSubPath + strFileName;
 			fentry.msgRef = new message(m);
+			fentry.CreationTime = ftCreated;
+			fentry.LastModificationTime = ftModified;
 
 			fileInfoObj->Entries.push_back(fentry);
 
@@ -47,6 +59,8 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.FullPath = strSubPath + fentry.Name;
 				fentry.Size = m.body_size();
 				fentry.msgRef = new message(m);
+				fentry.CreationTime = ftCreated;
+				fentry.LastModificationTime = ftModified;
 
 				fileInfoObj->Entries.push_back(fentry);
 			}
@@ -59,9 +73,40 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.FullPath = strSubPath + fentry.Name;
 				fentry.Size = m.html_body_size();
 				fentry.msgRef = new message(m);
+				fentry.CreationTime = ftCreated;
+				fentry.LastModificationTime = ftModified;
 
 				fileInfoObj->Entries.push_back(fentry);
 			}
+
+			// Fake file with mail headers
+			if (msgPropBag.prop_exists(PR_TRANSPORT_MESSAGE_HEADERS))
+			{
+				PstFileEntry fentry;
+				fentry.Type = ETYPE_HEADER;
+				fentry.Name = L"{Msg-Header}.txt";
+				fentry.FullPath = strSubPath + fentry.Name;
+				fentry.Size = msgPropBag.size(PR_TRANSPORT_MESSAGE_HEADERS);
+				fentry.msgRef = new message(m);
+				fentry.CreationTime = ftCreated;
+				fentry.LastModificationTime = ftModified;
+
+				fileInfoObj->Entries.push_back(fentry);
+			}
+
+			// Fake file with list of message properties
+			/*
+			{
+				PstFileEntry fentry;
+				fentry.Type = ETYPE_PROPERTIES;
+				fentry.Name = L"{Msg-Properties}.txt";
+				fentry.FullPath = strSubPath + fentry.Name;
+				fentry.Size = 0;
+				fentry.msgRef = new message(m);
+
+				fileInfoObj->Entries.push_back(fentry);
+			}
+			*/
 
 			if (m.get_attachment_count() > 0)
 				for (message::attachment_iterator att_iter = m.attachment_begin(); att_iter != m.attachment_end(); att_iter++)
@@ -75,6 +120,8 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 					fentry.Size = attach.content_size();
 					fentry.msgRef = new message(m);
 					fentry.attachRef = new attachment(attach);
+					fentry.CreationTime = ftCreated;
+					fentry.LastModificationTime = ftModified;
 
 					fileInfoObj->Entries.push_back(fentry);
 				} // for

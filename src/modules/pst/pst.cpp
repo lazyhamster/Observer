@@ -2,13 +2,59 @@
 //
 
 #include "stdafx.h"
+#include <sstream>
 #include "ModuleDef.h"
 #include "PstProcessing.h"
 
 using namespace std;
 
 static bool optExpandEmlFile = true;
-static bool optHideEmptyFolders = true;
+static bool optHideEmptyFolders = false;
+
+//////////////////////////////////////////////////////////////////////////
+
+static wstring DumpProperties(const PstFileEntry &entry)
+{
+	wstringstream wss;
+				
+	const property_bag &propBag = entry.msgRef->get_property_bag();
+	vector<prop_id> propList = propBag.get_prop_list();
+	for (vector<prop_id>::const_iterator citer = propList.begin(); citer != propList.end(); citer++)
+	{
+		prop_id pid = *citer;
+		prop_type ptype = propBag.get_prop_type(pid);
+		
+		wss << L"[" << pid << L"] -> ";
+		switch (ptype)
+		{
+			case prop_type_string:
+			case prop_type_wstring:
+				wss << propBag.read_prop<wstring>(pid) << endl;
+				break;
+			case prop_type_longlong:
+				wss << propBag.read_prop<long long>(pid) << endl;
+				break;
+			case prop_type_long:
+				wss << propBag.read_prop<long>(pid) << endl;
+				break;
+			case prop_type_short:
+				wss << propBag.read_prop<short>(pid) << endl;
+				break;
+			case prop_type_systime:
+				{
+					FILETIME timeVal = propBag.read_prop<FILETIME>(pid);
+					wss << L"[Time Value]" << endl;
+				}
+				break;
+			default:
+				wss << L"Unknown Type (" << ptype << L")" << endl;
+				break;
+		}
+	}
+
+	wstring result = wss.str();
+	return result;
+}
 
 //////////////////////////////////////////////////////////////////////////
 
@@ -78,7 +124,9 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	wcscpy_s(item_data->cAlternateFileName, 14, L"");
 	item_data->dwFileAttributes = (fentry.Type == ETYPE_FOLDER) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
 	item_data->nFileSizeLow = (DWORD) fentry.Size;
-	//item_data->ftLastWriteTime;
+	item_data->nFileSizeHigh = (DWORD) (fentry.Size >> 32);
+	item_data->ftLastWriteTime = fentry.LastModificationTime;
+	item_data->ftCreationTime = fentry.CreationTime;
 
 	return GET_ITEM_OK;
 }
@@ -99,16 +147,17 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	wstring strBodyText;
 	DWORD nNumWritten;
 	int ErrCode = SER_SUCCESS;
+	BOOL fWriteResult = TRUE;
 
 	switch (fentry.Type)
 	{
 		case ETYPE_MESSAGE_BODY:
 			strBodyText = fentry.msgRef->get_body();
-			WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
+			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
 			break;
 		case ETYPE_MESSAGE_HTML:
 			strBodyText = fentry.msgRef->get_html_body();
-			WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
+			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
 			break;
 		case ETYPE_ATTACHMENT:
 			if (fentry.attachRef)
@@ -124,19 +173,36 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 					rsize = nstream->read(inbuf, inbuf_size);
 					if (rsize == -1) break; //EOF
 					
-					if (!WriteFile(hOutFile, inbuf, (DWORD) rsize, &nNumWritten, NULL))
-						ErrCode = SER_ERROR_WRITE;
+					fWriteResult = WriteFile(hOutFile, inbuf, (DWORD) rsize, &nNumWritten, NULL);
+					if (!fWriteResult) break;
 				}
 
 				nstream->close();
+			}
+			else
+			{
+				ErrCode = SER_ERROR_READ;
+			}
+			break;
+		case ETYPE_PROPERTIES:
+			strBodyText = DumpProperties(fentry);
+			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
+			break;
+		case ETYPE_HEADER:
+			{
+				const property_bag &propBag = fentry.msgRef->get_property_bag();
+				strBodyText = propBag.read_prop<wstring>(PR_TRANSPORT_MESSAGE_HEADERS);
+				fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
 			}
 			break;
 		default:
 			ErrCode = SER_ERROR_READ;
 			break;
 	}
-	
+
 	CloseHandle(hOutFile);
+	
+	if (!fWriteResult) ErrCode = SER_ERROR_WRITE;
 	if (ErrCode != SER_SUCCESS)
 		DeleteFile(params.destFilePath);
 
