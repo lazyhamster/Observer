@@ -63,6 +63,23 @@ static FILETIME CabTimeToFileTime(mscabd_file *cabfile)
 	return res;
 }
 
+static mscabd_file* FindFileByName(mscabd_file* first, const wchar_t* name)
+{
+	char szAnsiName[MAX_PATH] = {0};
+	WideCharToMultiByte(CP_ACP, 0, name, wcslen(name), szAnsiName, MAX_PATH, NULL, NULL);
+	
+	mscabd_file* current = first;
+	while (current)
+	{
+		if (_stricmp(current->filename, szAnsiName) == 0)
+			return current;
+		
+		current = current->next;
+	}
+	
+	return NULL;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 struct openfile_s
@@ -292,10 +309,6 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	if (!item)
 		return FALSE;
 
-	char* szAnsiSourceName = (char *) malloc(MAX_PATH);
-	memset(szAnsiSourceName, 0, MAX_PATH);
-	WideCharToMultiByte(CP_ACP, 0, sourceFileName, wcslen(sourceFileName), szAnsiSourceName, MAX_PATH, NULL, NULL);
-
 	// Unpack library expects disk file names in UTF-8 (after custom patch)
 	size_t nDestNameLen = wcslen(destFilePath) * 2 + 1;
 	char* szAnsiDestName = (char *) malloc(nDestNameLen);
@@ -304,20 +317,13 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	
 	int result = FALSE;
 
-	mscabd_file *cabfile = item->data->files;
-	while (cabfile)
+	mscabd_file *cabfile = FindFileByName(item->data->files, sourceFileName);
+	if (cabfile)
 	{
-		if (strcmp(cabfile->filename, szAnsiSourceName) == 0)
-		{
-			int xerr = item->decomp->extract(item->decomp, cabfile, szAnsiDestName);
-			result = (xerr == MSPACK_ERR_OK);
-			break;
-		}
-		
-		cabfile = cabfile->next;
+		int xerr = item->decomp->extract(item->decomp, cabfile, szAnsiDestName);
+		result = (xerr == MSPACK_ERR_OK);
 	}
 		
-	free(szAnsiSourceName);
 	free(szAnsiDestName);
 
 	// Reopen destination file to set required attributes
@@ -348,31 +354,19 @@ bool CCabControl::GetFileAttributes(const wchar_t* cabName, const wchar_t* cabPa
 	if (!item)
 		return false;
 
-	char* szAnsiSourceName = (char *) malloc(MAX_PATH);
-	memset(szAnsiSourceName, 0, MAX_PATH);
-	WideCharToMultiByte(CP_ACP, 0, sourceFileName, wcslen(sourceFileName), szAnsiSourceName, MAX_PATH, NULL, NULL);
-
 	bool fResult = false;
 	
-	mscabd_file *cabfile = item->data->files;
-	while (cabfile)
+	mscabd_file *cabfile = FindFileByName(item->data->files, sourceFileName);
+	if (cabfile)
 	{
-		if (strcmp(cabfile->filename, szAnsiSourceName) == 0)
-		{
-			memset(&fd, 0, sizeof(fd));
-			wcscpy_s(fd.cFileName, MAX_PATH, sourceFileName);
-			fd.nFileSizeLow = cabfile->length;
-			DecodeCabAttributes(cabfile, fd.dwFileAttributes);
-			fd.ftLastWriteTime = CabTimeToFileTime(cabfile);
+		memset(&fd, 0, sizeof(fd));
+		wcscpy_s(fd.cFileName, MAX_PATH, sourceFileName);
+		fd.nFileSizeLow = cabfile->length;
+		DecodeCabAttributes(cabfile, fd.dwFileAttributes);
+		fd.ftLastWriteTime = CabTimeToFileTime(cabfile);
 			
-			fResult = true;
-			break;
-		}
-
-		cabfile = cabfile->next;
+		fResult = true;
 	}
-
-	free(szAnsiSourceName);
 
 	return fResult;
 }
