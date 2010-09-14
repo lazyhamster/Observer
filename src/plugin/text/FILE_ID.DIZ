@@ -1,4 +1,4 @@
-Observer 1.6.2
+Observer 1.6.3
 Plugin for FAR 1.7x / 2.x
 ---------------------------
 
@@ -13,6 +13,7 @@ Supported file formats:
 - Volition Pack V2 files (from FreeSpace 1/2/Open)
 - Egosoft packages (for X-series games)
 - MIME containers
+- Container files from Homeworld 1/2
 
 (c) 2009-2010, Ariman
 -----------------------------------------

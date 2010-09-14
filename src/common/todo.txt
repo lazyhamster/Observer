@@ -11,3 +11,9 @@ MIME:
 
 UDF:
 - Add support for UDF 2.50+
+
+ISO:
+- Handle extraction of harddisk emulation boot record (size issues)
+
+PST:
+- (?) Handle calendar records more gracefully (not as mail messages)
