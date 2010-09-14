@@ -580,7 +580,7 @@ int CMsiViewer::generateInfoText()
 
 	// Features list
 	sstr << endl;
-	sstr << L"[Optional Features]" << endl;
+	sstr << L"[Available Features]" << endl;
 	OK( dumpFeatures(sstr) );
 
 	// Registry keys
