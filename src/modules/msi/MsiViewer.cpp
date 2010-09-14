@@ -964,8 +964,6 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 					{
 						char *buf = (char *) malloc(FCOPY_BUF_SIZE);
 						DWORD dwBytesRead, dwBytesWritten;
-						ProgressContext* pctx = (ProgressContext*) callbacks.signalContext;
-						__int64 nFileBytesDone = 0;
 
 						BOOL readResult;
 						while ((readResult = ReadFile(hSourceFile, buf, FCOPY_BUF_SIZE, &dwBytesRead, NULL)) == TRUE)
@@ -977,10 +975,11 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 								break;
 							}
 							
-							nFileBytesDone += dwBytesRead;
-							pctx->nProcessedBytes += dwBytesRead;
-							pctx->nCurrentFileProgress = (int) ((nFileBytesDone * 100) / file->GetSize());
-							callbacks.FileProgress(callbacks.signalContext);
+							if (!callbacks.FileProgress(callbacks.signalContext, dwBytesRead))
+							{
+								result = SER_USERABORT;
+								break;
+							}
 						}
 						
 						free(buf);

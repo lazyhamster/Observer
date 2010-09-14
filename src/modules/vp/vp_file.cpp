@@ -161,7 +161,6 @@ int CVPFile::ExtractSingleFile( int index, const wchar_t* destPath, const Extrac
 	if (hOutput == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
 
 	int ret = SER_SUCCESS;
-	ProgressContext* pctx = (ProgressContext*) epc->signalContext;
 	
 	int bufSize = 16 * 1024;
 	char* buf = (char *) malloc(bufSize);
@@ -185,18 +184,10 @@ int CVPFile::ExtractSingleFile( int index, const wchar_t* destPath, const Extrac
 		}
 
 		nBytesLeft -= dwNumRead;
-		pctx->nProcessedBytes += dwNumRead;
-		
-		int nProgressVal =  ((__int64)(frec.size - nBytesLeft) * 100) / frec.size;
-		if (nProgressVal != pctx->nCurrentFileProgress)
+		if (!epc->FileProgress(epc->signalContext, dwNumRead))
 		{
-			pctx->nCurrentFileProgress = nProgressVal;
-
-			if (!epc->FileProgress(epc->signalContext))
-			{
-				ret = SER_USERABORT;
-				break;
-			}
+			ret = SER_USERABORT;
+			break;
 		}
 	}
 

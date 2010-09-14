@@ -90,11 +90,9 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		if (hOutputFile == INVALID_HANDLE_VALUE)
 			return SER_ERROR_WRITE;
 
-		ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
 		bool fOpRes = fileObj->ExtractFile(params.item, hOutputFile);
-		pctx->nProcessedBytes += item.UncompressedSize;
 
-		if (item.ModTime.dwLowDateTime || item.ModTime.dwHighDateTime)
+		if (fOpRes && (item.ModTime.dwLowDateTime || item.ModTime.dwHighDateTime))
 			SetFileTime(hOutputFile, NULL, NULL, &item.ModTime);
 
 		CloseHandle(hOutputFile);

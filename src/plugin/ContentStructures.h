@@ -28,8 +28,8 @@ public:
 
 	size_t GetChildCount() { return subdirs.size() + files.size(); };
 	ContentTreeNode* GetChildByName(const wchar_t* name);
-	bool IsDir() { return (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) > 0; }
-	__int64 GetSize() {return IsDir() ? 0 : (data.nFileSizeLow + ((__int64)(data.nFileSizeHigh) << 32)); };
+	bool IsDir() const { return (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) > 0; }
+	__int64 GetSize() const {return IsDir() ? 0 : (data.nFileSizeLow + ((__int64)(data.nFileSizeHigh) << 32)); };
 
 	size_t GetSubDirectoriesNum(bool recursive);
 };

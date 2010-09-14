@@ -5,35 +5,13 @@
 
 // Extract progress callbacks
 typedef int (CALLBACK *ExtractStartFunc)(HANDLE);
-typedef int (CALLBACK *ExtractProgressFunc)(HANDLE);
+typedef int (CALLBACK *ExtractProgressFunc)(HANDLE, __int64);
 typedef void (CALLBACK *ExtractEndFunc)(HANDLE);
 
 struct ExtractProcessCallbacks
 {
 	HANDLE signalContext;
 	ExtractProgressFunc FileProgress;
-};
-
-struct ProgressContext
-{
-	char szFilePath[MAX_PATH];
-	wchar_t wszFilePath[MAX_PATH];
-
-	int nCurrentFileNumber;
-	int nTotalFiles;
-	__int64 nProcessedBytes;
-	__int64 nTotalSize;
-	int nCurrentFileProgress;
-
-	ProgressContext()
-	{
-		memset(szFilePath, 0, MAX_PATH);
-		nCurrentFileNumber = 0;
-		nTotalFiles = 0;
-		nTotalSize = 0;
-		nProcessedBytes = 0;
-		nCurrentFileProgress = 0;
-	}
 };
 
 #define STORAGE_FORMAT_NAME_MAX_LEN 16

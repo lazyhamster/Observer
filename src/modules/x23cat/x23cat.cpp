@@ -221,8 +221,6 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	if ((storage == NULL) || (params.item < 0))
 		return SER_ERROR_SYSTEM;
 
-	ProgressContext* pctx = (ProgressContext*) params.callbacks.signalContext;
-
 	XStorage* xst = (XStorage*) storage;
 	if (xst->IsCatalog)
 	{
@@ -247,7 +245,6 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		X2FD_CloseFile(hInput);
 		X2FD_CloseFile(hOutput);
 
-		pctx->nProcessedBytes += entry->size;
 		if (res > 0) return SER_SUCCESS;
 	}
 	else if (params.item == 0)
@@ -262,7 +259,6 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 		int res = X2FD_CopyFile(xst->FilePtr, hOutput);
 		X2FD_CloseFile(hOutput);
 
-		pctx->nProcessedBytes += finfo.size;
 		if (res > 0) return SER_SUCCESS;
 	}
 

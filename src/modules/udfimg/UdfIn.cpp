@@ -1012,7 +1012,6 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 			char* buf = (char*) malloc(nBufSize);
 
 			DWORD dwBytesRead, dwBytesWritten;
-			UInt64 bytesCounter = 0;
 			for (int i = 0; i < itemObj.Extents.Size(); i++)
 			{
 				CMyExtent extent = itemObj.Extents[i];
@@ -1045,16 +1044,9 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 					bytesLeft -= copySize;
 
 					// Report extraction progress
-					bytesCounter += copySize;
 					if (itemObj.Size && epc && epc->FileProgress)
 					{
-						int progress = (int) (bytesCounter * 100 / itemObj.Size);
-						
-						ProgressContext* pctx = (ProgressContext*) epc->signalContext;
-						pctx->nCurrentFileProgress = progress;
-						pctx->nProcessedBytes += copySize;
-
-						if (!epc->FileProgress(epc->signalContext))
+						if (!epc->FileProgress(epc->signalContext, copySize))
 						{
 							result = SER_USERABORT;
 							break;

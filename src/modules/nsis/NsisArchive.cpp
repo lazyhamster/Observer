@@ -119,11 +119,7 @@ STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 * completeValue)
 
 	if (_progressCallbacks)
 	{
-		ProgressContext* pctx = (ProgressContext*) _progressCallbacks->signalContext;
-		pctx->nProcessedBytes += _completed - _prevCompleted;
-		if (_totalSize > 0)
-			pctx->nCurrentFileProgress = (int) ((_completed * 100) / _totalSize);
-		_progressCallbacks->FileProgress(_progressCallbacks->signalContext);
+		_progressCallbacks->FileProgress(_progressCallbacks->signalContext, _completed - _prevCompleted);
 	}
 	
 	return S_OK;
@@ -385,8 +381,6 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destFilePa
 	CArchiveExtractCallback* callback = new CArchiveExtractCallback();
 	CMyComPtr<IArchiveExtractCallback> extractCallback(callback);
 	callback->Init(m_handler, destDir, epc);
-
-	ProgressContext* pctx = (ProgressContext*) epc->signalContext;
 
 	UInt32 nIndex = itemIndex;
 	HRESULT extResult = m_handler->Extract(&nIndex, 1, 0, callback);

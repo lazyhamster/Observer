@@ -83,19 +83,10 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 
 		if (initial_size && epc && epc->FileProgress)
 		{
-			ProgressContext* pctx = (ProgressContext*) epc->signalContext;
-			pctx->nProcessedBytes += cur_size;
-			
-			int nProgressVal = ((__int64)(initial_size - size) * 100) / initial_size;
-			if (nProgressVal != pctx->nCurrentFileProgress)
+			if (!epc->FileProgress(epc->signalContext, cur_size))
 			{
-				pctx->nCurrentFileProgress = nProgressVal;
-				
-				if (!epc->FileProgress(epc->signalContext))
-				{
-					result = SER_USERABORT;
-					break;
-				}
+				result = SER_USERABORT;
+				break;
 			}
 		}
 	} //for

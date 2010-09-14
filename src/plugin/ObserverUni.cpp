@@ -29,6 +29,32 @@ static wchar_t optPrefix[MAX_PREFIX_SIZE] = L"observe";
 // Extended settings
 static wchar_t optPanelHeaderPrefix[MAX_PREFIX_SIZE] = L"";
 
+struct ProgressContext
+{
+	wchar_t wszFilePath[MAX_PATH];
+	int nCurrentFileNumber;
+	__int64 nCurrentFileSize;
+	
+	int nTotalFiles;
+	__int64 nTotalSize;
+
+	__int64 nProcessedFileBytes;
+	__int64 nTotalProcessedBytes;
+	int nCurrentProgress;
+	
+	ProgressContext()
+	{
+		memset(wszFilePath, 0, sizeof(wszFilePath));
+		nCurrentFileNumber = 0;
+		nTotalFiles = 0;
+		nTotalSize = 0;
+		nProcessedFileBytes = 0;
+		nCurrentFileSize = 0;
+		nTotalProcessedBytes = 0;
+		nCurrentProgress = -1;
+	}
+};
+
 //-----------------------------------  Local functions ----------------------------------------
 
 static const wchar_t* GetLocMsg(int MsgID)
@@ -137,25 +163,33 @@ static void CloseStorage(HANDLE hStorage)
 
 //-----------------------------------  Callback functions ----------------------------------------
 
-static int CALLBACK ExtractProgress(HANDLE context)
+static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 {
 	// Check for ESC pressed
 	if (CheckEsc())
 		return FALSE;
 
 	ProgressContext* pc = (ProgressContext*) context;
-	int nTotalProgress = (pc->nTotalSize > 0) ? (int) ((pc->nProcessedBytes * 100) / pc->nTotalSize) : 0;
+	pc->nProcessedFileBytes += ProcessedBytes;
 
-	static wchar_t szFileProgressLine[100] = {0};
-	swprintf_s(szFileProgressLine, 100, L"File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, pc->nCurrentFileProgress, nTotalProgress);
+	int nFileProgress = (pc->nCurrentFileSize > 0) ? (int) ((pc->nProcessedFileBytes * 100) / pc->nCurrentFileSize) : 0;
+	int nTotalProgress = (pc->nTotalSize > 0) ? (int) (((pc->nTotalProcessedBytes + pc->nProcessedFileBytes) * 100) / pc->nTotalSize) : 0;
 
-	static const wchar_t* InfoLines[4];
-	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
-	InfoLines[1] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
-	InfoLines[2] = szFileProgressLine;
-	InfoLines[3] = pc->wszFilePath;
+	if (nFileProgress != pc->nCurrentProgress)
+	{
+		pc->nCurrentProgress = nFileProgress;
+		
+		static wchar_t szFileProgressLine[100] = {0};
+		swprintf_s(szFileProgressLine, 100, L"File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, nFileProgress, nTotalProgress);
 
-	FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
+		static const wchar_t* InfoLines[4];
+		InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
+		InfoLines[1] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
+		InfoLines[2] = szFileProgressLine;
+		InfoLines[3] = pc->wszFilePath;
+
+		FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
+	}
 
 	return TRUE;
 }
@@ -165,8 +199,10 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
 
 	context->nCurrentFileNumber++;
-	context->nCurrentFileProgress = 0;
-
+	context->nCurrentFileSize = item->GetSize();
+	context->nProcessedFileBytes = 0;
+	context->nCurrentProgress = -1;
+	
 	wchar_t wszSubPath[PATH_BUFFER_SIZE] = {0};
 	item->GetPath(wszSubPath, PATH_BUFFER_SIZE);
 		
@@ -184,12 +220,14 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	if ((hStdOut != INVALID_HANDLE_VALUE) && GetConsoleScreenBufferInfo(hStdOut, &si))
 		FSF.TruncPathStr(context->wszFilePath, si.dwSize.X - 16);
 
-	return ExtractProgress((HANDLE)context);
+	return ExtractProgress((HANDLE)context, 0);
 }
 
 static void CALLBACK ExtractDone(ProgressContext* context, HANDLE screen)
 {
 	FarSInfo.RestoreScreen(screen);
+
+	context->nTotalProcessedBytes += context->nCurrentFileSize;
 }
 
 static int ExtractError(int errorReason, HANDLE context)
