@@ -1,8 +1,6 @@
 #ifndef HWAbstractFile_h__
 #define HWAbstractFile_h__
 
-#include "ModuleDef.h"
-
 struct HWStorageItem
 {
 	wchar_t Name[MAX_PATH];

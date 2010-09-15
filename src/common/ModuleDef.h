@@ -4,9 +4,7 @@
 #define MODULE_EXPORT __stdcall
 
 // Extract progress callbacks
-typedef int (CALLBACK *ExtractStartFunc)(HANDLE);
 typedef int (CALLBACK *ExtractProgressFunc)(HANDLE, __int64);
-typedef void (CALLBACK *ExtractEndFunc)(HANDLE);
 
 struct ExtractProcessCallbacks
 {
@@ -14,7 +12,7 @@ struct ExtractProcessCallbacks
 	ExtractProgressFunc FileProgress;
 };
 
-#define STORAGE_FORMAT_NAME_MAX_LEN 16
+#define STORAGE_FORMAT_NAME_MAX_LEN 32
 #define STORAGE_PARAM_MAX_LEN 64
 
 struct StorageGeneralInfo
