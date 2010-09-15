@@ -223,11 +223,12 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	return ExtractProgress((HANDLE)context, 0);
 }
 
-static void CALLBACK ExtractDone(ProgressContext* context, HANDLE screen)
+static void CALLBACK ExtractDone(ProgressContext* context, HANDLE screen, bool success)
 {
 	FarSInfo.RestoreScreen(screen);
 
-	context->nTotalProcessedBytes += context->nCurrentFileSize;
+	if (success)
+		context->nTotalProcessedBytes += context->nCurrentFileSize;
 }
 
 static int ExtractError(int errorReason, HANDLE context)
@@ -384,7 +385,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 
 		ExtractStart(item, pctx, hScreen);
 		ret = storage->Extract(params);
-		ExtractDone(pctx, hScreen);
+		ExtractDone(pctx, hScreen, ret == SER_SUCCESS);
 
 		if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
 		{
