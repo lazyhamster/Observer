@@ -36,7 +36,7 @@ static const wchar_t *kMethods[] =
 
 static const int kNumMethods = sizeof(kMethods) / sizeof(kMethods[0]);
 
-STATPROPSTG kProps[] =
+static STATPROPSTG kProps[] =
 {
   { NULL, kpidPath, VT_BSTR},
   { NULL, kpidSize, VT_UI8},
@@ -46,7 +46,7 @@ STATPROPSTG kProps[] =
   { NULL, kpidSolid, VT_BOOL}
 };
 
-STATPROPSTG kArcProps[] =
+static STATPROPSTG kArcProps[] =
 {
   { NULL, kpidMethod, VT_BSTR},
   { NULL, kpidSolid, VT_BOOL}
@@ -368,14 +368,17 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
   byteBuf.SetCapacity(kBufferLength);
   Byte *buffer = byteBuf;
 
+  CByteBuffer tempBuf;
+
   bool dataError = false;
   for (i = 0; i < numItems; i++, currentTotalSize += currentItemSize)
   {
     currentItemSize = 0;
     RINOK(extractCallback->SetCompleted(&currentTotalSize));
     CMyComPtr<ISequentialOutStream> realOutStream;
-    Int32 askMode;
-    askMode = testMode ? NArchive::NExtract::NAskMode::kTest : NArchive::NExtract::NAskMode::kExtract;
+    Int32 askMode = testMode ?
+        NExtract::NAskMode::kTest :
+        NExtract::NAskMode::kExtract;
     UInt32 index = allFilesMode ? i : indices[i];
 
     RINOK(extractCallback->GetStream(index, &realOutStream, askMode));
@@ -384,7 +387,7 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
     if (index >= (UInt32)_archive.Items.Size())
     {
       currentItemSize = _archive.Script.Length();
-      if(!testMode && (!realOutStream))
+      if (!testMode && !realOutStream)
         continue;
       RINOK(extractCallback->PrepareOperation(askMode));
       if (!testMode)
@@ -400,7 +403,7 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
       else
         GetCompressedSize(index, currentItemSize);
       
-      if(!testMode && (!realOutStream))
+      if (!testMode && !realOutStream)
         continue;
       
       RINOK(extractCallback->PrepareOperation(askMode));
@@ -410,6 +413,9 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
         bool needDecompress = false;
         bool sizeIsKnown = false;
         UInt32 fullSize = 0;
+
+        bool writeToTemp = false;
+        bool readFromTemp = false;
 
         if (_archive.IsSolid)
         {
@@ -443,7 +449,20 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
             fullSize = Get32(buffer2);
             sizeIsKnown = true;
             needDecompress = true;
+
+            if (!testMode && i + 1 < numItems)
+            {
+              UInt64 nextPos = _archive.GetPosOfSolidItem(allFilesMode ? i : indices[i + 1]);
+              if (nextPos < streamPos + fullSize)
+              {
+                tempBuf.Free();
+                tempBuf.SetCapacity(fullSize);
+                writeToTemp = true;
+              }
+            }
           }
+          else
+            readFromTemp = true;
         }
         else
         {
@@ -488,6 +507,9 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
                 break;
               }
               
+              if (writeToTemp)
+                memcpy((Byte *)tempBuf + (size_t)offset, buffer, processedSize);
+              
               fullSize -= (UInt32)processedSize;
               streamPos += processedSize;
               offset += processedSize;
@@ -504,6 +526,12 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
           }
           else
           {
+            if (readFromTemp)
+            {
+              if (!testMode)
+                RINOK(WriteStream(realOutStream, tempBuf, tempBuf.GetCapacity()));
+            }
+            else
             while(fullSize > 0)
             {
               UInt32 curSize = MyMin(fullSize, kBufferLength);
@@ -526,8 +554,8 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
     _lastSolidPos = _archive.IsSolid ? streamPos : 0;
     realOutStream.Release();
     RINOK(extractCallback->SetOperationResult(dataError ?
-        NArchive::NExtract::NOperationResult::kDataError :
-        NArchive::NExtract::NOperationResult::kOK));
+        NExtract::NOperationResult::kDataError :
+        NExtract::NOperationResult::kOK));
   }
   return S_OK;
   COM_TRY_END

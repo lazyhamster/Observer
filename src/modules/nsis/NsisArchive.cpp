@@ -214,8 +214,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
 	}
 	else
 	{
-		NFile::NFind::CFileInfoW fi;
-		if (NFile::NFind::FindFile(fullProcessedPath, fi))
+		if (NFile::NFind::DoesFileExist(fullProcessedPath))
 		{
 			if (!NFile::NDirectory::DeleteFileAlways(fullProcessedPath))
 			{
