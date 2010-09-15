@@ -7,10 +7,9 @@
 
 namespace NBitl {
 
-const int kNumBigValueBits = 8 * 4;
-
-const int kNumValueBytes = 3;
-const int kNumValueBits = 8  * kNumValueBytes;
+const unsigned kNumBigValueBits = 8 * 4;
+const unsigned kNumValueBytes = 3;
+const unsigned kNumValueBits = 8  * kNumValueBytes;
 
 const UInt32 kMask = (1 << kNumValueBits) - 1;
 
@@ -20,7 +19,7 @@ template<class TInByte>
 class CBaseDecoder
 {
 protected:
-  int m_BitPos;
+  unsigned m_BitPos;
   UInt32 m_Value;
   TInByte m_Stream;
 public:
@@ -35,15 +34,11 @@ public:
     m_Value = 0;
     NumExtraBytes = 0;
   }
-  UInt64 GetProcessedSize() const
-    { return m_Stream.GetProcessedSize() - (kNumBigValueBits - m_BitPos) / 8; }
-  UInt64 GetProcessedBitsSize() const
-    { return (m_Stream.GetProcessedSize() << 3) - (kNumBigValueBits - m_BitPos); }
-  int GetBitPosition() const { return (m_BitPos & 7); }
+  UInt64 GetProcessedSize() const { return m_Stream.GetProcessedSize() + NumExtraBytes - (kNumBigValueBits - m_BitPos) / 8; }
 
   void Normalize()
   {
-    for (;m_BitPos >= 8; m_BitPos -= 8)
+    for (; m_BitPos >= 8; m_BitPos -= 8)
     {
       Byte b = 0;
       if (!m_Stream.ReadByte(b))
@@ -55,7 +50,7 @@ public:
     }
   }
   
-  UInt32 ReadBits(int numBits)
+  UInt32 ReadBits(unsigned numBits)
   {
     Normalize();
     UInt32 res = m_Value & ((1 << numBits) - 1);
@@ -99,24 +94,45 @@ public:
     }
   }
   
-  UInt32 GetValue(int numBits)
+  UInt32 GetValue(unsigned numBits)
   {
     Normalize();
     return ((this->m_Value >> (8 - this->m_BitPos)) & kMask) >> (kNumValueBits - numBits);
   }
 
-  void MovePos(int numBits)
+  void MovePos(unsigned numBits)
   {
     this->m_BitPos += numBits;
     m_NormalValue >>= numBits;
   }
   
-  UInt32 ReadBits(int numBits)
+  UInt32 ReadBits(unsigned numBits)
   {
     Normalize();
-    UInt32 res = m_NormalValue & ( (1 << numBits) - 1);
+    UInt32 res = m_NormalValue & ((1 << numBits) - 1);
     MovePos(numBits);
     return res;
+  }
+
+  void AlignToByte() { MovePos((32 - this->m_BitPos) & 7); }
+
+  Byte ReadByte()
+  {
+    if (this->m_BitPos == kNumBigValueBits)
+    {
+      Byte b = 0;
+      if (!this->m_Stream.ReadByte(b))
+      {
+        b = 0xFF;
+        this->NumExtraBytes++;
+      }
+      return b;
+    }
+    {
+      Byte b = (Byte)(m_NormalValue & 0xFF);
+      MovePos(8);
+      return b;
+    }
   }
 };
 

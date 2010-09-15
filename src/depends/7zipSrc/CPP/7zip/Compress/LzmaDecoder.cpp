@@ -2,10 +2,7 @@
 
 #include "StdAfx.h"
 
-extern "C"
-{
 #include "../../../C/Alloc.h"
-}
 
 #include "../Common/StreamUtils.h"
 
@@ -19,7 +16,6 @@ static HRESULT SResToHRESULT(SRes res)
     case SZ_ERROR_MEM: return E_OUTOFMEMORY;
     case SZ_ERROR_PARAM: return E_INVALIDARG;
     case SZ_ERROR_UNSUPPORTED: return E_NOTIMPL;
-    // case SZ_ERROR_PROGRESS: return E_ABORT;
     case SZ_ERROR_DATA: return S_FALSE;
   }
   return E_FAIL;
@@ -28,10 +24,13 @@ static HRESULT SResToHRESULT(SRes res)
 namespace NCompress {
 namespace NLzma {
 
-static const UInt32 kInBufSize = 1 << 20;
-
-CDecoder::CDecoder(): _inBuf(0), _outSizeDefined(false), FinishStream(false)
+CDecoder::CDecoder(): _inBuf(0), _propsWereSet(false), _outSizeDefined(false),
+  _inBufSize(1 << 20),
+  _outBufSize(1 << 22),
+  FinishStream(false)
 {
+  _inSizeProcessed = 0;
+  _inPos = _inSize = 0;
   LzmaDec_Construct(&_state);
 }
 
@@ -45,57 +44,65 @@ CDecoder::~CDecoder()
   MyFree(_inBuf);
 }
 
-STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size)
-{
-  RINOK(SResToHRESULT(LzmaDec_Allocate(&_state, prop, size, &g_Alloc)));
+STDMETHODIMP CDecoder::SetInBufSize(UInt32 , UInt32 size) { _inBufSize = size; return S_OK; }
+STDMETHODIMP CDecoder::SetOutBufSize(UInt32 , UInt32 size) { _outBufSize = size; return S_OK; }
 
-  if (_inBuf == 0)
+HRESULT CDecoder::CreateInputBuffer()
+{
+  if (_inBuf == 0 || _inBufSize != _inBufSizeAllocated)
   {
-    _inBuf = (Byte *)MyAlloc(kInBufSize);
+    MyFree(_inBuf);
+    _inBuf = (Byte *)MyAlloc(_inBufSize);
     if (_inBuf == 0)
       return E_OUTOFMEMORY;
+    _inBufSizeAllocated = _inBufSize;
   }
-
   return S_OK;
 }
 
-STDMETHODIMP CDecoder::GetInStreamProcessedSize(UInt64 *value) { *value = _inSizeProcessed; return S_OK; }
-STDMETHODIMP CDecoder::SetInStream(ISequentialInStream *inStream) { _inStream = inStream; return S_OK; }
-STDMETHODIMP CDecoder::ReleaseInStream() { _inStream.Release(); return S_OK; }
+STDMETHODIMP CDecoder::SetDecoderProperties2(const Byte *prop, UInt32 size)
+{
+  RINOK(SResToHRESULT(LzmaDec_Allocate(&_state, prop, size, &g_Alloc)));
+  _propsWereSet = true;
+  return CreateInputBuffer();
+}
 
-STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 *outSize)
+void CDecoder::SetOutStreamSizeResume(const UInt64 *outSize)
 {
   _outSizeDefined = (outSize != NULL);
   if (_outSizeDefined)
     _outSize = *outSize;
-
+  _outSizeProcessed = 0;
+  _wrPos = 0;
   LzmaDec_Init(&_state);
-  
+}
+
+STDMETHODIMP CDecoder::SetOutStreamSize(const UInt64 *outSize)
+{
+  _inSizeProcessed = 0;
   _inPos = _inSize = 0;
-  _inSizeProcessed = _outSizeProcessed = 0;
+  SetOutStreamSizeResume(outSize);
   return S_OK;
 }
 
-STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
-    const UInt64 * /* inSize */, const UInt64 *outSize, ICompressProgressInfo *progress)
+HRESULT CDecoder::CodeSpec(ISequentialInStream *inStream, ISequentialOutStream *outStream, ICompressProgressInfo *progress)
 {
-  if (_inBuf == 0)
+  if (_inBuf == 0 || !_propsWereSet)
     return S_FALSE;
-  SetOutStreamSize(outSize);
 
+  UInt64 startInProgress = _inSizeProcessed;
+
+  SizeT next = (_state.dicBufSize - _state.dicPos < _outBufSize) ? _state.dicBufSize : (_state.dicPos + _outBufSize);
   for (;;)
   {
     if (_inPos == _inSize)
     {
       _inPos = _inSize = 0;
-      RINOK(inStream->Read(_inBuf, kInBufSize, &_inSize));
+      RINOK(inStream->Read(_inBuf, _inBufSizeAllocated, &_inSize));
     }
 
     SizeT dicPos = _state.dicPos;
-    SizeT curSize = _state.dicBufSize - dicPos;
-    const UInt32 kStepSize = ((UInt32)1 << 22);
-    if (curSize > kStepSize)
-      curSize = (SizeT)kStepSize;
+    SizeT curSize = next - dicPos;
     
     ELzmaFinishMode finishMode = LZMA_FINISH_ANY;
     if (_outSizeDefined)
@@ -121,9 +128,18 @@ STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
     bool finished = (inSizeProcessed == 0 && outSizeProcessed == 0);
     bool stopDecoding = (_outSizeDefined && _outSizeProcessed >= _outSize);
 
-    if (res != 0 || _state.dicPos == _state.dicBufSize || finished || stopDecoding)
+    if (res != 0 || _state.dicPos == next || finished || stopDecoding)
     {
-      HRESULT res2 = WriteStream(outStream, _state.dic, _state.dicPos);
+      HRESULT res2 = WriteStream(outStream, _state.dic + _wrPos, _state.dicPos - _wrPos);
+
+      _wrPos = _state.dicPos;
+      if (_state.dicPos == _state.dicBufSize)
+      {
+        _state.dicPos = 0;
+        _wrPos = 0;
+      }
+      next = (_state.dicBufSize - _state.dicPos < _outBufSize) ? _state.dicBufSize : (_state.dicPos + _outBufSize);
+
       if (res != 0)
         return S_FALSE;
       RINOK(res2);
@@ -132,17 +148,27 @@ STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream 
       if (finished)
         return (status == LZMA_STATUS_FINISHED_WITH_MARK ? S_OK : S_FALSE);
     }
-    if (_state.dicPos == _state.dicBufSize)
-      _state.dicPos = 0;
-
-    if (progress != NULL)
+    if (progress)
     {
-      RINOK(progress->SetRatioInfo(&_inSizeProcessed, &_outSizeProcessed));
+      UInt64 inSize = _inSizeProcessed - startInProgress;
+      RINOK(progress->SetRatioInfo(&inSize, &_outSizeProcessed));
     }
   }
 }
 
+STDMETHODIMP CDecoder::Code(ISequentialInStream *inStream, ISequentialOutStream *outStream,
+    const UInt64 * /* inSize */, const UInt64 *outSize, ICompressProgressInfo *progress)
+{
+  if (_inBuf == 0)
+    return E_INVALIDARG;
+  SetOutStreamSize(outSize);
+  return CodeSpec(inStream, outStream, progress);
+}
+
 #ifndef NO_READ_FROM_CODER
+
+STDMETHODIMP CDecoder::SetInStream(ISequentialInStream *inStream) { _inStream = inStream; return S_OK; }
+STDMETHODIMP CDecoder::ReleaseInStream() { _inStream.Release(); return S_OK; }
 
 STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
 {
@@ -153,7 +179,7 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
     if (_inPos == _inSize)
     {
       _inPos = _inSize = 0;
-      RINOK(_inStream->Read(_inBuf, kInBufSize, &_inSize));
+      RINOK(_inStream->Read(_inBuf, _inBufSizeAllocated, &_inSize));
     }
     {
       SizeT inProcessed = _inSize - _inPos;
@@ -182,6 +208,42 @@ STDMETHODIMP CDecoder::Read(void *data, UInt32 size, UInt32 *processedSize)
     }
   }
   while (size != 0);
+  return S_OK;
+}
+
+HRESULT CDecoder::CodeResume(ISequentialOutStream *outStream, const UInt64 *outSize, ICompressProgressInfo *progress)
+{
+  SetOutStreamSizeResume(outSize);
+  return CodeSpec(_inStream, outStream, progress);
+}
+
+HRESULT CDecoder::ReadFromInputStream(void *data, UInt32 size, UInt32 *processedSize)
+{
+  RINOK(CreateInputBuffer());
+  if (processedSize)
+    *processedSize = 0;
+  while (size > 0)
+  {
+    if (_inPos == _inSize)
+    {
+      _inPos = _inSize = 0;
+      RINOK(_inStream->Read(_inBuf, _inBufSizeAllocated, &_inSize));
+      if (_inSize == 0)
+        break;
+    }
+    {
+      UInt32 curSize = _inSize - _inPos;
+      if (curSize > size)
+        curSize = size;
+      memcpy(data, _inBuf + _inPos, curSize);
+      _inPos += curSize;
+      _inSizeProcessed += curSize;
+      size -= curSize;
+      data = (Byte *)data + curSize;
+      if (processedSize)
+        *processedSize += curSize;
+    }
+  }
   return S_OK;
 }
 

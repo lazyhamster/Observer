@@ -2,12 +2,9 @@
 
 #include "StdAfx.h"
 
-#include "InBuffer.h"
+#include "../../../C/Alloc.h"
 
-extern "C"
-{
-  #include "../../../C/Alloc.h"
-}
+#include "InBuffer.h"
 
 CInBuffer::CInBuffer():
   _buffer(0),
@@ -77,7 +74,10 @@ bool CInBuffer::ReadBlock()
 
 Byte CInBuffer::ReadBlock2()
 {
-  if(!ReadBlock())
+  if (!ReadBlock())
+  {
+    _processedSize++;
     return 0xFF;
+  }
   return *_buffer++;
 }

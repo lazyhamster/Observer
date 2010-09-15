@@ -2,13 +2,13 @@
 
 #include "StdAfx.h"
 
-#include "FileDir.h"
-#include "FileName.h"
-#include "FileFind.h"
-#include "Defs.h"
 #ifndef _UNICODE
 #include "../Common/StringConvert.h"
 #endif
+
+#include "FileDir.h"
+#include "FileFind.h"
+#include "FileName.h"
 
 #ifndef _UNICODE
 extern bool g_IsNT;
@@ -38,6 +38,8 @@ static CSysString GetSysPath(LPCWSTR sysPath)
   { return UnicodeStringToMultiByte(sysPath, GetCurrentCodePage()); }
 #endif
 
+#ifndef UNDER_CE
+
 bool MyGetWindowsDirectory(CSysString &path)
 {
   UINT needLength = ::GetWindowsDirectory(path.GetBuffer(MAX_PATH + 1), MAX_PATH + 1);
@@ -51,6 +53,8 @@ bool MyGetSystemDirectory(CSysString &path)
   path.ReleaseBuffer();
   return (needLength > 0 && needLength <= MAX_PATH);
 }
+
+#endif
 
 #ifndef _UNICODE
 bool MyGetWindowsDirectory(UString &path)
@@ -291,7 +295,7 @@ bool CreateComplexDirectory(LPCTSTR _aPathName)
     if (::GetLastError() == ERROR_ALREADY_EXISTS)
     {
       NFind::CFileInfo fileInfo;
-      if (!NFind::FindFile(pathName, fileInfo)) // For network folders
+      if (!fileInfo.Find(pathName)) // For network folders
         return true;
       if (!fileInfo.IsDir())
         return false;
@@ -337,7 +341,7 @@ bool CreateComplexDirectory(LPCWSTR _aPathName)
     if (::GetLastError() == ERROR_ALREADY_EXISTS)
     {
       NFind::CFileInfoW fileInfo;
-      if (!NFind::FindFile(pathName, fileInfo)) // For network folders
+      if (!fileInfo.Find(pathName)) // For network folders
         return true;
       if (!fileInfo.IsDir())
         return false;
@@ -441,7 +445,41 @@ bool RemoveDirectoryWithSubItems(const UString &path)
 }
 #endif
 
-#ifndef _WIN32_WCE
+bool GetOnlyDirPrefix(LPCTSTR fileName, CSysString &resultName)
+{
+  int index;
+  if (!MyGetFullPathName(fileName, resultName, index))
+    return false;
+  resultName = resultName.Left(index);
+  return true;
+}
+
+bool GetOnlyName(LPCTSTR fileName, CSysString &resultName)
+{
+  int index;
+  if (!MyGetFullPathName(fileName, resultName, index))
+    return false;
+  resultName = resultName.Mid(index);
+  return true;
+}
+
+#ifdef UNDER_CE
+bool MyGetFullPathName(LPCWSTR fileName, UString &resultPath)
+{
+  resultPath = fileName;
+  return true;
+}
+
+bool MyGetFullPathName(LPCWSTR fileName, UString &resultPath, int &fileNamePartStartIndex)
+{
+  resultPath = fileName;
+  // change it
+  fileNamePartStartIndex = resultPath.ReverseFind('\\');
+  fileNamePartStartIndex++;
+  return true;
+}
+
+#else
 
 bool MyGetShortPathName(LPCTSTR longPath, CSysString &shortPath)
 {
@@ -534,15 +572,6 @@ bool MyGetFullPathName(LPCWSTR fileName, UString &path)
 }
 #endif
 
-bool GetOnlyName(LPCTSTR fileName, CSysString &resultName)
-{
-  int index;
-  if (!MyGetFullPathName(fileName, resultName, index))
-    return false;
-  resultName = resultName.Mid(index);
-  return true;
-}
-
 #ifndef _UNICODE
 bool GetOnlyName(LPCWSTR fileName, UString &resultName)
 {
@@ -553,15 +582,6 @@ bool GetOnlyName(LPCWSTR fileName, UString &resultName)
   return true;
 }
 #endif
-
-bool GetOnlyDirPrefix(LPCTSTR fileName, CSysString &resultName)
-{
-  int index;
-  if (!MyGetFullPathName(fileName, resultName, index))
-    return false;
-  resultName = resultName.Left(index);
-  return true;
-}
 
 #ifndef _UNICODE
 bool GetOnlyDirPrefix(LPCWSTR fileName, UString &resultName)
@@ -603,7 +623,6 @@ bool MyGetCurrentDirectory(UString &path)
   return true;
 }
 #endif
-#endif
 
 bool MySearchPath(LPCTSTR path, LPCTSTR fileName, LPCTSTR extension,
   CSysString &resultPath, UINT32 &filePart)
@@ -615,6 +634,7 @@ bool MySearchPath(LPCTSTR path, LPCTSTR fileName, LPCTSTR extension,
   resultPath.ReleaseBuffer();
   return (value > 0 && value <= MAX_PATH);
 }
+#endif
 
 #ifndef _UNICODE
 bool MySearchPath(LPCWSTR path, LPCWSTR fileName, LPCWSTR extension,
@@ -715,9 +735,13 @@ bool CTempFile::Create(LPCTSTR prefix, CSysString &resultPath)
     return false;
   if (Create(tempPath, prefix, resultPath) != 0)
     return true;
+  #ifdef UNDER_CE
+  return false;
+  #else
   if (!MyGetWindowsDirectory(tempPath))
     return false;
   return (Create(tempPath, prefix, resultPath) != 0);
+  #endif
 }
 
 bool CTempFile::Remove()
@@ -773,18 +797,20 @@ bool CreateTempDirectory(LPCTSTR prefix, CSysString &dirName)
   */
   for (;;)
   {
-    CTempFile tempFile;
-    if (!tempFile.Create(prefix, dirName))
-      return false;
-    if (!::DeleteFile(dirName))
-      return false;
+    {
+      CTempFile tempFile;
+      if (!tempFile.Create(prefix, dirName))
+        return false;
+      if (!tempFile.Remove())
+        return false;
+    }
     /*
     UINT32 randomNumber = random.Generate();
     TCHAR randomNumberString[32];
     _stprintf(randomNumberString, _T("%04X"), randomNumber);
     dirName = prefix + randomNumberString;
     */
-    if (NFind::DoesFileExist(dirName))
+    if (NFind::DoesFileOrDirExist(dirName))
       continue;
     if (MyCreateDirectory(dirName))
       return true;
@@ -810,18 +836,20 @@ bool CreateTempDirectory(LPCWSTR prefix, UString &dirName)
   */
   for (;;)
   {
-    CTempFileW tempFile;
-    if (!tempFile.Create(prefix, dirName))
-      return false;
-    if (!DeleteFileAlways(dirName))
-      return false;
+    {
+      CTempFileW tempFile;
+      if (!tempFile.Create(prefix, dirName))
+        return false;
+      if (!tempFile.Remove())
+        return false;
+    }
     /*
     UINT32 randomNumber = random.Generate();
     TCHAR randomNumberString[32];
     _stprintf(randomNumberString, _T("%04X"), randomNumber);
     dirName = prefix + randomNumberString;
     */
-    if (NFind::DoesFileExist(dirName))
+    if (NFind::DoesFileOrDirExist(dirName))
       continue;
     if (MyCreateDirectory(dirName))
       return true;

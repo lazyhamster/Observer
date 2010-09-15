@@ -14,21 +14,15 @@ CODER_INTERFACE(ICompressProgressInfo, 0x04)
 
 CODER_INTERFACE(ICompressCoder, 0x05)
 {
-  STDMETHOD(Code)(ISequentialInStream *inStream,
-      ISequentialOutStream *outStream,
-      const UInt64 *inSize,
-      const UInt64 *outSize,
+  STDMETHOD(Code)(ISequentialInStream *inStream, ISequentialOutStream *outStream,
+      const UInt64 *inSize, const UInt64 *outSize,
       ICompressProgressInfo *progress) PURE;
 };
 
 CODER_INTERFACE(ICompressCoder2, 0x18)
 {
-  STDMETHOD(Code)(ISequentialInStream **inStreams,
-      const UInt64 **inSizes,
-      UInt32 numInStreams,
-      ISequentialOutStream **outStreams,
-      const UInt64 **outSizes,
-      UInt32 numOutStreams,
+  STDMETHOD(Code)(ISequentialInStream **inStreams, const UInt64 **inSizes, UInt32 numInStreams,
+      ISequentialOutStream **outStreams, const UInt64 **outSizes, UInt32 numOutStreams,
       ICompressProgressInfo *progress) PURE;
 };
 
@@ -36,28 +30,27 @@ namespace NCoderPropID
 {
   enum EEnum
   {
-    kDictionarySize = 0x400,
+    kDefaultProp = 0,
+    kDictionarySize,
     kUsedMemorySize,
     kOrder,
     kBlockSize,
-    kPosStateBits = 0x440,
+    kPosStateBits,
     kLitContextBits,
     kLitPosBits,
-    kNumFastBytes = 0x450,
+    kNumFastBytes,
     kMatchFinder,
     kMatchFinderCycles,
-    kNumPasses = 0x460,
-    kAlgorithm = 0x470,
-    kMultiThread = 0x480,
+    kNumPasses,
+    kAlgorithm,
     kNumThreads,
-    kEndMarker = 0x490
+    kEndMarker
   };
 }
 
 CODER_INTERFACE(ICompressSetCoderProperties, 0x20)
 {
-  STDMETHOD(SetCoderProperties)(const PROPID *propIDs,
-      const PROPVARIANT *properties, UInt32 numProperties) PURE;
+  STDMETHOD(SetCoderProperties)(const PROPID *propIDs, const PROPVARIANT *props, UInt32 numProps) PURE;
 };
 
 /*
@@ -74,7 +67,7 @@ CODER_INTERFACE(ICompressSetDecoderProperties2, 0x22)
 
 CODER_INTERFACE(ICompressWriteCoderProperties, 0x23)
 {
-  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStreams) PURE;
+  STDMETHOD(WriteCoderProperties)(ISequentialOutStream *outStream) PURE;
 };
 
 CODER_INTERFACE(ICompressGetInStreamProcessedSize, 0x24)
@@ -114,10 +107,17 @@ CODER_INTERFACE(ICompressSetOutStreamSize, 0x34)
   STDMETHOD(SetOutStreamSize)(const UInt64 *outSize) PURE;
 };
 
+CODER_INTERFACE(ICompressSetBufSize, 0x35)
+{
+  STDMETHOD(SetInBufSize)(UInt32 streamIndex, UInt32 size) PURE;
+  STDMETHOD(SetOutBufSize)(UInt32 streamIndex, UInt32 size) PURE;
+};
+
 CODER_INTERFACE(ICompressFilter, 0x40)
 {
   STDMETHOD(Init)() PURE;
   STDMETHOD_(UInt32, Filter)(Byte *data, UInt32 size) PURE;
+  // Filter converts as most as possible bytes
   // Filter return outSize (UInt32)
   // if (outSize <= size): Filter have converted outSize bytes
   // if (outSize > size): Filter have not converted anything.
