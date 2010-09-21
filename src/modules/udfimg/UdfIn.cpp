@@ -379,7 +379,7 @@ HRESULT CFileId::Parse(const Byte *p, size_t size, size_t &processed)
   return (processed <= size) ? S_OK : S_FALSE;
 }
 
-HRESULT CUdfArchive::ReadFileItem(int volIndex, int fsIndex, const CLongAllocDesc &lad, int numRecurseAllowed)
+HRESULT CUdfArchive::ReadFileItem(int volIndex, const CLongAllocDesc &lad, int numRecurseAllowed)
 {
   if (_progress && (Files.Size() % 100 == 0))
     RINOK(_progress->SetCompleted(Files.Size(), _processedProgressBytes));
@@ -404,14 +404,14 @@ HRESULT CUdfArchive::ReadFileItem(int volIndex, int fsIndex, const CLongAllocDes
     file.ItemIndex = (int)value;
     if (partition.Map.Set(key, kRecursedErrorValue))
       return S_FALSE;
-    RINOK(ReadItem(volIndex, fsIndex, lad, numRecurseAllowed));
+    RINOK(ReadItem(volIndex, lad, numRecurseAllowed));
     if (!partition.Map.Set(key, value))
       return S_FALSE;
   }
   return S_OK;
 }
 
-HRESULT CUdfArchive::ReadItem(int volIndex, int fsIndex, const CLongAllocDesc &lad, int numRecurseAllowed)
+HRESULT CUdfArchive::ReadItem(int volIndex, const CLongAllocDesc &lad, int numRecurseAllowed)
 {
   if (Items.Size() > kNumItemsMax)
     return S_FALSE;
@@ -563,7 +563,7 @@ HRESULT CUdfArchive::ReadItem(int volIndex, int fsIndex, const CLongAllocDesc &l
         if (Files.Size() > kNumFilesMax)
           return S_FALSE;
         Files.Add(file);
-        RINOK(ReadFileItem(volIndex, fsIndex, fileId.Icb, numRecurseAllowed));
+        RINOK(ReadFileItem(volIndex, fileId.Icb, numRecurseAllowed));
       }
       processedTotal += processedCur;
     }
@@ -829,7 +829,7 @@ HRESULT CUdfArchive::Open2()
       CFileSet &fs = vol.FileSets[fsIndex];
       int fileIndex = Files.Size();
       Files.Add(CFile());
-      RINOK(ReadFileItem(volIndex, fsIndex, fs.RootDirICB, kNumRecureseLevelsMax));
+      RINOK(ReadFileItem(volIndex, fs.RootDirICB, kNumRecureseLevelsMax));
       RINOK(FillRefs(fs, fileIndex, -1, kNumRecureseLevelsMax));
     }
   }

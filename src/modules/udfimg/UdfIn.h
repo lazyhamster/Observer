@@ -390,8 +390,8 @@ class CUdfArchive
   HRESULT Read(int volIndex, const CLongAllocDesc &lad, Byte *buf);
   HRESULT ReadFromFile(int volIndex, const CItem &item, CByteBuffer &buf);
 
-  HRESULT ReadFileItem(int volIndex, int fsIndex, const CLongAllocDesc &lad, int numRecurseAllowed);
-  HRESULT ReadItem(int volIndex, int fsIndex, const CLongAllocDesc &lad, int numRecurseAllowed);
+  HRESULT ReadFileItem(int volIndex, const CLongAllocDesc &lad, int numRecurseAllowed);
+  HRESULT ReadItem(int volIndex, const CLongAllocDesc &lad, int numRecurseAllowed);
 
   HRESULT Open2();
   HRESULT FillRefs(CFileSet &fs, int fileIndex, int parent, int numRecurseAllowed);
