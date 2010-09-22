@@ -1057,7 +1057,7 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 	HANDLE context = NULL;
 
 	int result = SER_SUCCESS;
-	CItem itemObj = Items[itemIndex];
+	const CItem &itemObj = Items[itemIndex];
 
 	HANDLE hFile = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
