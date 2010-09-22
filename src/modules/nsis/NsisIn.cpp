@@ -1283,9 +1283,11 @@ void CInArchive::PostProcess()
 		for (int j = i + 1; j < Items.Size(); j++)
 		{					   
 			CItem &item_next = Items[j];
-			bool sameName = IsUnicode
-				? (!item.NameU.CompareNoCase(item_next.NameU) && !item.PrefixU.CompareNoCase(item_next.PrefixU))
-				: !_strcmpi(item.NameA, item_next.NameA) && !_strcmpi(item.PrefixA, item_next.PrefixA);
+
+			UString sName1 = item.GetReducedName(IsUnicode);
+			UString sName2 = item_next.GetReducedName(IsUnicode);
+			
+			bool sameName = sName1.CompareNoCase(sName2) == 0;
 			if (sameName)
 			{
 				nDupCounter++;
