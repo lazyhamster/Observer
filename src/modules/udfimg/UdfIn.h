@@ -353,6 +353,50 @@ struct CFileSet
   CRecordVector<CRef> Refs;
 };
 
+// Forward declaration
+struct CLogVol;
+
+// Base class for partition types
+class CLogicalPartition
+{
+public:
+	UInt32 Type;
+
+	virtual bool ReadData(Byte* buf, size_t size) { return false; };
+	virtual bool Seek(UInt64 pos, int origin, UInt64 *currentPos) { return false; };
+};
+
+class CType1Partition : public CLogicalPartition
+{
+private:
+	HANDLE m_hFile;
+	UInt64 m_nPartitionOffset;
+
+public:
+	CType1Partition(HANDLE hFile, const CPartition &physPart, int SecLogSize) : m_hFile(hFile)
+	{
+		Type = 1;
+		m_nPartitionOffset = (UInt64)physPart.Pos << SecLogSize;
+	}
+	
+	bool ReadData(Byte* buf, size_t size);
+	bool Seek(UInt64 pos, int origin, UInt64 *currentPos);
+};
+
+class CMetadataPartition : public CLogicalPartition
+{
+private:
+	CByteBuffer m_metaFileContent;
+	UInt64 m_contentPos;
+
+public:
+	CMetadataPartition(const CByteBuffer& buf, const CLogVol& vol)
+		: m_metaFileContent(buf), m_contentPos(0) { Type = 2; }
+
+	bool ReadData(Byte* buf, size_t size);
+	bool Seek(UInt64 pos, int origin, UInt64 *currentPos);
+};
+
 
 // ECMA 3/10.6
 
@@ -370,6 +414,7 @@ struct CLogVol
 
   CObjectVector<CPartitionMap> PartitionMaps;
   CObjectVector<CFileSet> FileSets;
+  CRecordVector<CLogicalPartition*> LogicPartitions;
 
   UString GetName() const { return Id.GetString(); }
 };
@@ -395,6 +440,9 @@ class CUdfArchive
 
   HRESULT Open2();
   HRESULT FillRefs(CFileSet &fs, int fileIndex, int parent, int numRecurseAllowed);
+
+  HRESULT ParseFileBuf(int volIndex, int partitionRef, const Byte *buf, size_t size, CItem &item);
+  HRESULT ReadRaw(int volIndex, int partitionRef, UInt32 blockPos, UInt32 len, Byte *buf);
 
   UInt64 _processedProgressBytes;
 

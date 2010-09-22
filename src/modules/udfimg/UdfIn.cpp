@@ -257,7 +257,7 @@ bool CUdfArchive::CheckItemExtents(int volIndex, const CItem &item) const
   return true;
 }
 
-HRESULT CUdfArchive::Read(int volIndex, int partitionRef, UInt32 blockPos, UInt32 len, Byte *buf)
+HRESULT CUdfArchive::ReadRaw(int volIndex, int partitionRef, UInt32 blockPos, UInt32 len, Byte *buf)
 {
   if (!CheckExtent(volIndex, partitionRef, blockPos, len))
     return S_FALSE;
@@ -266,6 +266,17 @@ HRESULT CUdfArchive::Read(int volIndex, int partitionRef, UInt32 blockPos, UInt3
   if (!SeekStream(_file, ((UInt64)partition.Pos << SecLogSize) + (UInt64)blockPos * vol.BlockSize, FILE_BEGIN, NULL))
 	  return S_FALSE;
   return ReadStream_FALSE(_file, buf, len) ? S_OK : S_FALSE;
+}
+
+HRESULT CUdfArchive::Read(int volIndex, int partitionRef, UInt32 blockPos, UInt32 len, Byte *buf)
+{
+	if (!CheckExtent(volIndex, partitionRef, blockPos, len))
+		return S_FALSE;
+	const CLogVol &vol = LogVols[volIndex];
+	CLogicalPartition *logPart = vol.LogicPartitions[partitionRef];
+	if (!logPart->Seek((UInt64)blockPos * vol.BlockSize, FILE_BEGIN, NULL))
+		return S_FALSE;
+	return logPart->ReadData(buf, len) ? S_OK : S_FALSE;
 }
 
 HRESULT CUdfArchive::Read(int volIndex, const CLongAllocDesc &lad, Byte *buf)
@@ -428,20 +439,80 @@ HRESULT CUdfArchive::ReadItem(int volIndex, const CLongAllocDesc &lad, int numRe
   buf.SetCapacity(size);
   RINOK(Read(volIndex, lad, buf));
 
-  CTag tag;
   const Byte *p = buf;
+  RINOK(ParseFileBuf(volIndex, lad.Location.PartitionRef, p, size, item));
+
+  if (item.IcbTag.IsDir())
+  {
+    if (!item.CheckChunkSizes() || !CheckItemExtents(volIndex, item))
+      return S_FALSE;
+    CByteBuffer buf;
+    RINOK(ReadFromFile(volIndex, item, buf));
+    item.Size = 0;
+    item.Extents.ClearAndFree();
+    item.InlineData.Free();
+
+    const Byte *p = buf;
+    size = buf.GetCapacity();
+    size_t processedTotal = 0;
+    for (; processedTotal < size;)
+    {
+      size_t processedCur;
+      CFileId fileId;
+      RINOK(fileId.Parse(p + processedTotal, size - processedTotal, processedCur));
+      if (!fileId.IsItLinkParent())
+      {
+        CFile file;
+        // file.FileVersion = fileId.FileVersion;
+        // file.FileCharacteristics = fileId.FileCharacteristics;
+        // file.ImplUse = fileId.ImplUse;
+        file.Id = fileId.Id;
+        
+        _fileNameLengthTotal += file.Id.Data.GetCapacity();
+        if (_fileNameLengthTotal > kFileNameLengthTotalMax)
+          return S_FALSE;
+        
+        item.SubFiles.Add(Files.Size());
+        if (Files.Size() > kNumFilesMax)
+          return S_FALSE;
+        Files.Add(file);
+        RINOK(ReadFileItem(volIndex, fileId.Icb, numRecurseAllowed));
+      }
+      processedTotal += processedCur;
+    }
+  }
+  else
+  {
+    if ((UInt32)item.Extents.Size() > kNumExtentsMax - _numExtents)
+      return S_FALSE;
+    _numExtents += item.Extents.Size();
+
+    if (item.InlineData.GetCapacity() > kInlineExtentsSizeMax - _inlineExtentsSize)
+      return S_FALSE;
+    _inlineExtentsSize += item.InlineData.GetCapacity();
+  }
+
+  return S_OK;
+}
+
+HRESULT CUdfArchive::ParseFileBuf( int volIndex, int partitionRef, const Byte *p, size_t size, CItem &item )
+{
+  CTag tag;
   RINOK(tag.Parse(p, size));
   if (tag.Id != DESC_TYPE_File && tag.Id != DESC_TYPE_ExtendedFile)
     return S_FALSE;
 
   item.IcbTag.Parse(p + 16);
   if (item.IcbTag.FileType != ICB_FILE_TYPE_DIR &&
-      item.IcbTag.FileType != ICB_FILE_TYPE_FILE)
+      item.IcbTag.FileType != ICB_FILE_TYPE_FILE &&
+	  item.IcbTag.FileType != ICB_FILE_TYPE_METADATA)
     return S_FALSE;
 
   UInt32 extendedAttrLen;
   UInt32 allocDescriptorsLen;
   int pos;
+
+  const CLogVol &vol = LogVols[volIndex];
 
   if (tag.Id == DESC_TYPE_File)
   {
@@ -511,7 +582,7 @@ HRESULT CUdfArchive::ReadItem(int volIndex, const CLongAllocDesc &lad, int numRe
         sad.Parse(p + pos + i);
         e.Pos = sad.Pos;
         e.Len = sad.Len;
-        e.PartitionRef = lad.Location.PartitionRef;
+        e.PartitionRef = partitionRef;
         i += 8;
       }
       else
@@ -528,58 +599,8 @@ HRESULT CUdfArchive::ReadItem(int volIndex, const CLongAllocDesc &lad, int numRe
       item.Extents.Add(e);
     }
   }
-
-  if (item.IcbTag.IsDir())
-  {
-    if (!item.CheckChunkSizes() || !CheckItemExtents(volIndex, item))
-      return S_FALSE;
-    CByteBuffer buf;
-    RINOK(ReadFromFile(volIndex, item, buf));
-    item.Size = 0;
-    item.Extents.ClearAndFree();
-    item.InlineData.Free();
-
-    const Byte *p = buf;
-    size = buf.GetCapacity();
-    size_t processedTotal = 0;
-    for (; processedTotal < size;)
-    {
-      size_t processedCur;
-      CFileId fileId;
-      RINOK(fileId.Parse(p + processedTotal, size - processedTotal, processedCur));
-      if (!fileId.IsItLinkParent())
-      {
-        CFile file;
-        // file.FileVersion = fileId.FileVersion;
-        // file.FileCharacteristics = fileId.FileCharacteristics;
-        // file.ImplUse = fileId.ImplUse;
-        file.Id = fileId.Id;
-        
-        _fileNameLengthTotal += file.Id.Data.GetCapacity();
-        if (_fileNameLengthTotal > kFileNameLengthTotalMax)
-          return S_FALSE;
-        
-        item.SubFiles.Add(Files.Size());
-        if (Files.Size() > kNumFilesMax)
-          return S_FALSE;
-        Files.Add(file);
-        RINOK(ReadFileItem(volIndex, fileId.Icb, numRecurseAllowed));
-      }
-      processedTotal += processedCur;
-    }
-  }
-  else
-  {
-    if ((UInt32)item.Extents.Size() > kNumExtentsMax - _numExtents)
-      return S_FALSE;
-    _numExtents += item.Extents.Size();
-
-    if (item.InlineData.GetCapacity() > kInlineExtentsSizeMax - _inlineExtentsSize)
-      return S_FALSE;
-    _inlineExtentsSize += item.InlineData.GetCapacity();
-  }
-
-  return S_OK;
+	
+	return S_OK;
 }
 
 HRESULT CUdfArchive::FillRefs(CFileSet &fs, int fileIndex, int parent, int numRecurseAllowed)
@@ -781,6 +802,52 @@ HRESULT CUdfArchive::Open2()
 
   if (_progress)
 	RINOK(_progress->SetTotal(totalSize));
+
+  for (volIndex = 0; volIndex < LogVols.Size(); volIndex++)
+  {
+	  CLogVol &vol = LogVols[volIndex];
+	  for (int partIndex = 0; partIndex < vol.PartitionMaps.Size(); partIndex++)
+	  {
+		  CPartitionMap &partMap = vol.PartitionMaps[partIndex];
+
+		  if (partMap.Type == 1)
+		  {
+			  const CPartition &partition = Partitions[partMap.PartitionIndex];
+			  CType1Partition *t1part = new CType1Partition(_file, partition, SecLogSize);
+			  vol.LogicPartitions.Add(t1part);
+		  }
+		  else if (partMap.Type == 2)
+		  {
+			  CLongAllocDesc metaFileExtent = vol.FileSetLocation;
+			  if (metaFileExtent.GetLen() < 512)
+				  return S_FALSE;
+
+			  CByteBuffer metaFileBuf;
+			  size_t mfbSize = metaFileExtent.GetLen();
+			  metaFileBuf.SetCapacity(mfbSize);
+
+			  RINOK(ReadRaw(volIndex, metaFileExtent.Location.PartitionRef, metaFileExtent.Location.Pos, mfbSize, metaFileBuf));
+			  
+			  const Byte *p = metaFileBuf;
+			  CTag tag;
+			  RINOK(tag.Parse(p, mfbSize));
+			  if (tag.Id != DESC_TYPE_ExtendedFile)
+				  return S_FALSE;
+
+			  CItem metaFileItem;
+			  RINOK(ParseFileBuf(volIndex, partMap.PartitionIndex, p, mfbSize, metaFileItem));
+
+			  CByteBuffer metaFileContent;
+			  metaFileContent.SetCapacity((size_t) metaFileItem.Size);
+			  RINOK(ReadFromFile(volIndex, metaFileItem, metaFileContent));
+			  
+			  CMetadataPartition *mdpart = new CMetadataPartition(metaFileContent, vol);
+			  vol.LogicPartitions.Add(mdpart);
+		  }
+		  else
+			  return S_FALSE;
+	  }
+  }
 
   for (volIndex = 0; volIndex < LogVols.Size(); volIndex++)
   {
@@ -1083,4 +1150,52 @@ FILETIME CUdfArchive::GetCreatedTime() const
 			vol.FileSets[0].RecodringTime.GetFileTime(res);
 	}
 	return res;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+bool CType1Partition::ReadData( Byte* buf, size_t size )
+{
+	return ReadStream_FALSE(m_hFile, buf, size);
+}
+
+bool CType1Partition::Seek( UInt64 pos, int origin, UInt64 *currentPos )
+{
+	return SeekStream(m_hFile, m_nPartitionOffset + pos, origin, currentPos);
+}
+
+bool CMetadataPartition::ReadData( Byte* buf, size_t size )
+{
+	if (m_contentPos + size > m_metaFileContent.GetCapacity())
+		return false;
+	
+	Byte* p = m_metaFileContent;
+	memcpy(buf, p + m_contentPos, size);
+	return true;
+}
+
+bool CMetadataPartition::Seek( UInt64 pos, int origin, UInt64 *currentPos )
+{
+	size_t nContentSize = m_metaFileContent.GetCapacity();
+	switch (origin)
+	{
+		case FILE_BEGIN:
+			m_contentPos = pos;
+			break;
+		case FILE_CURRENT:
+			m_contentPos += pos;
+			break;
+		case FILE_END:
+			m_contentPos = nContentSize + pos;
+			break;
+		default:
+			return false;
+	}
+
+	if (m_contentPos > (UInt64) nContentSize)
+		return false;
+
+	if (currentPos)
+		*currentPos = m_contentPos;
+	return true;
 }
