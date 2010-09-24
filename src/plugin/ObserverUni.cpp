@@ -607,7 +607,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 			wszContainerSubpath = wszColonPos + 1;
 		}
 
-		delete [] szLocalNameBuffer;
+		free(szLocalNameBuffer);
 	}
 	else if (OpenFrom == OPEN_PLUGINSMENU)
 	{
@@ -802,7 +802,7 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	Info->CurDir = wszCurrentDir;
 	Info->PanelTitle = wszTitle;
 	Info->HostFile = info->StoragePath();
-	Info->InfoLinesNumber = sizeof(pInfoLinesData) / sizeof(pInfoLinesData[0]);
+	Info->InfoLinesNumber = ARRAY_SIZE(pInfoLinesData);
 	Info->InfoLines = pInfoLinesData;
 
 	memset(&KeyBar, 0, sizeof(KeyBar));
@@ -834,12 +834,15 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 		if (wcscmp(pItem.FindData.lpwszFileName, L"..") == 0) continue;
 
 		ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem.FindData.lpwszFileName);
-		if (child) CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
+		if (child)
+		{
+			CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
 
-		if (pItem.FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
-			nExtNumDirs++;
-		else
-			nExtNumFiles++;
+			if (pItem.FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+				nExtNumDirs++;
+			else
+				nExtNumFiles++;
+		}
 	} //for
 
 	// Check if we have something to extract
