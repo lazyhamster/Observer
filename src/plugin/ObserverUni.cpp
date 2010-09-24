@@ -877,11 +877,13 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
 		for (int i = 0; i < pi.SelectedItemsNumber; i++)
 		{
 			PluginPanelItem* pItem = (PluginPanelItem*) malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, NULL));
+			
 			FarSInfo.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, (LONG_PTR) pItem);
-			if (wcscmp(pItem->FindData.lpwszFileName, L"..") == 0) continue;
-
-			ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem->FindData.lpwszFileName);
-			if (child) CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
+			if (wcscmp(pItem->FindData.lpwszFileName, L"..") != 0)
+			{
+				ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem->FindData.lpwszFileName);
+				if (child) CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
+			}
 			
 			free(pItem);
 		} //for
