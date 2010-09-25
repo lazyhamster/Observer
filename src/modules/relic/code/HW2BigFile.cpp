@@ -205,13 +205,18 @@ bool CHW2BigFile::ExtractCompressed( BIG_FileInfoListEntry &fileInfo, HANDLE out
 			if (have == 0) break;
 
 			if (!WriteFile(outfile, outbuf, have, &nWritten, NULL) || (nWritten != have))
-				return false;
+			{
+				ret = Z_STREAM_ERROR;
+				break;
+			}
 
 			crc = crc32(crc, outbuf, have);
 		} while (strm.avail_out == 0);
-
+		
+		if (ret < 0) break;
 		nBytesLeft -= nReadSize;
 	} // while
-
+	
+	inflateEnd(&strm);
 	return (ret == Z_STREAM_END) && (crc == fileCRC);
 }
