@@ -814,14 +814,24 @@ int CMsiViewer::generateLicenseText()
 
 	if (nVlen > 0)
 	{
+		const char* cntText = &val[0];
+
 		// Add fake file with general info to root folder
 		FileNode *fake = new FileNode();
-		fake->TargetName = _wcsdup(L"{license}.txt");
-		fake->TargetShortName = _wcsdup(L"license.txt");
+		if (_strnicmp(cntText, "{\\rtf", 4) == 0)
+		{
+			fake->TargetName = _wcsdup(L"{license}.rtf");
+			fake->TargetShortName = _wcsdup(L"license.rtf");
+		}
+		else
+		{
+			fake->TargetName = _wcsdup(L"{license}.txt");
+			fake->TargetShortName = _wcsdup(L"license.txt");
+		}
 		fake->Attributes = 0;
 		fake->IsFake = true;
 		fake->FileSize = nVlen;
-		fake->FakeFileContent = _strdup(&val[0]);
+		fake->FakeFileContent = _strdup(cntText);
 		m_pRootDir->AddFile(fake);
 	}
 	
