@@ -2,6 +2,7 @@
 #define CommonFunc_h__
 
 #include "ContentStructures.h"
+#include "FarStorage.h"
 
 #define PATH_BUFFER_SIZE 4096
 
@@ -14,6 +15,7 @@ bool ForceDirectoryExist(const wchar_t* path);
 bool CheckEsc();
 
 int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 &totalSize, bool recursive);
+wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, bool keepFullPath);
 
 const wchar_t* ExtractFileName(const wchar_t* fullPath);
 wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim);

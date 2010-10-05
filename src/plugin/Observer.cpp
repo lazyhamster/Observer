@@ -867,7 +867,9 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 
 		if (nextItem->IsDir())
 		{
-			//TODO: create folder
+			wstring strFullPath = GetFinalExtractionPath(info, nextItem, wszWideDestPath, false);
+			if (!ForceDirectoryExist(strFullPath.c_str()))
+				return 0;
 		}
 		else
 		{

@@ -4,10 +4,10 @@
 #include "StdAfx.h"
 #include <far2/plugin.hpp>
 
-#include "CommonFunc.h"
 #include "ModulesController.h"
 #include "PlugLang.h"
 #include "FarStorage.h"
+#include "CommonFunc.h"
 
 #include "OptionsParser.h"
 #include "RegistrySettings.h"
@@ -316,24 +316,6 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
-static wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, bool keepFullPath)
-{
-	wstring strResult(baseDir);
-	if (strResult[strResult.length() - 1] != '\\')
-		strResult.append(L"\\");
-
-	ContentTreeNode* pSubRoot = keepFullPath ? NULL : storage->CurrentDir();
-
-	size_t nSubPathSize = item->GetPath(NULL, 0, pSubRoot) + 1;
-	wchar_t *wszItemSubPath = (wchar_t *) malloc(nSubPathSize);
-	item->GetPath(wszItemSubPath, nSubPathSize, pSubRoot);
-
-	strResult.append(wszItemSubPath);
-	free(wszItemSubPath);
-
-	return strResult;
-}
-
 static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir())
@@ -455,7 +437,9 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 
 		if (nextItem->IsDir())
 		{
-			//TODO: create folder
+			wstring strFullPath = GetFinalExtractionPath(info, nextItem, DestPath, false);
+			if (!ForceDirectoryExist(strFullPath.c_str()))
+				return 0;
 		}
 		else
 		{
