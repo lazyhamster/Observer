@@ -2,9 +2,6 @@ MSI:
 - extract progress
 - fix problem with real file and non showing the special folders mode
 
-Plugin:
-- add support for empty folders extraction
-
 MIME:
 - Improve parser
 

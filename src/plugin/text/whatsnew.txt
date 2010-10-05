@@ -4,6 +4,7 @@ Changes history:
 - Added basic support for Outlook databases (*.pst).
 - Added common prefix for file panel header ([General]->PanelHeaderPrefix).
 - Fixed small issues with extraction progress indicator.
+- Empty directories can be extracted now.
 - MSI: File names processing is case-insensitive now.
 - UDF: Added support for UDF 2.50 images.
 - Small fixes.
