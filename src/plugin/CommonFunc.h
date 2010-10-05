@@ -16,5 +16,6 @@ bool CheckEsc();
 int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 &totalSize, bool recursive);
 
 const wchar_t* ExtractFileName(const wchar_t* fullPath);
+wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim);
 
 #endif // CommonFunc_h__

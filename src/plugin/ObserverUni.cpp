@@ -316,6 +316,24 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
+static wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, bool keepFullPath)
+{
+	wstring strResult(baseDir);
+	if (strResult[strResult.length() - 1] != '\\')
+		strResult.append(L"\\");
+
+	ContentTreeNode* pSubRoot = keepFullPath ? NULL : storage->CurrentDir();
+
+	size_t nSubPathSize = item->GetPath(NULL, 0, pSubRoot) + 1;
+	wchar_t *wszItemSubPath = (wchar_t *) malloc(nSubPathSize);
+	item->GetPath(wszItemSubPath, nSubPathSize, pSubRoot);
+
+	strResult.append(wszItemSubPath);
+	free(wszItemSubPath);
+
+	return strResult;
+}
+
 static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir())
@@ -324,14 +342,8 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	// Check for ESC pressed
 	if (CheckEsc())	return SER_USERABORT;
 
-	static wchar_t wszItemSubPath[PATH_BUFFER_SIZE];
-	item->GetPath(wszItemSubPath, PATH_BUFFER_SIZE, storage->CurrentDir());
-
-	wstring strFullTargetPath(destDir);
-	if (strFullTargetPath[strFullTargetPath.length() - 1] != '\\')
-		strFullTargetPath.append(L"\\");
-	strFullTargetPath.append(wszItemSubPath);
-
+	wstring strFullTargetPath = GetFinalExtractionPath(storage, item, destDir, false);
+	
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
 	if (!silent && FileExists(strFullTargetPath.c_str(), &fdExistingFile))
@@ -352,21 +364,12 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		}
 	}
 
-	// Strip target path from file name
-	wstring strTargetDir;
-	size_t nLastSlash = strFullTargetPath.find_last_of('\\');
-	if (nLastSlash != wstring::npos)
-	{
-		// Copy directory name without trailing backslash or following existence checker won't work
-		strTargetDir = strFullTargetPath.substr(0, nLastSlash);
-	}
-
-	// Create target directory if needed
+	// Create directory if needed
+	wstring strTargetDir = GetDirectoryName(strFullTargetPath, false);
 	if (strTargetDir.length() > 0)
 	{
 		if (!ForceDirectoryExist(strTargetDir.c_str()))
 			return SER_ERROR_WRITE;
-		strTargetDir.append(L"\\");
 	}
 
 	ProgressContext* pctx = (ProgressContext*) callbackContext;

@@ -132,3 +132,17 @@ const wchar_t* ExtractFileName(const wchar_t* fullPath)
 	else
 		return fullPath;
 }
+
+wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim)
+{
+	wstring strResult;
+
+	size_t nLastSlash = fullPath.find_last_of('\\');
+	if (nLastSlash != wstring::npos)
+	{
+		size_t nCount = includeTrailingDelim ? nLastSlash + 1 : nLastSlash;
+		strResult = fullPath.substr(0, nCount);
+	}
+
+	return strResult;
+}

@@ -390,21 +390,12 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 		}
 	}
 
-	// Strip target path from file name
-	wstring strTargetDir;
-	size_t nLastSlash = strFullTargetPath.find_last_of('\\');
-	if (nLastSlash != wstring::npos)
-	{
-		// Copy directory name without trailing backslash or following existence checker won't work
-		strTargetDir = strFullTargetPath.substr(0, nLastSlash);
-	}
-
-	// Create target directory if needed
+	// Create directory if needed
+	wstring strTargetDir = GetDirectoryName(strFullTargetPath, false);
 	if (strTargetDir.length() > 0)
 	{
 		if (!ForceDirectoryExist(strTargetDir.c_str()))
 			return FALSE;
-		strTargetDir.append(L"\\");
 	}
 
 	ProgressContext* pctx = (ProgressContext*) callbackContext;
