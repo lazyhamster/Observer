@@ -3,6 +3,7 @@
 
 class ContentTreeNode;
 typedef map<wstring, ContentTreeNode*> SubNodesMap;
+typedef vector<ContentTreeNode*> ContentNodeList;
 
 class ContentTreeNode
 {

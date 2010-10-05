@@ -803,7 +803,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info) return 0;
 
-	vector<int> vcExtractItems;
+	ContentNodeList vcExtractItems;
 	__int64 nTotalExtractSize = 0;
 	wchar_t wszItemNameBuf[MAX_PATH] = {0};
 	int nExtNumFiles = 0, nExtNumDirs = 0;
@@ -870,11 +870,18 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	pctx.nTotalSize = nTotalExtractSize;
 
 	// Extract all files one by one
-	for (vector<int>::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
+	for (ContentNodeList::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
 	{
-		ContentTreeNode* nextItem = info->GetItem(*cit);
+		ContentTreeNode* nextItem = *cit;
 
-		nExtractResult = ExtractStorageItem(info, nextItem, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, skipOnError, &pctx);
+		if (nextItem->IsDir())
+		{
+			//TODO: create folder
+		}
+		else
+		{
+			nExtractResult = ExtractStorageItem(info, nextItem, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, skipOnError, &pctx);
+		}
 
 		if (!nExtractResult) break;
 	}

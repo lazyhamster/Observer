@@ -419,7 +419,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	return ret;
 }
 
-int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSize, const wchar_t* DestPath, bool silent)
+int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtractSize, const wchar_t* DestPath, bool silent)
 {
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(items.begin(), items.end());
@@ -437,7 +437,7 @@ int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSi
 		return 0;
 	}
 
-	int nExtractResult = TRUE;
+	int nExtractResult = SER_SUCCESS;
 	int doOverwrite = EXTR_OVERWRITE_ASK;
 	bool skipOnError = false;
 
@@ -446,11 +446,18 @@ int BatchExtract(StorageObject* info, vector<int> &items, __int64 totalExtractSi
 	pctx.nTotalSize = totalExtractSize;
 
 	// Extract all files one by one
-	for (vector<int>::const_iterator cit = items.begin(); cit != items.end(); cit++)
+	for (ContentNodeList::const_iterator cit = items.begin(); cit != items.end(); cit++)
 	{
-		ContentTreeNode* nextItem = info->GetItem(*cit);
+		ContentTreeNode* nextItem = *cit;
 
-		nExtractResult = ExtractStorageItem(info, nextItem, DestPath, silent, doOverwrite, skipOnError, &pctx);
+		if (nextItem->IsDir())
+		{
+			//TODO: create folder
+		}
+		else
+		{
+			nExtractResult = ExtractStorageItem(info, nextItem, DestPath, silent, doOverwrite, skipOnError, &pctx);
+		}
 
 		if (nExtractResult != SER_SUCCESS) break;
 	}
@@ -823,7 +830,7 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 	StorageObject* info = (StorageObject *) hPlugin;
 	if (!info) return 0;
 
-	vector<int> vcExtractItems;
+	ContentNodeList vcExtractItems;
 	__int64 nTotalExtractSize = 0;
 	int nExtNumFiles = 0, nExtNumDirs = 0;
 
@@ -873,7 +880,7 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
 		if (!FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR) &pi)) return FALSE;
 		if (pi.SelectedItemsNumber == 0) return FALSE;
 
-		vector<int> vcExtractItems;
+		ContentNodeList vcExtractItems;
 		__int64 nTotalExtractSize = 0;
 
 		// Collect all indices of items to extract

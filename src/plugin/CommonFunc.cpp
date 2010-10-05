@@ -59,7 +59,7 @@ bool DirectoryExists(const wchar_t* path)
 }
 
 // Returns total number of items added
-int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &totalSize, bool recursive)
+int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 &totalSize, bool recursive)
 {
 	int numItems = 0;
 
@@ -79,14 +79,18 @@ int CollectFileList(ContentTreeNode* node, vector<int> &targetlist, __int64 &tot
 		for (SubNodesMap::const_iterator cit = node->files.begin(); cit != node->files.end(); cit++)
 		{
 			ContentTreeNode* child = cit->second;
-			targetlist.push_back(child->storageIndex);
+			targetlist.push_back(child);
 			numItems++;
 			totalSize += child->GetSize();
 		} //for
+
+		// If it is empty directory then just add it
+		if (node->GetChildCount() == 0)
+			targetlist.push_back(node);
 	}
 	else
 	{
-		targetlist.push_back(node->storageIndex);
+		targetlist.push_back(node);
 		numItems++;
 		totalSize += node->GetSize();
 	}
