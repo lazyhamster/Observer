@@ -610,8 +610,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 			if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 			{
 				FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELDIR, PATH_BUFFER_SIZE, (LONG_PTR) szFullNameBuffer);
-				if (szFullNameBuffer[wcslen(szFullNameBuffer) - 1] != '\\')
-					wcscat_s(szFullNameBuffer, PATH_BUFFER_SIZE, L"\\");
+				IncludeTrailingPathDelim(szFullNameBuffer, PATH_BUFFER_SIZE);
 
 				PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL));
 				if (PPI)

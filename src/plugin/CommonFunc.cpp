@@ -164,3 +164,10 @@ wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNo
 
 	return strResult;
 }
+
+void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize)
+{
+	size_t nPathLen = wcslen(pathBuf);
+	if (pathBuf[nPathLen - 1] != '\\')
+		wcscat_s(pathBuf, bufMaxSize, L"\\");
+}

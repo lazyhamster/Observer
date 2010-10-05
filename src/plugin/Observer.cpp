@@ -832,13 +832,10 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	sort(vcExtractItems.begin(), vcExtractItems.end());
 
 	// Prepare destination path
-	size_t nDestPathLen = strlen(DestPath);
-	wchar_t *wszWideDestPath = (wchar_t *) malloc((nDestPathLen + 2) * sizeof(wchar_t));
-	wmemset(wszWideDestPath, 0, nDestPathLen + 2);
-	MultiByteToWideChar(CP_FAR_INTERNAL, 0, DestPath, nDestPathLen, wszWideDestPath, nDestPathLen + 2);
-	if (wszWideDestPath[nDestPathLen - 1] != '\\')
-		wcscat_s(wszWideDestPath, nDestPathLen + 2, L"\\");
-
+	wchar_t wszWideDestPath[MAX_PATH] = {0};
+	MultiByteToWideChar(CP_FAR_INTERNAL, 0, DestPath, -1, wszWideDestPath, MAX_PATH);
+	IncludeTrailingPathDelim(wszWideDestPath, MAX_PATH);
+	
 	if (!ForceDirectoryExist(wszWideDestPath))
 	{
 		if ((OpMode & OPM_SILENT) == 0)
@@ -878,8 +875,6 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 
 		if (!nExtractResult) break;
 	}
-
-	free(wszWideDestPath);
 
 	//TODO: add recursion option
 	//TODO: add option to keep full path
