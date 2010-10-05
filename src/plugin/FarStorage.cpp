@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "FarStorage.h"
+#include "CommonFunc.h"
 
 StorageObject::StorageObject( ModulesController *modules )
 {

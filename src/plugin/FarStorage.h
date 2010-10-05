@@ -2,7 +2,6 @@
 #define FarStorage_h__
 
 #include "ModulesController.h"
-#include "CommonFunc.h"
 #include "ContentStructures.h"
 
 class StorageObject
