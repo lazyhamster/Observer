@@ -316,7 +316,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir())
 		return SER_ERROR_READ;

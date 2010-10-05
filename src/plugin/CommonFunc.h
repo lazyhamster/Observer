@@ -1,7 +1,6 @@
 #ifndef CommonFunc_h__
 #define CommonFunc_h__
 
-#include "ModuleDef.h"
 #include "ContentStructures.h"
 
 #define PATH_BUFFER_SIZE 4096
