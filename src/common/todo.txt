@@ -10,3 +10,6 @@ ISO:
 
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)
+
+RELIC:
+- Add support for CoH and WH:Dow SGA archives (very similar to H2 BIG-s)

@@ -20,6 +20,7 @@ Observer
 - Контейнеры Volition Pack V2 (для игр FreeSpace 1/2/Open)
 - MIME контейнеры (.eml, .mht, etc.)
 - Контейнеры из игр Homeworld 1/2 (.big)
+- Базы MS Outlook (*.pst).
 
 1.2. Настройки.
 
@@ -52,7 +53,7 @@ Observer
 Взята поддержка UDF + NSIS. От него отнаследована лицензия LGPL.
 
 - Total Commander ISO plugin by Sergey Oblomov (http://wincmd.ru/plugring/iso.html)
-Передалан на поддержку wchar_t в именах. Базируется на версии 1.7.4 b1.
+Передалан на поддержку wchar_t в именах. Базируется на версии 1.7.6.
 Лицензии на код не нашел, поэтому тоже пойдет по LGPL.
 
 - libmspack (http://www.cabextract.org.uk/libmspack/)
@@ -67,6 +68,13 @@ archivers and dearchivers for Microsoft compression formats.
 
 - Homeworld 1 Source Code (http://www.relic.com)
 Распаковка файлов для Homeworld 1 вырезана из публичного исходного кода игры.
+
+- PST File Format SDK (http://pstsdk.codeplex.com)
+Кроссплатформенная C++ библиотека для чтения файлов формата PST (от MS Outlook).
+Распространяется под лицензией Apache License 2.0.
+
+- mimetic (http://codesink.org/mimetic_mime_library.html)
+Библиотека парсинга MIME файлов. Распространяется под лицензией MIT.
 
 3. Системные требования.
 Минимальные версии FAR-а для работы плагина 1.75 build 2587 / 2.0 build 1470

@@ -20,6 +20,7 @@ Add/Delete/Change operations are not planned.
 - Volition Pack V2 files (from FreeSpace 1/2/Open)
 - MIME containers (.eml, .mht, etc.)
 - Containers from Homeworld 1/2 games (.big)
+- MS Outlook databases (*.pst).
 
 1.2. Settings.
 
@@ -52,7 +53,7 @@ Used third-party code:
 Plug-in uses code for UDF and NSIS support.
 
 - Total Commander ISO plugin by Sergey Oblomov (http://wincmd.ru/plugring/iso.html)
-Modified for wchar_t support in file names. Based on version 1.7.4 b1.
+Modified for wchar_t support in file names. Based on version 1.7.6.
 Didn't found license for this one, so it goes by LGPL too.
 
 - libmspack (http://www.cabextract.org.uk/libmspack/)
@@ -67,6 +68,13 @@ User for Egosoft (X2, X3, X3:TC) archives support.
 
 - Homeworld 1 Source Code (http://www.relic.com)
 Homeworld 1 container decompression code is ripped from publicly available source code.
+
+- PST File Format SDK (http://pstsdk.codeplex.com)
+Cross platform header only C++ library for reading PST files (from MS Outlook).
+Distributed under Apache License 2.0.
+
+- mimetic (http://codesink.org/mimetic_mime_library.html)
+MIME parsing library. Distributed under MIT license.
 
 3. System requirements.
 Minimal FAR versions are 1.75 build 2587 / 2.0 build 1470
