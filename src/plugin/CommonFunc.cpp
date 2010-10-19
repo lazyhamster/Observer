@@ -156,7 +156,7 @@ wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNo
 	ContentTreeNode* pSubRoot = keepFullPath ? NULL : storage->CurrentDir();
 
 	size_t nSubPathSize = item->GetPath(NULL, 0, pSubRoot) + 1;
-	wchar_t *wszItemSubPath = (wchar_t *) malloc(nSubPathSize);
+	wchar_t *wszItemSubPath = (wchar_t *) malloc(nSubPathSize * sizeof(wchar_t));
 	item->GetPath(wszItemSubPath, nSubPathSize, pSubRoot);
 
 	strResult.append(wszItemSubPath);
