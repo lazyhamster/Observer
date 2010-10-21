@@ -16,47 +16,29 @@ struct EncodedWordEntry
 
 // See RFC2047 for full definition of the encoded-word in MIME
 // Format: encoded-word = "=?" charset "?" encoding "?" encoded-text "?="
-static bool SplitEncodedFilename(string filename, vector<EncodedWordEntry> &ewordlist)
+static bool FindEncodedWord(const string& input, EncodedWordEntry &word, int &start, int &len)
 {
-	string str = filename;
-	ewordlist.clear();
+	size_t start_pos = input.find("=?");
+	if (start_pos == string::npos) return false;
 
-	while (str.length() > 0)
-	{
-		// Find board sequences
-		size_t startPos = str.find("=?");
-		size_t qmPos = (startPos != string::npos) ? str.find('?', startPos + 2) : string::npos;
-		size_t endPos = (qmPos != string::npos) ? str.find("?=", qmPos + 3) : string::npos;
+	size_t sep1_pos = input.find('?', start_pos + 2);
+	if ((sep1_pos == string::npos) || (sep1_pos - start_pos < 2)) return false;
 
-		if (startPos != 0 || endPos == string::npos)
-		{
-			ewordlist.clear();
-			return false;
-		}
+	size_t sep2_pos = input.find('?', sep1_pos + 1);
+	if ((sep2_pos == string::npos) || (sep2_pos - sep1_pos != 2)) return false;
 
-		string eWord = str.substr(startPos + 2, endPos - 2);
-		if (eWord.length() > 0)
-		{
-			qmPos -= 2; // Because be removed leading sequence
+	size_t end_pos = input.find("?=", sep2_pos + 1);
+	if (end_pos == string::npos) return false;
 
-			EncodedWordEntry nextEntry;
-			nextEntry.Charset = eWord.substr(0, qmPos);
-			nextEntry.Encoding = eWord[qmPos + 1];
-			nextEntry.EncodedFilename = eWord.substr(qmPos + 3);
+	word.Charset = input.substr(start_pos + 2, sep1_pos - start_pos - 2);
+	transform(word.Charset.begin(), word.Charset.end(), word.Charset.begin(), toupper);
+	word.Encoding = toupper(input.at(sep1_pos + 1));
+	word.EncodedFilename = input.substr(sep2_pos + 1, end_pos - sep2_pos - 1);
 
-			// Check for recognizable encoding
-			if ((nextEntry.Encoding == 'Q' || nextEntry.Encoding == 'B') && (nextEntry.EncodedFilename.length() > 0))
-				ewordlist.push_back(nextEntry);
-		}
+	start = start_pos;
+	len = end_pos - start_pos + 2;
 
-		// Delete decoded part
-		str.erase(0, endPos + 2);
-		// Delete all leading whitespace characters
-		while (str[0] == ' ')
-			str.erase(0, 1);
-	} // while
-
-	return (ewordlist.size() > 0);
+	return true;
 }
 
 static UINT Charset2Codepage(string &charset)
@@ -97,58 +79,60 @@ static UINT Charset2Codepage(string &charset)
 	return CP_ACP;
 }
 
-static wstring DecodeFileName(string filename)
+static wstring DecodeWord(EncodedWordEntry encWord)
 {
-	vector<EncodedWordEntry> encList;
-	wchar_t buf[MAX_PATH] = {0};
-
-	if (SplitEncodedFilename(filename, encList))
+	string decodedName;
+	
+	// Decode name
+	if (encWord.Encoding == 'Q')
 	{
-		wstring retval;
-		UINT nCodePage = CP_ACP;
+		QP::Decoder dec;
+		stringstream sstrm;
+		ostream_iterator<char> oit(sstrm);
+		decode(encWord.EncodedFilename.begin(), encWord.EncodedFilename.end(), dec, oit);
 
-		for (size_t i = 0; i < encList.size(); i++)
-		{
-			EncodedWordEntry &encName = encList[i];
-			string decodedName;
-			
-			// Decode name
-			if (encName.Encoding == 'Q')
-			{
-				QP::Decoder dec;
-				stringstream sstrm;
-				ostream_iterator<char> oit(sstrm);
-				decode(encName.EncodedFilename.begin(), encName.EncodedFilename.end(), dec, oit);
+		decodedName = sstrm.str();
+	}
+	else //if (encName.Encoding == 'B')
+	{
+		Base64::Decoder dec;
+		stringstream sstrm;
+		ostream_iterator<char> oit(sstrm);
+		decode(encWord.EncodedFilename.begin(), encWord.EncodedFilename.end(), dec, oit);
 
-				decodedName = sstrm.str();
-			}
-			else //if (encName.Encoding == 'B')
-			{
-				Base64::Decoder dec;
-				stringstream sstrm;
-				ostream_iterator<char> oit(sstrm);
-				decode(encName.EncodedFilename.begin(), encName.EncodedFilename.end(), dec, oit);
+		decodedName = sstrm.str();
+	}
 
-				decodedName = sstrm.str();
-			}
+	int nCodePage = Charset2Codepage(encWord.Charset);
 
-			nCodePage = Charset2Codepage(encName.Charset);
-			memset(buf, 0, sizeof(buf));
-			MultiByteToWideChar(nCodePage, 0, decodedName.c_str(), (int) decodedName.length(), buf, sizeof(buf) / sizeof(buf[0]));
+	wchar_t buf[MAX_PATH] = {0};
+	MultiByteToWideChar(nCodePage, 0, decodedName.c_str(), (int) decodedName.length(), buf, sizeof(buf) / sizeof(buf[0]));
 
-			retval += buf;
-		}  // for
+	return buf;
+}
 
-		return retval;
+static wstring DecodeFileName(const string& filename)
+{
+	EncodedWordEntry eword;
+	int start, len;
+
+	if (FindEncodedWord(filename, eword, start, len))
+	{
+		wstring strOut = DecodeFileName(filename.substr(0, start))
+			+ DecodeWord(eword)
+			+ DecodeFileName(filename.substr(start + len));
+
+		return strOut;
 	}
 	else
 	{
-		MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), (int) filename.length(), buf, sizeof(buf) / sizeof(buf[0]));
+		wchar_t buf[MAX_PATH] = {0};
+		MultiByteToWideChar(CP_UTF8, 0, filename.c_str(), (int) filename.length(), buf, MAX_PATH);
 		return buf;
 	}
 }
 
-static string GenerateFileName(ContentType &ctype)
+static wstring GenerateFileName(const ContentType &ctype)
 {
 	string strType = ctype.type();
 	string strSybType = ctype.subtype();
@@ -156,82 +140,203 @@ static string GenerateFileName(ContentType &ctype)
 	transform(strType.begin(), strType.end(), strType.begin(), tolower);
 	transform(strSybType.begin(), strSybType.end(), strSybType.begin(), tolower);
 
-	string strResult = "file.bin";
+	wstring strResult = L"file.bin";
 	if (strType.compare("image") == 0)
 	{
-		strResult = "image." + strSybType;
+		string str = "image." + strSybType;
+
+		strResult.resize(str.length(), ' ');
+		copy(str.begin(), str.end(), strResult.begin());
 	}
 	else if (strType.compare("text") == 0)
 	{
 		if (strSybType.compare("html") == 0)
-			strResult = "index.html";
+			strResult = L"index.html";
 		else if (strSybType.compare("richtext") == 0)
-			strResult = "message.rtf";
+			strResult = L"message.rtf";
 		else
-			strResult = "message.txt";
+			strResult = L"message.txt";
 	}
 	else if (strType.compare("application") == 0)
 	{
 		if (strSybType.compare("postscript") == 0)
-			strResult = "file.ps";
+			strResult = L"file.ps";
 	}
 	else if (strType.compare("message") == 0)
 	{
 		if (strSybType.compare("rfc822") == 0)
-			strResult = "message.eml";
+			strResult = L"message.eml";
 	}
 	
 	return strResult;
 }
 
+static string FormatChunkName(const char* baseName, int chunkNum)
+{
+	stringstream sstr;
+	sstr << baseName << "*" << chunkNum << "*";
+	return sstr.str();
+}
+
+static wstring UrlDecodeFileName(const string& input)
+{
+	enum DecodeState_e
+	{
+		STATE_SEARCH = 0, ///< searching for an ampersand to convert
+		STATE_CONVERTING, ///< convert the two proceeding characters from hex
+	};
+
+	DecodeState_e state = STATE_SEARCH;
+	string strOut;
+	for(unsigned int i = 0; i < input.length(); ++i)
+	{
+		switch(state)
+		{
+			case STATE_SEARCH:
+			{
+				if ((input[i] == '%') && (input.length() - i > 2))
+					state = STATE_CONVERTING;
+				else
+					strOut += input[i];
+			}
+			break;
+
+			case STATE_CONVERTING:
+			{
+				// Conversion complete (i.e. don't convert again next iter)
+				state = STATE_SEARCH;
+
+				// Create a buffer to hold the hex. For example, if %20, this
+				// buffer would hold 20 (in ASCII)
+				char pszTempNumBuf[3] = {0};
+				strncpy_s(pszTempNumBuf, 3, input.c_str() + i, 2);
+
+				// Ensure both characters are hexadecimal
+				bool bBothDigits = true;
+
+				for(int j = 0; j < 2; ++j)
+				{
+					if(!isxdigit(pszTempNumBuf[j]))
+						bBothDigits = false;
+				}
+
+				if(!bBothDigits)
+					break;
+
+				// Convert two hexadecimal characters into one character
+				int nAsciiCharacter;
+				sscanf_s(pszTempNumBuf, "%x", &nAsciiCharacter);
+
+				// Concatenate this character onto the output
+				strOut += (char*)&nAsciiCharacter;
+
+				// Skip the next character
+				i++;
+			}
+			break;
+		}
+	}
+	
+	return DecodeFileName(strOut);
+}
+
+static string ConcatParam(const char* baseName, const FieldParamList& params)
+{
+	string strResult;
+	
+	int nChunk = 0;
+	string strChunkName = FormatChunkName(baseName, nChunk);
+	
+	FieldParamList::const_iterator bit = params.begin(), eit = params.end();
+	for(; bit != eit; ++bit)
+	{
+		if(bit->name() == strChunkName)
+		{
+			strResult += bit->value();
+
+			if (nChunk == 0) // Strip encoding and language, first chunk only
+			{
+				size_t pos = strResult.find('\'');
+				if (pos != string::npos)
+				{
+					pos = strResult.find('\'', pos + 1);
+					if (pos != string::npos)
+						strResult.erase(0, pos + 1);
+				}
+			}
+
+			nChunk++;
+			strChunkName = FormatChunkName(baseName, nChunk);
+		}
+	}
+
+	return strResult;
+}
+
+static wstring GetNameFromContentDisposition(const Header &head)
+{
+	const ContentDisposition &cd = head.contentDisposition();
+	
+	const string &fname = cd.param("filename");
+	if (fname.length() > 0)
+	{
+		return DecodeFileName(fname);
+	}
+
+	string strResult = ConcatParam("filename", cd.paramList());
+	return UrlDecodeFileName(strResult);
+}
+
+static wstring GetNameFromContentType(const Header &head)
+{
+	const ContentType &ct = head.contentType();
+
+	const string &fname = ct.param("name");
+	if (fname.length() > 0)
+		return DecodeFileName(fname);
+
+	string strResult = ConcatParam("name", ct.paramList());
+	return UrlDecodeFileName(strResult);
+}
+
 wstring GetEntityName(MimeEntity* entity)
 {
-	Header& head = entity->header();
-	string strFileName;	
+	const Header& head = entity->header();
 
-	// First try to get direct file name
-	ContentDisposition &cd = head.contentDisposition();
-	strFileName = cd.param("filename");
+	wstring wstr = GetNameFromContentDisposition(head);
+	if (wstr.length() > 0)
+		return wstr;
+
+	wstr = GetNameFromContentType(head);
+	if (wstr.length() > 0)
+		return wstr;
+
 
 	// If previous check failed, extract name from Content-Location field
-	if (strFileName.length() == 0)
+	const Field& flLocation = head.field("Content-Location");
+	string strLocationVal = flLocation.value();
+	if (strLocationVal.length() > 0)
 	{
-		Field& flLocation = head.field("Content-Location");
-		string strLocationVal = flLocation.value();
-		if (strLocationVal.length() > 0)
+		wstring strLocation = DecodeFileName(strLocationVal);
+		if (strLocation.length() > 0)
 		{
-			wstring strLocation = DecodeFileName(strLocationVal);
+			// Erase URL part after ? (parameters)
+			size_t nPos = strLocation.find('?');
+			if (nPos != string::npos)
+				strLocation.erase(nPos);
+			// Leave only file name
+			nPos = strLocation.find_last_of(L"/\\");
+			if (nPos != string::npos)
+				strLocation.erase(0, nPos + 1);
+
 			if (strLocation.length() > 0)
-			{
-				// Erase URL part after ? (parameters)
-				size_t nPos = strLocation.find('?');
-				if (nPos != string::npos)
-					strLocation.erase(nPos);
-				// Leave only file name
-				nPos = strLocation.find_last_of(L"/\\");
-				if (nPos != string::npos)
-					strLocation.erase(0, nPos + 1);
-
-				if (strLocation.length() > 0)
-					return strLocation;
-			}
+				return strLocation;
 		}
 	}
 
-	// If previous check failed, get name from content type
-	if (strFileName.length() == 0)
-	{
-		ContentType &ctype = head.contentType();
-		strFileName = ctype.param("name");
-
-		// If location didn't gave us name, then get generic one
-		if (strFileName.length() == 0)
-		{
-			strFileName = GenerateFileName(ctype);
-		}
-	}
-
-	return DecodeFileName(strFileName);
+	// All checks failed, generated generic name
+	const ContentType &ctype = head.contentType();
+	return GenerateFileName(ctype);
 }
 
 void AppendDigit(wstring &fileName, int num)
