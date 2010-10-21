@@ -111,17 +111,33 @@ static wstring DecodeWord(EncodedWordEntry encWord)
 	return buf;
 }
 
-static wstring DecodeFileName(const string& filename)
+static bool IsSpacesOnly(const string& input)
 {
+	bool ret = (input.length() > 0);
+	for (size_t i = 0; i < input.length(); i++)
+	{
+		ret = ret && (input[i] == ' ');
+		if (!ret) break;
+	}
+	return ret;
+}
+
+static wstring DecodeFileName(const string& filename, bool afterEncWord = false)
+{
+	if (filename.length() == 0) return L"";
+	
 	EncodedWordEntry eword;
 	int start, len;
 
 	if (FindEncodedWord(filename, eword, start, len))
 	{
-		wstring strOut = DecodeFileName(filename.substr(0, start))
-			+ DecodeWord(eword)
-			+ DecodeFileName(filename.substr(start + len));
+		string strBefore = filename.substr(0, start);
+		string strAfter = filename.substr(start + len);
 
+		if (afterEncWord && IsSpacesOnly(strBefore))
+			strBefore.clear();
+		
+		wstring strOut = DecodeFileName(strBefore) + DecodeWord(eword) + DecodeFileName(strAfter, true);
 		return strOut;
 	}
 	else
