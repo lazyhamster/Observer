@@ -27,7 +27,9 @@ static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
 static char optPrefix[MAX_PREFIX_SIZE] = "observe";
 
+// Extended settings
 static char optPanelHeaderPrefix[MAX_PREFIX_SIZE] = "";
+static int optExtendedCurDir = FALSE;
 
 struct ProgressContext
 {
@@ -105,6 +107,7 @@ static void LoadSettings()
 	if (opList != NULL)
 	{
 		opList->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
+		opList->GetValue(L"ExtendedCurDir", optExtendedCurDir);
 		delete opList;
 	}
 
@@ -117,6 +120,7 @@ static void LoadSettings()
 		regOpts.GetValue("Prefix", optPrefix, MAX_PREFIX_SIZE);
 
 		regOpts.GetValue("PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
+		regOpts.GetValue(L"ExtendedCurDir", optExtendedCurDir);
 	}
 }
 
@@ -685,8 +689,50 @@ int WINAPI SetDirectory(HANDLE hPlugin, const char *Dir, int OpMode)
 
 	if (!Dir || !*Dir) return TRUE;
 
+	const char* szNewDirPtr = Dir;
+
+	// We are in root directory and wanna go upwards (for extended curdir mode)
+	if (optExtendedCurDir)
+	{
+		if (strcmp(Dir, "..") == 0 && info->CurrentDir()->parent == NULL)
+		{
+			char szTargetPath[MAX_PATH] = {0};
+			WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StoragePath(), -1, szTargetPath, MAX_PATH, NULL, NULL);
+			char* lastSlash = strrchr(szTargetPath, '\\');
+			if (lastSlash) *lastSlash = 0;
+
+			FarSInfo.Control(hPlugin, FCTL_CLOSEPLUGIN, szTargetPath);
+			FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_SETPANELDIR, szTargetPath);
+
+			// Find position of our container on panel and position cursor there
+			PanelInfo pi = {0};
+			if (FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi))
+			{
+				PanelRedrawInfo pri = {0};
+				for (int i = 0; i < pi.ItemsNumber; i++)
+				{
+					if (strcmp(lastSlash+1, pi.PanelItems[i].FindData.cFileName) == 0)
+					{
+						pri.CurrentItem = i;
+						FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_REDRAWPANEL, &pri);
+						break;
+					}
+
+				} // for
+			}
+
+			return true;
+		}
+		else
+		{
+			const char* szInsideDirPart = strrchr(Dir, ':');
+			if (szInsideDirPart && (szInsideDirPart - Dir) > 2)
+				szNewDirPtr = szInsideDirPart + 1;
+		}
+	}
+
 	wchar_t wzDirName[MAX_PATH] = {0};
-	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Dir, strlen(Dir), wzDirName, MAX_PATH);
+	MultiByteToWideChar(CP_FAR_INTERNAL, 0, szNewDirPtr, -1, wzDirName, MAX_PATH);
 	return info->ChangeCurrentDir(wzDirName);
 }
 
@@ -719,8 +765,18 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	memset(wszCurrentDirPath, 0, sizeof(wszCurrentDirPath));
 	memset(szHostFile, 0, sizeof(szHostFile));
 
+	size_t nDirPrefixLen = 0;
+	if (optExtendedCurDir && optUsePrefix && optPrefix[0])
+	{
+		sprintf_s(szCurrentDir, ARRAY_SIZE(szCurrentDir), "%s:", optPrefix);
+		nDirPrefixLen = strlen(szCurrentDir);
+		WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->StoragePath(), -1, szCurrentDir + nDirPrefixLen, ARRAY_SIZE(szCurrentDir) - nDirPrefixLen, NULL, NULL);
+		strcat_s(szCurrentDir, ARRAY_SIZE(szCurrentDir), ":\\");
+		nDirPrefixLen = strlen(szCurrentDir);
+	}
+		
 	info->CurrentDir()->GetPath(wszCurrentDirPath, PATH_BUFFER_SIZE);
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszCurrentDirPath, wcslen(wszCurrentDirPath), szCurrentDir, MAX_PATH, NULL, NULL);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, wszCurrentDirPath, -1, szCurrentDir + nDirPrefixLen, MAX_PATH - nDirPrefixLen, NULL, NULL);
 
 	char szModuleName[32] = {0};
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->GetModuleName(), -1, szModuleName, ARRAY_SIZE(szModuleName), NULL, NULL);

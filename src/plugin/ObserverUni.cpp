@@ -26,8 +26,10 @@ static ModulesController g_pController;
 static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
 static wchar_t optPrefix[MAX_PREFIX_SIZE] = L"observe";
+
 // Extended settings
 static wchar_t optPanelHeaderPrefix[MAX_PREFIX_SIZE] = L"";
+static int optExtendedCurDir = FALSE;
 
 struct ProgressContext
 {
@@ -70,6 +72,7 @@ static void LoadSettings()
 	if (opList != NULL)
 	{
 		opList->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
+		opList->GetValue(L"ExtendedCurDir", optExtendedCurDir);
 		delete opList;
 	}
 
@@ -82,6 +85,7 @@ static void LoadSettings()
 		regOpts.GetValue(L"Prefix", optPrefix, MAX_PREFIX_SIZE);
 
 		regOpts.GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
+		regOpts.GetValue(L"ExtendedCurDir", optExtendedCurDir);
 	}
 }
 
@@ -710,6 +714,51 @@ int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 
 	if (!Dir || !*Dir) return TRUE;
 
+	if (optExtendedCurDir)
+	{
+		// If we are in root directory and wanna go upwards then we should close plugin panel
+		if (wcscmp(Dir, L"..") == 0 && info->CurrentDir()->parent == NULL)
+		{
+			wchar_t* wszStoragePath = _wcsdup(info->StoragePath());
+			wchar_t* lastSlash = wcsrchr(wszStoragePath, '\\');
+			if (lastSlash) *lastSlash = 0;
+
+			FarSInfo.Control(hPlugin, FCTL_CLOSEPLUGIN, 0, (LONG_PTR) wszStoragePath);
+			FarSInfo.Control(PANEL_ACTIVE, FCTL_SETPANELDIR, 0, (LONG_PTR) wszStoragePath);
+
+			// Find position of our container on panel and position cursor there
+			PanelInfo pi = {0};
+			if (FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR)&pi))
+			{
+				for (int i = 0; i < pi.ItemsNumber; i++)
+				{
+					PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL));
+					if (!PPI) break;
+
+					FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELITEM, i, (LONG_PTR)PPI);
+					bool fIsArchItem = wcscmp(lastSlash ? lastSlash+1 : info->StoragePath(), PPI->FindData.lpwszFileName) == 0;
+					free(PPI);
+
+					if (fIsArchItem)
+					{
+						PanelRedrawInfo pri = {0};
+						pri.CurrentItem = i;
+						FarSInfo.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL, 0, (LONG_PTR) &pri);
+						break;
+					}
+				} // for
+			}
+
+			return TRUE;
+		}
+		else
+		{
+			const wchar_t* wszInsideDirPart = wcsrchr(Dir, ':');
+			if (wszInsideDirPart && (wszInsideDirPart - Dir) > 2)
+				return info->ChangeCurrentDir(wszInsideDirPart+1);
+		}
+	}
+
 	return info->ChangeCurrentDir(Dir);
 }
 
@@ -743,14 +792,21 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	memset(wszCurrentDir, 0, sizeof(wszCurrentDir));
 	memset(wszTitle, 0, sizeof(wszTitle));
 
-	wszCurrentDir[0] = '\\';
-	info->CurrentDir()->GetPath(wszCurrentDir + 1, PATH_BUFFER_SIZE);
-	swprintf_s(wszTitle, L"%s%s:%s", optPanelHeaderPrefix, info->GetModuleName(), wszCurrentDir);
+	if (optExtendedCurDir && optUsePrefix && optPrefix[0])
+		swprintf_s(wszCurrentDir, ARRAY_SIZE(wszCurrentDir), L"%s:%s:\\", optPrefix, info->StoragePath());
+	else
+		wszCurrentDir[0] = '\\';
 
-	// Ugly hack (FAR does not exit plug-in if root directory is \)
+	size_t nDirPrefixSize = wcslen(wszCurrentDir);
+	info->CurrentDir()->GetPath(wszCurrentDir + nDirPrefixSize, PATH_BUFFER_SIZE - nDirPrefixSize);
+
+	// Set title
+	swprintf_s(wszTitle, ARRAY_SIZE(wszTitle), L"%s%s:%s", optPanelHeaderPrefix, info->GetModuleName(), wszCurrentDir);
+
+	// FAR does not exit plug-in if root directory is "\"
 	if (wcslen(wszCurrentDir) == 1) wszCurrentDir[0] = 0;
 
-	_i64tow_s(info->TotalSize(), wszStorageSizeInfo, sizeof(wszStorageSizeInfo)/sizeof(wszStorageSizeInfo[0]), 10);
+	_i64tow_s(info->TotalSize(), wszStorageSizeInfo, ARRAY_SIZE(wszStorageSizeInfo), 10);
 	InsertCommas(wszStorageSizeInfo);
 
 	_ultow_s(info->NumFiles(), wszNumFileInfo, sizeof(wszNumFileInfo)/sizeof(wszNumFileInfo[0]), 10);
