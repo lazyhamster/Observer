@@ -130,7 +130,7 @@ static struct mspack_file *msp_open(struct mspack_system *this,
 	slen = strlen(filename);
 	wname  = (wchar_t*) malloc((slen + 1) * sizeof(wchar_t));
 	memset(wname, 0, (slen + 1) * sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, filename, slen, wname, slen + 1);
+	MultiByteToWideChar(CP_UTF8, 0, filename, (int)slen, wname, (int)slen + 1);
 
 	fh->fh = _wfopen(wname, fmode);
 	free(wname);
