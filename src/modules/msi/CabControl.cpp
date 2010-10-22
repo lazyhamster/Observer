@@ -66,7 +66,7 @@ static FILETIME CabTimeToFileTime(mscabd_file *cabfile)
 static mscabd_file* FindFileByName(mscabd_file* first, const wchar_t* name)
 {
 	char szAnsiName[MAX_PATH] = {0};
-	WideCharToMultiByte(CP_ACP, 0, name, wcslen(name), szAnsiName, MAX_PATH, NULL, NULL);
+	WideCharToMultiByte(CP_ACP, 0, name, -1, szAnsiName, MAX_PATH, NULL, NULL);
 	
 	mscabd_file* current = first;
 	while (current)
@@ -313,7 +313,7 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	size_t nDestNameLen = wcslen(destFilePath) * 2 + 1;
 	char* szAnsiDestName = (char *) malloc(nDestNameLen);
 	memset(szAnsiDestName, 0, nDestNameLen);
-	WideCharToMultiByte(CP_UTF8, 0, destFilePath, wcslen(destFilePath), szAnsiDestName, nDestNameLen, NULL, NULL);
+	WideCharToMultiByte(CP_UTF8, 0, destFilePath, -1, szAnsiDestName, (int)nDestNameLen, NULL, NULL);
 	
 	int result = FALSE;
 
@@ -405,7 +405,7 @@ CabCacheItem* CCabControl::getCacheItem( const wchar_t* cabName, const wchar_t* 
 	if (cabPath != NULL)
 	{
 		memset(newItem->realFilePath, 0, MAX_PATH);
-		WideCharToMultiByte(CP_UTF8, 0, cabPath, wcslen(cabPath), newItem->realFilePath, MAX_PATH, NULL, NULL);
+		WideCharToMultiByte(CP_UTF8, 0, cabPath, -1, newItem->realFilePath, MAX_PATH, NULL, NULL);
 		openFileName = newItem->realFilePath;
 	}
 	else

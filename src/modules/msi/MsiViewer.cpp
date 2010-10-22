@@ -803,7 +803,7 @@ int CMsiViewer::generateLicenseText()
 	{
 		OK(res);
 
-		while ((res = MsiRecordGetStringA(hLicRec, 10, &val[0], &(nVlen = val.size()))) == ERROR_MORE_DATA)
+		while ((res = MsiRecordGetStringA(hLicRec, 10, &val[0], &(nVlen = (DWORD)val.size()))) == ERROR_MORE_DATA)
 			val.resize(nVlen + 1);
 		
 		MsiCloseHandle(hLicRec);
@@ -1129,12 +1129,12 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 
 void CMsiViewer::buildFlatIndex(DirectoryNode* root)
 {
-	for (int i = 0, max_i = root->Files.size(); i < max_i; i++)
+	for (size_t i = 0, max_i = root->Files.size(); i < max_i; i++)
 	{
 		m_vFlatIndex.push_back(root->Files[i]);
 	}
 
-	for (int i = 0, max_i = root->SubDirs.size(); i < max_i; i++)
+	for (size_t i = 0, max_i = root->SubDirs.size(); i < max_i; i++)
 	{
 		DirectoryNode* subdir = root->SubDirs[i];
 		m_vFlatIndex.push_back(subdir);

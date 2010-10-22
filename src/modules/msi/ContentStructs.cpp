@@ -153,7 +153,7 @@ void DirectoryNode::AddSubdir(DirectoryNode *child)
 
 int DirectoryNode::GetFilesCount()
 {
-	int nResult = Files.size();
+	int nResult = (int)Files.size();
 	for (size_t i = 0; i < SubDirs.size(); i++)
 	{
 		DirectoryNode* subdir = SubDirs[i];
@@ -164,7 +164,7 @@ int DirectoryNode::GetFilesCount()
 
 int DirectoryNode::GetSubDirsCount()
 {
-	int nResult = SubDirs.size();
+	int nResult = (int)SubDirs.size();
 	for (size_t i = 0; i < SubDirs.size(); i++)
 	{
 		DirectoryNode* subdir = SubDirs[i];

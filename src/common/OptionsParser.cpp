@@ -109,7 +109,7 @@ bool OptionsList::GetValue( const wchar_t* Key, char *Value, size_t MaxValueSize
 
 	if ( GetValue(Key, tmpBuf, MaxValueSize) )
 	{
-		WideCharToMultiByte(CP_ACP, 0, tmpBuf, -1, Value, MaxValueSize, NULL, NULL);
+		WideCharToMultiByte(CP_ACP, 0, tmpBuf, -1, Value, (int)MaxValueSize, NULL, NULL);
 		return true;
 	}
 
@@ -138,6 +138,6 @@ OptionsList* OptionsFile::GetSection( const wchar_t* SectionName )
 
 bool OptionsFile::GetSectionLines( const wchar_t* SectionName, wchar_t* Buffer, size_t BufferSize )
 {
-	DWORD readRes = GetPrivateProfileSectionW( SectionName, Buffer, BufferSize, m_wszFilePath);
+	DWORD readRes = GetPrivateProfileSectionW( SectionName, Buffer, (DWORD)BufferSize, m_wszFilePath);
 	return (readRes > 0) && (readRes < BufferSize - 2);
 }

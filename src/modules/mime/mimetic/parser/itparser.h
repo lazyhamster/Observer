@@ -87,19 +87,19 @@ protected:
     std::stack<MimeEntity*> m_entityStack;
 
 protected:
-    void appendPreambleBlock(const char* buf, int sz)
+    void appendPreambleBlock(const char* buf, size_t sz)
     {
         MimeEntity* pMe = m_entityStack.top();
         pMe->body().preamble().append(buf,sz);
     }
     
-    void appendEpilogueBlock(const char* buf, int sz)
+    void appendEpilogueBlock(const char* buf, size_t sz)
     {
         MimeEntity* pMe = m_entityStack.top();
         pMe->body().epilogue().append(buf,sz);
     }
     
-    void appendBodyBlock(const char* buf, int sz)
+    void appendBodyBlock(const char* buf, size_t sz)
     {
         MimeEntity* pMe = m_entityStack.top();
         pMe->body().append(buf, sz);
@@ -244,7 +244,8 @@ protected:
 		int nLineLen = 0;
 
         name = value = 0;
-        pos = nBufSz = vBufSz = nPos = vPos = 0;
+		pos = 0;
+        nBufSz = vBufSz = nPos = vPos = 0;
         status = (m_iMask & imHeader ? sIgnoreHeader : sInit);
         //status = sInit;
         while(m_bit != m_eit)
@@ -455,7 +456,7 @@ protected:
             }
         }
     }
-    inline void onBlock(const char* block, int sz, ParsingElem pe)
+    inline void onBlock(const char* block, size_t sz, ParsingElem pe)
     {
         switch(pe)
         {
@@ -546,7 +547,7 @@ protected:
                             // trim last newline
                             if (sl_off>=2) 
                             {
-                                int i = sl_off;
+                                size_t i = sl_off;
                                 char a = block[--i];
                                 char b = block[--i];
 

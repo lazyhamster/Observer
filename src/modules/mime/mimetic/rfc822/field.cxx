@@ -168,7 +168,7 @@ ostream& Field::write(ostream& os, unsigned int fold) const
         string ostr = name() + ": " + value();
 
         // skip the "fieldname: " part just on the first inner iteration 
-        skip = name().length() + 2; 
+        skip = (int)name().length() + 2; 
 
         while(ostr.length() > fold)
         {

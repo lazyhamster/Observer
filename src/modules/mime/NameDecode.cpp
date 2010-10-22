@@ -16,7 +16,7 @@ struct EncodedWordEntry
 
 // See RFC2047 for full definition of the encoded-word in MIME
 // Format: encoded-word = "=?" charset "?" encoding "?" encoded-text "?="
-static bool FindEncodedWord(const string& input, EncodedWordEntry &word, int &start, int &len)
+static bool FindEncodedWord(const string& input, EncodedWordEntry &word, size_t &start, size_t &len)
 {
 	size_t start_pos = input.find("=?");
 	if (start_pos == string::npos) return false;
@@ -127,7 +127,7 @@ static wstring DecodeFileName(const string& filename, bool afterEncWord = false)
 	if (filename.length() == 0) return L"";
 	
 	EncodedWordEntry eword;
-	int start, len;
+	size_t start, len;
 
 	if (FindEncodedWord(filename, eword, start, len))
 	{

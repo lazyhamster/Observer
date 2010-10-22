@@ -398,7 +398,7 @@ FieldValue* DateTime::clone() const
 
 ostream& operator<<(ostream& os, const DateTime& dt)
 {
-    int width = os.width(), fill = os.fill();
+    int width = (int)os.width(), fill = os.fill();
 
     os << dt.dayOfWeek().name() << ", "
        << setw(2) << setfill('0') << dt.day() << " "
