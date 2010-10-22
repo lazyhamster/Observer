@@ -1,5 +1,16 @@
 Changes history:
 
+1.6.3
+- Added basic support for Outlook databases (*.pst).
+- Added common prefix for file panel header ([General]->PanelHeaderPrefix).
+- Added extended format of current directory for Folders History feature (optional, [General]->ExtendedCurDir).
+- Fixed small issues with extraction progress indicator.
+- Empty directories can be extracted now.
+- MSI: File names processing is case-insensitive now.
+- UDF: Added support for UDF 2.50 images.
+- MIME: Improved file names decoding.
+- Small fixes.
+
 1.6.2
 - Added support for data archives from Homeworld 1/2.
 - Added ability to specify initial path in container when opening through prefix.
