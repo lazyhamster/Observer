@@ -82,7 +82,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 {
 	CNsisArchive* arc = (CNsisArchive *) storage;
-	if (!arc) return FALSE;
+	if (!arc) return SER_ERROR_SYSTEM;
 	
 	return arc->ExtractArcItem(params.item, params.destFilePath, &(params.callbacks));
 }
