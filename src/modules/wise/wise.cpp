@@ -45,16 +45,20 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	bool noMoreItems = false;
 	if (arc->GetFileInfo(item_index, &fileData, noMoreItems))
 	{
+		if (fileData.FileName[0])
+			wcscpy_s(item_path, path_size, fileData.FileName);
+		else
+			swprintf_s(item_path, path_size, L"file%04d.bin", item_index);
+		
 		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
 		
-		wchar_t* wszSlash = wcsrchr(fileData.FileName, '\\');
+		wchar_t* wszSlash = wcsrchr(item_path, '\\');
 		if (wszSlash)
 			wcscpy_s(item_data->cFileName, MAX_PATH, wszSlash + 1);
 		else
-			wcscpy_s(item_data->cFileName, MAX_PATH, fileData.FileName);
+			wcscpy_s(item_data->cFileName, MAX_PATH, item_path);
 		item_data->nFileSizeLow = fileData.UnpackedSize;
 
-		wcscpy_s(item_path, path_size, fileData.FileName);
 		return GET_ITEM_OK;
 	}
 

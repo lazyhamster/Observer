@@ -15,6 +15,7 @@ class CWiseFile
 private:
 	HANDLE m_hSourceFile;
 	int m_nFilesStartPos;
+	std::vector<WiseFileRec> m_vFileList;
 
 	bool Approximate(int &approxOffset, bool &isPkZip);
 	bool FindReal(int approxOffset, bool isPkZip, int &realOffset);
