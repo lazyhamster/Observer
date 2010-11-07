@@ -65,6 +65,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
@@ -221,6 +222,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
@@ -382,6 +384,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
@@ -542,6 +545,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
 				GenerateManifest="false"
@@ -698,6 +702,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="$(IntDir)\..\zlib1\zlib1.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
 				GenerateManifest="false"
@@ -1000,11 +1005,19 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\Unpacker.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\wise.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\wise.def"
+				>
+			</File>
+			<File
+				RelativePath=".\WiseFile.cpp"
 				>
 			</File>
 		</Filter>
@@ -1019,6 +1032,14 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Unpacker.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WiseFile.h"
 				>
 			</File>
 		</Filter>
