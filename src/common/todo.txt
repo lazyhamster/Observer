@@ -2,9 +2,6 @@ MSI:
 - extract progress
 - fix problem with real file and non showing the special folders mode
 
-MIME:
-- Improve parser
-
 ISO:
 - Handle extraction of harddisk emulation boot record (size issues)
 
