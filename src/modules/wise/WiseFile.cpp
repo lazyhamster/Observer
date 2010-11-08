@@ -80,6 +80,7 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 			{
 				SetFilePointer(m_hSourceFile, -3, NULL, FILE_CURRENT);
 				ReadFile(m_hSourceFile, &newcrc, sizeof(newcrc), &dwRead, NULL);
+				packedSize += 1;  // 4 (already read crc) - 3 (back-shift)
 				attempt++;
 			}
 			if (attempt >= 8)
