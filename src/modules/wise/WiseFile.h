@@ -26,8 +26,10 @@ public:
 
 	bool Open(const wchar_t* filePath);
 	
-	int NumFiles() { return 0; }
+	int NumFiles() { return (int) m_vFileList.size(); }
 	bool GetFileInfo(int index, WiseFileRec* infoBuf, bool &noMoreItems);
+
+	bool ExtractFile(int index, const wchar_t* destPath);
 };
 
 #endif // WiseFile_h__

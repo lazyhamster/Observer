@@ -65,9 +65,8 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 		if (SetFilePointer(m_hSourceFile, nFilePos, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 			return false;
 
-		unsigned int packedSize, unpackedSize;
-		unsigned long inflateCrc;
-		bool inflRes = inflateData(m_hSourceFile, INVALID_HANDLE_VALUE, packedSize, unpackedSize, inflateCrc);
+		InflatedDataInfo inflateInfo;
+		bool inflRes = inflateData(m_hSourceFile, NULL, inflateInfo);
 		
 		if (inflRes)
 		{
@@ -76,23 +75,23 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 			int attempt = 0;
 
 			ReadFile(m_hSourceFile, &newcrc, sizeof(newcrc), &dwRead, NULL);
-			while ((inflateCrc != newcrc) && (attempt < 8) && (dwRead == sizeof(newcrc)))
+			while ((inflateInfo.crc != newcrc) && (attempt < 8) && (dwRead == sizeof(newcrc)))
 			{
 				SetFilePointer(m_hSourceFile, -3, NULL, FILE_CURRENT);
 				ReadFile(m_hSourceFile, &newcrc, sizeof(newcrc), &dwRead, NULL);
-				packedSize += 1;  // 4 (already read crc) - 3 (back-shift)
+				inflateInfo.packedSize += 1;  // 4 (already read crc) - 3 (back-shift)
 				attempt++;
 			}
 			if (attempt >= 8)
 				SetFilePointer(m_hSourceFile, - ((int) attempt), NULL, FILE_CURRENT);
 						
 			// If we have valid file entry, add it to list
-			if (inflateCrc == newcrc)
+			if (inflateInfo.crc == newcrc)
 			{
-				infoBuf->PackedSize = packedSize;
-				infoBuf->UnpackedSize = unpackedSize;
+				infoBuf->PackedSize = inflateInfo.packedSize;
+				infoBuf->UnpackedSize = inflateInfo.unpackedSize;
 				infoBuf->StartOffset = nFilePos;
-				infoBuf->CRC32 = inflateCrc;
+				infoBuf->CRC32 = inflateInfo.crc;
 				
 				switch(i)
 				{
@@ -215,7 +214,6 @@ bool CWiseFile::FindReal(int approxOffset, bool isPkZip, int &realOffset)
 	DWORD dwRead;
 	BOOL res;
 	bool inflRes;
-	unsigned long inflateCrc;
 	unsigned long newcrc = 0;
 
 	if (!isPkZip)
@@ -237,16 +235,16 @@ bool CWiseFile::FindReal(int approxOffset, bool isPkZip, int &realOffset)
 			if (SetFilePointer(m_hSourceFile, approxOffset + pos, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 				return false;
 
-			unsigned int packedSize, unpackedSize;
-			inflRes = inflateData(m_hSourceFile, INVALID_HANDLE_VALUE, packedSize, unpackedSize, inflateCrc);
+			InflatedDataInfo inflateInfo;
+			inflRes = inflateData(m_hSourceFile, NULL, inflateInfo);
 
-			if (inflRes && unpackedSize && inflateCrc)
+			if (inflRes && inflateInfo.unpackedSize && inflateInfo.crc)
 			{
 				res = ReadFile(m_hSourceFile, &newcrc, 4, &dwRead, NULL);
 				if (!res || (dwRead != 4)) return false;
 
 				realOffset = approxOffset + pos;
-				fValidDataFound = (inflateCrc == newcrc);
+				fValidDataFound = (inflateInfo.crc == newcrc);
 			}
 			
 			pos++;
@@ -256,4 +254,16 @@ bool CWiseFile::FindReal(int approxOffset, bool isPkZip, int &realOffset)
 	}
 
 	return fValidDataFound;
+}
+
+bool CWiseFile::ExtractFile( int index, const wchar_t* destPath )
+{
+	WiseFileRec &fileInfo = m_vFileList[index];
+	InflatedDataInfo inflateInfo;
+
+	if (SetFilePointer(m_hSourceFile, fileInfo.StartOffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
+		return false;
+
+	bool rval = inflateData(m_hSourceFile, destPath, inflateInfo);
+	return rval;
 }

@@ -72,6 +72,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 
 	if (params.item < 0 || params.item >= arc->NumFiles())
 		return SER_ERROR_READ;
-	
-	return SER_ERROR_SYSTEM;
+
+	bool rval = arc->ExtractFile(params.item, params.destFilePath);
+	return rval ? SER_SUCCESS : SER_ERROR_WRITE;
 }

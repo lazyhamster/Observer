@@ -1,15 +1,91 @@
 #include "stdafx.h"
 #include "zlib.h"
+#include "Unpacker.h"
 
 #define BSIZE 16384
 
-bool inflateData(HANDLE inFile, HANDLE outFile, unsigned int &packedSize, unsigned int &unpackedSize, unsigned long &crc)
+class IAbstractWriter
+{
+public:	
+	virtual bool SaveData(const unsigned char* buf, int bufSize) = 0;
+};
+
+class FileWriter : public IAbstractWriter
+{
+private:
+	HANDLE hFile;
+public:	
+	FileWriter(const wchar_t* filePath)
+	{
+		if (filePath && *filePath)
+			hFile = CreateFile(filePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+		else
+			hFile = INVALID_HANDLE_VALUE;
+	}
+	~FileWriter()
+	{
+		if (hFile != INVALID_HANDLE_VALUE)
+			CloseHandle(hFile);
+	}
+	
+	bool SaveData(const unsigned char* buf, int bufSize)
+	{
+		if (hFile != INVALID_HANDLE_VALUE)
+		{
+			DWORD dwWritten;
+			return WriteFile(hFile, buf, bufSize, &dwWritten, NULL) && (dwWritten == bufSize);
+
+		}
+		return true;
+	}
+};
+
+class MemoryWriter : public IAbstractWriter
+{
+private:
+	char* pMem;
+	size_t nMemSize;
+	size_t nDataSize;
+public:	
+	MemoryWriter()
+	{
+		nMemSize = BSIZE;
+		pMem = (char*) malloc(nMemSize);
+		nDataSize = 0;
+	}
+	~MemoryWriter()
+	{
+		free(pMem);
+	}
+
+	const char* GetData() { return pMem; }
+	size_t GetDataSize() { return nDataSize; }
+
+	bool SaveData(const unsigned char* buf, int bufSize)
+	{
+		// Expend buffer
+		if (nDataSize + bufSize >= nMemSize)
+		{
+			while (nDataSize + bufSize >= nMemSize)
+				nMemSize += BSIZE;
+			
+			if (nMemSize > 512 * 1024) return false;
+			pMem = (char*) realloc(pMem, nMemSize);
+		}
+		memcpy(pMem + nDataSize, buf, bufSize);
+		nDataSize += bufSize;
+
+		return true;
+	}
+};
+
+bool inflateData(HANDLE inFile, IAbstractWriter* writer, InflatedDataInfo &info)
 {
 	int ret;
 	unsigned int have;
 	unsigned char buf_in[BSIZE] = {0};
 	unsigned char buf_out[BSIZE] = {0};
-	DWORD dwWritten, dwRead;
+	DWORD dwRead;
 
 	z_stream strm = {0};
 	strm.zalloc = Z_NULL;
@@ -25,9 +101,9 @@ bool inflateData(HANDLE inFile, HANDLE outFile, unsigned int &packedSize, unsign
 	LARGE_INTEGER nInPos = {0};
 	nInPos.LowPart = SetFilePointer(inFile, 0, &nInPos.HighPart, FILE_CURRENT);
 
-	crc = crc32(0L, Z_NULL, 0);
-	packedSize = 0;
-	unpackedSize = 0;
+	info.crc = crc32(0L, Z_NULL, 0);
+	info.packedSize = 0;
+	info.unpackedSize = 0;
 
 	/* decompress until deflate stream ends or end of file */
 	do
@@ -55,20 +131,17 @@ bool inflateData(HANDLE inFile, HANDLE outFile, unsigned int &packedSize, unsign
 			if (have == 0) break;
 
 			// Write extracted data to output file
-			if (outFile != INVALID_HANDLE_VALUE)
+			if (writer != NULL && !writer->SaveData(buf_out, have))
 			{
-				if (!WriteFile(outFile, buf_out, have, &dwWritten, NULL) || (dwWritten != have))
-				{
-					ret = Z_ERRNO;
-					break;
-				}
+				ret = Z_ERRNO;
+				break;
 			}
-			crc = crc32(crc, buf_out, have);
-			unpackedSize += have;
+			info.crc = crc32(info.crc, buf_out, have);
+			info.unpackedSize += have;
 
 		} while (strm.avail_out == 0);
 
-		packedSize += (dwRead - strm.avail_in);
+		info.packedSize += (dwRead - strm.avail_in);
 
 		/* done when inflate() says it's done (or error) */
 	} while (ret != Z_STREAM_END && ret != Z_ERRNO);
@@ -77,8 +150,33 @@ bool inflateData(HANDLE inFile, HANDLE outFile, unsigned int &packedSize, unsign
 	inflateEnd(&strm);
 
 	// Position file pointer at the end of packed data
-	nInPos.QuadPart += packedSize;
+	nInPos.QuadPart += info.packedSize;
 	SetFilePointer(inFile, nInPos.LowPart, &nInPos.HighPart, FILE_BEGIN);
 
 	return (ret == Z_STREAM_END);
+}
+
+bool inflateData(HANDLE inFile, char* &memBuf, size_t &memBufSize, InflatedDataInfo &info)
+{
+	MemoryWriter* writer = new MemoryWriter();
+	bool rval = inflateData(inFile, writer, info);
+
+	memBufSize = writer->GetDataSize();
+	if (memBufSize > 0)
+	{
+		memBuf = (char *) malloc(memBufSize);
+		memcpy(memBuf, writer->GetData(), memBufSize);
+	}
+
+	delete writer;
+	return rval;
+}
+
+bool inflateData(HANDLE inFile, const wchar_t* outFileName, InflatedDataInfo &info)
+{
+	FileWriter* writer = (outFileName && *outFileName) ? new FileWriter(outFileName) : NULL;
+	bool rval = inflateData(inFile, writer, info);
+
+	if (writer) delete writer;
+	return rval;
 }
