@@ -289,6 +289,24 @@ bool CWiseFile::ExtractFile( int index, const wchar_t* destPath )
 // 20 bytes - ?
 // 4 bytes - CRC
 // var - file name (0 terminated)
+
+#pragma pack(push, 1)
+
+struct ScriptFileRec
+{
+	char opCode;
+	short flags;
+	int startOffset;
+	int endOffset;
+	int date;
+	int unpackedSize;
+	int unknown[5];
+	unsigned long fileCRC;
+	char fileName[1];
+};
+
+#pragma pack(pop)
+
 bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 {
 	if (m_pScriptBuf == NULL || m_nScriptBufSize == 0 || infoBuf == NULL || infoBuf->UnpackedSize == 0)
@@ -297,23 +315,86 @@ bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 	// Search for uncompressed size number in script
 	// if found check for crc after 20 bytes and fetch name after crc
 
+	//TEST
+	int relateOffs = 0;
+	if (m_vFileList.size() >= 8)
+	{
+		relateOffs = infoBuf->StartOffset - m_vFileList[7].StartOffset;
+	}
+
 	size_t pos = 0;
 	while (pos < m_nScriptBufSize - 30)
 	{
-		int* sval = (int*) (m_pScriptBuf + pos);
-		if (*sval == infoBuf->UnpackedSize && *(m_pScriptBuf + pos - 15) == 0)
+		ScriptFileRec* rec = (ScriptFileRec*) (m_pScriptBuf + pos);
+		if (rec->opCode == 0 && rec->unpackedSize == infoBuf->UnpackedSize && (rec->endOffset - rec->startOffset) == (infoBuf->PackedSize + 4))
 		{
-			unsigned long *crc_val = (unsigned long *) (m_pScriptBuf + pos + 24);
-			if (*crc_val == infoBuf->CRC32)
+			if (rec->fileCRC == infoBuf->CRC32)
 			{
-				char szPath[MAX_PATH] = {0};
-				strcpy_s(szPath, MAX_PATH, m_pScriptBuf + pos + 28);
-				MultiByteToWideChar(CP_UTF8, 0, szPath, -1, infoBuf->FileName, MAX_PATH);
+				MultiByteToWideChar(CP_UTF8, 0, rec->fileName, -1, infoBuf->FileName, MAX_PATH);
+				FixNameDuplicates(infoBuf);
+
 				return true;
 			}
 		}
 		pos++;
 	}
 
+	return false;
+}
+
+static void InsertNumberInFileName(wchar_t* name, size_t nameMax, int val)
+{
+	wchar_t* lastDot = wcsrchr(name, '.');
+	wchar_t* lastSlash = wcsrchr(name, '\\');
+
+	wchar_t tmpBuf[MAX_PATH] = {0};
+	if (lastDot != NULL && *lastDot && *(lastDot+1) && lastDot > lastSlash)
+	{
+		*lastDot = 0;
+		swprintf_s(tmpBuf, MAX_PATH, L"%s,%d.%s", name, val, lastDot + 1);
+	}
+	else
+	{
+		swprintf_s(tmpBuf, MAX_PATH, L"%s,%d", name, val);
+	}
+
+	wcscpy_s(name, nameMax, tmpBuf);
+}
+
+void CWiseFile::FixNameDuplicates( WiseFileRec *infoBuf )
+{
+	size_t dupIndex;
+	
+	// If this is first duplicate
+	if (FindRecordByName(infoBuf->FileName, &dupIndex))
+	{
+		int fileIndex = 2;
+		int totalFiles = (int) m_vFileList.size();
+		wchar_t tmpBuf[MAX_PATH];
+
+		do
+		{
+			wcscpy_s(tmpBuf, MAX_PATH, infoBuf->FileName);
+			InsertNumberInFileName(tmpBuf, MAX_PATH, fileIndex);
+			if (!FindRecordByName(tmpBuf, &dupIndex)) break;
+
+			fileIndex++;
+		} while (fileIndex <= totalFiles);
+
+		InsertNumberInFileName(infoBuf->FileName, MAX_PATH, fileIndex);
+	}
+}
+
+bool CWiseFile::FindRecordByName( const wchar_t* fileName, size_t* foundIndex )
+{
+	for (size_t i = 0; i < m_vFileList.size(); i++)
+	{
+		WiseFileRec &nextRec = m_vFileList[i];
+		if (wcscmp(nextRec.FileName, fileName) == 0)
+		{
+			if (foundIndex) *foundIndex = i;
+			return true;
+		}
+	}
 	return false;
 }
