@@ -8,12 +8,16 @@ CWiseFile::CWiseFile()
 {
 	m_hSourceFile = INVALID_HANDLE_VALUE;
 	m_nFilesStartPos = 0;
+	m_pScriptBuf = NULL;
+	m_nScriptBufSize = 0;
 }
 
 CWiseFile::~CWiseFile()
 {
 	if (m_hSourceFile != INVALID_HANDLE_VALUE)
 		CloseHandle(m_hSourceFile);
+	if (m_pScriptBuf != NULL)
+		free(m_pScriptBuf);
 }
 
 bool CWiseFile::Open( const wchar_t* filePath )
@@ -66,7 +70,11 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 			return false;
 
 		InflatedDataInfo inflateInfo;
-		bool inflRes = inflateData(m_hSourceFile, NULL, inflateInfo);
+		bool inflRes;
+		if (i == 1)
+			inflRes = inflateData(m_hSourceFile, m_pScriptBuf, m_nScriptBufSize, inflateInfo);
+		else
+			inflRes = inflateData(m_hSourceFile, NULL, inflateInfo);
 		
 		if (inflRes)
 		{
@@ -103,6 +111,9 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 						break;
 					case 2:
 						wcscpy_s(infoBuf->FileName, MAX_PATH, L"wise001.dll");
+						break;
+					default:
+						TryResolveFileName(infoBuf);
 						break;
 				}
 
@@ -266,4 +277,43 @@ bool CWiseFile::ExtractFile( int index, const wchar_t* destPath )
 
 	bool rval = inflateData(m_hSourceFile, destPath, inflateInfo);
 	return rval;
+}
+
+// Suspected file opcode structure
+// 1 byte - opcode - 0x00
+// 2 bytes - flags (?)
+// 4 bytes - offset to file start (it is unclear from where)
+// 4 bytes - offset to file end (same unknown origin)
+// 4 bytes - ?
+// 4 bytes - uncompressed length
+// 20 bytes - ?
+// 4 bytes - CRC
+// var - file name (0 terminated)
+bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
+{
+	if (m_pScriptBuf == NULL || m_nScriptBufSize == 0 || infoBuf == NULL || infoBuf->UnpackedSize == 0)
+		return false;
+
+	// Search for uncompressed size number in script
+	// if found check for crc after 20 bytes and fetch name after crc
+
+	size_t pos = 0;
+	while (pos < m_nScriptBufSize - 30)
+	{
+		int* sval = (int*) (m_pScriptBuf + pos);
+		if (*sval == infoBuf->UnpackedSize && *(m_pScriptBuf + pos - 15) == 0)
+		{
+			unsigned long *crc_val = (unsigned long *) (m_pScriptBuf + pos + 24);
+			if (*crc_val == infoBuf->CRC32)
+			{
+				char szPath[MAX_PATH] = {0};
+				strcpy_s(szPath, MAX_PATH, m_pScriptBuf + pos + 28);
+				MultiByteToWideChar(CP_UTF8, 0, szPath, -1, infoBuf->FileName, MAX_PATH);
+				return true;
+			}
+		}
+		pos++;
+	}
+
+	return false;
 }

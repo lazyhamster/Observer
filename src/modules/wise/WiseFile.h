@@ -16,9 +16,14 @@ private:
 	HANDLE m_hSourceFile;
 	int m_nFilesStartPos;
 	std::vector<WiseFileRec> m_vFileList;
+	
+	char* m_pScriptBuf;
+	size_t m_nScriptBufSize;
 
 	bool Approximate(int &approxOffset, bool &isPkZip);
 	bool FindReal(int approxOffset, bool isPkZip, int &realOffset);
+
+	bool TryResolveFileName(WiseFileRec *infoBuf);
 
 public:
 	CWiseFile();
