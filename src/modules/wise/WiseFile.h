@@ -19,6 +19,7 @@ private:
 	
 	char* m_pScriptBuf;
 	size_t m_nScriptBufSize;
+	int m_nScriptOffsetBaseFileIndex;
 
 	bool Approximate(int &approxOffset, bool &isPkZip);
 	bool FindReal(int approxOffset, bool isPkZip, int &realOffset);

@@ -10,6 +10,7 @@ CWiseFile::CWiseFile()
 	m_nFilesStartPos = 0;
 	m_pScriptBuf = NULL;
 	m_nScriptBufSize = 0;
+	m_nScriptOffsetBaseFileIndex = -1;
 }
 
 CWiseFile::~CWiseFile()
@@ -116,6 +117,9 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 						TryResolveFileName(infoBuf);
 						break;
 				}
+
+				if (wcscmp(infoBuf->FileName, L"%TEMP%\\%W32INST_PATH_%") == 0)
+					m_nScriptOffsetBaseFileIndex = m_vFileList.size();
 
 				m_vFileList.push_back(*infoBuf);
 			}
@@ -290,6 +294,10 @@ bool CWiseFile::ExtractFile( int index, const wchar_t* destPath )
 // 4 bytes - CRC
 // var - file name (0 terminated)
 
+// Tests revealed that offset in script calculated based
+// on real offset of file "%TEMP%\\%W32INST_PATH_%" (which have offset 0 in script)
+// Still not sure if this is true for all cases
+
 #pragma pack(push, 1)
 
 struct ScriptFileRec
@@ -315,20 +323,18 @@ bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 	// Search for uncompressed size number in script
 	// if found check for crc after 20 bytes and fetch name after crc
 
-	//TEST
-	int relateOffs = 0;
-	if (m_vFileList.size() >= 8)
-	{
-		relateOffs = infoBuf->StartOffset - m_vFileList[7].StartOffset;
-	}
-
+	int scriptOffset = 0;
+	if (m_nScriptOffsetBaseFileIndex >= 0)
+		scriptOffset = infoBuf->StartOffset - m_vFileList[m_nScriptOffsetBaseFileIndex].StartOffset;
+	
 	size_t pos = 0;
 	while (pos < m_nScriptBufSize - 30)
 	{
 		ScriptFileRec* rec = (ScriptFileRec*) (m_pScriptBuf + pos);
-		if (rec->opCode == 0 && rec->unpackedSize == infoBuf->UnpackedSize && (rec->endOffset - rec->startOffset) == (infoBuf->PackedSize + 4))
+		if (rec->opCode == 0 && rec->unpackedSize == infoBuf->UnpackedSize
+			&& (rec->endOffset - rec->startOffset) == (infoBuf->PackedSize + 4) && (scriptOffset == 0 || scriptOffset == rec->startOffset))
 		{
-			if (rec->fileCRC == infoBuf->CRC32)
+			if (rec->fileCRC == infoBuf->CRC32 || rec->fileCRC == 0)
 			{
 				MultiByteToWideChar(CP_UTF8, 0, rec->fileName, -1, infoBuf->FileName, MAX_PATH);
 				FixNameDuplicates(infoBuf);
