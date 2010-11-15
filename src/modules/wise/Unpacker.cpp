@@ -144,16 +144,20 @@ bool inflateData(HANDLE inFile, IAbstractWriter* writer, InflatedDataInfo &info)
 		info.packedSize += (dwRead - strm.avail_in);
 
 		/* done when inflate() says it's done (or error) */
-	} while (ret != Z_STREAM_END && ret != Z_ERRNO);
+	} while (ret != Z_STREAM_END && ret >= 0);
 
 	/* clean up and return */
 	inflateEnd(&strm);
 
 	// Position file pointer at the end of packed data
-	nInPos.QuadPart += info.packedSize;
-	SetFilePointer(inFile, nInPos.LowPart, &nInPos.HighPart, FILE_BEGIN);
+	if (ret == Z_STREAM_END)
+	{
+		nInPos.QuadPart += info.packedSize;
+		SetFilePointer(inFile, nInPos.LowPart, &nInPos.HighPart, FILE_BEGIN);
+		return true;
+	}
 
-	return (ret == Z_STREAM_END);
+	return false;
 }
 
 bool inflateData(HANDLE inFile, char* &memBuf, size_t &memBufSize, InflatedDataInfo &info)
