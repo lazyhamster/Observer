@@ -1,3 +1,6 @@
+- Add externally configurable file masks for each module
+  (ignore masks if called from prefix or plugins menu).
+
 MSI:
 - extract progress
 - fix problem with real file and non showing the special folders mode
