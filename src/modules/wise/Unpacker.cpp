@@ -139,12 +139,12 @@ bool inflateData(HANDLE inFile, IAbstractWriter* writer, InflatedDataInfo &info)
 			info.crc = crc32(info.crc, buf_out, have);
 			info.unpackedSize += have;
 
-		} while (strm.avail_out == 0);
+		} while (strm.avail_out == 0 && ret != Z_STREAM_END);
 
 		info.packedSize += (dwRead - strm.avail_in);
 
 		/* done when inflate() says it's done (or error) */
-	} while (ret != Z_STREAM_END && ret >= 0);
+	} while (ret != Z_STREAM_END && (ret >= 0 || ret == Z_BUF_ERROR));
 
 	/* clean up and return */
 	inflateEnd(&strm);
