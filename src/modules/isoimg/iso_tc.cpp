@@ -685,7 +685,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
 							free(data);
 							return false;
 						}
-						MultiByteToWideChar(GetACP(), 0, (char*)suh + 5, nNameBufLen - 1, directory.FileName, nNameBufLen + 1);
+						MultiByteToWideChar(GetACP(), 0, (char*)suh + 5, (int) nNameBufLen - 1, directory.FileName, (int) nNameBufLen + 1);
 						directory.FileName[nNameBufLen] = 0;
 							
 						fNMRecFound = true;

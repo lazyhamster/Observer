@@ -821,7 +821,7 @@ public:
         { return m_subnode_info[pos].first; }
     subnode_block* get_child(uint pos);
     const subnode_block* get_child(uint pos) const;
-    uint num_values() const { return m_subnode_info.size(); }
+    uint num_values() const { return (uint) m_subnode_info.size(); }
     
 private:
     std::vector<std::pair<node_id, block_id> > m_subnode_info;           //!< Info about the sub-blocks
@@ -859,7 +859,7 @@ public:
     const node_id& get_key(uint pos) const
         { return m_subnodes[pos].first; }
     uint num_values() const
-        { return m_subnodes.size(); }
+        { return (uint) m_subnodes.size(); }
 
 private:
     std::vector<std::pair<node_id, subnode_info> > m_subnodes;   //!< The actual subnode information

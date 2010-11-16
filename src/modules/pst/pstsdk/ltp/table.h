@@ -281,7 +281,7 @@ private:
     ulong exists_bitmap_start() const { return m_offsets[disk::tc_offsets_one]; }
     //! \brief Calculate the number of rows per page (..external block)
     //! \returns The number of rows which fit on a single external block
-    ulong rows_per_page() const { return (m_pnode_rowarray ? m_pnode_rowarray->get_page_size(0) / cb_per_row() : m_vec_rowarray.size() / cb_per_row()); }
+    ulong rows_per_page() const { return (ulong)(m_pnode_rowarray ? m_pnode_rowarray->get_page_size(0) / cb_per_row() : m_vec_rowarray.size() / cb_per_row()); }
     //! \brief Read and interpret data from a row
     //! \tparam Val the type to read
     //! \param[in] row The row to read

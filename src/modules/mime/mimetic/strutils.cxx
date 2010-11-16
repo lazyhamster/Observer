@@ -29,7 +29,7 @@ string canonical(const string& s, bool no_ws)
         return s;
     string input = s;
     // removes leading spaces
-    int idx = 0;
+    size_t idx = 0;
     while(input[idx] == ' ')
         idx++;
     if(idx)

@@ -56,9 +56,9 @@ DWORD GetDirectoryAttributes(Directory* dir)
 }
 
 template <typename T>
-void TrimRight(T* buf, int bufSize)
+void TrimRight(T* buf, size_t bufSize)
 {
-	int i = bufSize - 1;
+	int i = (int) bufSize - 1;
 	while ((i >= 0) && (buf[i] == 32))
 	{
 		buf[i] = 0;
@@ -139,7 +139,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		{
 			char *vd = (char*) image->VolumeDescriptors->VolumeDescriptor.VolumeIdentifier;
 			TrimRight<char>(vd, 32);
-			MultiByteToWideChar(CP_ACP, 0, vd, strlen(vd), info->Comment, STORAGE_PARAM_MAX_LEN);
+			MultiByteToWideChar(CP_ACP, 0, vd, (int) strlen(vd), info->Comment, STORAGE_PARAM_MAX_LEN);
 		}
 	}
 	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");

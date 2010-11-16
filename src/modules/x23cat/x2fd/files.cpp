@@ -22,7 +22,8 @@ io64::file::size filebuffer::write(byte *pData, const io64::file::size& size, io
 io64::file::size filebuffer::writeBuffer(byte *pData, const io64::file::size& size, io64::file::position offset)
 {
 	// resize the buffer if necessary
-	if((allocated() - offset) < size){
+	if(((io64::file::position)allocated() - offset) < size)
+	{
 		io64::file::size newsize = this->size() + size;
 		io64::file::size s = (newsize / GROWBY) + (newsize % GROWBY ? 1 : 0 + 1);
 		if(allocate((size_t)s * GROWBY) == false) return -1;

@@ -341,7 +341,7 @@ int qtmd_decompress(struct qtmd_stream *qtm, off_t out_bytes) {
 
   /* while we do not have enough decoded bytes in reserve: */
   while ((qtm->o_end - qtm->o_ptr) < out_bytes) {
-    /* read header if necessary. Initialises H, L and C */
+    /* read header if necessary. Initializes H, L and C */
     if (!qtm->header_read) {
       H = 0xFFFF; L = 0; READ_BITS(C, 16);
       qtm->header_read = 1;
@@ -349,7 +349,7 @@ int qtmd_decompress(struct qtmd_stream *qtm, off_t out_bytes) {
 
     /* decode more, up to the number of bytes needed, the frame boundary,
      * or the window boundary, whichever comes first */
-    frame_end = window_posn + (out_bytes - (qtm->o_end - qtm->o_ptr));
+    frame_end = window_posn + (unsigned int)(out_bytes - (qtm->o_end - qtm->o_ptr));
     if ((window_posn + frame_todo) < frame_end) {
       frame_end = window_posn + frame_todo;
     }
