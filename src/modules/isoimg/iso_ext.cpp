@@ -42,7 +42,7 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 
 	bool xbox = dir->VolumeDescriptor->XBOX;
 
-	DWORD size = xbox ? dir->XBOXRecord.DataLength : (DWORD)dir->Record.DataLength;
+	__int64 size = xbox ? dir->XBOXRecord.DataLength : (DWORD)dir->Record.DataLength;
 	DWORD block = xbox ? dir->XBOXRecord.LocationOfExtent : (DWORD)dir->Record.LocationOfExtent;
 	DWORD sector = xbox ? 0x800 : (WORD)dir->VolumeDescriptor->VolumeDescriptor.LogicalBlockSize;
 	DWORD block_increment = 1;
@@ -60,8 +60,7 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 		return SER_ERROR_SYSTEM;
 	}
 
-	DWORD initial_size = size;
-	for( ; (int)size >= 0; size -= sector, block += block_increment )
+	for( ; size >= 0; size -= sector, block += block_increment )
 	{
 		DWORD cur_size = min( sector, size );
 		if( cur_size && ReadBlock( image, block, cur_size, buffer ) != cur_size )
@@ -73,20 +72,19 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 		if( cur_size )
 		{
 			DWORD write;
-			WriteFile( hFile, buffer, cur_size, &write, 0 );
-			if( write != cur_size )
+			if( !WriteFile( hFile, buffer, cur_size, &write, 0 ) || (write != cur_size) )
 			{
 				result = SER_ERROR_WRITE;
 				break;
 			}
-		}
 
-		if (initial_size && epc && epc->FileProgress)
-		{
-			if (!epc->FileProgress(epc->signalContext, cur_size))
+			if (epc && epc->FileProgress)
 			{
-				result = SER_USERABORT;
-				break;
+				if (!epc->FileProgress(epc->signalContext, cur_size))
+				{
+					result = SER_USERABORT;
+					break;
+				}
 			}
 		}
 	} //for
