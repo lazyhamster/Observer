@@ -336,7 +336,7 @@ bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 		{
 			if (rec->fileCRC == infoBuf->CRC32 || rec->fileCRC == 0)
 			{
-				MultiByteToWideChar(CP_UTF8, 0, rec->fileName, -1, infoBuf->FileName, MAX_PATH);
+				MultiByteToWideChar(CP_ACP, 0, rec->fileName, -1, infoBuf->FileName, MAX_PATH);
 				FixNameDuplicates(infoBuf);
 
 				return true;
