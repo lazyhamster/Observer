@@ -1,5 +1,9 @@
 Changes history:
 
+1.6.4
+- Added support of packages made by Wise Installer.
+- ISO: Fixed extraction of large files.
+
 1.6.3
 - Added basic support for Outlook databases (*.pst).
 - Added common prefix for file panel header ([General]->PanelHeaderPrefix).
