@@ -556,7 +556,7 @@ int CMsiViewer::generateInfoText()
 	vector<wchar_t> propdata(512);
 	for (int i = 0; i < sizeof(SUMMARY_PROPS) / sizeof(SUMMARY_PROPS[0]); i++)
 	{
-		while ((res = MsiSummaryInfoGetPropertyW(hSummary, SUMMARY_PROPS[i].PropID, &nDataType, NULL, NULL, &propdata[0], &(len = propdata.size()))) == ERROR_MORE_DATA)
+		while ((res = MsiSummaryInfoGetPropertyW(hSummary, SUMMARY_PROPS[i].PropID, &nDataType, NULL, NULL, &propdata[0], &(len = (DWORD) propdata.size()))) == ERROR_MORE_DATA)
 			propdata.resize(len + 1);
 
 		if (res == ERROR_SUCCESS)
@@ -606,7 +606,7 @@ int CMsiViewer::generateInfoText()
 	fake->TargetShortName = _wcsdup(L"msi_info.txt");
 	fake->Attributes = 0;
 	fake->IsFake = true;
-	fake->FileSize = content.size() * sizeof(wchar_t) + 2;	// sizeof BOM = 2
+	fake->FileSize = (INT32) (content.size() * sizeof(wchar_t) + 2);	// sizeof BOM = 2
 	fake->FakeFileContent = (char *) malloc(fake->FileSize + sizeof(wchar_t)); // +1 for 0-terminator
 	strcpy_s(fake->FakeFileContent, 3, "\xFF\xFE");
 	memcpy_s(fake->FakeFileContent + 2, fake->FileSize - 2, content.c_str(), fake->FileSize - 2);

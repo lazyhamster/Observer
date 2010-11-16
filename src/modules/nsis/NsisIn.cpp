@@ -1035,7 +1035,7 @@ HRESULT CInArchive::ParseLegacy()
 	//   string table
 	//   language tables
 	
-	UInt32 entriesOffset = (_posInData + 12) + num_sections * kLegacySectionSize + num_pages * kLegacyPageSize - 4;
+	UInt32 entriesOffset = (UInt32)(_posInData + 12) + num_sections * kLegacySectionSize + num_pages * kLegacyPageSize - 4;
 
 	_stringsPos = entriesOffset + num_entries * kLegacyEntrySize;
 	IsUnicode = false;

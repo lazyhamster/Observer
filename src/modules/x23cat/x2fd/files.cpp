@@ -74,11 +74,11 @@ io64::file::size filebuffer::read(void *buffer, const io64::file::size& size, io
 		if(readed!=size) error(fileerror(file.error()));
 	}
 	else{
-		if(offset > this->allocated()) // offset is beyond eof (and if allocated()==0)
+		if(offset > (io64::file::position) this->allocated()) // offset is beyond eof (and if allocated()==0)
 			return 0;
 		
 		readed=size;
-		if(size > (this->allocated() - offset)) // shrink the size so we won't read past eof
+		if(size > (io64::file::size)(this->allocated() - offset)) // shrink the size so we won't read past eof
 			readed=this->allocated() - offset;
 		memcpy(buffer, data() + (INT_PTR)offset, (size_t)readed);
 	}

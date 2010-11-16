@@ -145,7 +145,7 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	const PstFileEntry &fentry = file->Entries[params.item];
 
 	wstring strBodyText;
-	DWORD nNumWritten;
+	DWORD nNumWritten, nWriteSize;
 	int ErrCode = SER_SUCCESS;
 	BOOL fWriteResult = TRUE;
 
@@ -153,11 +153,13 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 	{
 		case ETYPE_MESSAGE_BODY:
 			strBodyText = fentry.msgRef->get_body();
-			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
+			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
+			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
 			break;
 		case ETYPE_MESSAGE_HTML:
 			strBodyText = fentry.msgRef->get_html_body();
-			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
+			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
+			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
 			break;
 		case ETYPE_ATTACHMENT:
 			if (fentry.attachRef)
@@ -186,13 +188,15 @@ int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
 			break;
 		case ETYPE_PROPERTIES:
 			strBodyText = DumpProperties(fentry);
-			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
+			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
+			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
 			break;
 		case ETYPE_HEADER:
 			{
 				const property_bag &propBag = fentry.msgRef->get_property_bag();
 				strBodyText = propBag.read_prop<wstring>(PR_TRANSPORT_MESSAGE_HEADERS);
-				fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), strBodyText.size() * sizeof(wchar_t), &nNumWritten, NULL);
+				nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
+				fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
 			}
 			break;
 		default:

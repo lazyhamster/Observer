@@ -826,7 +826,7 @@ HRESULT CUdfArchive::Open2()
 			  size_t mfbSize = metaFileExtent.GetLen();
 			  metaFileBuf.SetCapacity(mfbSize);
 
-			  RINOK(ReadRaw(volIndex, metaFileExtent.Location.PartitionRef, metaFileExtent.Location.Pos, mfbSize, metaFileBuf));
+			  RINOK(ReadRaw(volIndex, metaFileExtent.Location.PartitionRef, metaFileExtent.Location.Pos, (UInt32) mfbSize, metaFileBuf));
 			  
 			  const Byte *p = metaFileBuf;
 			  CTag tag;
@@ -1094,7 +1094,7 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 				SetFilePointer(_file, movePos.LowPart, &movePos.HighPart, FILE_BEGIN);
 				while (bytesLeft > 0)
 				{
-					copySize = (bytesLeft > nBufSize) ? nBufSize : bytesLeft;
+					copySize = (bytesLeft > nBufSize) ? (DWORD)nBufSize : bytesLeft;
 
 					if (!ReadFile(_file, buf , copySize, &dwBytesRead, NULL))
 					{

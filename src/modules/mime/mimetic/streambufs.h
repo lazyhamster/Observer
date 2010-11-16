@@ -109,7 +109,7 @@ struct transform_streambuf: public std::streambuf
     }
     int sync()
     {
-        int toSend = pptr() - pbase();
+        size_t toSend = pptr() - pbase();
         if(toSend)
         {
             write(pbase(), pbase() + toSend);
@@ -136,9 +136,9 @@ struct count_streambuf: public transform_streambuf
     }
     void write(const char_type* beg, const char_type* end)
     {
-        int toSend = end - beg;
+        size_t toSend = end - beg;
         if(toSend)
-            m_count += toSend;
+			m_count += (mimetic::transform_streambuf::size_type) toSend;
     }
     size_type size()
     {

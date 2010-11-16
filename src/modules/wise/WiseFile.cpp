@@ -10,7 +10,7 @@ CWiseFile::CWiseFile()
 	m_nFilesStartPos = 0;
 	m_pScriptBuf = NULL;
 	m_nScriptBufSize = 0;
-	m_nScriptOffsetBaseFileIndex = -1;
+	m_nScriptOffsetBaseFileIndex = 0;
 }
 
 CWiseFile::~CWiseFile()
@@ -324,7 +324,7 @@ bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 	// if found check for crc after 20 bytes and fetch name after crc
 
 	int scriptOffset = 0;
-	if (m_nScriptOffsetBaseFileIndex >= 0)
+	if (m_nScriptOffsetBaseFileIndex > 0)
 		scriptOffset = infoBuf->StartOffset - m_vFileList[m_nScriptOffsetBaseFileIndex].StartOffset;
 	
 	size_t pos = 0;
