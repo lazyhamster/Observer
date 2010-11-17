@@ -21,6 +21,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mpq", "modules\mpq\mpq.vcproj", "{AB8168E2-2568-4046-BC2B-1001AF4AF78F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wise", "modules\wise\wise.vcproj", "{FBD3F0D6-F516-436C-990A-9125D49D71C5}"
+	ProjectSection(ProjectDependencies) = postProject
+		{C50A5BD9-34C8-4050-AD28-784AEC221B1E} = {C50A5BD9-34C8-4050-AD28-784AEC221B1E}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "vise", "modules\vise\vise.vcproj", "{582D8EBB-0A8B-41C9-A9D2-F90D7591E2EA}"
 EndProject
