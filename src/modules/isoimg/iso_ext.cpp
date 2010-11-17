@@ -62,7 +62,7 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 
 	for( ; size >= 0; size -= sector, block += block_increment )
 	{
-		DWORD cur_size = min( sector, size );
+		DWORD cur_size = (DWORD) min( sector, size );
 		if( cur_size && ReadBlock( image, block, cur_size, buffer ) != cur_size )
 		{
 			result = SER_ERROR_READ;
