@@ -128,10 +128,10 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 
 //-----------------------------------  Content functions ----------------------------------------
 
-static HANDLE OpenStorage(const wchar_t* Name)
+static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters)
 {
 	StorageObject *storage = new StorageObject(&g_pController);
-	if (!storage->Open(Name))
+	if (!storage->Open(Name, applyExtFilters))
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;
@@ -628,7 +628,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 			}
 	}
 
-	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer) : INVALID_HANDLE_VALUE;
+	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer, false) : INVALID_HANDLE_VALUE;
 
 	if (wszContainerSubpath != NULL && hOpenResult != INVALID_HANDLE_VALUE)
 		SetDirectoryW(hOpenResult, wszContainerSubpath, 0);
@@ -642,7 +642,7 @@ HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, in
 	if (!Name || !optEnabled)
 		return INVALID_HANDLE_VALUE;
 
-	HANDLE hOpenResult = OpenStorage(Name);
+	HANDLE hOpenResult = OpenStorage(Name, true);
 	return hOpenResult;
 }
 

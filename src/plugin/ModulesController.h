@@ -5,9 +5,10 @@
 
 struct ExternalModule
 {
-	wchar_t ModuleName[20];
-	wchar_t LibraryFile[20];
+	wchar_t ModuleName[32];
+	wchar_t LibraryFile[32];
 	HMODULE ModuleHandle;
+	wchar_t ExtensionFilter[128];
 
 	LoadSubModuleFunc LoadModule;
 	OpenStorageFunc OpenStorage;
@@ -31,7 +32,7 @@ public:
 	void Cleanup();
 	size_t NumModules() { return modules.size(); };
 
-	int OpenStorageFile(const wchar_t* path, int *moduleIndex, INT_PTR **storage, StorageGeneralInfo *info);
+	bool OpenStorageFile(const wchar_t* path, bool applyExtFilters, int *moduleIndex, INT_PTR **storage, StorageGeneralInfo *info);
 	void CloseStorageFile(int moduleIndex, INT_PTR *storage);
 };
 

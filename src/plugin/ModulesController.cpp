@@ -14,51 +14,73 @@ int ModulesController::Init( const wchar_t* basePath )
 	OptionsList *mModulesList = optFile.GetSection(L"Modules");
 	if (!mModulesList) return 0;
 
+	OptionsList *mFiltersList = optFile.GetSection(L"Filters");
 	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
 
 	for (size_t i = 0; i < mModulesList->NumOptions(); i++)
 	{
 		OptionsItem nextOpt = mModulesList->GetOption(i);
 		
-		ExternalModule module;
-		wcscpy_s(module.ModuleName, sizeof(module.ModuleName) / sizeof(module.ModuleName[0]), nextOpt.key);
-		wcscpy_s(module.LibraryFile, sizeof(module.LibraryFile) / sizeof(module.LibraryFile[0]), nextOpt.value);
+		ExternalModule module = {0};
+		wcscpy_s(module.ModuleName, ARRAY_SIZE(module.ModuleName), nextOpt.key);
+		wcscpy_s(module.LibraryFile, ARRAY_SIZE(module.LibraryFile), nextOpt.value);
 
 		// Get module specific settings section
 		memset(wszModuleSection, 0, sizeof(wszModuleSection));
 		optFile.GetSectionLines(module.ModuleName, wszModuleSection, SECTION_BUF_SIZE);
 
 		if (LoadModule(basePath, module, wszModuleSection))
+		{
+			// Read extensions filter for each module
+			mFiltersList->GetValue(module.ModuleName, module.ExtensionFilter, ARRAY_SIZE(module.ExtensionFilter));
+			_wcsupr_s(module.ExtensionFilter);
+			
 			modules.push_back(module);
+		}
 	} // for
 	
+	delete mModulesList;
+	delete mFiltersList;
+
 	return (int) modules.size();
 }
 
 void ModulesController::Cleanup()
 {
 	for (size_t i = 0; i < modules.size(); i++)
-		FreeLibrary(modules[i].ModuleHandle);
+	{
+		ExternalModule &modulePtr = modules[i];
+		FreeLibrary(modulePtr.ModuleHandle);
+	}
 	modules.clear();
 }
 
-int ModulesController::OpenStorageFile(const wchar_t* path, int *moduleIndex, INT_PTR **storage, StorageGeneralInfo *sinfo)
+bool ModulesController::OpenStorageFile(const wchar_t* path, bool applyExtFilters, int *moduleIndex, INT_PTR **storage, StorageGeneralInfo *sinfo)
 {
+	// Check input params
+	if (!moduleIndex || !sinfo || !storage) return false;
+	
 	*moduleIndex = -1;
 	for (size_t i = 0; i < modules.size(); i++)
-		if (modules[i].OpenStorage(path, storage, sinfo) == TRUE)
+	{
+		ExternalModule &modulePtr = modules[i];
+		if (modulePtr.OpenStorage(path, storage, sinfo) == TRUE)
 		{
 			*moduleIndex = (int) i;
-			return TRUE;
+			return true;
 		}
+	}
 
-	return FALSE;
+	return false;
 }
 
 void ModulesController::CloseStorageFile(int moduleIndex, INT_PTR *storage)
 {
 	if ((moduleIndex >= 0) && (moduleIndex < (int) modules.size()))
-		modules[moduleIndex].CloseStorage(storage);
+	{
+		ExternalModule &modulePtr = modules[moduleIndex];
+		modulePtr.CloseStorage(storage);
+	}
 }
 
 bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings )
