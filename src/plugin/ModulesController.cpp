@@ -64,11 +64,12 @@ bool ModulesController::OpenStorageFile(const wchar_t* path, bool applyExtFilter
 	for (size_t i = 0; i < modules.size(); i++)
 	{
 		ExternalModule &modulePtr = modules[i];
-		if (modulePtr.OpenStorage(path, storage, sinfo) == TRUE)
-		{
-			*moduleIndex = (int) i;
-			return true;
-		}
+		if (!applyExtFilters || DoesExtensionFilterMatch(path, modulePtr.ExtensionFilter))
+			if (modulePtr.OpenStorage(path, storage, sinfo) == TRUE)
+			{
+				*moduleIndex = (int) i;
+				return true;
+			}
 	}
 
 	return false;
@@ -114,5 +115,32 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 		return false;
 	}
 	
+	return false;
+}
+
+bool ModulesController::DoesExtensionFilterMatch( const wchar_t* path, const wchar_t* filter )
+{
+	if (!filter || !*filter)
+		return true;
+
+	const wchar_t* extPtr = wcsrchr(path, '.');
+	if (extPtr != NULL && wcschr(extPtr, '\\') == NULL)
+	{
+		bool result = false;
+		
+		wchar_t* extStr = _wcsdup(extPtr);
+		_wcsupr_s(extStr, wcslen(extStr)+1);
+
+		const wchar_t* posInFilter = wcsstr(filter, extStr);
+		if (posInFilter != NULL)
+		{
+			size_t posLen = wcslen(posInFilter);
+			result = (posLen > 0) && (posInFilter[posLen] == 0 || posInFilter[posLen] == ';');
+		}
+		
+		free(extStr);
+		return result;
+	}
+
 	return false;
 }

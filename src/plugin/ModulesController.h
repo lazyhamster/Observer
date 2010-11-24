@@ -21,6 +21,7 @@ class ModulesController
 {
 private:
 	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings);
+	bool DoesExtensionFilterMatch(const wchar_t* path, const wchar_t* filter);
 
 public:
 	vector<ExternalModule> modules;
