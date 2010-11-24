@@ -23,10 +23,6 @@ CWiseFile::~CWiseFile()
 
 bool CWiseFile::Open( const wchar_t* filePath )
 {
-	// First check the extension
-	const wchar_t* ext = wcsrchr(filePath, '.');
-	if (!ext || wcscmp(ext, L".exe")) return false;
-	
 	// Try to open file
 	m_hSourceFile = CreateFile(filePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 	if (m_hSourceFile == INVALID_HANDLE_VALUE)

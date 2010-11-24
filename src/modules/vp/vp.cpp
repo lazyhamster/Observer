@@ -12,11 +12,6 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 
 int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
 {
-	// Check for file extension
-	size_t nPathLen = wcslen(path);
-	if ( (nPathLen < 4) || (_wcsicmp(path + nPathLen - 3, L".vp") != 0) )
-		return FALSE;
-
 	// Open container
 	CVPFile* file = new CVPFile();
 	if (file->Open(path))
