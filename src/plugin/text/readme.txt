@@ -21,6 +21,7 @@ Add/Delete/Change operations are not planned.
 - MIME containers (.eml, .mht, etc.)
 - Containers from Homeworld 1/2 games (.big)
 - MS Outlook databases (*.pst).
+- WISE Installer packages.
 
 1.2. Settings.
 
@@ -44,8 +45,8 @@ Works for all modules simultaneously. Maximum value size in 32 symbols.
 2. License and copyright.
 
 Plug-in includes several third-party code by different authors.
-It distributed under term of GNU LGPL version 3 or any higher
-(excluding parts of the code that have separate license).
+It is distributed under term of GNU LGPL version 3 or any higher
+(excluding third-party code that have separate license).
 
 Used third-party code:
 
@@ -64,7 +65,7 @@ archivers and dearchivers for Microsoft compression formats.
 Code used is for bzip2 support. Unpacker version is specific for NSIS.
 
 - X2 FileDriver (http://x-tools.doubleshadow.wz.cz/)
-User for Egosoft (X2, X3, X3:TC) archives support.
+Used for Egosoft (X2, X3, X3:TC) archives support.
 
 - Homeworld 1 Source Code (http://www.relic.com)
 Homeworld 1 container decompression code is ripped from publicly available source code.
@@ -76,13 +77,16 @@ Distributed under Apache License 2.0.
 - mimetic (http://codesink.org/mimetic_mime_library.html)
 MIME parsing library. Distributed under MIT license.
 
+- Wise UNpacker by J.Markus/Icebird
+Used as a reference, minor portions of code directly ported from Delphi to C++.
+
 3. System requirements.
 Minimal FAR versions are 1.75 build 2587 / 2.0 build 1470
 Windows Installer 4+ is required for MSI support.
 OS: Win2k+ (tested on WinXP and Win2003, but 2k should be suported too).
 
 4. Diclaimer.
-This software is provided 'as-is', without any express or implied warranty.
+This software is provided 'AS IS', without any express or implied warranty.
 In no event will the author be held liable for any damages arising from the use or not use of this software.
 
 5. Contacts.
