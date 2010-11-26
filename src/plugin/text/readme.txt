@@ -41,6 +41,25 @@ Currently you can configure following options:
 [General] -> PanelHeaderPrefix
 Here you can set string that will be shown in file panel header before module name.
 Works for all modules simultaneously. Maximum value size in 32 symbols.
+Values larger then that will be simply ignored.
+
+[General] -> ExtendedCurDir
+This value controls format of current directory value reported back to FAR.
+Extended format allows usage of "Folders History" feature to navigate inside containers.
+Possible values: 1 (extended mode is on) or 0 (standard format is used).
+WARNING:
+This feature uses undocumented specifics of curent directory processing by FAR,
+so it can have unpredictabe side-effects or stop working at all after next update.
+
+[Filters]
+This section sets file extention masks for modules to speed up files processing.
+Filters are used when entering file by Enter or PgDn keys.
+When plugins menu (F11) or prefix is used filters are ignored.
+Values are set in following format: ModuleName=.ext1;.ext2;.ext3
+Module names are from [Modules] section and case sensitive. Extentions in list are seprated
+by semicolon and have dot in front. They are case-insensitive.
+If any module don't have filters set or extentions list is empty, then it is considered
+that module accepts all files.
 
 2. License and copyright.
 
