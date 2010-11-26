@@ -32,15 +32,18 @@ int ModulesController::Init( const wchar_t* basePath )
 		if (LoadModule(basePath, module, wszModuleSection))
 		{
 			// Read extensions filter for each module
-			mFiltersList->GetValue(module.ModuleName, module.ExtensionFilter, ARRAY_SIZE(module.ExtensionFilter));
-			_wcsupr_s(module.ExtensionFilter);
+			if (mFiltersList != NULL)
+			{
+				mFiltersList->GetValue(module.ModuleName, module.ExtensionFilter, ARRAY_SIZE(module.ExtensionFilter));
+				_wcsupr_s(module.ExtensionFilter);
+			}
 			
 			modules.push_back(module);
 		}
 	} // for
 	
 	delete mModulesList;
-	delete mFiltersList;
+	if (mFiltersList) delete mFiltersList;
 
 	return (int) modules.size();
 }
@@ -134,8 +137,8 @@ bool ModulesController::DoesExtensionFilterMatch( const wchar_t* path, const wch
 		const wchar_t* posInFilter = wcsstr(filter, extStr);
 		if (posInFilter != NULL)
 		{
-			size_t posLen = wcslen(posInFilter);
-			result = (posLen > 0) && (posInFilter[posLen] == 0 || posInFilter[posLen] == ';');
+			size_t extLen = wcslen(extStr);
+			result = (posInFilter[extLen] == 0) || (posInFilter[extLen] == ';');
 		}
 		
 		free(extStr);
