@@ -1,6 +1,3 @@
-- Add externally configurable file masks for each module
-  (ignore masks if called from prefix or plugins menu).
-
 MSI:
 - extract progress
 - fix problem with real file and non showing the special folders mode
@@ -13,3 +10,6 @@ PST:
 
 RELIC:
 - Add support for CoH and WH:Dow SGA archives (very similar to H2 BIG-s)
+
+WISE:
+- (?) Support for ZIP-based installs.
