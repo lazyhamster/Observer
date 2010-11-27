@@ -42,6 +42,20 @@ struct directory_raw_info_t
 	unsigned short int iLastFile;
 };
 
+struct file_info_t
+{
+	unsigned long iNameOffset;
+	unsigned long iDataOffset;
+	unsigned long iDataLengthCompressed;
+	unsigned long iDataLength;
+	unsigned long iModificationTime;
+	union
+	{
+		unsigned long iFlags32;
+		unsigned short iFlags16;
+	};
+};
+
 #pragma pack(pop)
 
 #endif // SgaStructs_h__

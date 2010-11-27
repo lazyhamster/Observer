@@ -9,6 +9,45 @@ static bool IsSupportedVersion(unsigned short major, unsigned short minor)
 	return (minor == 0) && (major == 2 || major == 4 || major == 5);
 }
 
+static bool ProcessDirEntry(directory_raw_info_t *dirList, file_info_t *fileList, int dirIndex, const char* namesPool, unsigned long dataBaseOffset, std::vector<HWStorageItem> &destList)
+{
+	const directory_raw_info_t &sourceDir = dirList[dirIndex];
+	const char* sourceDirName = namesPool + sourceDir.iNameOffset;
+
+	for (unsigned short i = sourceDir.iFirstDirectory; i < sourceDir.iLastDirectory; i++)
+	{
+		if (!ProcessDirEntry(dirList, fileList, i, namesPool, dataBaseOffset, destList))
+			return false;
+	}
+
+	char szFileNameBuf[MAX_PATH];
+	for (unsigned short i = sourceDir.iFirstFile; i < sourceDir.iLastFile; i++)
+	{
+		const file_info_t &file = fileList[i];
+		const char* fileName = namesPool + file.iNameOffset;
+
+		if (strlen(sourceDirName) > 0)
+			sprintf_s(szFileNameBuf, MAX_PATH, "%s\\%s", sourceDirName, fileName);
+		else
+			strcpy_s(szFileNameBuf, MAX_PATH, fileName);
+
+		HWStorageItem new_item = {0};
+		MultiByteToWideChar(CP_ACP, 0, szFileNameBuf, -1, new_item.Name, MAX_PATH);
+		new_item.CompressedSize = file.iDataLengthCompressed;
+		new_item.UncompressedSize = file.iDataLength;
+		new_item.DataOffset = file.iDataOffset + dataBaseOffset;
+		new_item.Flags = file.iFlags32;
+		new_item.CustomData = i;
+
+		//new_item.CRC = fileHeader.UncompressedDataCRC;
+		UnixTimeToFileTime(file.iModificationTime, &new_item.ModTime);
+
+		destList.push_back(new_item);
+	}
+	
+	return true;
+}
+
 CSgaFile::CSgaFile()
 {
 
@@ -93,20 +132,46 @@ bool CSgaFile::Open( CBasicFile* inFile )
 	RETNOK( inFile->ReadArray(dirList, m_oDataHeader.iDirectoryCount) );
 
 	// Read file entries
+	file_info_t* fileList = new file_info_t[m_oDataHeader.iFileCount];
+	memset(fileList, 0, m_oDataHeader.iFileCount * sizeof(file_info_t));
+	RETNOK( inFile->Seek(m_iDataHeaderOffset + m_oDataHeader.iFileOffset, FILE_BEGIN) );
+	for (int i = 0; i < m_oDataHeader.iFileCount; i++)
+	{
+		if (m_oFileHeader.iVersionMajor == 2)
+		{
+			RETNOK( inFile->ReadValue(fileList[i].iNameOffset) );
+			RETNOK( inFile->ReadValue(fileList[i].iFlags32) );
+			RETNOK( inFile->ReadValue(fileList[i].iDataOffset) );
+			RETNOK( inFile->ReadValue(fileList[i].iDataLengthCompressed) );
+			RETNOK( inFile->ReadValue(fileList[i].iDataLength) );
+			fileList[i].iModificationTime = 0;
+		}
+		else // 4 or 5
+		{
+			RETNOK( inFile->ReadValue(fileList[i].iNameOffset) );
+			RETNOK( inFile->ReadValue(fileList[i].iDataOffset) );
+			RETNOK( inFile->ReadValue(fileList[i].iDataLengthCompressed) );
+			RETNOK( inFile->ReadValue(fileList[i].iDataLength) );
+			RETNOK( inFile->ReadValue(fileList[i].iModificationTime) );
+			RETNOK( inFile->ReadValue(fileList[i].iFlags16) );
+		}
+	}
 
 	// Process all entries to file tree
+	RETNOK( ProcessDirEntry(dirList, fileList, 0, m_sStringBlob, m_oFileHeader.iDataOffset, m_vItems) );
+
+	delete [] dirList;
+	delete [] fileList;
+	free(m_sStringBlob);
 	
 	m_pInputFile = inFile;
 	m_bIsValid = true;
 	return true;
 }
 
-void CSgaFile::OnGetFileInfo( int index )
-{
-
-}
-
 bool CSgaFile::ExtractFile( int index, HANDLE outfile )
 {
+	const HWStorageItem &fileInfo = m_vItems[index];
+	
 	return false;
 }

@@ -8,7 +8,7 @@ class CSgaFile : public CHWAbstractStorage
 protected:
 	virtual bool Open(CBasicFile* inFile);
 
-	virtual void OnGetFileInfo(int index);
+	virtual void OnGetFileInfo(int index) {}
 
 public:
 	CSgaFile();
