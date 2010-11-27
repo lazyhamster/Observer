@@ -12,14 +12,13 @@ CHW2BigFile::CHW2BigFile()
 
 CHW2BigFile::~CHW2BigFile()
 {
-	Close();
+	BaseClose();
 }
 
 bool CHW2BigFile::Open( HANDLE inFile )
 {
-	Close();
-
-	if (inFile == INVALID_HANDLE_VALUE)
+	// If file is already open then exit
+	if (inFile == INVALID_HANDLE_VALUE || m_bIsValid)
 		return false;
 
 	LARGE_INTEGER nInputFileSize;
@@ -69,18 +68,6 @@ bool CHW2BigFile::Open( HANDLE inFile )
 	
 	m_bIsValid = fResult;
 	return fResult;
-}
-
-void CHW2BigFile::Close()
-{
-	if (m_bIsValid && m_hInputFile != INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(m_hInputFile);
-		m_hInputFile = INVALID_HANDLE_VALUE;
-	}
-
-	m_vItems.clear();
-	m_bIsValid = false;
 }
 
 bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BIG_FileInfoListEntry* files,

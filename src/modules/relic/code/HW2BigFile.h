@@ -21,7 +21,6 @@ private:
 
 protected:
 	virtual bool Open(HANDLE inFile);
-	virtual void Close();
 
 	virtual void OnGetFileInfo(int index) {}
 

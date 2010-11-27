@@ -55,14 +55,13 @@ CHW1BigFile::CHW1BigFile()
 
 CHW1BigFile::~CHW1BigFile()
 {
-	Close();
+	BaseClose();
 }
 
 bool CHW1BigFile::Open( HANDLE inFile )
 {
-	Close();
-
-	if (inFile == INVALID_HANDLE_VALUE)
+	// If file is already open then exit
+	if (inFile == INVALID_HANDLE_VALUE || m_bIsValid)
 		return false;
 
 	LARGE_INTEGER nInputFileSize;
@@ -111,18 +110,6 @@ bool CHW1BigFile::Open( HANDLE inFile )
 
 	m_bIsValid = fResult;
 	return fResult;
-}
-
-void CHW1BigFile::Close()
-{
-	if (m_bIsValid && m_hInputFile != INVALID_HANDLE_VALUE)
-	{
-		CloseHandle(m_hInputFile);
-		m_hInputFile = INVALID_HANDLE_VALUE;
-	}
-
-	m_vItems.clear();
-	m_bIsValid = false;
 }
 
 bool CHW1BigFile::ExtractFile( int index, HANDLE outfile )

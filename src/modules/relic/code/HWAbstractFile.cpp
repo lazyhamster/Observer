@@ -42,6 +42,18 @@ bool CHWAbstractStorage::SeekPos( __int64 pos, DWORD moveMethod )
 	return (opRes == TRUE);
 }
 
+void CHWAbstractStorage::BaseClose()
+{
+	if (m_bIsValid && m_hInputFile != INVALID_HANDLE_VALUE)
+	{
+		CloseHandle(m_hInputFile);
+		m_hInputFile = INVALID_HANDLE_VALUE;
+	}
+
+	m_vItems.clear();
+	m_bIsValid = false;
+}
+
 void UnixTimeToFileTime(time_t t, LPFILETIME pft)
 {
 	// Note that LONGLONG is a 64-bit value

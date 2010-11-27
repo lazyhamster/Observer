@@ -944,6 +944,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\code\SgaFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -1055,6 +1059,10 @@
 			</File>
 			<File
 				RelativePath=".\code\HWClassFactory.h"
+				>
+			</File>
+			<File
+				RelativePath=".\code\SgaFile.h"
 				>
 			</File>
 			<File

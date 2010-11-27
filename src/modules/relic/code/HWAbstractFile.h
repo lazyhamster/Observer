@@ -25,7 +25,8 @@ protected:
 	bool m_bIsValid;
 	
 	virtual bool Open(HANDLE inFile) = 0;
-	virtual void Close() = 0;
+
+	void BaseClose();
 
 	bool ReadData(void* buf, DWORD size);
 	bool ReadData(void* buf, DWORD size, DWORD* numRead);

@@ -1,9 +1,9 @@
-#ifndef HW1BigFile_h__
-#define HW1BigFile_h__
+#ifndef SgaFile_h__
+#define SgaFile_h__
 
 #include "HWAbstractFile.h"
 
-class CHW1BigFile : public CHWAbstractStorage
+class CSgaFile : public CHWAbstractStorage
 {
 protected:
 	virtual bool Open(HANDLE inFile);
@@ -11,13 +11,13 @@ protected:
 	virtual void OnGetFileInfo(int index);
 
 public:
-	CHW1BigFile();
-	virtual ~CHW1BigFile();
-
-	virtual const wchar_t* GetFormatName() const { return L"HomeWorld 1 BIG"; }
+	CSgaFile();
+	virtual ~CSgaFile();
+	
+	virtual const wchar_t* GetFormatName() const { return L"Relic SGA"; }
 	virtual const wchar_t* GetCompression() const { return L"ZLib/None"; }
 
 	virtual bool ExtractFile(int index, HANDLE outfile);
 };
 
-#endif // HW1BigFile_h__
+#endif // SgaFile_h__
