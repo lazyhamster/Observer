@@ -1,4 +1,4 @@
-Observer 1.6.3
+Observer 1.6.4
 Plugin for FAR 1.7x / 2.x
 ---------------------------
 
@@ -14,6 +14,7 @@ Supported file formats:
 - Egosoft packages (for X-series games)
 - MIME containers
 - Container files from Homeworld 1/2
+- MS Outlook databases
 
 (c) 2009-2010, Ariman
 -----------------------------------------
