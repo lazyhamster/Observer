@@ -19,7 +19,13 @@ public:
 	DWORD Read(void *buffer, DWORD readSize);
 
 	bool ReadExact(void *buffer, DWORD readSize);
-	bool ReadArray(void *buffer, DWORD itemSize, DWORD numItems);
+	
+	template <typename T>
+	bool ReadArray(T* buffer, DWORD numItems)
+	{
+		DWORD readSize = numItems * sizeof(T);
+		return ReadExact(buffer, readSize);
+	}
 
 	template <typename T>
 	bool ReadValue(T& dest)
@@ -28,8 +34,10 @@ public:
 	}
 
 	__int64 GetSize() { return m_nFileSize; }
-	bool IsOpen() { return (m_hFile == INVALID_HANDLE_VALUE); }
+	bool IsOpen() { return (m_hFile != INVALID_HANDLE_VALUE); }
 	HANDLE RawHandle() { return m_hFile; }
+
+	__int64 GetPosition();
 };
 
 #endif // BasicFile_h__

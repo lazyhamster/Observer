@@ -5,6 +5,9 @@
 
 class CSgaFile : public CHWAbstractStorage
 {
+private:
+	//_file_header_raw_t m_oFileHeader;
+
 protected:
 	virtual bool Open(CBasicFile* inFile);
 

@@ -72,8 +72,10 @@ bool CBasicFile::ReadExact( void *buffer, DWORD readSize )
 	return (dataSize == readSize);
 }
 
-bool CBasicFile::ReadArray( void *buffer, DWORD itemSize, DWORD numItems )
+__int64 CBasicFile::GetPosition()
 {
-	DWORD numBytes = itemSize * numItems;
-	return ReadExact(buffer, numBytes);
+	LARGE_INTEGER nMovePos = {0}, nNewPos;
+
+	SetFilePointerEx(m_hFile, nMovePos, &nNewPos, FILE_CURRENT);
+	return nNewPos.QuadPart;
 }
