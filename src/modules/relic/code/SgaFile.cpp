@@ -27,38 +27,38 @@ bool CSgaFile::Open( CBasicFile* inFile )
 
 	RETNOK( inFile->Seek(0, FILE_BEGIN) );
 
-	_file_header_raw_t header = {0};
+	file_header_t m_oFileHeader = {0};
+	data_header_t m_oDataHeader = {0};
+	
 	char *m_sStringBlob = NULL;
 	long m_iDataHeaderOffset = 0;
 
-	RETNOK( inFile->ReadExact(header.sIdentifier, 8) );
-	RETNOK( strncmp(header.sIdentifier, "_ARCHIVE", 8) == 0 );
+	RETNOK( inFile->ReadExact(m_oFileHeader.sIdentifier, 8) );
+	RETNOK( strncmp(m_oFileHeader.sIdentifier, "_ARCHIVE", 8) == 0 );
 	
-	RETNOK( inFile->ReadValue(header.iVersionMajor) );
-	RETNOK( inFile->ReadValue(header.iVersionMinor) );
-	RETNOK( IsSupportedVersion(header.iVersionMajor, header.iVersionMinor) );
+	RETNOK( inFile->ReadValue(m_oFileHeader.iVersionMajor) );
+	RETNOK( inFile->ReadValue(m_oFileHeader.iVersionMinor) );
+	RETNOK( IsSupportedVersion(m_oFileHeader.iVersionMajor, m_oFileHeader.iVersionMinor) );
 
-	RETNOK( inFile->ReadArray(header.iContentsMD5, 4) );
-	RETNOK( inFile->ReadArray(header.sArchiveName, 64) );
-	RETNOK( inFile->ReadArray(header.iHeaderMD5, 4) );
-	RETNOK( inFile->ReadValue(header.iDataHeaderSize) );
-	RETNOK( inFile->ReadValue(header.iDataOffset) );
+	RETNOK( inFile->ReadArray(m_oFileHeader.iContentsMD5, 16) );
+	RETNOK( inFile->ReadArray(m_oFileHeader.sArchiveName, 64) );
+	RETNOK( inFile->ReadArray(m_oFileHeader.iHeaderMD5, 16) );
+	RETNOK( inFile->ReadValue(m_oFileHeader.iDataHeaderSize) );
+	RETNOK( inFile->ReadValue(m_oFileHeader.iDataOffset) );
 
-	if(header.iVersionMajor == 5)
+	if(m_oFileHeader.iVersionMajor == 5)
 	{
 		RETNOK( inFile->ReadValue(m_iDataHeaderOffset) );
 	}
-	if(header.iVersionMajor >= 4)
+
+	if(m_oFileHeader.iVersionMajor >= 4)
 	{
-		RETNOK( inFile->ReadValue(header.iPlatform) );
-		if(header.iPlatform != 1) return false;
-	}
-	else
-	{
-		header.iPlatform = 1;
+		long nPlatform;
+		RETNOK( inFile->ReadValue(nPlatform) );
+		if (nPlatform != 1) return false;  // Only Win platform is accepted
 	}
 
-	if(header.iVersionMajor == 5)
+	if(m_oFileHeader.iVersionMajor == 5)
 	{
 		RETNOK( inFile->Seek(m_iDataHeaderOffset, FILE_BEGIN) );
 	}
@@ -79,20 +79,22 @@ bool CSgaFile::Open( CBasicFile* inFile )
 	}*/
 
 	RETNOK( inFile->Seek(m_iDataHeaderOffset, FILE_BEGIN) );
-	RETNOK( inFile->ReadValue(header.iEntryPointOffset) );
-	RETNOK( inFile->ReadValue(header.iEntryPointCount) );
-	RETNOK( inFile->ReadValue(header.iDirectoryOffset) );
-	RETNOK( inFile->ReadValue(header.iDirectoryCount) );
-	RETNOK( inFile->ReadValue(header.iFileOffset) );
-	RETNOK( inFile->ReadValue(header.iFileCount) );
-	RETNOK( inFile->ReadValue(header.iStringOffset) );
-	RETNOK( inFile->ReadValue(header.iStringCount) );
+	RETNOK( inFile->ReadValue(m_oDataHeader) );
 
 	// Pre-load file and directory names
-	RETNOK( inFile->Seek(m_iDataHeaderOffset + header.iStringOffset, FILE_BEGIN) );
-	size_t iStringsLength = header.iDataHeaderSize - header.iStringOffset;
+	RETNOK( inFile->Seek(m_iDataHeaderOffset + m_oDataHeader.iStringOffset, FILE_BEGIN) );
+	size_t iStringsLength = m_oFileHeader.iDataHeaderSize - m_oDataHeader.iStringOffset;
 	m_sStringBlob = (char*) malloc(iStringsLength);
 	RETNOK( inFile->ReadArray(m_sStringBlob, iStringsLength) );
+
+	// Read directory entries
+	directory_raw_info_t* dirList = new directory_raw_info_t[m_oDataHeader.iDirectoryCount];
+	RETNOK( inFile->Seek(m_iDataHeaderOffset + m_oDataHeader.iDirectoryOffset, FILE_BEGIN) );
+	RETNOK( inFile->ReadArray(dirList, m_oDataHeader.iDirectoryCount) );
+
+	// Read file entries
+
+	// Process all entries to file tree
 	
 	m_pInputFile = inFile;
 	m_bIsValid = true;
