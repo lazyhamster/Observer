@@ -7,16 +7,19 @@
 
 CHWAbstractStorage* CHWClassFactory::LoadFile( const wchar_t *FilePath )
 {
-	HANDLE hFile = CreateFile(FilePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-	if (hFile == INVALID_HANDLE_VALUE)
+	CBasicFile* pFile = new CBasicFile(FilePath);
+	if (!pFile->Open())
+	{
+		delete pFile;
 		return NULL;
-
+	}
+	
 	CHWAbstractStorage *reader = NULL;
 
 	if (!reader)
 	{
 		reader = new CHW2BigFile();
-		if (!reader->Open(hFile))
+		if (!reader->Open(pFile))
 		{
 			delete reader;
 			reader = NULL;
@@ -26,7 +29,7 @@ CHWAbstractStorage* CHWClassFactory::LoadFile( const wchar_t *FilePath )
 	if (!reader)
 	{
 		reader = new CHW1BigFile();
-		if (!reader->Open(hFile))
+		if (!reader->Open(pFile))
 		{
 			delete reader;
 			reader = NULL;
@@ -36,7 +39,7 @@ CHWAbstractStorage* CHWClassFactory::LoadFile( const wchar_t *FilePath )
 	if (!reader)
 	{
 		reader = new CSgaFile();
-		if (!reader->Open(hFile))
+		if (!reader->Open(pFile))
 		{
 			delete reader;
 			reader = NULL;
@@ -44,7 +47,7 @@ CHWAbstractStorage* CHWClassFactory::LoadFile( const wchar_t *FilePath )
 	}
 	
 	if (!reader)
-		CloseHandle(hFile);
+		delete pFile;
 	
 	return reader;
 }

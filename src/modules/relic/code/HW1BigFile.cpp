@@ -58,31 +58,27 @@ CHW1BigFile::~CHW1BigFile()
 	BaseClose();
 }
 
-bool CHW1BigFile::Open( HANDLE inFile )
+bool CHW1BigFile::Open( CBasicFile* inFile )
 {
 	// If file is already open then exit
-	if (inFile == INVALID_HANDLE_VALUE || m_bIsValid)
+	if (!inFile || !inFile->IsOpen() || m_bIsValid)
 		return false;
 
-	LARGE_INTEGER nInputFileSize;
-	RETNOK( GetFileSizeEx(inFile, &nInputFileSize) );
-
-	m_hInputFile = inFile;
-	RETNOK( SeekPos(0, FILE_BEGIN) );
+	RETNOK( inFile->Seek(0, FILE_BEGIN) );
 
 	// Check header
 	char headerBytes[16] = {0};
-	RETNOK( ReadData(headerBytes, (DWORD) strlen(BIG_HEADER_NEED)) );
+	RETNOK( inFile->ReadExact(headerBytes, (DWORD) strlen(BIG_HEADER_NEED)) );
 	if (strcmp(headerBytes, BIG_HEADER_NEED) != 0) return false;
 
 	// Read TOC
 	bigTOC toc = {0};
-	RETNOK( ReadData(&toc.numFiles, sizeof(toc.numFiles)) );
-	RETNOK( ReadData(&toc.flags, sizeof(toc.flags)) );
+	RETNOK( inFile->ReadValue(toc.numFiles) );
+	RETNOK( inFile->ReadValue(toc.flags) );
 
 	size_t nMemSize = toc.numFiles * sizeof(bigTOCFileEntry);
 	toc.fileEntries = (bigTOCFileEntry *) malloc(nMemSize);
-	if (!ReadData(toc.fileEntries, (DWORD) nMemSize))
+	if (!inFile->ReadExact(toc.fileEntries, (DWORD) nMemSize))
 	{
 		free(toc.fileEntries);
 		return false;
@@ -109,13 +105,15 @@ bool CHW1BigFile::Open( HANDLE inFile )
 	free(toc.fileEntries);
 
 	m_bIsValid = fResult;
+	if (m_bIsValid)	m_pInputFile = inFile;
+
 	return fResult;
 }
 
 bool CHW1BigFile::ExtractFile( int index, HANDLE outfile )
 {
 	HWStorageItem &item = m_vItems[index];
-	RETNOK( SeekPos(item.DataOffset, FILE_BEGIN) );
+	RETNOK( m_pInputFile->Seek(item.DataOffset, FILE_BEGIN) );
 
 	int nDataLen = item.UncompressedSize;
 	char *buf = (char*) malloc(nDataLen);
@@ -127,14 +125,14 @@ bool CHW1BigFile::ExtractFile( int index, HANDLE outfile )
 		int expandedSize, storedSize;
 
 		// expand compressed file data directly into memory
-		bitFile = bitioFileInputStart(m_hInputFile);
+		bitFile = bitioFileInputStart(m_pInputFile->RawHandle());
 		expandedSize = lzssExpandFileToBuffer(bitFile, buf, nDataLen);
 		storedSize = bitioFileInputStop(bitFile);
 		fOpResult = (expandedSize == item.UncompressedSize) && (storedSize == item.CompressedSize);
 	}
 	else
 	{
-		fOpResult = ReadData(buf, nDataLen);
+		fOpResult = m_pInputFile->ReadExact(buf, nDataLen);
 	}
 
 	if (fOpResult)
@@ -156,8 +154,8 @@ void CHW1BigFile::OnGetFileInfo( int index )
 	int nFileNameLen = item.CustomData;
 	
 	// Read file name
-	bool fRetVal = SeekPos(item.DataOffset - nFileNameLen - 1, FILE_BEGIN)
-		&& ReadData(szNameBuf, nFileNameLen);
+	bool fRetVal = m_pInputFile->Seek(item.DataOffset - nFileNameLen - 1, FILE_BEGIN)
+		&& m_pInputFile->ReadExact(szNameBuf, nFileNameLen);
 
 	bigFilenameDecrypt(szNameBuf, nFileNameLen);
 	MultiByteToWideChar(CP_UTF8, 0, szNameBuf, -1, item.Name, MAX_PATH);

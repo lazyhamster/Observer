@@ -1,6 +1,8 @@
 #ifndef HWAbstractFile_h__
 #define HWAbstractFile_h__
 
+#include "BasicFile.h"
+
 struct HWStorageItem
 {
 	wchar_t Name[MAX_PATH];
@@ -20,22 +22,18 @@ class CHWAbstractStorage
 	friend class CHWClassFactory;
 
 protected:
-	HANDLE m_hInputFile;
+	CBasicFile* m_pInputFile;
 	std::vector<HWStorageItem> m_vItems;
 	bool m_bIsValid;
 	
-	virtual bool Open(HANDLE inFile) = 0;
+	virtual bool Open(CBasicFile* inFile) = 0;
 
 	void BaseClose();
-
-	bool ReadData(void* buf, DWORD size);
-	bool ReadData(void* buf, DWORD size, DWORD* numRead);
-	bool SeekPos(__int64 newPos, DWORD moveMethod);
 
 	virtual void OnGetFileInfo(int index) = 0;
 
 public:
-	CHWAbstractStorage() : m_hInputFile(INVALID_HANDLE_VALUE), m_bIsValid(false) {}
+	CHWAbstractStorage() : m_pInputFile(NULL), m_bIsValid(false) {}
 	virtual ~CHWAbstractStorage() {};
 	
 	int NumFiles() const { return (int) m_vItems.size(); }

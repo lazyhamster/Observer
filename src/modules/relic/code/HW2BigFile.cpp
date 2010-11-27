@@ -4,6 +4,29 @@
 
 #define RETNOK(x) if (!x) return false
 
+template<typename T>
+bool ReadStructArray( CBasicFile* inFile, BIG_SectionRef secref, T** list )
+{
+	if (secref.Count > 10000) return false;
+
+	if (!inFile->Seek(secref.Offset + sizeof(BIG_ArchHeader), FILE_BEGIN))
+		return false;
+
+	size_t nMemSize = secref.Count * sizeof(T);
+	T* data = (T*) malloc(nMemSize);
+	if (data == NULL) return false;
+
+	bool fOpRes = inFile->ReadExact(data, (DWORD) nMemSize);
+	if (fOpRes)
+		*list = data;
+	else
+		free(data);
+
+	return fOpRes;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 CHW2BigFile::CHW2BigFile()
 {
 	memset(&m_archHeader, 0, sizeof(m_archHeader));
@@ -15,39 +38,35 @@ CHW2BigFile::~CHW2BigFile()
 	BaseClose();
 }
 
-bool CHW2BigFile::Open( HANDLE inFile )
+bool CHW2BigFile::Open( CBasicFile* inFile )
 {
 	// If file is already open then exit
-	if (inFile == INVALID_HANDLE_VALUE || m_bIsValid)
+	if (!inFile || !inFile->IsOpen() || m_bIsValid)
 		return false;
 
-	LARGE_INTEGER nInputFileSize;
-	RETNOK( GetFileSizeEx(inFile, &nInputFileSize) );
-
-	m_hInputFile = inFile;
-	RETNOK( SeekPos(0, FILE_BEGIN) );
+	RETNOK( inFile->Seek(0, FILE_BEGIN) );
 
 	// Read and check archive header params
-	RETNOK( ReadData(&m_archHeader, sizeof(m_archHeader)) );
+	RETNOK( inFile->ReadExact(&m_archHeader, sizeof(m_archHeader)) );
 	RETNOK( strncmp(m_archHeader.Magic, "_ARCHIVE", 8) == 0 );
-	RETNOK( (m_archHeader.exactFileDataOffset < nInputFileSize.QuadPart) );
+	RETNOK( ((__int64) m_archHeader.exactFileDataOffset < inFile->GetSize()) );
 
 	// Read section header
-	RETNOK( ReadData(&m_sectionHeader, sizeof(m_sectionHeader)) );
+	RETNOK( inFile->ReadExact(&m_sectionHeader, sizeof(m_sectionHeader)) );
 
 	BIG_TOCListEntry* vTOC = NULL;
 	BIG_FolderListEntry* vFolderList = NULL;
 
-	RETNOK( ReadStructArray<BIG_TOCListEntry>(m_sectionHeader.TOCList, &vTOC) );
-	RETNOK( ReadStructArray<BIG_FolderListEntry>(m_sectionHeader.FolderList, &vFolderList) );
-	RETNOK( ReadStructArray<BIG_FileInfoListEntry>(m_sectionHeader.FileInfoList, &m_vFileInfoList) );
+	RETNOK( ReadStructArray<BIG_TOCListEntry>(inFile, m_sectionHeader.TOCList, &vTOC) );
+	RETNOK( ReadStructArray<BIG_FolderListEntry>(inFile, m_sectionHeader.FolderList, &vFolderList) );
+	RETNOK( ReadStructArray<BIG_FileInfoListEntry>(inFile, m_sectionHeader.FileInfoList, &m_vFileInfoList) );
 
 	bool fResult = true;
 
-	RETNOK( SeekPos(m_sectionHeader.FileNameList.Offset + sizeof(BIG_ArchHeader), FILE_BEGIN) );
+	RETNOK( inFile->Seek(m_sectionHeader.FileNameList.Offset + sizeof(BIG_ArchHeader), FILE_BEGIN) );
 	size_t nNameArraySize = m_archHeader.sectionHeaderSize - m_sectionHeader.FileNameList.Offset;
 	char* szNamesListCache = (char *) malloc(nNameArraySize);
-	fResult = ReadData(szNamesListCache, (DWORD) nNameArraySize);
+	fResult = inFile->ReadExact(szNamesListCache, (DWORD) nNameArraySize);
 
 	// Compose items list
 	if (fResult)
@@ -67,6 +86,8 @@ bool CHW2BigFile::Open( HANDLE inFile )
 	free(vFolderList);
 	
 	m_bIsValid = fResult;
+	if (m_bIsValid) m_pInputFile = inFile;
+
 	return fResult;
 }
 
@@ -106,8 +127,8 @@ bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BI
 		new_item.CustomData = i;
 
 		BIG_FileHeader fileHeader;
-		RETNOK( SeekPos(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset - sizeof(fileHeader), FILE_BEGIN) );
-		RETNOK( ReadData(&fileHeader, sizeof(fileHeader)) );
+		RETNOK( m_pInputFile->Seek(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset - sizeof(fileHeader), FILE_BEGIN) );
+		RETNOK( m_pInputFile->ReadExact(&fileHeader, sizeof(fileHeader)) );
 
 		new_item.CRC = fileHeader.UncompressedDataCRC;
 		UnixTimeToFileTime(fileHeader.FileModificationDate, &new_item.ModTime);
@@ -125,7 +146,7 @@ bool CHW2BigFile::ExtractFile( int index, HANDLE outfile )
 	HWStorageItem item = m_vItems[index];
 	BIG_FileInfoListEntry &fileInfo = m_vFileInfoList[item.CustomData];
 
-	RETNOK( SeekPos(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset, FILE_BEGIN) );
+	RETNOK( m_pInputFile->Seek(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset, FILE_BEGIN) );
 	bool fShouldDecompress = (fileInfo.Flags != BIGARCH_FILE_FLAG_UNCOMPRESSED);
 
 	if (fShouldDecompress)
@@ -146,7 +167,7 @@ bool CHW2BigFile::ExtractPlain( BIG_FileInfoListEntry &fileInfo, HANDLE outfile,
 	while (nBytesLeft > 0)
 	{
 		uint32_t nReadSize = (nBytesLeft > BUF_SIZE) ? BUF_SIZE : nBytesLeft;
-		RETNOK( ReadData(inbuf, nReadSize) );
+		RETNOK( m_pInputFile->ReadExact(inbuf, nReadSize) );
 
 		if (!WriteFile(outfile, inbuf, nReadSize, &nWritten, NULL) || (nWritten != nReadSize))
 			return false;
@@ -175,7 +196,7 @@ bool CHW2BigFile::ExtractCompressed( BIG_FileInfoListEntry &fileInfo, HANDLE out
 	while (nBytesLeft > 0)
 	{
 		uint32_t nReadSize = (nBytesLeft > BUF_SIZE) ? BUF_SIZE : nBytesLeft;
-		RETNOK( ReadData(inbuf, nReadSize) );
+		RETNOK( m_pInputFile->ReadExact(inbuf, nReadSize) );
 
 		strm.next_in = inbuf;
 		strm.avail_in = nReadSize;

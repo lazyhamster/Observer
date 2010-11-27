@@ -6,7 +6,7 @@
 class CHW1BigFile : public CHWAbstractStorage
 {
 protected:
-	virtual bool Open(HANDLE inFile);
+	virtual bool Open(CBasicFile* inFile);
 
 	virtual void OnGetFileInfo(int index);
 

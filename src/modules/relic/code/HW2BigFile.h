@@ -11,16 +11,13 @@ private:
 	BIG_SectionHeader m_sectionHeader;
 	BIG_FileInfoListEntry* m_vFileInfoList;
 
-	template<typename T>
-	bool ReadStructArray(BIG_SectionRef secref, T** list);
-
 	bool FetchFolder(BIG_FolderListEntry* folders, int folderIndex, BIG_FileInfoListEntry* files,
 		const char* prefix, const char* namesBuf);
 	bool ExtractPlain(BIG_FileInfoListEntry &fileInfo, HANDLE outfile, uint32_t fileCRC);
 	bool ExtractCompressed(BIG_FileInfoListEntry &fileInfo, HANDLE outfile, uint32_t fileCRC);
 
 protected:
-	virtual bool Open(HANDLE inFile);
+	virtual bool Open(CBasicFile* inFile);
 
 	virtual void OnGetFileInfo(int index) {}
 
@@ -33,26 +30,5 @@ public:
 
 	virtual bool ExtractFile(int index, HANDLE outfile);
 };
-
-template<typename T>
-bool CHW2BigFile::ReadStructArray( BIG_SectionRef secref, T** list )
-{
-	if (secref.Count > 10000) return false;
-		
-	if (!SeekPos(secref.Offset + sizeof(BIG_ArchHeader), FILE_BEGIN))
-		return false;
-
-	size_t nMemSize = secref.Count * sizeof(T);
-	T* data = (T*) malloc(nMemSize);
-	if (data == NULL) return false;
-	
-	bool fOpRes = ReadData(data, (DWORD) nMemSize);
-	if (fOpRes)
-		*list = data;
-	else
-		free(data);
-	
-	return fOpRes;
-}
 
 #endif // HW2BigFile_h__

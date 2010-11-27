@@ -12,42 +12,12 @@ bool CHWAbstractStorage::GetFileInfo(int index, HWStorageItem *item)
 	return true;
 }
 
-bool CHWAbstractStorage::ReadData( void* buf, DWORD size )
-{
-	DWORD nRead;
-	bool opRes = ReadData(buf, size, &nRead);
-	
-	return opRes && (nRead == size);
-}
-
-bool CHWAbstractStorage::ReadData( void* buf, DWORD size, DWORD* numRead )
-{
-	if (!buf) return false;
-	if (!size) return true;
-
-	DWORD dwRead;
-	BOOL opRes = ReadFile(m_hInputFile, buf, size, &dwRead, NULL);
-	if (opRes)
-		*numRead = dwRead;
-
-	return (opRes == TRUE);
-}
-
-bool CHWAbstractStorage::SeekPos( __int64 pos, DWORD moveMethod )
-{
-	LARGE_INTEGER nMoveVal, nNewPos;
-	nMoveVal.QuadPart = pos;
-
-	BOOL opRes = SetFilePointerEx(m_hInputFile, nMoveVal, &nNewPos, moveMethod);
-	return (opRes == TRUE);
-}
-
 void CHWAbstractStorage::BaseClose()
 {
-	if (m_bIsValid && m_hInputFile != INVALID_HANDLE_VALUE)
+	if (m_pInputFile != NULL)
 	{
-		CloseHandle(m_hInputFile);
-		m_hInputFile = INVALID_HANDLE_VALUE;
+		delete m_pInputFile;
+		m_pInputFile = NULL;
 	}
 
 	m_vItems.clear();
