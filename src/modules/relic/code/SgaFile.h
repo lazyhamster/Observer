@@ -24,6 +24,7 @@ public:
 	
 	virtual const wchar_t* GetFormatName() const { return L"Relic SGA"; }
 	virtual const wchar_t* GetCompression() const { return L"ZLib/None"; }
+	virtual const wchar_t* GetLabel() const { return m_oFileHeader.sArchiveName; }
 
 	virtual bool ExtractFile(int index, HANDLE outfile);
 };

@@ -31,7 +31,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, fileObj->GetFormatName());
-		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
+		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, fileObj->GetLabel());
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, fileObj->GetCompression());
 
 		return TRUE;

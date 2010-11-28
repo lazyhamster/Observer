@@ -42,6 +42,7 @@ public:
 
 	virtual const wchar_t* GetFormatName() const { return L"Generic"; }
 	virtual const wchar_t* GetCompression() const { return L"None"; }
+	virtual const wchar_t* GetLabel() const { return L"-"; }
 
 	virtual bool ExtractFile(int index, HANDLE outfile) = 0;
 };

@@ -75,7 +75,7 @@ bool CHW2BigFile::Open( CBasicFile* inFile )
 		{
 			BIG_TOCListEntry &tocEntry = vTOC[i];
 			char* szPathPrefix = (tocEntry.CharacterAliasName[0] && (m_sectionHeader.TOCList.Count == 1)) ? tocEntry.CharacterAliasName : tocEntry.CharacterName;
-			fResult = FetchFolder(vFolderList, tocEntry.StartFolderIndexForHierarchy, m_vFileInfoList, szPathPrefix, szNamesListCache);
+			fResult = FetchFolder(inFile, vFolderList, tocEntry.StartFolderIndexForHierarchy, m_vFileInfoList, szPathPrefix, szNamesListCache);
 
 			if (!fResult) break;
 		} // for i
@@ -91,7 +91,7 @@ bool CHW2BigFile::Open( CBasicFile* inFile )
 	return fResult;
 }
 
-bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BIG_FileInfoListEntry* files,
+bool CHW2BigFile::FetchFolder( CBasicFile* inFile, BIG_FolderListEntry* folders, int folderIndex, BIG_FileInfoListEntry* files,
 							  const char* prefix, const char* namesBuf )
 {
 	BIG_FolderListEntry &folderInfo = folders[folderIndex];
@@ -107,7 +107,7 @@ bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BI
 	// Traverse to sub-folders
 	for (uint16_t i = folderInfo.FirstSubfolderIndex; i < folderInfo.LastSubfolderIndex; i++)
 	{
-		RETNOK( FetchFolder(folders, i, files, prefix, namesBuf) );
+		RETNOK( FetchFolder(inFile, folders, i, files, prefix, namesBuf) );
 	}
 
 	// Get files from current folder
@@ -127,8 +127,8 @@ bool CHW2BigFile::FetchFolder( BIG_FolderListEntry* folders, int folderIndex, BI
 		new_item.CustomData = i;
 
 		BIG_FileHeader fileHeader;
-		RETNOK( m_pInputFile->Seek(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset - sizeof(fileHeader), FILE_BEGIN) );
-		RETNOK( m_pInputFile->ReadExact(&fileHeader, sizeof(fileHeader)) );
+		RETNOK( inFile->Seek(m_archHeader.exactFileDataOffset + fileInfo.FileDataOffset - sizeof(fileHeader), FILE_BEGIN) );
+		RETNOK( inFile->ReadExact(&fileHeader, sizeof(fileHeader)) );
 
 		new_item.CRC = fileHeader.UncompressedDataCRC;
 		UnixTimeToFileTime(fileHeader.FileModificationDate, &new_item.ModTime);
