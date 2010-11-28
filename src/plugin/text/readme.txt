@@ -100,7 +100,7 @@ MIME parsing library. Distributed under MIT license.
 Used as a reference, minor portions of code directly ported from Delphi to C++.
 
 3. System requirements.
-Minimal FAR versions are 1.75 build 2587 / 2.0 build 1470
+Minimal FAR versions are 1.75 build 2632 / 2.0 build 1666
 Windows Installer 4+ is required for MSI support.
 OS: Win2k+ (tested on WinXP and Win2003, but 2k should be suported too).
 
