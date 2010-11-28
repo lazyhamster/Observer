@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "SgaFile.h"
-#include "SgaStructs.h"
+#include "zlib.h"
 
 #define RETNOK(x) if (!x) return false
 
@@ -9,9 +9,9 @@ static bool IsSupportedVersion(unsigned short major, unsigned short minor)
 	return (minor == 0) && (major == 2 || major == 4 || major == 5);
 }
 
-static bool ProcessDirEntry(directory_raw_info_t *dirList, file_info_t *fileList, int dirIndex, const char* namesPool, unsigned long dataBaseOffset, std::vector<HWStorageItem> &destList)
+static bool ProcessDirEntry(sga_directory_raw_info_t *dirList, sga_file_info_t *fileList, int dirIndex, const char* namesPool, unsigned long dataBaseOffset, std::vector<HWStorageItem> &destList)
 {
-	const directory_raw_info_t &sourceDir = dirList[dirIndex];
+	const sga_directory_raw_info_t &sourceDir = dirList[dirIndex];
 	const char* sourceDirName = namesPool + sourceDir.iNameOffset;
 
 	for (unsigned short i = sourceDir.iFirstDirectory; i < sourceDir.iLastDirectory; i++)
@@ -23,7 +23,7 @@ static bool ProcessDirEntry(directory_raw_info_t *dirList, file_info_t *fileList
 	char szFileNameBuf[MAX_PATH];
 	for (unsigned short i = sourceDir.iFirstFile; i < sourceDir.iLastFile; i++)
 	{
-		const file_info_t &file = fileList[i];
+		const sga_file_info_t &file = fileList[i];
 		const char* fileName = namesPool + file.iNameOffset;
 
 		if (strlen(sourceDirName) > 0)
@@ -50,7 +50,8 @@ static bool ProcessDirEntry(directory_raw_info_t *dirList, file_info_t *fileList
 
 CSgaFile::CSgaFile()
 {
-
+	memset(&m_oFileHeader, 0, sizeof(m_oFileHeader));
+	memset(&m_oDataHeader, 0, sizeof(m_oDataHeader));
 }
 
 CSgaFile::~CSgaFile()
@@ -66,9 +67,6 @@ bool CSgaFile::Open( CBasicFile* inFile )
 
 	RETNOK( inFile->Seek(0, FILE_BEGIN) );
 
-	file_header_t m_oFileHeader = {0};
-	data_header_t m_oDataHeader = {0};
-	
 	char *m_sStringBlob = NULL;
 	long m_iDataHeaderOffset = 0;
 
@@ -127,13 +125,13 @@ bool CSgaFile::Open( CBasicFile* inFile )
 	RETNOK( inFile->ReadArray(m_sStringBlob, iStringsLength) );
 
 	// Read directory entries
-	directory_raw_info_t* dirList = new directory_raw_info_t[m_oDataHeader.iDirectoryCount];
+	sga_directory_raw_info_t* dirList = new sga_directory_raw_info_t[m_oDataHeader.iDirectoryCount];
 	RETNOK( inFile->Seek(m_iDataHeaderOffset + m_oDataHeader.iDirectoryOffset, FILE_BEGIN) );
 	RETNOK( inFile->ReadArray(dirList, m_oDataHeader.iDirectoryCount) );
 
 	// Read file entries
-	file_info_t* fileList = new file_info_t[m_oDataHeader.iFileCount];
-	memset(fileList, 0, m_oDataHeader.iFileCount * sizeof(file_info_t));
+	sga_file_info_t* fileList = new sga_file_info_t[m_oDataHeader.iFileCount];
+	memset(fileList, 0, m_oDataHeader.iFileCount * sizeof(sga_file_info_t));
 	RETNOK( inFile->Seek(m_iDataHeaderOffset + m_oDataHeader.iFileOffset, FILE_BEGIN) );
 	for (int i = 0; i < m_oDataHeader.iFileCount; i++)
 	{
@@ -173,5 +171,85 @@ bool CSgaFile::ExtractFile( int index, HANDLE outfile )
 {
 	const HWStorageItem &fileInfo = m_vItems[index];
 	
-	return false;
+	RETNOK( m_pInputFile->Seek(fileInfo.DataOffset, FILE_BEGIN) );
+	if (fileInfo.CompressedSize == fileInfo.UncompressedSize)
+		return ExtractPlain(fileInfo, outfile);
+	else
+		return ExtractCompressed(fileInfo, outfile);
+}
+
+bool CSgaFile::ExtractPlain( const HWStorageItem &fileInfo, HANDLE outfile )
+{
+	const uint32_t BUF_SIZE = 16 * 1024;
+	unsigned char inbuf[BUF_SIZE] = {0};
+
+	uLong crc = crc32(0, Z_NULL, 0);
+
+	DWORD nWritten;
+	uint32_t nBytesLeft = fileInfo.CompressedSize;
+	while (nBytesLeft > 0)
+	{
+		uint32_t nReadSize = (nBytesLeft > BUF_SIZE) ? BUF_SIZE : nBytesLeft;
+		RETNOK( m_pInputFile->ReadExact(inbuf, nReadSize) );
+
+		if (!WriteFile(outfile, inbuf, nReadSize, &nWritten, NULL) || (nWritten != nReadSize))
+			return false;
+
+		crc = crc32(crc, inbuf, nReadSize);
+		nBytesLeft -= nReadSize;
+	} // while
+
+	//TODO: try to find crc value
+	return true;
+}
+
+bool CSgaFile::ExtractCompressed( const HWStorageItem &fileInfo, HANDLE outfile )
+{
+	z_stream strm = {0};
+	int ret = inflateInit(&strm);
+	if (ret != Z_OK) return false;
+
+	const uint32_t BUF_SIZE = 32 * 1024;
+	unsigned char inbuf[BUF_SIZE] = {0};
+	unsigned char outbuf[BUF_SIZE] = {0};
+
+	uLong crc = crc32(0, Z_NULL, 0);
+
+	DWORD nWritten;
+	uint32_t nBytesLeft = fileInfo.CompressedSize;
+	while (nBytesLeft > 0)
+	{
+		uint32_t nReadSize = (nBytesLeft > BUF_SIZE) ? BUF_SIZE : nBytesLeft;
+		RETNOK( m_pInputFile->ReadExact(inbuf, nReadSize) );
+
+		strm.next_in = inbuf;
+		strm.avail_in = nReadSize;
+		do 
+		{
+			strm.avail_out = BUF_SIZE;
+			strm.next_out = outbuf;
+
+			ret = inflate(&strm, Z_SYNC_FLUSH);
+			if (ret == Z_NEED_DICT) ret = Z_DATA_ERROR;
+			if (ret < 0) break;
+
+			unsigned int have = BUF_SIZE - strm.avail_out;
+			if (have == 0) break;
+
+			if (!WriteFile(outfile, outbuf, have, &nWritten, NULL) || (nWritten != have))
+			{
+				ret = Z_STREAM_ERROR;
+				break;
+			}
+
+			crc = crc32(crc, outbuf, have);
+		} while (strm.avail_out == 0);
+
+		if (ret < 0) break;
+		nBytesLeft -= nReadSize;
+	} // while
+
+	inflateEnd(&strm);
+	//TODO: try to find crc value
+	return (ret == Z_STREAM_END);
 }

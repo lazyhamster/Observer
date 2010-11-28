@@ -2,9 +2,17 @@
 #define SgaFile_h__
 
 #include "HWAbstractFile.h"
+#include "SgaStructs.h"
 
 class CSgaFile : public CHWAbstractStorage
 {
+private:
+	sga_file_header_t m_oFileHeader;
+	sga_data_header_t m_oDataHeader;
+
+	bool ExtractPlain(const HWStorageItem &fileInfo, HANDLE outfile);
+	bool ExtractCompressed(const HWStorageItem &fileInfo, HANDLE outfile);
+
 protected:
 	virtual bool Open(CBasicFile* inFile);
 

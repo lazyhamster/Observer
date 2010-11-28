@@ -3,7 +3,7 @@
 
 #pragma pack(push, 1)
 
-struct file_header_t
+struct sga_file_header_t
 {
 	char sIdentifier[8];
 	unsigned short iVersionMajor;
@@ -15,7 +15,7 @@ struct file_header_t
 	unsigned long iDataOffset;
 };
 
-struct data_header_t
+struct sga_data_header_t
 {
 	// All offsets are from the start of this data header
 	unsigned long iEntryPointOffset;
@@ -33,7 +33,7 @@ struct data_header_t
 	unsigned short int iStringCount;
 };
 
-struct directory_raw_info_t
+struct sga_directory_raw_info_t
 {
 	unsigned long iNameOffset;
 	unsigned short int iFirstDirectory;
@@ -42,7 +42,7 @@ struct directory_raw_info_t
 	unsigned short int iLastFile;
 };
 
-struct file_info_t
+struct sga_file_info_t
 {
 	unsigned long iNameOffset;
 	unsigned long iDataOffset;
