@@ -10,8 +10,8 @@ private:
 	sga_file_header_t m_oFileHeader;
 	sga_data_header_t m_oDataHeader;
 
-	bool ExtractPlain(const HWStorageItem &fileInfo, HANDLE outfile);
-	bool ExtractCompressed(const HWStorageItem &fileInfo, HANDLE outfile);
+	bool ExtractPlain(const HWStorageItem &fileInfo, HANDLE outfile, uint32_t crcVal);
+	bool ExtractCompressed(const HWStorageItem &fileInfo, HANDLE outfile, uint32_t crcVal);
 
 protected:
 	virtual bool Open(CBasicFile* inFile);

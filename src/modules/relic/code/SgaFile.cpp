@@ -171,14 +171,17 @@ bool CSgaFile::ExtractFile( int index, HANDLE outfile )
 {
 	const HWStorageItem &fileInfo = m_vItems[index];
 	
-	RETNOK( m_pInputFile->Seek(fileInfo.DataOffset, FILE_BEGIN) );
+	uint32_t fileCRC;
+	RETNOK( m_pInputFile->Seek(fileInfo.DataOffset - 4, FILE_BEGIN) );
+	RETNOK( m_pInputFile->ReadValue(fileCRC) );
+
 	if (fileInfo.CompressedSize == fileInfo.UncompressedSize)
-		return ExtractPlain(fileInfo, outfile);
+		return ExtractPlain(fileInfo, outfile, fileCRC);
 	else
-		return ExtractCompressed(fileInfo, outfile);
+		return ExtractCompressed(fileInfo, outfile, fileCRC);
 }
 
-bool CSgaFile::ExtractPlain( const HWStorageItem &fileInfo, HANDLE outfile )
+bool CSgaFile::ExtractPlain( const HWStorageItem &fileInfo, HANDLE outfile, uint32_t crcVal )
 {
 	const uint32_t BUF_SIZE = 16 * 1024;
 	unsigned char inbuf[BUF_SIZE] = {0};
@@ -199,11 +202,10 @@ bool CSgaFile::ExtractPlain( const HWStorageItem &fileInfo, HANDLE outfile )
 		nBytesLeft -= nReadSize;
 	} // while
 
-	//TODO: try to find crc value
-	return true;
+	return (crc == crcVal);
 }
 
-bool CSgaFile::ExtractCompressed( const HWStorageItem &fileInfo, HANDLE outfile )
+bool CSgaFile::ExtractCompressed( const HWStorageItem &fileInfo, HANDLE outfile, uint32_t crcVal )
 {
 	z_stream strm = {0};
 	int ret = inflateInit(&strm);
@@ -245,11 +247,10 @@ bool CSgaFile::ExtractCompressed( const HWStorageItem &fileInfo, HANDLE outfile 
 			crc = crc32(crc, outbuf, have);
 		} while (strm.avail_out == 0);
 
-		if (ret < 0) break;
+		if (ret < 0 && ret != Z_BUF_ERROR) break;
 		nBytesLeft -= nReadSize;
 	} // while
 
 	inflateEnd(&strm);
-	//TODO: try to find crc value
-	return (ret == Z_STREAM_END);
+	return (ret == Z_STREAM_END) && (crc == crcVal);
 }

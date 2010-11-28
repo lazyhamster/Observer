@@ -221,7 +221,7 @@ bool CHW2BigFile::ExtractCompressed( BIG_FileInfoListEntry &fileInfo, HANDLE out
 			crc = crc32(crc, outbuf, have);
 		} while (strm.avail_out == 0);
 		
-		if (ret < 0) break;
+		if (ret < 0 && ret != Z_BUF_ERROR) break;
 		nBytesLeft -= nReadSize;
 	} // while
 	
