@@ -10,7 +10,7 @@ struct sga_file_header_t
 	unsigned short iVersionMinor;
 	char iContentsMD5[16];
 	wchar_t sArchiveName[64];
-	char iHeaderMD5[16];
+	unsigned char iHeaderMD5[16];
 	unsigned long iDataHeaderSize;
 	unsigned long iDataOffset;
 };

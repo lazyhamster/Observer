@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SgaFile.h"
 #include "zlib.h"
+#include "../md5/md5.h"
 
 #define RETNOK(x) if (!x) return false
 
@@ -104,16 +105,23 @@ bool CSgaFile::Open( CBasicFile* inFile )
 		m_iDataHeaderOffset = (long) inFile->GetPosition();
 	}
 
-	//TODO: finish
-	/*{
-		MD5Hash oHeaderHash;
-		long iHeaderHash[4];
-		oHeaderHash.updateFromString("DFC9AF62-FC1B-4180-BC27-11CCE87D3EFF");
-		oHeaderHash.updateFromFile(pSgaFile, header.iDataHeaderSize);
-		oHeaderHash.finalise((unsigned char*)iHeaderHash);
-		if (memcmp(iHeaderHash, header.iHeaderMD5, 16) != 0)
-			return false; // Stored header hash does not match computed header hash
-	}*/
+	// Check header validity.
+	{
+		md5_state_t md5ctx;
+		unsigned char aHeaderHash[16];
+		const char* hashMagicStr = "DFC9AF62-FC1B-4180-BC27-11CCE87D3EFF";
+		
+		md5_byte_t* headerBuf = (md5_byte_t*) malloc(m_oFileHeader.iDataHeaderSize);
+		inFile->ReadArray(headerBuf, m_oFileHeader.iDataHeaderSize);
+
+		md5_init(&md5ctx);
+		md5_append(&md5ctx, (const md5_byte_t*) hashMagicStr, strlen(hashMagicStr));
+		md5_append(&md5ctx, headerBuf, m_oFileHeader.iDataHeaderSize);
+		md5_finish(&md5ctx, aHeaderHash);
+
+		free(headerBuf);
+		RETNOK( memcmp(aHeaderHash, m_oFileHeader.iHeaderMD5, 16) == 0 );
+	}
 
 	RETNOK( inFile->Seek(m_iDataHeaderOffset, FILE_BEGIN) );
 	RETNOK( inFile->ReadValue(m_oDataHeader) );
