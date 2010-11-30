@@ -171,3 +171,19 @@ void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize)
 	if (pathBuf[nPathLen - 1] != '\\')
 		wcscat_s(pathBuf, bufMaxSize, L"\\");
 }
+
+void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim)
+{
+	wchar_t* lastSlashPos = wcsrchr(fullPath, '\\');
+	if (lastSlashPos)
+	{
+		if (includeTrailingDelim)
+			*(lastSlashPos + 1) = 0;
+		else
+			*lastSlashPos = 0;
+	}
+	else
+	{
+		*fullPath = 0;
+	}
+}

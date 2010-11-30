@@ -490,9 +490,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 
 	if (GetModuleFileName(g_hDllHandle, wszPluginLocation, MAX_PATH))
 	{
-		wchar_t *slash = wcsrchr(wszPluginLocation, '\\');
-		if (slash)
-			*(slash + 1) = 0;
+		CutFileNameFromPath(wszPluginLocation, true);
 	}
 	else
 	{
@@ -720,8 +718,7 @@ int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 		if (wcscmp(Dir, L"..") == 0 && info->CurrentDir()->parent == NULL)
 		{
 			wchar_t* wszStoragePath = _wcsdup(info->StoragePath());
-			wchar_t* lastSlash = wcsrchr(wszStoragePath, '\\');
-			if (lastSlash) *lastSlash = 0;
+			CutFileNameFromPath(wszStoragePath, false);
 
 			FarSInfo.Control(hPlugin, FCTL_CLOSEPLUGIN, 0, (LONG_PTR) wszStoragePath);
 			FarSInfo.Control(PANEL_ACTIVE, FCTL_SETPANELDIR, 0, (LONG_PTR) wszStoragePath);
@@ -736,7 +733,7 @@ int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 					if (!PPI) break;
 
 					FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELITEM, i, (LONG_PTR)PPI);
-					bool fIsArchItem = wcscmp(lastSlash ? lastSlash+1 : info->StoragePath(), PPI->FindData.lpwszFileName) == 0;
+					bool fIsArchItem = wcscmp(ExtractFileName(info->StoragePath()), PPI->FindData.lpwszFileName) == 0;
 					free(PPI);
 
 					if (fIsArchItem)
@@ -749,6 +746,7 @@ int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 				} // for
 			}
 
+			free(wszStoragePath);
 			return TRUE;
 		}
 		else
@@ -944,10 +942,8 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
 		if (vcExtractItems.size() == 0) return TRUE;
 
 		wchar_t *wszTargetDir = _wcsdup(info->StoragePath());
+		CutFileNameFromPath(wszTargetDir, true);
 		
-		wchar_t* szLastSlash = wcsrchr(wszTargetDir, '\\');
-		if (szLastSlash) *(szLastSlash + 1) = 0;
-
 		BatchExtract(info, vcExtractItems, nTotalExtractSize, wszTargetDir, true);
 
 		free(wszTargetDir);

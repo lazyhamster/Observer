@@ -481,9 +481,7 @@ void WINAPI SetStartupInfo(const struct PluginStartupInfo *Info)
 
 	if (GetModuleFileNameW(g_hDllHandle, wszPluginLocation, MAX_PATH))
 	{
-		wchar_t *slash = wcsrchr(wszPluginLocation, '\\');
-		if (slash)
-			*(slash + 1) = 0;
+		CutFileNameFromPath(wszPluginLocation, true);
 	}
 	else
 	{
