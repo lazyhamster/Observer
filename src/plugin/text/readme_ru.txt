@@ -19,7 +19,7 @@ Observer
 - Контейнеры, используемые Egosoft для игр серии X
 - Контейнеры Volition Pack V2 (для игр FreeSpace 1/2/Open)
 - MIME контейнеры (.eml, .mht, etc.)
-- Контейнеры из игр Homeworld 1/2 (.big)
+- Контейнеры из игр компании Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
 - Базы MS Outlook (*.pst).
 - Инсталляционные пакеты, сделаные Wise Installer-ом.
 

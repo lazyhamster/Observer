@@ -13,8 +13,9 @@ Supported file formats:
 - Volition Pack V2 files (from FreeSpace 1/2/Open)
 - Egosoft packages (for X-series games)
 - MIME containers
-- Container files from games made by Relic (Homeworld 1/2, CoH, WH40k DOW 1/2)
+- Containers from games made by Relic (Homeworld 1/2, CoH, WH40k DOW 1/2)
 - MS Outlook databases
+- WISE Installer packages
 
 (c) 2009-2010, Ariman
 -----------------------------------------

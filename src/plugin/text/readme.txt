@@ -19,7 +19,7 @@ Add/Delete/Change operations are not planned.
 - Egosoft packages (for X-series games)
 - Volition Pack V2 files (from FreeSpace 1/2/Open)
 - MIME containers (.eml, .mht, etc.)
-- Containers from Homeworld 1/2 games (.big)
+- Containers from games made by Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
 - MS Outlook databases (*.pst).
 - WISE Installer packages.
 
