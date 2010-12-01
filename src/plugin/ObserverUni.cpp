@@ -57,6 +57,27 @@ struct ProgressContext
 	}
 };
 
+struct ExtractSelectedParams
+{
+	wchar_t* sDestPath;
+	int bRecursive;
+	int nPathProcessing;			// from KeepPathValues
+	int nOverwriteExistingFiles;    // 0 - skip, 1 - overwrite, 2 - ask
+
+	ExtractSelectedParams(const wchar_t* dstPath)
+	{
+		sDestPath = _wcsdup(dstPath);
+		bRecursive = 1;
+		nPathProcessing = KPV_PARTIAL;
+		nOverwriteExistingFiles = 2;
+	}
+
+	~ExtractSelectedParams()
+	{
+		if (sDestPath) free(sDestPath);
+	}
+};
+
 //-----------------------------------  Local functions ----------------------------------------
 
 static const wchar_t* GetLocMsg(int MsgID)
@@ -124,6 +145,42 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 	if (isInteractive) flags |= FMSG_MB_OK;
 	
 	FarSInfo.Message(FarSInfo.ModuleNumber, flags, NULL, MsgLines, linesNum, 0);
+}
+
+static int DlgHlp_GetCheckBoxState(HANDLE hDlg, int ctrlIndex)
+{
+	FarDialogItem *dlgItem;
+	int retVal;
+
+	dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, NULL));
+	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, (LONG_PTR) dlgItem);
+	retVal = dlgItem->Selected;
+	free(dlgItem);
+
+	return retVal;
+}
+
+static size_t DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size_t bufSize, bool canRealloc)
+{
+	FarDialogItem *dlgItem;
+	
+	dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, NULL));
+	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, (LONG_PTR) dlgItem);
+	
+	if (wcslen(dlgItem->PtrData) < bufSize)
+	{
+		wcscpy_s(buf, bufSize, dlgItem->PtrData);
+	}
+	else if (canRealloc)
+	{
+		bufSize = wcslen(dlgItem->PtrData) + 1;
+		buf = (wchar_t*) realloc(buf, bufSize);
+		wcscpy_s(buf, bufSize, dlgItem->PtrData);
+	}
+
+	free(dlgItem);
+
+	return bufSize;
 }
 
 //-----------------------------------  Content functions ----------------------------------------
@@ -306,7 +363,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	DlgLines[6] = GetLocMsg(MSG_OVERWRITE_ALL);
 	DlgLines[7] = GetLocMsg(MSG_SKIP);
 	DlgLines[8] = GetLocMsg(MSG_SKIP_ALL);
-	DlgLines[9] = GetLocMsg(MSG_CANCEL);
+	DlgLines[9] = GetLocMsg(MSG_BTN_CANCEL);
 
 	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
 	
@@ -320,7 +377,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, const wchar_t* destPath, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir())
 		return SER_ERROR_READ;
@@ -328,11 +385,9 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	// Check for ESC pressed
 	if (CheckEsc())	return SER_USERABORT;
 
-	wstring strFullTargetPath = GetFinalExtractionPath(storage, item, destDir, false);
-	
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
-	if (!silent && FileExists(strFullTargetPath.c_str(), &fdExistingFile))
+	if (!silent && FileExists(destPath, &fdExistingFile))
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
 			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item->data))
@@ -351,7 +406,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	}
 
 	// Create directory if needed
-	wstring strTargetDir = GetDirectoryName(strFullTargetPath, false);
+	wstring strTargetDir = GetDirectoryName(destPath, false);
 	if (strTargetDir.length() > 0)
 	{
 		if (!ForceDirectoryExist(strTargetDir.c_str()))
@@ -368,7 +423,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		ExtractOperationParams params;
 		params.item = item->storageIndex;
 		params.flags = 0;
-		params.destFilePath = strFullTargetPath.c_str();
+		params.destFilePath = destPath;
 		params.callbacks.FileProgress = ExtractProgress;
 		params.callbacks.signalContext = callbackContext;
 
@@ -408,27 +463,37 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	return ret;
 }
 
-int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtractSize, const wchar_t* DestPath, bool silent)
+int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtractSize, bool silent, ExtractSelectedParams &extParams)
 {
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(items.begin(), items.end());
 
-	if (!ForceDirectoryExist(DestPath))
+	if (!ForceDirectoryExist(extParams.sDestPath))
 	{
 		if (!silent)
 			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
 		return 0;
 	}
 
-	if (!IsEnoughSpaceInPath(DestPath, totalExtractSize))
+	if (!IsEnoughSpaceInPath(extParams.sDestPath, totalExtractSize))
 	{
 		DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
 		return 0;
 	}
 
 	int nExtractResult = SER_SUCCESS;
-	int doOverwrite = EXTR_OVERWRITE_ASK;
 	bool skipOnError = false;
+
+	int doOverwrite = EXTR_OVERWRITE_ASK;
+	switch (extParams.nOverwriteExistingFiles)
+	{
+		case 0:
+			doOverwrite = EXTR_OVERWRITE_SKIPSILENT;
+			break;
+		case 1:
+			doOverwrite = EXTR_OVERWRITE_SILENT;
+			break;
+	}
 
 	ProgressContext pctx;
 	pctx.nTotalFiles = (int) items.size();
@@ -439,15 +504,16 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	{
 		ContentTreeNode* nextItem = *cit;
 
+		wstring strFullTargetPath = GetFinalExtractionPath(info, nextItem, extParams.sDestPath, extParams.nPathProcessing);
+		
 		if (nextItem->IsDir())
 		{
-			wstring strFullPath = GetFinalExtractionPath(info, nextItem, DestPath, false);
-			if (!ForceDirectoryExist(strFullPath.c_str()))
+			if (!ForceDirectoryExist(strFullTargetPath.c_str()))
 				return 0;
 		}
 		else
 		{
-			nExtractResult = ExtractStorageItem(info, nextItem, DestPath, silent, doOverwrite, skipOnError, &pctx);
+			nExtractResult = ExtractStorageItem(info, nextItem, strFullTargetPath.c_str(), silent, doOverwrite, skipOnError, &pctx);
 		}
 
 		if (nExtractResult != SER_SUCCESS) break;
@@ -461,18 +527,42 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	return 0;
 }
 
-bool ConfirmExtract(int NumFiles, int NumDirectories, const wchar_t *DestPath)
+bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &params)
 {
 	static wchar_t szDialogLine1[120] = {0};
 	swprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
 		
-	static const wchar_t* ConfirmBox[3];
-	ConfirmBox[0] = GetLocMsg(MSG_PLUGIN_NAME);
-	ConfirmBox[1] = szDialogLine1;
-	ConfirmBox[2] = DestPath;
-	int choise = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_MB_OKCANCEL, NULL, ConfirmBox, 3, 2);
-	
-	return (choise == 0);
+	FarDialogItem DialogItems []={
+		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, GetLocMsg(MSG_EXTRACT_TITLE)},
+		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1, 0},
+		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITPATH|DIF_READONLY,0, params.sDestPath, 0},
+		/*3*/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
+		/*4*/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nPathProcessing, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
+		/*5*/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
+		/*6*/{DI_TEXT,	    3, 7,  0, 7, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
+		/*7*/{DI_BUTTON,	0, 8,  0, 8, 1, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_EXTRACT), 0},
+		/*8*/{DI_BUTTON,    0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
+	};
+
+	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 60, 11, L"ObserverExtract",
+		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, 0, FarSInfo.DefDlgProc, 0);
+
+	bool retVal = false;
+	if (hDlg != INVALID_HANDLE_VALUE)
+	{
+		int ExitCode = FarSInfo.DialogRun(hDlg);
+		if (ExitCode == 7) // OK was pressed
+		{
+			params.nOverwriteExistingFiles = DlgHlp_GetCheckBoxState(hDlg, 4);
+			params.nPathProcessing = DlgHlp_GetCheckBoxState(hDlg, 5);
+			DlgHlp_GetEditBoxText(hDlg, 2, params.sDestPath, wcslen(params.sDestPath) + 1, true);
+
+			retVal = true;
+		}
+		FarSInfo.DialogFree(hDlg);
+	}
+
+	return retVal;
 }
 
 //-----------------------------------  Export functions ----------------------------------------
@@ -533,7 +623,7 @@ int WINAPI ConfigureW(int ItemNumber)
 		{DI_FIXEDIT,   7,4, 20, 3, 0, 0, 0,0, optPrefix, 0},
 		{DI_TEXT,	   3,5,  0, 5, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
 		{DI_BUTTON,	   0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 1, L"OK", 0},
-		{DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_CANCEL), 0},
+		{DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
 	};
 
 	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 39, 9, L"ObserverConfig",
@@ -544,23 +634,10 @@ int WINAPI ConfigureW(int ItemNumber)
 		int ExitCode = FarSInfo.DialogRun(hDlg);
 		if (ExitCode == 5) // OK was pressed
 		{
-			FarDialogItem *dlgItem;
-
-			dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, 1, NULL));
-			FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, 1, (LONG_PTR) dlgItem);
-			optEnabled = dlgItem->Selected;
-			free(dlgItem);
-
-			dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, 2, NULL));
-			FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, 2, (LONG_PTR) dlgItem);
-			optUsePrefix = dlgItem->Selected;
-			free(dlgItem);
-
-			dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, 3, NULL));
-			FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, 3, (LONG_PTR) dlgItem);
-			wcscpy_s(optPrefix, sizeof(optPrefix) / sizeof(optPrefix[0]), dlgItem->PtrData);
-			free(dlgItem);
-
+			optEnabled = DlgHlp_GetCheckBoxState(hDlg, 1);
+			optUsePrefix = DlgHlp_GetCheckBoxState(hDlg, 2);
+			DlgHlp_GetEditBoxText(hDlg, 3, optPrefix, ARRAY_SIZE(optPrefix), false);
+			
 			SaveSettings();
 		}
 		FarSInfo.DialogFree(hDlg);
@@ -896,17 +973,19 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 	if (vcExtractItems.size() == 0)
 		return 0;
 
+	ExtractSelectedParams extParams(*DestPath);
+
 	// Confirm extraction
 	if ((OpMode & OPM_SILENT) == 0)
 	{
-		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, *DestPath))
+		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extParams))
 			return -1;
 	}
 
 	//TODO: add recursion option
 	//TODO: add option to keep full path
 
-	return BatchExtract(info, vcExtractItems, nTotalExtractSize, *DestPath, (OpMode & OPM_SILENT) > 0);
+	return BatchExtract(info, vcExtractItems, nTotalExtractSize, (OpMode & OPM_SILENT) > 0, extParams);
 }
 
 int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
@@ -944,7 +1023,9 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
 		wchar_t *wszTargetDir = _wcsdup(info->StoragePath());
 		CutFileNameFromPath(wszTargetDir, true);
 		
-		BatchExtract(info, vcExtractItems, nTotalExtractSize, wszTargetDir, true);
+		ExtractSelectedParams extParams(wszTargetDir);
+
+		BatchExtract(info, vcExtractItems, nTotalExtractSize, true, extParams);
 
 		free(wszTargetDir);
 		

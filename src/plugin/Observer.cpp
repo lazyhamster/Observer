@@ -347,7 +347,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	DlgLines[6] = GetLocMsg(MSG_OVERWRITE_ALL);
 	DlgLines[7] = GetLocMsg(MSG_SKIP);
 	DlgLines[8] = GetLocMsg(MSG_SKIP_ALL);
-	DlgLines[9] = GetLocMsg(MSG_CANCEL);
+	DlgLines[9] = GetLocMsg(MSG_BTN_CANCEL);
 
 	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
 	
@@ -524,7 +524,7 @@ int WINAPI Configure(int ItemNumber)
 		DI_FIXEDIT,	  7,4, 17, 3, 0, 0, 0,0, "",
 		DI_TEXT,	  5,5,  0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
 		DI_BUTTON,	  0,6,  0, 7, 1, 0, DIF_CENTERGROUP,1,"OK",
-		DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP,0,(char*) GetLocMsg(MSG_CANCEL)
+		DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP,0,(char*) GetLocMsg(MSG_BTN_CANCEL)
 	};
 	FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
 
@@ -918,7 +918,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 
 		if (nextItem->IsDir())
 		{
-			wstring strFullPath = GetFinalExtractionPath(info, nextItem, wszWideDestPath, false);
+			wstring strFullPath = GetFinalExtractionPath(info, nextItem, wszWideDestPath, KPV_PARTIAL);
 			if (!ForceDirectoryExist(strFullPath.c_str()))
 				return 0;
 		}

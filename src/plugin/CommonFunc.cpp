@@ -147,13 +147,17 @@ wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim)
 	return strResult;
 }
 
-wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, bool keepFullPath)
+wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt)
 {
 	wstring strResult(baseDir);
 	if (strResult[strResult.length() - 1] != '\\')
 		strResult.append(L"\\");
 
-	ContentTreeNode* pSubRoot = keepFullPath ? NULL : storage->CurrentDir();
+	ContentTreeNode* pSubRoot = NULL;
+	if (keepPathOpt == KPV_PARTIAL)
+		pSubRoot = storage->CurrentDir();
+	else if (keepPathOpt == KPV_NOPATH)
+		pSubRoot = item->parent;
 
 	size_t nSubPathSize = item->GetPath(NULL, 0, pSubRoot) + 1;
 	wchar_t *wszItemSubPath = (wchar_t *) malloc(nSubPathSize * sizeof(wchar_t));
