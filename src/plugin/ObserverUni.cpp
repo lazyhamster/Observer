@@ -59,22 +59,17 @@ struct ProgressContext
 
 struct ExtractSelectedParams
 {
-	wchar_t* sDestPath;
+	wstring strDestPath;
 	int bRecursive;
 	int nPathProcessing;			// from KeepPathValues
 	int nOverwriteExistingFiles;    // 0 - skip, 1 - overwrite, 2 - ask
 
 	ExtractSelectedParams(const wchar_t* dstPath)
 	{
-		sDestPath = _wcsdup(dstPath);
+		strDestPath = dstPath;
 		bRecursive = 1;
 		nPathProcessing = KPV_PARTIAL;
 		nOverwriteExistingFiles = 2;
-	}
-
-	~ExtractSelectedParams()
-	{
-		if (sDestPath) free(sDestPath);
 	}
 };
 
@@ -160,27 +155,30 @@ static int DlgHlp_GetCheckBoxState(HANDLE hDlg, int ctrlIndex)
 	return retVal;
 }
 
-static size_t DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size_t bufSize, bool canRealloc)
+static void DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wstring &buf)
 {
 	FarDialogItem *dlgItem;
-	
+
 	dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, NULL));
 	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, (LONG_PTR) dlgItem);
-	
-	if (wcslen(dlgItem->PtrData) < bufSize)
-	{
-		wcscpy_s(buf, bufSize, dlgItem->PtrData);
-	}
-	else if (canRealloc)
-	{
-		bufSize = wcslen(dlgItem->PtrData) + 1;
-		buf = (wchar_t*) realloc(buf, bufSize);
-		wcscpy_s(buf, bufSize, dlgItem->PtrData);
-	}
+
+	buf = dlgItem->PtrData;
 
 	free(dlgItem);
+}
 
-	return bufSize;
+static bool DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size_t bufSize)
+{
+	wstring tmpStr;
+	DlgHlp_GetEditBoxText(hDlg, ctrlIndex, tmpStr);
+	
+	if (tmpStr.size() < bufSize)
+	{
+		wcscpy_s(buf, bufSize, tmpStr.c_str());
+		return true;
+	}
+
+	return false;
 }
 
 //-----------------------------------  Content functions ----------------------------------------
@@ -468,14 +466,14 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(items.begin(), items.end());
 
-	if (!ForceDirectoryExist(extParams.sDestPath))
+	if (!ForceDirectoryExist(extParams.strDestPath.c_str()))
 	{
 		if (!silent)
 			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
 		return 0;
 	}
 
-	if (!IsEnoughSpaceInPath(extParams.sDestPath, totalExtractSize))
+	if (!IsEnoughSpaceInPath(extParams.strDestPath.c_str(), totalExtractSize))
 	{
 		DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
 		return 0;
@@ -504,7 +502,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	{
 		ContentTreeNode* nextItem = *cit;
 
-		wstring strFullTargetPath = GetFinalExtractionPath(info, nextItem, extParams.sDestPath, extParams.nPathProcessing);
+		wstring strFullTargetPath = GetFinalExtractionPath(info, nextItem, extParams.strDestPath.c_str(), extParams.nPathProcessing);
 		
 		if (nextItem->IsDir())
 		{
@@ -535,7 +533,7 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	FarDialogItem DialogItems []={
 		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, GetLocMsg(MSG_EXTRACT_TITLE)},
 		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1, 0},
-		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITPATH|DIF_READONLY,0, params.sDestPath, 0},
+		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITPATH|DIF_READONLY,0, params.strDestPath.c_str(), 0},
 		/*3*/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
 		/*4*/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
 		/*5*/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
@@ -555,7 +553,7 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 		{
 			params.nOverwriteExistingFiles = DlgHlp_GetCheckBoxState(hDlg, 4);
 			params.nPathProcessing = DlgHlp_GetCheckBoxState(hDlg, 5);
-			DlgHlp_GetEditBoxText(hDlg, 2, params.sDestPath, wcslen(params.sDestPath) + 1, true);
+			DlgHlp_GetEditBoxText(hDlg, 2, params.strDestPath);
 
 			retVal = true;
 		}
@@ -636,7 +634,7 @@ int WINAPI ConfigureW(int ItemNumber)
 		{
 			optEnabled = DlgHlp_GetCheckBoxState(hDlg, 1);
 			optUsePrefix = DlgHlp_GetCheckBoxState(hDlg, 2);
-			DlgHlp_GetEditBoxText(hDlg, 3, optPrefix, ARRAY_SIZE(optPrefix), false);
+			DlgHlp_GetEditBoxText(hDlg, 3, optPrefix, ARRAY_SIZE(optPrefix));
 			
 			SaveSettings();
 		}
