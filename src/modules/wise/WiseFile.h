@@ -5,6 +5,7 @@ struct WiseFileRec
 {
 	wchar_t FileName[MAX_PATH];
 	int StartOffset;
+	int EndOffset;
 	int PackedSize;
 	int UnpackedSize;
 	unsigned long CRC32;
@@ -16,6 +17,7 @@ private:
 	HANDLE m_hSourceFile;
 	int m_nFilesStartPos;
 	std::vector<WiseFileRec> m_vFileList;
+	bool m_fIsPkZip;
 	
 	char* m_pScriptBuf;
 	size_t m_nScriptBufSize;

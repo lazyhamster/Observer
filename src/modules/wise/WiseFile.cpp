@@ -8,6 +8,7 @@ CWiseFile::CWiseFile()
 {
 	m_hSourceFile = INVALID_HANDLE_VALUE;
 	m_nFilesStartPos = 0;
+	m_fIsPkZip = false;
 	m_pScriptBuf = NULL;
 	m_nScriptBufSize = 0;
 	m_nScriptOffsetBaseFileIndex = 0;
@@ -34,9 +35,10 @@ bool CWiseFile::Open( const wchar_t* filePath )
 	// Heuristic search for first file offset
 	if (Approximate(nApproxOffset, fIsPkzip) && (nApproxOffset > 0))
 	{
-		if (FindReal(nApproxOffset, fIsPkzip, nRealOffset))
+		if (fIsPkzip || FindReal(nApproxOffset, fIsPkzip, nRealOffset))
 		{
-			m_nFilesStartPos = nRealOffset;
+			m_nFilesStartPos = fIsPkzip ? nApproxOffset : nRealOffset;
+			m_fIsPkZip = fIsPkzip;
 			return true;
 		}
 	}
@@ -61,10 +63,32 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 	{
 		int nFilePos = m_nFilesStartPos;
 		if (i > 0)
-			nFilePos = m_vFileList[i-1].StartOffset + m_vFileList[i-1].PackedSize + 4;
+			nFilePos = m_vFileList[i-1].EndOffset + 1;
 
 		if (SetFilePointer(m_hSourceFile, nFilePos, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 			return false;
+
+		DWORD dwRead;
+		unsigned long newcrc;
+
+		if (m_fIsPkZip)
+		{
+			char buf1[14], buf2[8];
+			unsigned short len1, len2;
+
+			if (!ReadFile(m_hSourceFile, buf1, sizeof(buf1), &dwRead, NULL)
+				|| !ReadFile(m_hSourceFile, &newcrc, sizeof(newcrc), &dwRead, NULL)
+				|| !ReadFile(m_hSourceFile, buf2, sizeof(buf2), &dwRead, NULL)
+				|| !ReadFile(m_hSourceFile, &len1, sizeof(len1), &dwRead, NULL)
+				|| !ReadFile(m_hSourceFile, &len2, sizeof(len2), &dwRead, NULL))
+			{
+				fResult = false;
+				break;
+			}
+
+			if (len1 + len2 > 0)
+				SetFilePointer(m_hSourceFile, len1 + len2, NULL, FILE_CURRENT);
+		}
 
 		InflatedDataInfo inflateInfo;
 		bool inflRes;
@@ -75,11 +99,11 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 		
 		if (inflRes)
 		{
-			unsigned long newcrc;
-			DWORD dwRead;
 			int attempt = 0;
 
-			ReadFile(m_hSourceFile, &newcrc, sizeof(newcrc), &dwRead, NULL);
+			if (!m_fIsPkZip)
+				ReadFile(m_hSourceFile, &newcrc, sizeof(newcrc), &dwRead, NULL);
+
 			while ((inflateInfo.crc != newcrc) && (attempt < 8) && (dwRead == sizeof(newcrc)))
 			{
 				SetFilePointer(m_hSourceFile, -3, NULL, FILE_CURRENT);
@@ -97,6 +121,7 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 				infoBuf->UnpackedSize = inflateInfo.unpackedSize;
 				infoBuf->StartOffset = nFilePos;
 				infoBuf->CRC32 = inflateInfo.crc;
+				infoBuf->EndOffset = SetFilePointer(m_hSourceFile, 0, NULL, FILE_CURRENT) - 1;
 				
 				switch(i)
 				{
@@ -275,6 +300,23 @@ bool CWiseFile::ExtractFile( int index, const wchar_t* destPath )
 	if (SetFilePointer(m_hSourceFile, fileInfo.StartOffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 		return false;
 
+	if (m_fIsPkZip)
+	{
+		DWORD dwRead;
+		char buf1[14 + 4 + 8];
+		unsigned short len1, len2;
+
+		if (!ReadFile(m_hSourceFile, buf1, sizeof(buf1), &dwRead, NULL)
+			|| !ReadFile(m_hSourceFile, &len1, sizeof(len1), &dwRead, NULL)
+			|| !ReadFile(m_hSourceFile, &len2, sizeof(len2), &dwRead, NULL))
+		{
+			return false;
+		}
+
+		if (len1 + len2 > 0)
+			SetFilePointer(m_hSourceFile, len1 + len2, NULL, FILE_CURRENT);
+	}
+
 	bool rval = inflateData(m_hSourceFile, destPath, inflateInfo);
 	return rval;
 }
@@ -327,8 +369,8 @@ bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 	while (pos < m_nScriptBufSize - 30)
 	{
 		ScriptFileRec* rec = (ScriptFileRec*) (m_pScriptBuf + pos);
-		if (rec->opCode == 0 && rec->unpackedSize == infoBuf->UnpackedSize
-			&& (rec->endOffset - rec->startOffset) == (infoBuf->PackedSize + 4) && (scriptOffset == 0 || scriptOffset == rec->startOffset))
+		if ( (rec->opCode == 0) && (rec->unpackedSize == infoBuf->UnpackedSize)
+			&& (rec->endOffset - rec->startOffset) == (infoBuf->EndOffset - infoBuf->StartOffset + 1) && (scriptOffset == 0 || scriptOffset == rec->startOffset) )
 		{
 			if (rec->fileCRC == infoBuf->CRC32 || rec->fileCRC == 0)
 			{
