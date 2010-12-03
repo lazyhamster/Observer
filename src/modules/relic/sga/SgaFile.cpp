@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "SgaFile.h"
 #include "zlib.h"
-#include "../md5/md5.h"
+#include "md5.h"
 
 #define RETNOK(x) if (!x) return false
 

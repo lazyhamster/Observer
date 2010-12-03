@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "HWClassFactory.h"
 
-#include "HW2BigFile.h"
-#include "HW1BigFile.h"
-#include "SgaFile.h"
+#include "..\big2\HW2BigFile.h"
+#include "..\big1\HW1BigFile.h"
+#include "..\sga\SgaFile.h"
 
 CHWAbstractStorage* CHWClassFactory::LoadFile( const wchar_t *FilePath )
 {

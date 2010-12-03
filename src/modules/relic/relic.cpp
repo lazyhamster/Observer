@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "ModuleDef.h"
 
-#include "HWClassFactory.h"
+#include "base\HWClassFactory.h"
 
 static const wchar_t* GetFileName(const wchar_t* fullPath)
 {

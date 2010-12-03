@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -123,7 +123,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -202,7 +202,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -283,7 +283,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -363,7 +363,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -444,7 +444,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -522,7 +522,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -600,7 +600,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -679,7 +679,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -760,7 +760,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\;.\code\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;RELIC_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -822,7 +822,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\code\BasicFile.cpp"
+				RelativePath=".\base\BasicFile.cpp"
 				>
 			</File>
 			<File
@@ -920,27 +920,27 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\code\HW1BigFile.cpp"
+				RelativePath=".\big1\HW1BigFile.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HW1Decomp.cpp"
+				RelativePath=".\big1\HW1Decomp.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HW2BigFile.cpp"
+				RelativePath=".\big2\HW2BigFile.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HWAbstractFile.cpp"
+				RelativePath=".\base\HWAbstractFile.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HWClassFactory.cpp"
+				RelativePath=".\base\HWClassFactory.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\md5\md5.c"
+				RelativePath=".\sga\md5.c"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -1008,7 +1008,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\code\SgaFile.cpp"
+				RelativePath=".\sga\SgaFile.cpp"
 				>
 			</File>
 			<File
@@ -1102,43 +1102,43 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\code\BasicFile.h"
+				RelativePath=".\base\BasicFile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HW1BigFile.h"
+				RelativePath=".\big1\HW1BigFile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HW1Decomp.h"
+				RelativePath=".\big1\HW1Decomp.h"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HW2BigFile.h"
+				RelativePath=".\big2\HW2BigFile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HW2Structs.h"
+				RelativePath=".\big2\HW2Structs.h"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HWAbstractFile.h"
+				RelativePath=".\base\HWAbstractFile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\code\HWClassFactory.h"
+				RelativePath=".\base\HWClassFactory.h"
 				>
 			</File>
 			<File
-				RelativePath=".\md5\md5.h"
+				RelativePath=".\sga\md5.h"
 				>
 			</File>
 			<File
-				RelativePath=".\code\SgaFile.h"
+				RelativePath=".\sga\SgaFile.h"
 				>
 			</File>
 			<File
-				RelativePath=".\code\SgaStructs.h"
+				RelativePath=".\sga\SgaStructs.h"
 				>
 			</File>
 			<File

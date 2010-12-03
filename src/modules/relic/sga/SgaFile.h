@@ -1,7 +1,7 @@
 #ifndef SgaFile_h__
 #define SgaFile_h__
 
-#include "HWAbstractFile.h"
+#include "..\base\HWAbstractFile.h"
 #include "SgaStructs.h"
 
 class CSgaFile : public CHWAbstractStorage

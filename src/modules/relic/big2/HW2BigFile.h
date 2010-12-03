@@ -1,7 +1,7 @@
 #ifndef HW2BigFile_h__
 #define HW2BigFile_h__
 
-#include "HWAbstractFile.h"
+#include "..\base\HWAbstractFile.h"
 #include "HW2Structs.h"
 
 class CHW2BigFile : public CHWAbstractStorage
