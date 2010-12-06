@@ -1,7 +1,9 @@
 История изменений:
 
 1.6.5
-- RELIC: Добавлена поддержка игра серий Company of Heroes and Warhammer 40k DoW 1/2
+- Improved extraction dialog.
+- RELIC: Добавлена поддержка игр серий Company of Heroes and Warhammer 40k DoW 1/2
+- WISE: Расширена поддержка.
 
 1.6.4
 - Добавлена поддержка инсталяторов сделанных Wise Installer-ом.
