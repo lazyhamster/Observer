@@ -377,22 +377,16 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destDir, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destPath, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
 {
 	if (!item || !storage || item->IsDir()) return FALSE;
 
 	// Check for ESC pressed
 	if (CheckEsc())	return FALSE;
 
-	static wchar_t wszItemSubPath[PATH_BUFFER_SIZE];
-	item->GetPath(wszItemSubPath, PATH_BUFFER_SIZE, storage->CurrentDir());
-
-	wstring strFullTargetPath(destDir);
-	strFullTargetPath.append(wszItemSubPath);
-
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
-	if (!silent && FileExists(strFullTargetPath.c_str(), &fdExistingFile))
+	if (!silent && FileExists(destPath, &fdExistingFile))
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
 			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item->data))
@@ -411,7 +405,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	}
 
 	// Create directory if needed
-	wstring strTargetDir = GetDirectoryName(strFullTargetPath, false);
+	wstring strTargetDir = GetDirectoryName(destPath, false);
 	if (strTargetDir.length() > 0)
 	{
 		if (!ForceDirectoryExist(strTargetDir.c_str()))
@@ -428,7 +422,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 		ExtractOperationParams params;
 		params.item = item->storageIndex;
 		params.flags = 0;
-		params.destFilePath = strFullTargetPath.c_str();
+		params.destFilePath = destPath;
 		params.callbacks.FileProgress = ExtractProgress;
 		params.callbacks.signalContext = callbackContext;
 
@@ -499,16 +493,6 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	}
 
 	return false;
-
-	/*
-	static const char* ConfirmBox[3];
-	ConfirmBox[0] = GetLocMsg(MSG_PLUGIN_NAME);
-	ConfirmBox[1] = szDialogLine1;
-	ConfirmBox[2] = DestPath;
-	int choise = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_MB_OKCANCEL, NULL, ConfirmBox, 3, 2);
-
-	return (choise == 0);
-	*/
 }
 
 //-----------------------------------  Export functions ----------------------------------------
@@ -933,7 +917,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 
 	// Prepare destination path
 	wchar_t wszWideDestPath[MAX_PATH] = {0};
-	MultiByteToWideChar(CP_FAR_INTERNAL, 0, DestPath, -1, wszWideDestPath, MAX_PATH);
+	MultiByteToWideChar(CP_FAR_INTERNAL, 0, extrParams.strDestPath.c_str(), -1, wszWideDestPath, MAX_PATH);
 	IncludeTrailingPathDelim(wszWideDestPath, MAX_PATH);
 	
 	if (!ForceDirectoryExist(wszWideDestPath))
@@ -972,15 +956,15 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	{
 		ContentTreeNode* nextItem = *cit;
 
+		wstring strFullPath = GetFinalExtractionPath(info, nextItem, wszWideDestPath, extrParams.nPathProcessing);
 		if (nextItem->IsDir())
 		{
-			wstring strFullPath = GetFinalExtractionPath(info, nextItem, wszWideDestPath, extrParams.nPathProcessing);
 			if (!ForceDirectoryExist(strFullPath.c_str()))
 				return 0;
 		}
 		else
 		{
-			nExtractResult = ExtractStorageItem(info, nextItem, wszWideDestPath, (OpMode & OPM_SILENT) > 0, doOverwrite, skipOnError, &pctx);
+			nExtractResult = ExtractStorageItem(info, nextItem, strFullPath.c_str(), (OpMode & OPM_SILENT) > 0, doOverwrite, skipOnError, &pctx);
 		}
 
 		if (!nExtractResult) break;
