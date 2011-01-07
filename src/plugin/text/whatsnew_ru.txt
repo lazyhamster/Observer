@@ -1,7 +1,7 @@
 История изменений:
 
 1.6.5
-- Improved extraction dialog.
+- Расширен диалог распаковки.
 - RELIC: Добавлена поддержка игр серий Company of Heroes and Warhammer 40k DoW 1/2
 - WISE: Расширена поддержка.
 

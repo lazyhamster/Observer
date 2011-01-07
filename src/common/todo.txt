@@ -7,6 +7,3 @@ ISO:
 
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)
-
-WISE:
-- (?) Support for ZIP-based installs.
