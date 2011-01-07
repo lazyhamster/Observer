@@ -16,6 +16,7 @@ $^#Observer 1.x#
  - Egosoft packages (for X-series games)
  - MIME containers
  - MS Outlook databases
+ - #WISE# Installer packages
 
  (c) 2009-2010, Ariman
  -----------------------------------------
@@ -35,3 +36,19 @@ $ #Observer configuration#
  
  #Prefix value#
  Text that will be used as prefix (32 chars max).
+ 
+@ObserverExtract
+$ #Extracting files#
+    In this dialog you may enter destination path for extraction and change several parameters
+
+ #Overwrite existing files#
+ Controls files overwriting (3-state).
+ [ ] - skip extraction if file already exists,
+ [x] - overwrite existing files,
+ [?] - ask. 
+
+ #Keep paths#
+ Controls the way plugin processes file paths stored inside container (3-state).
+ [ ] - all files will be extracted to same directory,
+ [x] - keep full path from container root,
+ [?] - keep path relative to current directory inside container.

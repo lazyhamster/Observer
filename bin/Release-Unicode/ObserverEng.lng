@@ -15,6 +15,7 @@
 "Directories"
 "Total Size"
 
+"Extract"
 "Extract %d files(s) and %d folder(s) to"
 "Extract Error"
 "Unable to create directory"
@@ -22,6 +23,8 @@
 "Extracting failed for file:"
 "Extracting file"
 "Not enough space on target drive"
+"&Overwrite existing file"
+"Keep &paths"
 
 "Reading files list"
 "Content Error"
@@ -32,5 +35,6 @@
 "&Skip"
 "S&kip all"
 "&Cancel"
+"E&xtract"
 
 "ToCurr"

@@ -19,7 +19,7 @@ Observer
 - Контейнеры, используемые Egosoft для игр серии X
 - Контейнеры Volition Pack V2 (для игр FreeSpace 1/2/Open)
 - MIME контейнеры (.eml, .mht, etc.)
-- Контейнеры из игр Homeworld 1/2 (.big)
+- Контейнеры из игр компании Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
 - Базы MS Outlook (*.pst).
 - Инсталляционные пакеты, сделаные Wise Installer-ом.
 
@@ -98,7 +98,7 @@ archivers and dearchivers for Microsoft compression formats.
 Код использовался в качестве ориентира. Небольшая часть кода является прямым портом из Delphi в C++.
 
 3. Системные требования.
-Минимальные версии FAR-а для работы плагина 1.75 build 2587 / 2.0 build 1470
+Минимальные версии FAR-а для работы плагина 1.75 build 2632 / 2.0 build 1666
 Для поддержки MSI нужен установленный Windows Installer, желательно 4+.
 OS: Win2k+ (тестилось на WinXP и Win2003, но на 2k должно тоже работать).
 

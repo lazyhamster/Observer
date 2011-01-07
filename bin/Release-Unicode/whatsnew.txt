@@ -1,5 +1,10 @@
 Changes history:
 
+1.6.5
+- Improved extraction dialog.
+- RELIC: Added support for game series Company of Heroes and Warhammer 40k DoW 1/2
+- WISE: Extended format support.
+
 1.6.4
 - Added support of packages made by Wise Installer.
 - Added configurable extension filters for each module.
