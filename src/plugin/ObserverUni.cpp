@@ -528,12 +528,12 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &params)
 {
 	static wchar_t szDialogLine1[120] = {0};
-	swprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
+	swprintf_s(szDialogLine1, ARRAY_SIZE(szDialogLine1), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
 		
 	FarDialogItem DialogItems []={
 		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, GetLocMsg(MSG_EXTRACT_TITLE)},
 		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1, 0},
-		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITPATH|DIF_READONLY,0, params.strDestPath.c_str(), 0},
+		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITEXPAND|DIF_EDITPATH|DIF_READONLY,0, params.strDestPath.c_str(), 0},
 		/*3*/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
 		/*4*/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
 		/*5*/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
@@ -979,9 +979,6 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extParams))
 			return -1;
 	}
-
-	//TODO: add recursion option
-	//TODO: add option to keep full path
 
 	return BatchExtract(info, vcExtractItems, nTotalExtractSize, (OpMode & OPM_SILENT) > 0, extParams);
 }

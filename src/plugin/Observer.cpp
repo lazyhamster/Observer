@@ -57,6 +57,22 @@ struct ProgressContext
 	}
 };
 
+struct ExtractSelectedParams
+{
+	string strDestPath;
+	int bRecursive;
+	int nPathProcessing;			// from KeepPathValues
+	int nOverwriteExistingFiles;    // 0 - skip, 1 - overwrite, 2 - ask
+
+	ExtractSelectedParams(const char* dstPath)
+	{
+		strDestPath = dstPath;
+		bRecursive = 1;
+		nPathProcessing = KPV_PARTIAL;
+		nOverwriteExistingFiles = 2;
+	}
+};
+
 //-----------------------------------  Local functions ----------------------------------------
 
 struct InitDialogItem
@@ -452,11 +468,39 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	return (ret == SER_SUCCESS);
 }
 
-bool ConfirmExtract(int NumFiles, int NumDirectories, const char *DestPath)
+bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &params)
 {
 	static char szDialogLine1[120] = {0};
-	sprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
+	sprintf_s(szDialogLine1, ARRAY_SIZE(szDialogLine1), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
 
+	InitDialogItem InitItems []={
+		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, (char*) GetLocMsg(MSG_EXTRACT_TITLE)},
+		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1},
+		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITEXPAND|DIF_READONLY,0, (char*) params.strDestPath.c_str()},
+		/*3*/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, ""},
+		/*4*/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, (char*) GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
+		/*5*/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, (char*) GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
+		/*6*/{DI_TEXT,	    3, 7,  0, 7, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, ""},
+		/*7*/{DI_BUTTON,	0, 8,  0, 8, 1, 0, DIF_CENTERGROUP, 1, (char*) GetLocMsg(MSG_BTN_EXTRACT)},
+		/*8*/{DI_BUTTON,    0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 0, (char*) GetLocMsg(MSG_BTN_CANCEL)},
+	};
+	FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
+
+	InitDialogItems(InitItems, DialogItems, ARRAY_SIZE(InitItems));
+
+	int ExitCode = FarSInfo.Dialog(FarSInfo.ModuleNumber, -1, -1, 60, 11, "ObserverExtract", DialogItems, ARRAY_SIZE(DialogItems));
+
+	if (ExitCode == 7)
+	{
+		params.nOverwriteExistingFiles = DialogItems[4].Selected;
+		params.nPathProcessing = DialogItems[5].Selected;
+		params.strDestPath = DialogItems[2].Data;
+		return true;
+	}
+
+	return false;
+
+	/*
 	static const char* ConfirmBox[3];
 	ConfirmBox[0] = GetLocMsg(MSG_PLUGIN_NAME);
 	ConfirmBox[1] = szDialogLine1;
@@ -464,6 +508,7 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, const char *DestPath)
 	int choise = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_MB_OKCANCEL, NULL, ConfirmBox, 3, 2);
 
 	return (choise == 0);
+	*/
 }
 
 //-----------------------------------  Export functions ----------------------------------------
@@ -876,9 +921,10 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		return 0;
 
 	// Confirm extraction
+	ExtractSelectedParams extrParams(DestPath);
 	if ((OpMode & OPM_SILENT) == 0)
 	{
-		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, DestPath))
+		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extrParams))
 			return -1;
 	}
 
@@ -904,8 +950,18 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	}
 
 	int nExtractResult = TRUE;
-	int doOverwrite = EXTR_OVERWRITE_ASK;
 	bool skipOnError = false;
+
+	int doOverwrite = EXTR_OVERWRITE_ASK;
+	switch (extrParams.nOverwriteExistingFiles)
+	{
+	case 0:
+		doOverwrite = EXTR_OVERWRITE_SKIPSILENT;
+		break;
+	case 1:
+		doOverwrite = EXTR_OVERWRITE_SILENT;
+		break;
+	}
 
 	ProgressContext pctx;
 	pctx.nTotalFiles = vcExtractItems.size();
@@ -918,7 +974,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 
 		if (nextItem->IsDir())
 		{
-			wstring strFullPath = GetFinalExtractionPath(info, nextItem, wszWideDestPath, KPV_PARTIAL);
+			wstring strFullPath = GetFinalExtractionPath(info, nextItem, wszWideDestPath, extrParams.nPathProcessing);
 			if (!ForceDirectoryExist(strFullPath.c_str()))
 				return 0;
 		}
@@ -930,8 +986,6 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		if (!nExtractResult) break;
 	}
 
-	//TODO: add recursion option
-	//TODO: add option to keep full path
 	return nExtractResult;
 }
 
