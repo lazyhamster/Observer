@@ -29,4 +29,6 @@ wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim);
 void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize);
 void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim);
 
+wstring ResolveFullPath(const wchar_t* input);
+
 #endif // CommonFunc_h__

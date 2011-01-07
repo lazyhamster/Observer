@@ -533,7 +533,7 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	FarDialogItem DialogItems []={
 		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, GetLocMsg(MSG_EXTRACT_TITLE)},
 		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1, 0},
-		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITEXPAND|DIF_EDITPATH|DIF_READONLY,0, params.strDestPath.c_str(), 0},
+		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITEXPAND|DIF_EDITPATH,0, params.strDestPath.c_str(), 0},
 		/*3*/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
 		/*4*/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
 		/*5*/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
@@ -554,6 +554,8 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 			params.nOverwriteExistingFiles = DlgHlp_GetCheckBoxState(hDlg, 4);
 			params.nPathProcessing = DlgHlp_GetCheckBoxState(hDlg, 5);
 			DlgHlp_GetEditBoxText(hDlg, 2, params.strDestPath);
+
+			params.strDestPath = ResolveFullPath(params.strDestPath.c_str());
 
 			retVal = true;
 		}
