@@ -488,7 +488,7 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	{
 		params.nOverwriteExistingFiles = DialogItems[4].Selected;
 		params.nPathProcessing = DialogItems[5].Selected;
-		params.strDestPath = DialogItems[2].Data;
+		params.strDestPath = ResolveFullPath(DialogItems[2].Data);
 		return true;
 	}
 
@@ -591,27 +591,25 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 	if (g_pController.NumModules() == 0)
 		return 0;
 	
-	char* szFullNameBuffer = new char[PATH_BUFFER_SIZE];
-	char* szContainerSubpath = NULL;
-	DWORD fpres = 0;
+	string strFullSourcePath;
+	string strSubPath;
 	
 	if ((OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
 	{
-		char* szLocalNameBuffer = new char[PATH_BUFFER_SIZE];
-
-		strcpy_s(szLocalNameBuffer, MAX_PATH, (char *) Item);
+		char* szLocalNameBuffer = _strdup((char *) Item);
 		FSF.Unquote(szLocalNameBuffer);
-		FSF.ExpandEnvironmentStr(szLocalNameBuffer, szLocalNameBuffer, PATH_BUFFER_SIZE);
-		fpres = GetFullPathNameA(szLocalNameBuffer, PATH_BUFFER_SIZE, szFullNameBuffer, NULL);
 
-		char* szColonPos = strrchr(szFullNameBuffer, ':');
-		if (szColonPos != NULL && (szColonPos - szFullNameBuffer) > 2)
+		// Find starting subdirectory if specified
+		char* szColonPos = strrchr(szLocalNameBuffer, ':');
+		if (szColonPos != NULL && (szColonPos - szLocalNameBuffer) > 2)
 		{
 			*szColonPos = 0;
-			szContainerSubpath = szColonPos + 1;
+			strSubPath = szColonPos + 1;
 		}
 
-		delete [] szLocalNameBuffer;
+		strFullSourcePath = ResolveFullPath(szLocalNameBuffer);
+
+		free(szLocalNameBuffer);
 	}
 	else if (OpenFrom == OPEN_PLUGINSMENU)
 	{
@@ -620,21 +618,21 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 		if (FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi))
 			if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 			{
-				strcpy_s(szFullNameBuffer, PATH_BUFFER_SIZE, pi.CurDir);
-				if (szFullNameBuffer[strlen(szFullNameBuffer) - 1] != '\\')
-					strcat_s(szFullNameBuffer, PATH_BUFFER_SIZE, "\\");
-				strcat_s(szFullNameBuffer, PATH_BUFFER_SIZE, pi.SelectedItems[0].FindData.cFileName);
+				char szPathBuf[MAX_PATH] = {0};
+				
+				strcpy_s(szPathBuf, MAX_PATH, pi.CurDir);
+				IncludeTrailingPathDelim(szPathBuf, MAX_PATH);
+				strcat_s(szPathBuf, MAX_PATH, pi.SelectedItems[0].FindData.cFileName);
 
-				fpres = strlen(szFullNameBuffer);
+				strFullSourcePath = strSubPath;
 			}
 	}
 
-	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer, false) : INVALID_HANDLE_VALUE;
+	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false) : INVALID_HANDLE_VALUE;
 
-	if (szContainerSubpath != NULL && hOpenResult != INVALID_HANDLE_VALUE)
-		SetDirectory(hOpenResult, szContainerSubpath, 0);
+	if ( (hOpenResult != INVALID_HANDLE_VALUE) && (strSubPath.size() > 0) )
+		SetDirectory(hOpenResult, strSubPath.c_str(), 0);
 
-	delete [] szFullNameBuffer;
 	return hOpenResult;
 }
 

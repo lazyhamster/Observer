@@ -27,8 +27,10 @@ wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNo
 const wchar_t* ExtractFileName(const wchar_t* fullPath);
 wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim);
 void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize);
+void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize);
 void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim);
 
 wstring ResolveFullPath(const wchar_t* input);
+string ResolveFullPath(const char* input);
 
 #endif // CommonFunc_h__

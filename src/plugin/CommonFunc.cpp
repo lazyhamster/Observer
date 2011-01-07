@@ -176,6 +176,13 @@ void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize)
 		wcscat_s(pathBuf, bufMaxSize, L"\\");
 }
 
+void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize)
+{
+	size_t nPathLen = strlen(pathBuf);
+	if (pathBuf[nPathLen - 1] != '\\')
+		strcat_s(pathBuf, bufMaxSize, "\\");
+}
+
 void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim)
 {
 	wchar_t* lastSlashPos = wcsrchr(fullPath, '\\');
@@ -214,6 +221,29 @@ wstring ResolveFullPath(const wchar_t* input)
 		
 		strVal = tmpBuf2;
 		delete [] tmpBuf2;
+	}
+
+	return strVal;
+}
+
+string ResolveFullPath(const char* input)
+{
+	string strVal(input);
+
+	DWORD nBufSize = ExpandEnvironmentStringsA(strVal.c_str(), NULL, 0);
+	if (nBufSize > 0)
+	{
+		char tmpBuf[MAX_PATH] = {0};
+		ExpandEnvironmentStringsA(strVal.c_str(), tmpBuf, MAX_PATH);
+		strVal = tmpBuf;
+	}
+
+	nBufSize = GetFullPathNameA(strVal.c_str(), 0, NULL, NULL);
+	if (nBufSize > 0)
+	{
+		char tmpBuf2[MAX_PATH] = {0};
+		GetFullPathNameA(strVal.c_str(), MAX_PATH, tmpBuf2, NULL);
+		strVal = tmpBuf2;
 	}
 
 	return strVal;
