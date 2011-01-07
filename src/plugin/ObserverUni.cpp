@@ -660,25 +660,23 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 	if (g_pController.NumModules() == 0)
 		return 0;
 	
-	wchar_t* szFullNameBuffer = new wchar_t[PATH_BUFFER_SIZE];
-	wchar_t* wszContainerSubpath = NULL;
-	DWORD fpres = 0;
+	wstring strFullSourcePath;
+	wstring strSubPath;
 	
 	if ((OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
 	{
 		wchar_t* szLocalNameBuffer = _wcsdup((wchar_t *) Item);
-
 		FSF.Unquote(szLocalNameBuffer);
-		//FSF.ExpandEnvironmentStr(szLocalNameBuffer, szLocalNameBuffer, PATH_BUFFER_SIZE);
-		fpres = GetFullPathName(szLocalNameBuffer, PATH_BUFFER_SIZE, szFullNameBuffer, NULL);
 
 		// Find starting subdirectory if specified
-		wchar_t* wszColonPos = wcsrchr(szFullNameBuffer, ':');
-		if (wszColonPos != NULL && (wszColonPos - szFullNameBuffer) > 2)
+		wchar_t* wszColonPos = wcsrchr(szLocalNameBuffer, ':');
+		if (wszColonPos != NULL && (wszColonPos - szLocalNameBuffer) > 2)
 		{
 			*wszColonPos = 0;
-			wszContainerSubpath = wszColonPos + 1;
+			strSubPath = wszColonPos + 1;
 		}
+
+		strFullSourcePath = ResolveFullPath(szLocalNameBuffer);
 
 		free(szLocalNameBuffer);
 	}
@@ -688,27 +686,27 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 		if (FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR)&pi))
 			if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 			{
-				FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELDIR, PATH_BUFFER_SIZE, (LONG_PTR) szFullNameBuffer);
-				IncludeTrailingPathDelim(szFullNameBuffer, PATH_BUFFER_SIZE);
+				wchar_t szNameBuffer[PATH_BUFFER_SIZE] = {0};
+				FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELDIR, PATH_BUFFER_SIZE, (LONG_PTR) szNameBuffer);
+				IncludeTrailingPathDelim(szNameBuffer, PATH_BUFFER_SIZE);
 
 				PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL));
 				if (PPI)
 				{
 					FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, (LONG_PTR)PPI);
-					wcscat_s(szFullNameBuffer, PATH_BUFFER_SIZE, PPI->FindData.lpwszFileName);
+					wcscat_s(szNameBuffer, PATH_BUFFER_SIZE, PPI->FindData.lpwszFileName);
 					free(PPI);
 
-					fpres = (DWORD) wcslen(szFullNameBuffer);
+					strFullSourcePath = szNameBuffer;
 				}
 			}
 	}
 
-	HANDLE hOpenResult = (fpres && (fpres < PATH_BUFFER_SIZE)) ? OpenStorage(szFullNameBuffer, false) : INVALID_HANDLE_VALUE;
+	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false) : INVALID_HANDLE_VALUE;
 
-	if (wszContainerSubpath != NULL && hOpenResult != INVALID_HANDLE_VALUE)
-		SetDirectoryW(hOpenResult, wszContainerSubpath, 0);
+	if ( (hOpenResult != INVALID_HANDLE_VALUE) && (strSubPath.size() > 0) )
+		SetDirectoryW(hOpenResult, strSubPath.c_str(), 0);
 
-	delete [] szFullNameBuffer;
 	return hOpenResult;
 }
 
