@@ -93,7 +93,7 @@ struct CItem
       s += NameU;
     else
       s += MultiByteToUnicodeString(NameA);
-    const int len = 9;
+    //const int len = 9;
     //if (s.Left(len).CompareNoCase(L"$INSTDIR\\") == 0)
       //s = s.Mid(len);
     return s;
