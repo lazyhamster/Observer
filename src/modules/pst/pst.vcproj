@@ -1037,7 +1037,7 @@
 			>
 		</Filter>
 		<Filter
-			Name="pastsdk"
+			Name="pstsdk"
 			>
 			<File
 				RelativePath=".\pstsdk\disk.h"

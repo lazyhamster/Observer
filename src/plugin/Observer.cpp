@@ -470,12 +470,12 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	InitDialogItem InitItems []={
 		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, (char*) GetLocMsg(MSG_EXTRACT_TITLE)},
 		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1},
-		/*2*/{DI_EDIT,	    5, 3, 53, 3, 0, 0, DIF_EDITEXPAND,0, (char*) params.strDestPath.c_str()},
+		/*2*/{DI_EDIT,	    5, 3, 53, 3, 1, 0, DIF_EDITEXPAND,0, (char*) params.strDestPath.c_str()},
 		/*3*/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, ""},
 		/*4*/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, (char*) GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
 		/*5*/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, (char*) GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
 		/*6*/{DI_TEXT,	    3, 7,  0, 7, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, ""},
-		/*7*/{DI_BUTTON,	0, 8,  0, 8, 1, 0, DIF_CENTERGROUP, 1, (char*) GetLocMsg(MSG_BTN_EXTRACT)},
+		/*7*/{DI_BUTTON,	0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 1, (char*) GetLocMsg(MSG_BTN_EXTRACT)},
 		/*8*/{DI_BUTTON,    0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 0, (char*) GetLocMsg(MSG_BTN_CANCEL)},
 	};
 	FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];

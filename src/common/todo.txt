@@ -7,3 +7,4 @@ ISO:
 
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)
+- Replace invalid characters in file/folder names.
