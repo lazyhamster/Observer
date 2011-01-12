@@ -1271,6 +1271,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\text\license.txt"
+				>
+			</File>
+			<File
 				RelativePath=".\text\observer.ini"
 				>
 			</File>
