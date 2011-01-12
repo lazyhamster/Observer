@@ -1,8 +1,9 @@
+m4_include(`version.m4')m4_dnl
 .Language=English,English
 .PluginContents=Observer
 
 @Contents
-$^#Observer 1.x#
+`$^#Observer' OBSERVER_VERSION`#'
 
  This plugins allows to browse several types of file containers.
  All formats support files listing and extraction.
