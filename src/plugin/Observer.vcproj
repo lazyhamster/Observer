@@ -1305,6 +1305,106 @@
 			<File
 				RelativePath="..\common\todo.txt"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-MD|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug-Unicode|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\version.m4"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="M4 Macro"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="M4 Macro"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-MD|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="M4 Macro"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug-Unicode|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="M4 Macro"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="M4 Macro"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="M4 Macro"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\text\whatsnew.txt"
