@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualStudioToolFile
+	Name="FAR Plugin Files"
+	Version="8,00"
+	>
+	<Rules>
+		<CustomBuildRule
+			Name="M4 Macro"
+			DisplayName="M4 Macro Processor"
+			CommandLine="m4 -P [AllOptions] [AdditionalOptions] [inputs] &gt; $(OutDir)\$(InputName)"
+			Outputs="$(OutDir)\$(InputName)"
+			FileExtensions="*.m4"
+			ExecutionDescription="Processing m4 script ($(InputFileName)) ..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+		<CustomBuildRule
+			Name="LNG"
+			DisplayName="Language File"
+			CommandLine="copy /y [Inputs] $(OutDir)\$(InputFileName) &gt; nul"
+			Outputs="$(OutDir)\$(InputFileName)"
+			FileExtensions="*.lng"
+			ExecutionDescription="Copying language file ($(InputFileName)) ..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+		<CustomBuildRule
+			Name="DText"
+			DisplayName="Deployable Text Documents"
+			CommandLine="copy /y [Inputs] $(OutDir)\$(InputFileName) &gt; nul"
+			Outputs="$(OutDir)\$(InputFileName)"
+			FileExtensions="*.txt;*.ini"
+			ExecutionDescription="Copying text file ($(InputFileName)) ..."
+			>
+			<Properties>
+			</Properties>
+		</CustomBuildRule>
+	</Rules>
+</VisualStudioToolFile>

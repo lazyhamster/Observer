@@ -17,6 +17,9 @@
 		/>
 	</Platforms>
 	<ToolFiles>
+		<ToolFile
+			RelativePath="..\plug-files.rules"
+		/>
 	</ToolFiles>
 	<Configurations>
 		<Configuration
@@ -31,7 +34,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -94,7 +106,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="echo N | xcopy .\text\observer.ini &quot;$(OutDir)\&quot;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -109,7 +121,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -189,7 +210,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -253,7 +283,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy .\text\*.* &quot;$(OutDir)\&quot; /Y"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -269,7 +299,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -350,7 +389,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -414,7 +462,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy .\text\*.* &quot;$(OutDir)\&quot; /Y"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -430,7 +478,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -510,7 +567,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -573,7 +639,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="echo N | xcopy .\text\observer.ini &quot;$(OutDir)\&quot;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -588,7 +654,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -668,7 +743,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -732,7 +816,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy .\text\*.* &quot;$(OutDir)\&quot; /Y"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -748,7 +832,16 @@
 				Name="VCPreBuildEventTool"
 			/>
 			<Tool
+				Name="LNG"
+			/>
+			<Tool
+				Name="DText"
+			/>
+			<Tool
 				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="M4 Macro"
 			/>
 			<Tool
 				Name="VCXMLDataGeneratorTool"
@@ -1174,7 +1267,7 @@
 			ParseFiles="false"
 			>
 			<File
-				RelativePath=".\text\FILE_ID.DIZ"
+				RelativePath=".\text\FILE_ID.DIZ.m4"
 				>
 			</File>
 			<File
@@ -1182,11 +1275,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\text\ObserverEng.hlf"
+				RelativePath=".\text\ObserverEng.hlf.m4"
 				>
 			</File>
 			<File
 				RelativePath=".\text\ObserverEng.lng"
+				>
+			</File>
+			<File
+				RelativePath=".\text\ObserverRus.hlf.m4"
 				>
 			</File>
 			<File
