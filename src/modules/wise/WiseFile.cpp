@@ -375,70 +375,11 @@ bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 			if (rec->fileCRC == infoBuf->CRC32 || rec->fileCRC == 0)
 			{
 				MultiByteToWideChar(CP_ACP, 0, rec->fileName, -1, infoBuf->FileName, MAX_PATH);
-				FixNameDuplicates(infoBuf);
-
 				return true;
 			}
 		}
 		pos++;
 	}
 
-	return false;
-}
-
-static void InsertNumberInFileName(wchar_t* name, size_t nameMax, int val)
-{
-	wchar_t* lastDot = wcsrchr(name, '.');
-	wchar_t* lastSlash = wcsrchr(name, '\\');
-
-	wchar_t tmpBuf[MAX_PATH] = {0};
-	if (lastDot != NULL && *lastDot && *(lastDot+1) && lastDot > lastSlash)
-	{
-		*lastDot = 0;
-		swprintf_s(tmpBuf, MAX_PATH, L"%s,%d.%s", name, val, lastDot + 1);
-	}
-	else
-	{
-		swprintf_s(tmpBuf, MAX_PATH, L"%s,%d", name, val);
-	}
-
-	wcscpy_s(name, nameMax, tmpBuf);
-}
-
-void CWiseFile::FixNameDuplicates( WiseFileRec *infoBuf )
-{
-	size_t dupIndex;
-	
-	// If this is first duplicate
-	if (FindRecordByName(infoBuf->FileName, &dupIndex))
-	{
-		int fileIndex = 2;
-		int totalFiles = (int) m_vFileList.size();
-		wchar_t tmpBuf[MAX_PATH];
-
-		do
-		{
-			wcscpy_s(tmpBuf, MAX_PATH, infoBuf->FileName);
-			InsertNumberInFileName(tmpBuf, MAX_PATH, fileIndex);
-			if (!FindRecordByName(tmpBuf, &dupIndex)) break;
-
-			fileIndex++;
-		} while (fileIndex <= totalFiles);
-
-		InsertNumberInFileName(infoBuf->FileName, MAX_PATH, fileIndex);
-	}
-}
-
-bool CWiseFile::FindRecordByName( const wchar_t* fileName, size_t* foundIndex )
-{
-	for (size_t i = 0; i < m_vFileList.size(); i++)
-	{
-		WiseFileRec &nextRec = m_vFileList[i];
-		if (wcscmp(nextRec.FileName, fileName) == 0)
-		{
-			if (foundIndex) *foundIndex = i;
-			return true;
-		}
-	}
 	return false;
 }

@@ -13,6 +13,8 @@ private:
 	ContentTreeNode* insertDummyDirectory(const wchar_t *name);
 
 	ContentTreeNode* GetSubDir(const wchar_t* name);
+	
+	void AddFile(ContentTreeNode* child);
 
 public:
 	int storageIndex;

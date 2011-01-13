@@ -140,28 +140,6 @@ UString CInArchive::ReadStringU(UInt32 pos) const
   return s;
 }
 
-static void AppendIntToName(CItem &item, UInt32 value)
-{
-	AString strAppendix = ',' + IntToString(value);
-	
-	if (item.IsUnicode)
-	{
-		int nExtPos = item.NameU.ReverseFind(L'.');
-		if (nExtPos > 0)
-			item.NameU.Insert(nExtPos, MultiByteToUnicodeString(strAppendix));
-		else
-			item.NameU += MultiByteToUnicodeString(strAppendix);
-	}
-	else
-	{
-		int nExtPos = item.NameA.ReverseFind(L'.');
-		if (nExtPos > 0)
-			item.NameA.Insert(nExtPos, strAppendix);
-		else
-			item.NameA += strAppendix;
-	}
-}
-
 /*
 static AString ParsePrefix(const AString &prefix)
 {
@@ -1274,29 +1252,6 @@ void CInArchive::PostProcess()
 				item.PrefixA.Empty();
 		}
 	}
-
-	// Avoid duplicate names in same folder
-	for (int i = 0; i + 1 < Items.Size(); i++)
-	{
-		CItem &item = Items[i];
-		UInt32 nDupCounter = 1;
-		for (int j = i + 1; j < Items.Size(); j++)
-		{					   
-			CItem &item_next = Items[j];
-
-			UString sName1 = item.GetReducedName(IsUnicode);
-			UString sName2 = item_next.GetReducedName(IsUnicode);
-			
-			bool sameName = sName1.CompareNoCase(sName2) == 0;
-			if (sameName)
-			{
-				nDupCounter++;
-				AppendIntToName(item_next, nDupCounter);
-			}
-		}  // for
-		if (nDupCounter > 1)
-			AppendIntToName(item, 1);
-	} // for
 }
 
 }}

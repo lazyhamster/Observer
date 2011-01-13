@@ -29,7 +29,7 @@ MsiSpecialFoderDesc MsiSpecialFolders[] = {
 	{L"DesktopFolder", L"Deskto~1"},			//The full path to the Desktop folder.
 	{L"FavoritesFolder", L"Favori~1"},			//The full path to the Favorites folder for the current user.
 	{L"FontsFolder", L"FontsF~1"},				//The full path to the Fonts folder.
-	{L"LocalAppDataFolder", L"LocalA~1"},		//The full path to the folder that contains local (nonroaming) applications. 
+	{L"LocalAppDataFolder", L"LocalA~1"},		//The full path to the folder that contains local (non-roaming) applications. 
 	{L"MyPicturesFolder", L"MyPict~1"},			//The full path to the Pictures folder.
 	{L"PersonalFolder", L"Person~1"},			//The full path to the Documents folder for the current user.
 	{L"ProgramFiles64Folder", L"Progra~1"},		//The full path to the predefined 64-bit Program Files folder.
@@ -102,10 +102,7 @@ int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 	removeEmptyFolders(m_pRootDir, mCreateFolder);
 	mergeDotFolders(m_pRootDir);
 	checkShortNames(m_pRootDir);
-	if ((openFlags & MSI_OPENFLAG_KEEPUNIQUEDIRS) != 0)
-		avoidSameFolderNames(m_pRootDir);
-	else
-		mergeSameNamedFolders(m_pRootDir);
+	mergeSameNamedFolders(m_pRootDir);
 
 	mCreateFolder.clear();
 	mComponents.clear();
@@ -400,42 +397,6 @@ void CMsiViewer::mergeDotFolders( DirectoryNode *root )
 	} //for
 }
 
-void CMsiViewer::avoidSameFolderNames(DirectoryNode *root)
-{
-	int nSameCounter;
-	size_t nMaxCounter = root->SubDirs.size();
-	for (size_t i = 0; i < nMaxCounter; i++)
-	{
-		DirectoryNode* subdir = root->SubDirs.at(i);
-		
-		nSameCounter = 1;
-		for (size_t inner_i = i + 1; inner_i < nMaxCounter; inner_i++)
-		{
-			DirectoryNode* nextdir = root->SubDirs.at(inner_i);
-			if (_wcsicmp(subdir->TargetName, nextdir->TargetName) == 0)
-			{
-				if ((nextdir->SubDirs.size() > 0) || (nextdir->Files.size() > 0))
-				{
-					nSameCounter++;
-					nextdir->AppendNumberToName(nSameCounter);
-				}
-				else
-				{
-					root->SubDirs.erase(root->SubDirs.begin() + inner_i);
-					inner_i--;
-					nMaxCounter--;
-					delete nextdir;
-				}
-			}
-		}  //for
-
-		if (nSameCounter > 1)
-			subdir->AppendNumberToName(1);
-
-		avoidSameFolderNames(subdir);
-	} //for
-}
-
 void CMsiViewer::checkShortNames(DirectoryNode *root)
 {
 	for (vector<DirectoryNode*>::iterator iter = root->SubDirs.begin(); iter != root->SubDirs.end();)
@@ -493,8 +454,6 @@ void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
 				delete nextdir;
 			}
 		} // inner for
-
-		avoidSameFileNames(subdir);
 	} //for
 
 	// Second pass to merge everything inside sub-folders again
@@ -503,30 +462,6 @@ void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
 		DirectoryNode* subdir = root->SubDirs[i];
 		mergeSameNamedFolders(subdir);
 	}
-}
-
-void CMsiViewer::avoidSameFileNames(DirectoryNode *root)
-{
-	int nSameCounter;
-	size_t nMaxCounter = root->Files.size();
-	for (size_t i = 0; i < nMaxCounter; i++)
-	{
-		FileNode* file = root->Files[i];
-
-		nSameCounter = 1;
-		for (size_t inner_i = i + 1; inner_i < nMaxCounter; inner_i++)
-		{
-			FileNode* nextfile = root->Files[inner_i];
-			if (_wcsicmp(file->TargetName, nextfile->TargetName) == 0)
-			{
-				nSameCounter++;
-				nextfile->AppendNumberToName(nSameCounter);
-			}
-		}  //for
-
-		if (nSameCounter > 1)
-			file->AppendNumberToName(1);
-	} //for
 }
 
 int CMsiViewer::generateInfoText()

@@ -100,14 +100,16 @@ bool ContentTreeNode::AddChild(wchar_t* path, ContentTreeNode* child)
 	}
 	else
 	{
-		SubNodesMap &targetMap = child->IsDir() ? subdirs : files;
-		
-		// Check for duplicates
-		if (targetMap.find(path) != targetMap.end())
-			return false;
-
 		child->parent = this;
-		targetMap.insert(pair<wstring, ContentTreeNode* > (child->data.cFileName, child));
+		if (child->IsDir())
+		{
+			if (!GetSubDir(path))
+				subdirs.insert(pair<wstring, ContentTreeNode* > (child->data.cFileName, child));
+		}
+		else
+		{
+			AddFile(child);
+		}
 	}
 
 	return true;
@@ -180,4 +182,35 @@ size_t ContentTreeNode::GetSubDirectoriesNum( bool recursive )
 			nres += citer->second->GetSubDirectoriesNum(recursive);
 	}
 	return nres;
+}
+
+void ContentTreeNode::AddFile( ContentTreeNode* child )
+{
+	wchar_t *nameBuf = child->data.cFileName;
+
+	// If file with same name already exists in the directory then append number to name
+	if (files.find(nameBuf) != files.end())
+	{
+		int nDupCounter = 1;
+		wchar_t tmpBuf[MAX_PATH];
+		wchar_t* extPtr = wcsrchr(nameBuf, '.');
+
+		do 
+		{
+			nDupCounter++;
+			if (extPtr)
+			{
+				*extPtr = 0;
+				swprintf_s(tmpBuf, MAX_PATH, L"%s,%d.%s", nameBuf, nDupCounter, extPtr+1);
+			}
+			else
+			{
+				swprintf_s(tmpBuf, MAX_PATH, L"%s,%d", nameBuf, nDupCounter);
+			}
+		} while (files.find(tmpBuf) != files.end());
+
+		wcscpy_s(nameBuf, MAX_PATH, tmpBuf);
+	} //if
+
+	files.insert(pair<wstring, ContentTreeNode*> (nameBuf, child));
 }

@@ -40,8 +40,6 @@ private:
 	int assignParentDirs(DirectoryNodesMap &nodemap, bool processSpecialDirs);
 	void removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolders);
 	void mergeDotFolders(DirectoryNode *root);
-	void avoidSameFolderNames(DirectoryNode *root);
-	void avoidSameFileNames(DirectoryNode *root);
 	void checkShortNames(DirectoryNode *root);
 	void mergeSameNamedFolders(DirectoryNode *root);
 

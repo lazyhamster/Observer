@@ -54,28 +54,6 @@ BasicNode::~BasicNode()
 	KILLSTR(TargetShortName);
 }
 
-void BasicNode::AppendNumberToName(int val)
-{
-	if (val > 1000) return; // Safety check
-	
-	size_t nNewLen = wcslen(TargetName) + 5;  // 1 for comma, 1 for 0-term, 3 for digits
-	wchar_t *newName = (wchar_t *) malloc(nNewLen * sizeof(wchar_t));
-
-	wchar_t* extPos = wcsrchr(TargetName, L'.');
-	if (extPos)
-	{
-		*extPos = 0;
-		swprintf_s(newName, nNewLen, L"%s,%d.%s", TargetName, val, extPos + 1);
-	}
-	else
-	{
-		swprintf_s(newName, nNewLen, L"%s,%d", TargetName, val);
-	}
-	
-	KILLSTR(TargetName);
-	TargetName = newName;
-}
-
 //////////////////////////////////////////////////////////////////////////
 //                           DirectoryNode
 //////////////////////////////////////////////////////////////////////////

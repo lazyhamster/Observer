@@ -30,8 +30,6 @@ public:
 	virtual wstring GetTargetPath() = 0;
 	virtual __int64 GetSize() = 0;
 
-	void AppendNumberToName(int val);
-
 	bool IsDir() { return (Attributes & FILE_ATTRIBUTE_DIRECTORY) > 0; };
 };
 

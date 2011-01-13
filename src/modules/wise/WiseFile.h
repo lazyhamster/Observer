@@ -27,8 +27,6 @@ private:
 	bool FindReal(int approxOffset, bool isPkZip, int &realOffset);
 
 	bool TryResolveFileName(WiseFileRec *infoBuf);
-	void FixNameDuplicates(WiseFileRec *infoBuf);
-	bool FindRecordByName(const wchar_t* fileName, size_t* foundIndex);
 
 public:
 	CWiseFile();
