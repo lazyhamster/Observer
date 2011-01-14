@@ -5,51 +5,51 @@
 @Contents
 `$^#Observer' OBSERVER_VERSION`#'
 
- This plugins allows to browse several types of file containers.
- All formats support files listing and extraction.
+ Этот плагин позволяет просмотривать файлы для контейнеров различных типов.
+ Все поддерживаемые форматы допускают просмотр списков файлов и их извлечение.
 
- Supported file formats:
- - #MSI# installation packages
- - #NSIS# installation packages
- - #UDF# (ISO 13346) images
- - CD disk images : #ISO-9660# (incl. Joliet), #CUE/BIN#, #MDF/MDS#
- - Volition Pack V2 files (from Freespace 1/2/Open)
+ Список поддерживаемых форматов:
+ - Установочные пакеты #MSI#
+ - Установочные пакеты #NSIS#
+ - Образы #UDF# (ISO 13346)
+ - Образы CD дисков : #ISO-9660# (вкл. Joliet), #CUE/BIN#, #MDF/MDS#
+ - Файлы Volition Pack V2 (из игр Freespace 1/2/Open)
  - Egosoft packages (for X-series games)
- - MIME containers
- - MS Outlook databases
- - #WISE# Installer packages
+ - Контейнеры MIME
+ - Почтовые базы MS Outlook
+ - Установочные пакеты #WISE#
 
  (c) 2009-2010, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
- Contact E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@
+ Контактный E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@
 
 @ObserverConfig
-$ #Observer configuration#
-    In this dialog you may change following parameters:
+$ #Конфигурация Observer-а#
+    В этом диалоге можно изменять следующие параметры:
 
  #Enable plugin#
- Enables / Disables plugin's reaction to Enter and Ctrl-PgDn.
- This option does not affect plugins menu (F11).
+ Включает / Отключает реакцию плагина на Enter и Ctrl-PgDn.
+ Эта опция не влияет на меню плагинов (F11).
 
  #Use prefix#
- Enables / Disables reaction on prefix.
+ Включает / Отключает использование префикса плагина.
  
  #Prefix value#
- Text that will be used as prefix (32 chars max).
+ Задает значение префикса плагина (32 символа максимум).
  
 @ObserverExtract
-$ #Extracting files#
-    In this dialog you may enter destination path for extraction and change several parameters
+$ #Извлечение файлов#
+    В данном диалоге можно настраивать различные параметры извлечения файлов.
 
  #Overwrite existing files#
- Controls files overwriting (3-state).
- [ ] - skip extraction if file already exists,
- [x] - overwrite existing files,
- [?] - ask. 
+ Задает поведение для перезаписи существующих файлов.
+ [ ] - пропускать файлы которые уже существуют,
+ [x] - перезаписывать существующие файлы,
+ [?] - спрашивать (значение по умолчанию). 
 
  #Keep paths#
- Controls the way plugin processes file paths stored inside container (3-state).
- [ ] - all files will be extracted to same directory,
- [x] - keep full path from container root,
- [?] - keep path relative to current directory inside container.
+ Задает поведение плагина при формировании путей для файлов.
+ [ ] - извлечь все файлы в существующий каталог,
+ [x] - сохранять полные пути файлов в контейнере начиная с корня,
+ [?] - сохранять пути файлов в контейнере начиная с текущего каталога (значение по умолчанию).
