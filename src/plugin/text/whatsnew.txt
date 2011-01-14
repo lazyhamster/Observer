@@ -1,5 +1,9 @@
 Changes history:
 
+1.6.6
+- Significantly improved loading speed for NSIS archives with large number of files inside.
+- Minor tweaks.
+
 1.6.5
 - Improved extraction dialog.
 - RELIC: Added support for game series Company of Heroes and Warhammer 40k DoW 1/2
