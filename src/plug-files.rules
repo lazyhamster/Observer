@@ -9,6 +9,7 @@
 			DisplayName="M4 Macro Processor"
 			CommandLine="m4 -P [AllOptions] [AdditionalOptions] [inputs] &gt; $(OutDir)\$(InputName)"
 			Outputs="$(OutDir)\$(InputName)"
+			AdditionalDependencies="version.m4"
 			FileExtensions="*.m4"
 			ExecutionDescription="Processing m4 script ($(InputFileName)) ..."
 			>
