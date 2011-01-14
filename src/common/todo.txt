@@ -1,8 +1,3 @@
-Plugin:
-- move duplicate file renaming to plugin (remove from modules)
-- add russian help file
-- use m4 for files with version string inside
-
 MSI:
 - extract progress
 - fix problem with real file and non showing the special folders mode
@@ -13,3 +8,6 @@ ISO:
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)
 - Replace invalid characters in file/folder names.
+
+WISE:
+- Handle false positives on sfx zip archives.
