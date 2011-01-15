@@ -409,7 +409,16 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	if (strTargetDir.length() > 0)
 	{
 		if (!ForceDirectoryExist(strTargetDir.c_str()))
+		{
+			if (!silent)
+			{
+				char tmpPathBuf[MAX_PATH] = {0};
+				WideCharToMultiByte(CP_FAR_INTERNAL, 0, strTargetDir.c_str(), -1, tmpPathBuf, MAX_PATH, NULL, NULL);
+				DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, tmpPathBuf);
+			}
+			
 			return FALSE;
+		}
 	}
 
 	ProgressContext* pctx = (ProgressContext*) callbackContext;

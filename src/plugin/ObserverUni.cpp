@@ -408,7 +408,12 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	if (strTargetDir.length() > 0)
 	{
 		if (!ForceDirectoryExist(strTargetDir.c_str()))
+		{
+			if (!silent)
+				DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, strTargetDir.c_str());
+
 			return SER_ERROR_WRITE;
+		}
 	}
 
 	ProgressContext* pctx = (ProgressContext*) callbackContext;
