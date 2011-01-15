@@ -2,6 +2,7 @@ Changes history:
 
 1.6.6
 - Significantly improved loading speed for NSIS archives with large number of files inside.
+- PST: Rename invalid characters in generated path names.
 - Minor tweaks.
 
 1.6.5
