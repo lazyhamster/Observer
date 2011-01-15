@@ -3,6 +3,21 @@
 
 using namespace std;
 
+static bool IsValidPathChar(wchar_t ch)
+{
+	return (ch != ':') && (ch != '*') && (ch != '?') && (ch != '"')
+		&& (ch != '<') && (ch != '>') && (ch != '|');
+}
+
+static void RenameInvalidPathChars(wstring& input)
+{
+	for (size_t i = 0; i < input.length(); i++)
+	{
+		if (!IsValidPathChar(input[i]))
+			input[i] = '_';
+	}
+}
+
 bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &parentPath, int &NoNameCounter)
 {
 	try {
@@ -33,6 +48,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L"Message%d.eml", ++NoNameCounter);
 				strFileName = buf;
 			}
+			RenameInvalidPathChars(strFileName);
 
 			PstFileEntry fentry;
 			fentry.Type = fileInfoObj->ExpandEmlFile ? ETYPE_FOLDER : ETYPE_EML;
