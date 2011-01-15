@@ -906,7 +906,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy .\text\*.* &quot;$(OutDir)\&quot; /Y"
+				CommandLine=""
 			/>
 		</Configuration>
 	</Configurations>
