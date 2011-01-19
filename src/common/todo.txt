@@ -1,3 +1,7 @@
+General:
+- add extract progress where it is possible
+- change console title on extraction like FAR copy operation
+
 MSI:
 - extract progress
 - fix problem with real file and non showing the special folders mode
@@ -11,3 +15,6 @@ PST:
 
 WISE:
 - Handle false positives on sfx zip archives.
+
+MIME:
+- display real file sizes
