@@ -90,6 +90,9 @@ int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 	// Get File entry list
 	OK ( readFiles(mDirs, mComponents) );
 
+	// List all embedded binary streams as files
+	OK ( readEmbeddedFiles(mDirs) );
+
 	// Assign parent nodes (only after all entries are processed)
 	// Should be done only after files are read to remove empty special folder refs
 	OK ( assignParentDirs(mDirs, (openFlags & MSI_OPENFLAG_SHOWSPECIALS) != 0) );
@@ -284,6 +287,52 @@ int CMsiViewer::readCreateFolder(WStringMap &entries)
 
 		if (dir[0])
 			entries[dir] = component;
+	}
+
+	return ERROR_SUCCESS;
+}
+
+int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
+{
+	UINT res;
+	PMSIHANDLE hQueryBinaries;
+
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Binary", &hQueryBinaries) );
+	OK( MsiViewExecute(hQueryBinaries, 0) );
+
+	// Add base dir for fake embedded files
+	DirectoryEntry dirEntry = {0};
+	wcscpy_s(dirEntry.Key, sizeof(dirEntry.Key) / sizeof(dirEntry.Key[0]), L"$embedded-v07g1k$");
+	wcscpy_s(dirEntry.DefaultName, sizeof(dirEntry.DefaultName) / sizeof(dirEntry.DefaultName[0]), L"$embedded$");
+	
+	DirectoryNode *dirNode = new DirectoryNode();
+	if (dirNode->Init(&dirEntry, false))
+		nodemap[dirEntry.Key] = dirNode;
+
+	wchar_t name[128];
+
+	// Retrieve all component entries
+	PMSIHANDLE hBinRec;
+	DWORD nCellSize;
+	while ((res = MsiViewFetch(hQueryBinaries, &hBinRec)) != ERROR_NO_MORE_ITEMS)
+	{
+		OK(res);
+
+		READ_STR(hBinRec, 1, name);
+		
+		// Cache entire stream content in memory
+		DWORD nStreamSize = MsiRecordDataSize(hBinRec, 2);
+		char* pStreamData = (char*) malloc(nStreamSize);
+		MsiRecordReadStream(hBinRec, 2, pStreamData, &nStreamSize);
+
+		FileNode *embFile = new FileNode();
+		embFile->TargetName = _wcsdup(name);
+		embFile->TargetShortName = _wcsdup(L"");
+		embFile->Attributes = 0;
+		embFile->IsFake = true;
+		embFile->FileSize = nStreamSize;
+		embFile->FakeFileContent = pStreamData;
+		dirNode->AddFile(embFile);
 	}
 
 	return ERROR_SUCCESS;

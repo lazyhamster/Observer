@@ -36,6 +36,7 @@ private:
 	int readMediaSources();
 	int readAppSearch(WStringMap &entries);
 	int readCreateFolder(WStringMap &entries);
+	int readEmbeddedFiles(DirectoryNodesMap &nodemap);
 
 	int assignParentDirs(DirectoryNodesMap &nodemap, bool processSpecialDirs);
 	void removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolders);
