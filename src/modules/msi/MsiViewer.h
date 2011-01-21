@@ -49,6 +49,7 @@ private:
 	int dumpFeatures(wstringstream &sstr);
 	int dumpShortcuts(wstringstream &sstr);
 	int dumpProperties(wstringstream &sstr);
+	int dumpServices(wstringstream &sstr);
 
 	wstring getStoragePath();
 	int cacheInternalStream(const wchar_t* streamName);

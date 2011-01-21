@@ -528,6 +528,11 @@ int CMsiViewer::generateInfoText()
 	sstr << L"[Shortcuts]" << endl;
 	OK ( dumpShortcuts(sstr) );
 
+	// Services list
+	sstr << endl;
+	sstr << L"[Installable Services]" << endl;
+	OK ( dumpServices(sstr) );
+
 	// Properties
 	sstr << endl;
 	sstr << L"[Properties]" << endl;
@@ -717,6 +722,54 @@ int CMsiViewer::dumpProperties(wstringstream &sstr)
 
 		if (wszPropertyName[0])
 			sstr << wszPropertyName << L" = " << wszPropertyData << endl;
+	}
+
+	return ERROR_SUCCESS;
+}
+
+int CMsiViewer::dumpServices(wstringstream &sstr)
+{
+	UINT res;
+	PMSIHANDLE hQuerySvc;
+
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM ServiceInstall", &hQuerySvc) );
+	OK( MsiViewExecute(hQuerySvc, 0) );
+
+	wchar_t wszSvcName[512];
+	wchar_t wszSvcDisplayName[512];
+	wchar_t wszSvcStartArgs[256];
+	wchar_t wszSvcComponent[128];
+	wchar_t wszSvcDescription[1024];
+
+	// Retrieve all feature entries
+	PMSIHANDLE hSvcRec;
+	DWORD nCellSize;
+	while ((res = MsiViewFetch(hQuerySvc, &hSvcRec)) != ERROR_NO_MORE_ITEMS)
+	{
+		OK(res);
+
+		READ_STR(hSvcRec, 2, wszSvcName);
+		READ_STR(hSvcRec, 3, wszSvcDisplayName);
+		int nSvcType = MsiRecordGetInteger(hSvcRec, 4);
+		READ_STR(hSvcRec, 11, wszSvcStartArgs);
+		READ_STR(hSvcRec, 12, wszSvcComponent);
+		READ_STR(hSvcRec, 13, wszSvcDescription);
+
+		sstr << wszSvcName << endl;
+		if (wcscmp(wszSvcName, wszSvcDisplayName) != 0 && wszSvcDisplayName[0])
+			sstr << L"\tDisplay Name: " << wszSvcDisplayName << endl;
+		if (wszSvcDescription[0] && wcscmp(wszSvcDescription, L"[~]") != 0)
+			sstr << L"\tDescription: " << wszSvcDescription << endl;
+		if (wszSvcComponent[0])
+			sstr << L"\tCommand: " << wszSvcComponent << L" " << wszSvcStartArgs << endl;
+
+		sstr << L"\tStart Type:";
+		if (nSvcType & SERVICE_WIN32_OWN_PROCESS) sstr << L" SERVICE_WIN32_OWN_PROCESS";
+		if (nSvcType & SERVICE_WIN32_SHARE_PROCESS) sstr << L" SERVICE_WIN32_SHARE_PROCESS";
+		if (nSvcType & SERVICE_INTERACTIVE_PROCESS) sstr << L" SERVICE_INTERACTIVE_PROCESS";
+		if (nSvcType & SERVICE_KERNEL_DRIVER) sstr << L" SERVICE_KERNEL_DRIVER";
+		if (nSvcType & SERVICE_FILE_SYSTEM_DRIVER) sstr << L" SERVICE_FILE_SYSTEM_DRIVER";
+		sstr << endl;
 	}
 
 	return ERROR_SUCCESS;
