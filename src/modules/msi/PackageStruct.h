@@ -94,4 +94,22 @@ struct ShortcutEntry
 	// DescriptionResourceId I2
 };
 
+// Table: ServiceInstall
+struct ServiceInstallEntry
+{
+	// ServiceInstall s72
+	wchar_t Name[512];			// s255
+	wchar_t DisplayName[256];	// L255
+	int ServiceType;			// i4
+	int StartType;				// i4
+	// ErrorControl i4
+	// LoadOrderGroup S255
+	// Dependencies S255
+	wchar_t StartName[256];		// S255
+	wchar_t Password[256];		// S255
+	wchar_t Arguments[256];		// S255
+	wchar_t Component[128];		// s72
+	wchar_t Description[512];	// L255
+};
+
 #endif //_PACKAGE_STRUCT_H_

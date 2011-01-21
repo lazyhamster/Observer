@@ -303,7 +303,7 @@ int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 	// Add base dir for fake embedded files
 	DirectoryEntry dirEntry = {0};
 	wcscpy_s(dirEntry.Key, sizeof(dirEntry.Key) / sizeof(dirEntry.Key[0]), L"$embedded-v07g1k$");
-	wcscpy_s(dirEntry.DefaultName, sizeof(dirEntry.DefaultName) / sizeof(dirEntry.DefaultName[0]), L"$embedded$");
+	wcscpy_s(dirEntry.DefaultName, sizeof(dirEntry.DefaultName) / sizeof(dirEntry.DefaultName[0]), L"{embedded}");
 	
 	DirectoryNode *dirNode = new DirectoryNode();
 	if (dirNode->Init(&dirEntry, false))
@@ -784,11 +784,7 @@ int CMsiViewer::dumpServices(wstringstream &sstr)
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM ServiceInstall", &hQuerySvc) );
 	OK( MsiViewExecute(hQuerySvc, 0) );
 
-	wchar_t wszSvcName[512];
-	wchar_t wszSvcDisplayName[512];
-	wchar_t wszSvcStartArgs[256];
-	wchar_t wszSvcComponent[128];
-	wchar_t wszSvcDescription[1024];
+	ServiceInstallEntry siEntry;
 
 	// Retrieve all feature entries
 	PMSIHANDLE hSvcRec;
@@ -797,28 +793,40 @@ int CMsiViewer::dumpServices(wstringstream &sstr)
 	{
 		OK(res);
 
-		READ_STR(hSvcRec, 2, wszSvcName);
-		READ_STR(hSvcRec, 3, wszSvcDisplayName);
-		int nSvcType = MsiRecordGetInteger(hSvcRec, 4);
-		READ_STR(hSvcRec, 11, wszSvcStartArgs);
-		READ_STR(hSvcRec, 12, wszSvcComponent);
-		READ_STR(hSvcRec, 13, wszSvcDescription);
+		READ_STR(hSvcRec, 2, siEntry.Name);
+		READ_STR(hSvcRec, 3, siEntry.DisplayName);
+		siEntry.ServiceType = MsiRecordGetInteger(hSvcRec, 4);
+		siEntry.StartType = MsiRecordGetInteger(hSvcRec, 5);
+		READ_STR(hSvcRec, 9, siEntry.StartName);
+		READ_STR(hSvcRec, 10, siEntry.Password);
+		READ_STR(hSvcRec, 11, siEntry.Arguments);
+		READ_STR(hSvcRec, 12, siEntry.Component);
+		READ_STR(hSvcRec, 13, siEntry.Description);
 
-		sstr << wszSvcName << endl;
-		if (wcscmp(wszSvcName, wszSvcDisplayName) != 0 && wszSvcDisplayName[0])
-			sstr << L"\tDisplay Name: " << wszSvcDisplayName << endl;
-		if (wszSvcDescription[0] && wcscmp(wszSvcDescription, L"[~]") != 0)
-			sstr << L"\tDescription: " << wszSvcDescription << endl;
-		if (wszSvcComponent[0])
-			sstr << L"\tCommand: " << wszSvcComponent << L" " << wszSvcStartArgs << endl;
+		sstr << siEntry.Name << endl;
+		if (siEntry.DisplayName[0]) sstr << L"\tDisplay Name: " << siEntry.DisplayName << endl;
+		sstr << L"\tDescription: " << siEntry.Description << endl;
+		sstr << L"\tCommand: " << siEntry.Component << L" " << siEntry.Arguments << endl;
+
+		sstr << L"\tService Type:";
+		if (siEntry.ServiceType & SERVICE_WIN32_OWN_PROCESS) sstr << L" SERVICE_WIN32_OWN_PROCESS";
+		if (siEntry.ServiceType & SERVICE_WIN32_SHARE_PROCESS) sstr << L" SERVICE_WIN32_SHARE_PROCESS";
+		if (siEntry.ServiceType & SERVICE_INTERACTIVE_PROCESS) sstr << L" SERVICE_INTERACTIVE_PROCESS";
+		if (siEntry.ServiceType & SERVICE_KERNEL_DRIVER) sstr << L" SERVICE_KERNEL_DRIVER";
+		if (siEntry.ServiceType & SERVICE_FILE_SYSTEM_DRIVER) sstr << L" SERVICE_FILE_SYSTEM_DRIVER";
+		sstr << endl;
 
 		sstr << L"\tStart Type:";
-		if (nSvcType & SERVICE_WIN32_OWN_PROCESS) sstr << L" SERVICE_WIN32_OWN_PROCESS";
-		if (nSvcType & SERVICE_WIN32_SHARE_PROCESS) sstr << L" SERVICE_WIN32_SHARE_PROCESS";
-		if (nSvcType & SERVICE_INTERACTIVE_PROCESS) sstr << L" SERVICE_INTERACTIVE_PROCESS";
-		if (nSvcType & SERVICE_KERNEL_DRIVER) sstr << L" SERVICE_KERNEL_DRIVER";
-		if (nSvcType & SERVICE_FILE_SYSTEM_DRIVER) sstr << L" SERVICE_FILE_SYSTEM_DRIVER";
+		if (siEntry.StartType & SERVICE_AUTO_START) sstr << L" Automatic";
+		else if (siEntry.StartType & SERVICE_DEMAND_START) sstr << L" Manual";
+		else if (siEntry.StartType & SERVICE_DISABLED) sstr << L" Disabled";
+		else if (siEntry.StartType & SERVICE_BOOT_START) sstr << L" Boot Start";
+		else if (siEntry.StartType & SERVICE_SYSTEM_START) sstr << L" System Start";
+		else sstr << L" Unknown";
 		sstr << endl;
+
+		sstr << L"\tAccount: " << (siEntry.StartName[0] ? siEntry.StartName : L"[LocalSystem]") << endl;
+		if (siEntry.Password[0]) sstr << L"\tPassword: " << siEntry.Password << endl;
 	}
 
 	return ERROR_SUCCESS;
