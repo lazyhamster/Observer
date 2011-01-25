@@ -90,7 +90,6 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 			return TRUE;
 		}
 
-		delete storeObj;
 		delete objInfo;
 	}
 	catch(...) {}
