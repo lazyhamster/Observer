@@ -5,8 +5,7 @@ using namespace std;
 
 static bool IsValidPathChar(wchar_t ch)
 {
-	return (ch != ':') && (ch != '*') && (ch != '?') && (ch != '"')
-		&& (ch != '<') && (ch != '>') && (ch != '|');
+	return (wcschr(L":*?\"<>|\\/", ch) == NULL);
 }
 
 static void RenameInvalidPathChars(wstring& input)
@@ -131,7 +130,14 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 
 					PstFileEntry fentry;
 					fentry.Type = ETYPE_ATTACHMENT;
-					fentry.Name = attach.get_filename();
+					try
+					{
+						fentry.Name = attach.get_filename();
+					}
+					catch(key_not_found<prop_id>&)
+					{
+						fentry.Name = L"noname.dat";
+					}
 					fentry.FullPath = strSubPath + fentry.Name;
 					fentry.Size = attach.content_size();
 					fentry.msgRef = new message(m);
