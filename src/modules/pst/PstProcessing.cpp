@@ -39,7 +39,9 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			wstring strFileName;
 			if (m.has_subject())
 			{
-				strFileName = m.get_subject() + L".eml";
+				wstring subj = m.get_subject();
+				if (subj.length() > 200) subj.erase(200);
+				strFileName = subj + L".eml";
 			}
 			else
 			{
@@ -133,6 +135,8 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 					try
 					{
 						fentry.Name = attach.get_filename();
+						if (fentry.Name.length() >= MAX_PATH)
+							fentry.Name.erase(MAX_PATH);
 					}
 					catch(key_not_found<prop_id>&)
 					{
