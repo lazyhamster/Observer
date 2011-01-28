@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <memory>
 #include <cassert>
+#include <functional>
 #include <boost/iterator/transform_iterator.hpp>
 #include <boost/iostreams/concepts.hpp>
 #ifdef _MSC_VER
