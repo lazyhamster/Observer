@@ -72,7 +72,7 @@ BEGIN
             VALUE "FileDescription", "Observer Plugin for FAR Manager"
             VALUE "FileVersion", "1, 6, 7, 0"
             VALUE "InternalName", "Observer"
-            VALUE "LegalCopyright", "Copyright (C) 2008-2010, Ariman"
+            VALUE "LegalCopyright", "Copyright (C) 2008-2011, Ariman"
             VALUE "OriginalFilename", "Observer.dll"
             VALUE "ProductName", "Observer"
             VALUE "ProductVersion", "1, 6, 7, 0"
