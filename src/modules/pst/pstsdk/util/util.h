@@ -129,7 +129,7 @@ inline pstsdk::file::file(const std::wstring& filename)
     const char* mode = "rb";
 
 #ifdef _MSC_VER 
-    errno_t err = fopen_s(&m_pfile, std::string(filename.begin(), filename.end()).c_str(), mode);
+	errno_t err = _wfopen_s(&m_pfile, filename.c_str(), L"rb");
     if(err != 0)
         m_pfile = NULL;
 #else
