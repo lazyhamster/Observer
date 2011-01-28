@@ -1337,15 +1337,16 @@ struct bth_header
 //! \tparam K The key type
 //! \sa [MS-PST] 2.3.2.2
 //! \ingroup disk_bthrelated
+#pragma pack(2)
 template<typename K>
 struct bth_nonleaf_entry
 {
     K key;        //!< Key of the lower level page
     heap_id page; //!< Heap id of the lower level page
 } PSTSDK_MS_STRUCT;
+#pragma pack()
 //! \cond static_asserts
-static_assert(sizeof(bth_nonleaf_entry<ulong>) == 8, "bth_nonleaf_entry<ulong> incorrect size");
-static_assert(sizeof(bth_nonleaf_entry<ulonglong>) == 16, "bth_nonleaf_entry<ulonglong> incorrect size");
+static_assert(sizeof(bth_nonleaf_entry<ushort>) == 6, "bth_nonleaf_entry<ushort> incorrect size");
 //! \endcond
 
 //! \brief Entries which make up a "leaf" BTH allocation
@@ -1425,6 +1426,9 @@ struct prop_entry
     heapnode_id id;  //$< Heapnode id for variable length properties, or the value directly for fixed size property types
 };
 #pragma pack()
+//! \cond static_asserts
+static_assert(sizeof(bth_leaf_entry<ushort, prop_entry>) == 8, "bth_leaf_entry<ushort, prop_entry> incorrect size");
+//! \endcond
 
 //! \brief Sub object
 //!

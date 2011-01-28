@@ -250,6 +250,14 @@ inline ulong get_heap_page(heap_id id)
 inline ulong get_heap_index(heap_id id)
     { return (((id >> 5) - 1) & 0x7FF); }
 
+//! \brief Create a heap_id from a page and an index
+//! \param[in] page The page
+//! \param[in] index The index
+//! \sa [MS-PST 2.3.1.1
+//! \ingroup primitive
+inline heap_id make_heap_id(ulong page, ulong index)
+    { return (heap_id)((page << 16) | ((index + 1) << 5)); }
+
 //
 // heapnode id
 //

@@ -382,7 +382,7 @@ public:
     const K& get_key(uint pos) const { return m_bth_info[pos].first; }
     bth_node<K,V>* get_child(uint pos);
     const bth_node<K,V>* get_child(uint pos) const;
-    uint num_values() const { return (uint) m_child_nodes.size(); }
+    uint num_values() const { return m_child_nodes.size(); }
 
 private:
     std::vector<std::pair<K, heap_id> > m_bth_info;
@@ -420,7 +420,7 @@ public:
     const K& get_key(uint pos) const
         { return m_bth_data[pos].first; }
     uint num_values() const
-        { return (uint) m_bth_data.size(); }
+        { return m_bth_data.size(); }
 
 private:
     std::vector<std::pair<K,V> > m_bth_data;
@@ -448,8 +448,8 @@ inline std::tr1::shared_ptr<pstsdk::bth_node<K,V> > pstsdk::bth_node<K,V>::open_
         throw std::logic_error("invalid entry size");
 #endif
 
-    if(pheader->num_levels > 1)
-        return open_nonleaf(h, pheader->root, pheader->num_levels-1);
+    if(pheader->num_levels > 0)
+        return open_nonleaf(h, pheader->root, pheader->num_levels);
     else
         return open_leaf(h, pheader->root);
 }
@@ -457,7 +457,7 @@ inline std::tr1::shared_ptr<pstsdk::bth_node<K,V> > pstsdk::bth_node<K,V>::open_
 template<typename K, typename V>
 inline std::tr1::shared_ptr<pstsdk::bth_nonleaf_node<K,V> > pstsdk::bth_node<K,V>::open_nonleaf(const heap_ptr& h, heap_id id, ushort level)
 {
-    size_t num_entries = h->size(id) / sizeof(disk::bth_nonleaf_entry<K>);
+    uint num_entries = h->size(id) / sizeof(disk::bth_nonleaf_entry<K>);
     std::vector<byte> buffer(h->size(id));
     disk::bth_nonleaf_node<K>* pbth_nonleaf_node = (disk::bth_nonleaf_node<K>*)&buffer[0];
     std::vector<std::pair<K, heap_id> > child_nodes;

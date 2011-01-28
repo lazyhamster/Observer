@@ -93,6 +93,10 @@ public:
     //! \returns The name of this folder
     std::wstring get_name() const
         { return m_bag.read_prop<std::wstring>(0x3001); }
+    //! \brief Get the number of unread messages in this folder
+    //! \returns The number of unread messages
+    size_t get_unread_message_count() const
+        { return m_bag.read_prop<slong>(0x3603); }
     //! \brief Get the number of messages in this folder
     //! \returns The number of messages
     size_t get_message_count() const
@@ -259,6 +263,9 @@ public:
     //! \brief Get the number of sub folders in this folder
     //! \returns The number of subfolders
     size_t get_subfolder_count() const
+        { return get_hierarchy_table().size(); } 
+    //! \copydoc search_folder::get_unread_message_count()
+    size_t get_unread_message_count() const
         { return m_bag.read_prop<slong>(0x3603); }
     //! \copydoc search_folder::get_message_count()
     size_t get_message_count() const

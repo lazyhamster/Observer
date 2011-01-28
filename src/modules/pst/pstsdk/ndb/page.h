@@ -139,7 +139,7 @@ public:
     const K& get_key(uint pos) const { return m_page_info[pos].first; }
     bt_page<K,V>* get_child(uint pos);
     const bt_page<K,V>* get_child(uint pos) const;
-    uint num_values() const { return (uint) m_child_pages.size(); }
+    uint num_values() const { return m_child_pages.size(); }
 
 private:
     std::vector<std::pair<K, page_info> > m_page_info;   //!< Information about the child pages
@@ -175,7 +175,7 @@ public:
     const K& get_key(uint pos) const
         { return m_page_data[pos].first; }
     uint num_values() const
-        { return (uint) m_page_data.size(); }
+        { return m_page_data.size(); }
 
 private:
     std::vector<std::pair<K,V> > m_page_data; //!< The key/value pairs on this leaf page
