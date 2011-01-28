@@ -1,6 +1,6 @@
 Observer
 Plug-in for FAR Manager 1.75+ / 2.0+
-Copyright: 2009-2010, Ariman
+Copyright: 2009-2011, Ariman
 
 -------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ MIME parsing library. Distributed under MIT license.
 Used as a reference, minor portions of code directly ported from Delphi to C++.
 
 3. System requirements.
-Minimal FAR versions are 1.75 build 2632 / 2.0 build 1666
+Minimal FAR versions are 1.75 build 2634 / 2.0 build 1777
 Windows Installer 4+ is required for MSI support.
 OS: Win2k+ (tested on WinXP and Win2003, but 2k should be suported too).
 

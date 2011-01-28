@@ -18,7 +18,7 @@ Supported file formats:
 - MS Outlook databases
 - WISE Installer packages
 
-(c) 2009-2010, Ariman
+(c) 2009-2011, Ariman
 -----------------------------------------
 Web-site: http://ariman.creiac.com
 E-mail for suggestions, bug reports, etc: ariman@inbox.ru
