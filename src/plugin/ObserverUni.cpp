@@ -116,6 +116,7 @@ static void SaveSettings()
 		regOpts.SetValue(L"Enabled", optEnabled);
 		regOpts.SetValue(L"UsePrefix", optUsePrefix);
 		regOpts.SetValue(L"Prefix", optPrefix);
+		regOpts.SetValue(L"UseExtensionFilters", optUseExtensionFilters);
 	}
 }
 

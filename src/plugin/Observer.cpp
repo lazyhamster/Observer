@@ -125,6 +125,7 @@ static void LoadSettings()
 	{
 		opList->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
 		opList->GetValue(L"ExtendedCurDir", optExtendedCurDir);
+		opList->GetValue(L"UseExtensionFilters", optUseExtensionFilters);
 		delete opList;
 	}
 
@@ -138,6 +139,7 @@ static void LoadSettings()
 
 		regOpts.GetValue("PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
 		regOpts.GetValue(L"ExtendedCurDir", optExtendedCurDir);
+		regOpts.GetValue(L"UseExtensionFilters", optUseExtensionFilters);
 	}
 }
 
@@ -149,6 +151,7 @@ static void SaveSettings()
 		regOpts.SetValue(L"Enabled", optEnabled);
 		regOpts.SetValue(L"UsePrefix", optUsePrefix);
 		regOpts.SetValue("Prefix", optPrefix);
+		regOpts.SetValue(L"UseExtensionFilters", optUseExtensionFilters);
 	}
 }
 
