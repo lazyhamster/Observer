@@ -25,6 +25,7 @@ static ModulesController g_pController;
 #define MAX_PREFIX_SIZE 32
 static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
+static int optUseExtensionFilters = TRUE;
 static char optPrefix[MAX_PREFIX_SIZE] = "observe";
 
 // Extended settings
@@ -556,13 +557,14 @@ void WINAPI ExitFAR(void)
 int WINAPI Configure(int ItemNumber)
 {
 	InitDialogItem InitItems []={
-		DI_DOUBLEBOX, 3,1, 36, 7, 0, 0, 0,0, (char*) GetLocMsg(MSG_CONFIG_TITLE),
-		DI_CHECKBOX,  5,2,  0, 2, 0, 0, 0,0, (char*) GetLocMsg(MSG_CONFIG_ENABLE),
-		DI_CHECKBOX,  5,3,  0, 2, 0, 0, 0,0, (char*) GetLocMsg(MSG_CONFIG_PREFIX),
-		DI_FIXEDIT,	  7,4, 17, 3, 0, 0, 0,0, "",
-		DI_TEXT,	  5,5,  0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
-		DI_BUTTON,	  0,6,  0, 7, 1, 0, DIF_CENTERGROUP,1,"OK",
-		DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP,0,(char*) GetLocMsg(MSG_BTN_CANCEL)
+	/*00*/ DI_DOUBLEBOX, 3,1, 40, 8, 0, 0, 0,0, (char*) GetLocMsg(MSG_CONFIG_TITLE),
+	/*01*/ DI_CHECKBOX,  5,2,  0, 2, 0, 0, 0,0, (char*) GetLocMsg(MSG_CONFIG_ENABLE),
+	/*02*/ DI_CHECKBOX,  5,3,  0, 2, 0, 0, 0,0, (char*) GetLocMsg(MSG_CONFIG_PREFIX),
+	/*03*/ DI_FIXEDIT,	 7,4, 17, 3, 0, 0, 0,0, "",
+	/*04*/ DI_CHECKBOX,  5,5,  0, 5, 0, 0, 0,0, (char*) GetLocMsg(MSG_CONFIG_USEEXTFILTERS),
+	/*05*/ DI_TEXT,		 5,6,  0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR,0,"",
+	/*06*/ DI_BUTTON,	 0,7,  0, 7, 1, 0, DIF_CENTERGROUP,1,"OK",
+	/*07*/ DI_BUTTON,    0,7,  0, 7, 0, 0, DIF_CENTERGROUP,0,(char*) GetLocMsg(MSG_BTN_CANCEL)
 	};
 	FarDialogItem DialogItems[sizeof(InitItems)/sizeof(InitItems[0])];
 
@@ -571,14 +573,16 @@ int WINAPI Configure(int ItemNumber)
 	DialogItems[1].Selected = optEnabled;
 	DialogItems[2].Selected = optUsePrefix;
 	strcpy_s(DialogItems[3].Data, sizeof(DialogItems[3].Data) / sizeof(DialogItems[3].Data[0]), optPrefix);
+	DialogItems[4].Selected = optUseExtensionFilters;
 
-	int ExitCode = FarSInfo.Dialog(FarSInfo.ModuleNumber, -1, -1, 40, 9, "ObserverConfig", DialogItems, sizeof(DialogItems)/sizeof(DialogItems[0]));
+	int ExitCode = FarSInfo.Dialog(FarSInfo.ModuleNumber, -1, -1, 44, 10, "ObserverConfig", DialogItems, sizeof(DialogItems)/sizeof(DialogItems[0]));
 
-	if ((ExitCode == 5) && (strlen(DialogItems[3].Data) < MAX_PREFIX_SIZE))
+	if ((ExitCode == 6) && (strlen(DialogItems[3].Data) < MAX_PREFIX_SIZE))
 	{
 		optEnabled = DialogItems[1].Selected != 0;
 		optUsePrefix = DialogItems[2].Selected != 0;
 		strcpy_s(optPrefix, MAX_PREFIX_SIZE, DialogItems[3].Data);
+		optUseExtensionFilters = DialogItems[4].Selected != 0;
 
 		SaveSettings();
 	
