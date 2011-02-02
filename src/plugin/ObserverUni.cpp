@@ -25,6 +25,7 @@ static ModulesController g_pController;
 #define MAX_PREFIX_SIZE 32
 static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
+static int optUseExtensionFilters = TRUE;
 static wchar_t optPrefix[MAX_PREFIX_SIZE] = L"observe";
 
 // Extended settings
@@ -89,6 +90,7 @@ static void LoadSettings()
 	{
 		opList->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
 		opList->GetValue(L"ExtendedCurDir", optExtendedCurDir);
+		opList->GetValue(L"UseExtensionFilters", optUseExtensionFilters);
 		delete opList;
 	}
 
@@ -102,6 +104,7 @@ static void LoadSettings()
 
 		regOpts.GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
 		regOpts.GetValue(L"ExtendedCurDir", optExtendedCurDir);
+		regOpts.GetValue(L"UseExtensionFilters", optUseExtensionFilters);
 	}
 }
 
@@ -622,22 +625,23 @@ void WINAPI ExitFARW(void)
 int WINAPI ConfigureW(int ItemNumber)
 {
 	FarDialogItem DialogItems []={
-		{DI_DOUBLEBOX, 3,1, 35, 7, 0, 0, 0,0, GetLocMsg(MSG_CONFIG_TITLE), 0},
-		{DI_CHECKBOX,  5,2,  0, 2, 1, optEnabled, 0,0, GetLocMsg(MSG_CONFIG_ENABLE), 0},
-		{DI_CHECKBOX,  5,3,  0, 2, 0, optUsePrefix, 0,0, GetLocMsg(MSG_CONFIG_PREFIX), 0},
-		{DI_FIXEDIT,   7,4, 20, 3, 0, 0, 0,0, optPrefix, 0},
-		{DI_TEXT,	   3,5,  0, 5, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
-		{DI_BUTTON,	   0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 1, L"OK", 0},
-		{DI_BUTTON,    0,6,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
+	/*00*/ {DI_DOUBLEBOX, 3,1, 40, 8, 0, 0, 0,0, GetLocMsg(MSG_CONFIG_TITLE), 0},
+	/*01*/ {DI_CHECKBOX,  5,2,  0, 2, 1, optEnabled, 0,0, GetLocMsg(MSG_CONFIG_ENABLE), 0},
+	/*02*/ {DI_CHECKBOX,  5,3,  0, 3, 0, optUsePrefix, 0,0, GetLocMsg(MSG_CONFIG_PREFIX), 0},
+	/*03*/ {DI_FIXEDIT,   8,4, 24, 4, 0, 0, 0,0, optPrefix, 0},
+	/*04*/ {DI_CHECKBOX,  5,5,  0, 5, 0, optUseExtensionFilters, 0,0, GetLocMsg(MSG_CONFIG_USEEXTFILTERS), 0},
+	/*05*/ {DI_TEXT,	  3,6,  0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
+	/*06*/ {DI_BUTTON,	  0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 1, L"OK", 0},
+	/*07*/ {DI_BUTTON,    0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
 	};
 
-	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 39, 9, L"ObserverConfig",
+	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 44, 10, L"ObserverConfig",
 		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, 0, FarSInfo.DefDlgProc, 0);
 
 	if (hDlg != INVALID_HANDLE_VALUE)
 	{
 		int ExitCode = FarSInfo.DialogRun(hDlg);
-		if (ExitCode == 5) // OK was pressed
+		if (ExitCode == 6) // OK was pressed
 		{
 			optEnabled = DlgHlp_GetCheckBoxState(hDlg, 1);
 			optUsePrefix = DlgHlp_GetCheckBoxState(hDlg, 2);
@@ -647,7 +651,7 @@ int WINAPI ConfigureW(int ItemNumber)
 		}
 		FarSInfo.DialogFree(hDlg);
 		
-		if (ExitCode == 5) return TRUE;
+		if (ExitCode == 6) return TRUE;
 	}
 
 	return FALSE;
@@ -720,7 +724,7 @@ HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, in
 	if (!Name || !optEnabled)
 		return INVALID_HANDLE_VALUE;
 
-	HANDLE hOpenResult = OpenStorage(Name, true);
+	HANDLE hOpenResult = OpenStorage(Name, optUseExtensionFilters != 0);
 	return hOpenResult;
 }
 

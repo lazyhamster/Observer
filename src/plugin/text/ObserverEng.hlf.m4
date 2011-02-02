@@ -37,6 +37,10 @@ $ #Observer configuration#
  
  #Prefix value#
  Text that will be used as prefix (32 chars max).
+
+ #Use extension filters#
+ Use extension filters when opening files with Enter/Ctrl-PgDn.
+ Filters can be set in configuration file.
  
 @ObserverExtract
 $ #Extracting files#
