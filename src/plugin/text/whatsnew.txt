@@ -1,6 +1,8 @@
 Changes history:
 
 1.6.7
+- You can now switch extension filters on/off in configuration dialog.
+- ISO: Added support for ISZ (comressed ISO).
 - MSI: Now embedded service files are shown.
 - PST: Fixed several sources of crashes.
 - PST: Fixed inability to open some files.
