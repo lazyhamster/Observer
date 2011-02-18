@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "iso_tc.h"
+#include "isz/iszsdk.h"
 
 const char ZipHeader[] = {'p', 'k'};
 const char RarHeader[] = {'r', 'a', 'r'};
@@ -51,36 +52,79 @@ static wchar_t* litoa( int num, int digits = 1 )
     return buffer + sizeof( buffer ) - max( i, digits );
 }
 
-DWORD ReadDataByPos( HANDLE file, LONGLONG position, DWORD size, void* data )
+static DWORD ReadRawDataByPos( HANDLE file, LONGLONG position, DWORD size, void* data )
 {
-    assert( file != 0 && file != INVALID_HANDLE_VALUE );
-    assert( data );
+	assert( file != 0 && file != INVALID_HANDLE_VALUE );
+	assert( data );
 
-    LONG low = LOWDWORD( position );
-    LONG high = HIDWORD( position );
-    
-    if( ((LONGLONG)SetFilePointer( file, low, &high, FILE_BEGIN ) + ((LONGLONG)high << 32)) != position )
-        return 0;
+	LONG low = LOWDWORD( position );
+	LONG high = HIDWORD( position );
 
-    DWORD read;
+	if( ((LONGLONG)SetFilePointer( file, low, &high, FILE_BEGIN ) + ((LONGLONG)high << 32)) != position )
+		return 0;
 
-    if( ReadFile( file, data, size, &read, 0 ) )
-        return read;
-    else
-        return 0;
+	DWORD read;
+
+	if( ReadFile( file, data, size, &read, 0 ) )
+		return read;
+	else
+		return 0;
 }
 
-LONGLONG GetBlockOffset( const IsoImage* image, DWORD block )
+static DWORD ReadIszDataByPos( HANDLE file, LONGLONG position, DWORD size, void* data )
+{
+	unsigned int sec_size = 0;
+	unsigned int secs_count = isz_get_capacity(file, &sec_size);
+
+	unsigned int start_sec = (unsigned int) (position / sec_size);
+	unsigned int read_sec_count = size / sec_size + 1;
+	if (start_sec >= secs_count || read_sec_count == 0)
+		return 0;
+
+	int bufDataOffset = (int) (position - start_sec * sec_size);
+	size_t bufReadSize = read_sec_count * sec_size;
+	// If we are reading at the start of the sector and reading amount of bytes aligned to sector size
+	// then do not allocate additional buffer
+	if (bufDataOffset == 0 && bufReadSize == size)
+	{
+		return isz_read_secs(file, data, start_sec, read_sec_count);
+	}
+	else
+	{
+		void* tmpBuf = malloc(bufReadSize);
+		DWORD readVal = isz_read_secs(file, tmpBuf, start_sec, read_sec_count);
+		
+		DWORD copySize = min(size, readVal);
+		memcpy(data, (char*)tmpBuf + bufDataOffset, copySize);
+		
+		free(tmpBuf);
+		return copySize;
+	}
+}
+
+static DWORD ReadDataByPos( const IsoImage* image, LONGLONG position, DWORD size, void* data )
+{
+    assert( image && size && data );
+	
+	switch (image->ImageType)
+	{
+		case ISOTYPE_RAW:
+			return ReadRawDataByPos(image->hFile, position, size, data);
+		case ISOTYPE_ISZ:
+			return ReadIszDataByPos(image->hFile, position, size, data);
+	}
+
+	return 0;
+}
+
+static LONGLONG GetBlockOffset( const IsoImage* image, DWORD block )
 {
     return (LONGLONG)(DWORD)block * (WORD)image->RealBlockSize + (image->HeaderSize ? image->HeaderSize : image->DataOffset);
 }
 
 DWORD ReadBlock( const IsoImage* image, DWORD block, DWORD size, void* data )
 {
-    //DebugString( "ReadBlock" );
-	assert( image && size && data );
-
-    return ReadDataByPos( image->hFile, GetBlockOffset( image, block ), size, data );
+    return ReadDataByPos( image, GetBlockOffset( image, block ), size, data );
 }
 
 static int ScanBootSections( const IsoImage* image, LONGLONG offset, SectionHeaderEntry* firstHeader, SectionEntry* entries )
@@ -97,7 +141,7 @@ static int ScanBootSections( const IsoImage* image, LONGLONG offset, SectionHead
 
         for( int i = 0; i < header.NumberOfSectionEntries; i++, offset += sizeof( entry ) )
         {
-            if( ReadDataByPos( image->hFile, offset, sizeof( entry ), &entry ) )
+            if( ReadDataByPos( image, offset, sizeof( entry ), &entry ) )
             {
                 if( entry.Entry.BootIndicator == 0x88 )
                 {
@@ -108,7 +152,7 @@ static int ScanBootSections( const IsoImage* image, LONGLONG offset, SectionHead
 
                 if( entry.Entry.BootMediaType & (1 << 5) )
                 { // next entry is extension
-                    for( ; ReadDataByPos( image->hFile, offset, sizeof( entry ), &entry ) &&
+                    for( ; ReadDataByPos( image, offset, sizeof( entry ), &entry ) &&
                            entry.Extension.ExtensionIndicator == 0x44                     &&
                            entry.Extension.Bits & (5 << 1); offset += sizeof( entry ) );
                 }
@@ -264,29 +308,37 @@ IsoImage* GetImage( const wchar_t* filename )
 {
     DebugString( "GetImage" );
     if( !filename )
-        return 0;
+        return NULL;
 
     IsoImage image;
-
     ZeroMemory( &image, sizeof( image ) );
 
-	image.hFile = CreateFileW( filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
-    if( !image.hFile || image.hFile == INVALID_HANDLE_VALUE )
-        return 0;
+	image.hFile = isz_open(filename);
+	if (image.hFile != INVALID_HANDLE_VALUE)
+	{
+		image.ImageType = ISOTYPE_ISZ;
+	}
+	else
+	{
+		image.ImageType = ISOTYPE_RAW;
+		image.hFile = CreateFileW( filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
+		if( !image.hFile || image.hFile == INVALID_HANDLE_VALUE )
+			return NULL;
+	}
 
     assert( sizeof( PrimaryVolumeDescriptor ) == 0x800 ); // check for size of descriptor
     DWORD read;
     
     // check for zip or rar archives
     char ArcHeaderBuf[0x20];
-    if( ReadDataByPos( image.hFile, 0, sizeof( ArcHeaderBuf ), ArcHeaderBuf ) != sizeof( ArcHeaderBuf ) ||
-        !lstrcmpn( ExeHeader, ArcHeaderBuf, sizeof( ExeHeader ), false )                                ||
-        !lstrcmpn( ZipHeader, ArcHeaderBuf, sizeof( ZipHeader ), false )                                ||
+    if( ReadDataByPos( &image, 0, sizeof( ArcHeaderBuf ), ArcHeaderBuf ) != sizeof( ArcHeaderBuf ) ||
+        !lstrcmpn( ExeHeader, ArcHeaderBuf, sizeof( ExeHeader ), false )                           ||
+        !lstrcmpn( ZipHeader, ArcHeaderBuf, sizeof( ZipHeader ), false )                           ||
         !lstrcmpn( RarHeader, ArcHeaderBuf, sizeof( RarHeader ), false ) )
     {
-        DebugString( "hmmm, this image can't be readed or it has zip or rar signature..." );
+        DebugString( "hmmm, this image can't be read or it has zip or rar signature..." );
         CloseHandle( image.hFile );
-        return 0;
+        return NULL;
     }
     
     PrimaryVolumeDescriptor descriptor;
@@ -296,7 +348,7 @@ IsoImage* GetImage( const wchar_t* filename )
     for( ; image.DataOffset < SearchSize + sizeof( PrimaryVolumeDescriptor ); image.DataOffset += sizeof( PrimaryVolumeDescriptor ) )
     {
         char buffer[sizeof( PrimaryVolumeDescriptor ) + sizeof( CDSignature )];
-        if( ReadDataByPos( image.hFile, 0x8000 + image.DataOffset,
+        if( ReadDataByPos( &image, 0x8000 + image.DataOffset,
                            sizeof( buffer ), buffer ) != sizeof( buffer ) )
         {
             // Something went wrong, probably EOF?
@@ -322,7 +374,7 @@ IsoImage* GetImage( const wchar_t* filename )
         }
 
         // Try to read a block
-        read = ReadDataByPos( image.hFile, 0x8000 + image.DataOffset, sizeof( descriptor ), &descriptor );
+        read = ReadDataByPos( &image, 0x8000 + image.DataOffset, sizeof( descriptor ), &descriptor );
         
         if( read != sizeof( descriptor ) )
         {
@@ -353,7 +405,7 @@ IsoImage* GetImage( const wchar_t* filename )
 
     // detect for next signature CDOO1
     char buffer[10000];
-    if( ReadDataByPos( image.hFile, 0x8000 + image.DataOffset + 6, sizeof( buffer ), buffer ) )
+    if( ReadDataByPos( &image, 0x8000 + image.DataOffset + 6, sizeof( buffer ), buffer ) )
     {
         int pos = lmemfind( buffer, sizeof( buffer ), CDSignature, sizeof( CDSignature ) );
         if( pos >= 0 )
@@ -407,7 +459,18 @@ bool FreeImage( IsoImage* image )
     assert( image );
 
     if( image->hFile && image->hFile != INVALID_HANDLE_VALUE )
-        CloseHandle( image->hFile );
+	{
+        switch (image->ImageType)
+		{
+			case ISOTYPE_ISZ:
+				isz_close(image->hFile);
+				break;
+			default:
+				CloseHandle( image->hFile );
+				break;
+		}
+		
+	}
 
     if( image->DirectoryList )
     {

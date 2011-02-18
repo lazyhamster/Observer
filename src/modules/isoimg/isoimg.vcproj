@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISOIMG_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -202,7 +202,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISOIMG_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -363,7 +363,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISOIMG_EXPORTS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -522,7 +522,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISOIMG_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -600,7 +600,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;ISOIMG_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -679,7 +679,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISOIMG_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -760,7 +760,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISOIMG_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -936,6 +936,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\isz\iszsdk.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -1035,6 +1039,14 @@
 			</File>
 			<File
 				RelativePath=".\iso_tc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\isz\isz.h"
+				>
+			</File>
+			<File
+				RelativePath=".\isz\iszsdk.h"
 				>
 			</File>
 			<File

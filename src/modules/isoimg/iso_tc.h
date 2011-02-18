@@ -11,8 +11,6 @@ IsoImage* GetImage( const wchar_t* filename );
 bool FreeImage( IsoImage* image );
 bool LoadAllTrees( IsoImage* image, Directory** dirs, DWORD* count, bool boot = false );
 
-DWORD ReadDataByPos( HANDLE file, LONGLONG position, DWORD size, void* data );
-LONGLONG GetBlockOffset( const IsoImage* image, DWORD block );
 DWORD ReadBlock( const IsoImage* image, DWORD block, DWORD size, void* data );
 
 #endif //_ISO_TC_H_

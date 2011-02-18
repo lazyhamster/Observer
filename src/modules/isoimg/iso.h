@@ -338,9 +338,16 @@ typedef struct Directory
     };
 } Directory;
 
+enum IsoImageType
+{
+	ISOTYPE_RAW,
+	ISOTYPE_ISZ
+};
+
 typedef struct IsoImage
 {
     HANDLE                   hFile;
+	IsoImageType             ImageType;
     PrimaryVolumeDescriptorEx* VolumeDescriptors;
     DWORD                    DescriptorNum;
     DWORD                    DataOffset;
