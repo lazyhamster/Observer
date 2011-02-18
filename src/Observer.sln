@@ -6,6 +6,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "msi", "modules\msi\msi.vcproj", "{3937AB54-7C07-4279-BE26-58425236EB48}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "isoimg", "modules\isoimg\isoimg.vcproj", "{F9EF9CC9-0329-4259-81B4-6D2C53F5EF0D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C} = {D4D55D0B-1CC0-4838-A68F-39B486F1122C}
+		{C50A5BD9-34C8-4050-AD28-784AEC221B1E} = {C50A5BD9-34C8-4050-AD28-784AEC221B1E}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "udfimg", "modules\udfimg\udfimg.vcproj", "{96527F42-7B17-4CA2-AC00-979E2226DB2A}"
 EndProject
@@ -37,6 +41,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "relic", "modules\relic\reli
 	ProjectSection(ProjectDependencies) = postProject
 		{C50A5BD9-34C8-4050-AD28-784AEC221B1E} = {C50A5BD9-34C8-4050-AD28-784AEC221B1E}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libbz2", "depends\bzip2\libbz2.vcproj", "{D4D55D0B-1CC0-4838-A68F-39B486F1122C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -326,6 +332,26 @@ Global
 		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-Unicode|Win32.Build.0 = Release-Unicode|Win32
 		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-Unicode|x64.ActiveCfg = Release-Unicode|x64
 		{EA198D3B-AC42-4AB0-BE17-0F0BB94CA785}.Release-Unicode|x64.Build.0 = Release-Unicode|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Debug|Win32.Build.0 = Debug|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Debug|x64.ActiveCfg = Debug|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Debug|x64.Build.0 = Debug|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Debug-Unicode|Win32.ActiveCfg = Debug-Unicode|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Debug-Unicode|Win32.Build.0 = Debug-Unicode|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Debug-Unicode|x64.ActiveCfg = Debug-Unicode|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Debug-Unicode|x64.Build.0 = Debug-Unicode|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release|Win32.ActiveCfg = Release|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release|Win32.Build.0 = Release|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release|x64.ActiveCfg = Release|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release|x64.Build.0 = Release|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release-MD|Win32.ActiveCfg = Release-MD|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release-MD|Win32.Build.0 = Release-MD|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release-MD|x64.ActiveCfg = Release-MD|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release-MD|x64.Build.0 = Release-MD|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release-Unicode|Win32.ActiveCfg = Release-Unicode|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release-Unicode|Win32.Build.0 = Release-Unicode|Win32
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release-Unicode|x64.ActiveCfg = Release-Unicode|x64
+		{D4D55D0B-1CC0-4838-A68F-39B486F1122C}.Release-Unicode|x64.Build.0 = Release-Unicode|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
