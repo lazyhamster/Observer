@@ -468,6 +468,13 @@ IsoImage* GetImage( const wchar_t* filename )
         ZeroMemory( &descriptorex, sizeof( descriptorex ) );
     }
 
+	if( image.VolumeDescriptors == NULL )
+	{
+		DebugString("Malformed ISO file. No VolumeDescriptors found.");
+		CloseIsoHandle(&image);
+		return NULL;
+	}
+
     IsoImage* pimage = (IsoImage*)malloc( sizeof( *pimage ) );
     assert( pimage );
     *pimage = image;
