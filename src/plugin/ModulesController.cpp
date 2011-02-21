@@ -58,17 +58,20 @@ void ModulesController::Cleanup()
 	modules.clear();
 }
 
-bool ModulesController::OpenStorageFile(const wchar_t* path, bool applyExtFilters, int *moduleIndex, INT_PTR **storage, StorageGeneralInfo *sinfo)
+bool ModulesController::OpenStorageFile(const wchar_t* path, bool applyExtFilters, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *sinfo)
 {
 	// Check input params
 	if (!moduleIndex || !sinfo || !storage) return false;
+
+	StorageOpenParams openParams = {0};
+	openParams.FilePath = path;
 	
 	*moduleIndex = -1;
 	for (size_t i = 0; i < modules.size(); i++)
 	{
-		ExternalModule &modulePtr = modules[i];
+		const ExternalModule &modulePtr = modules[i];
 		if (!applyExtFilters || DoesExtensionFilterMatch(path, modulePtr.ExtensionFilter))
-			if (modulePtr.OpenStorage(path, storage, sinfo) == TRUE)
+			if (modulePtr.OpenStorage(openParams, storage, sinfo) == TRUE)
 			{
 				*moduleIndex = (int) i;
 				return true;
@@ -78,7 +81,7 @@ bool ModulesController::OpenStorageFile(const wchar_t* path, bool applyExtFilter
 	return false;
 }
 
-void ModulesController::CloseStorageFile(int moduleIndex, INT_PTR *storage)
+void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
 {
 	if ((moduleIndex >= 0) && (moduleIndex < (int) modules.size()))
 	{

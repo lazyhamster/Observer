@@ -10,10 +10,10 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 	return TRUE;
 }
 
-int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
+int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	CMsiViewer *view = new CMsiViewer();
-	int nOpenRes = view->Open(path, MSI_OPENFLAG_SHOWSPECIALS);
+	int nOpenRes = view->Open(params.FilePath, MSI_OPENFLAG_SHOWSPECIALS);
 	if (nOpenRes == ERROR_SUCCESS)
 	{
 		*storage = (INT_PTR *) view;
@@ -37,21 +37,21 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
 		info->Created = view->GetCreateDateTime();
 
-		return TRUE;
+		return SOR_SUCCESS;
 	}
 
 	delete view;
-	return FALSE;
+	return SOR_INVALID_FILE;
 }
 
-void MODULE_EXPORT CloseStorage(INT_PTR *storage)
+void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 	CMsiViewer *view = (CMsiViewer *) storage;
 	if (view)
 		delete view;
 }
 
-int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	CMsiViewer *view = (CMsiViewer *) storage;
 	if (!view) return GET_ITEM_ERROR;
@@ -62,7 +62,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	return GET_ITEM_NOMOREITEMS;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
+int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	CMsiViewer *view = (CMsiViewer *) storage;
 	if (!view) return SER_ERROR_SYSTEM;

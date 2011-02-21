@@ -13,7 +13,7 @@ private:
 	ModulesController* m_pModules;
 	
 	int m_nModuleIndex;
-	INT_PTR *m_pStoragePtr;
+	HANDLE m_pStoragePtr;
 	wchar_t *m_wszStoragePath;
 
 	ContentTreeNode* m_pRootDir;

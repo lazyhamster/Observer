@@ -22,9 +22,9 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 	return TRUE;
 }
 
-int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
+int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	CHWAbstractStorage* fileObj = CHWClassFactory::LoadFile(path);
+	CHWAbstractStorage* fileObj = CHWClassFactory::LoadFile(params.FilePath);
 	if (fileObj != NULL)
 	{
 		*storage = (INT_PTR*) fileObj;
@@ -34,13 +34,13 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, fileObj->GetLabel());
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, fileObj->GetCompression());
 
-		return TRUE;
+		return SOR_SUCCESS;
 	}
 
-	return FALSE;
+	return SOR_INVALID_FILE;
 }
 
-void MODULE_EXPORT CloseStorage(INT_PTR *storage)
+void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 	if (storage)
 	{
@@ -49,7 +49,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	CHWAbstractStorage* fileObj = (CHWAbstractStorage*) storage;
 	if (!fileObj) return GET_ITEM_ERROR;
@@ -75,7 +75,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	return GET_ITEM_ERROR;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
+int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	CHWAbstractStorage* fileObj = (CHWAbstractStorage*) storage;
 	if (!fileObj) return SER_ERROR_SYSTEM;

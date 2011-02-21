@@ -95,10 +95,10 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 	return TRUE;
 }
 
-int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
+int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	File filePtr(path);
-	if (!filePtr) return FALSE;
+	File filePtr(params.FilePath);
+	if (!filePtr) return SOR_INVALID_FILE;
 
 	MimeEntity *me = new MimeEntity();
 	me->load(filePtr.begin(), filePtr.end());
@@ -111,11 +111,11 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	if (head.size() == 0 || ctype.type().size() == 0)
 	{
 		delete me;
-		return FALSE;
+		return SOR_INVALID_FILE;
 	}
 
 	MimeFileInfo *minfo = new MimeFileInfo();
-	minfo->path = _wcsdup(path);
+	minfo->path = _wcsdup(params.FilePath);
 	minfo->entity = me;
 	UnixTimeToFileTime(filePtr.GetMTime(), &minfo->mtime);
 
@@ -161,10 +161,10 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 		}
 	}
 
-	return TRUE;
+	return SOR_SUCCESS;
 }
 
-void MODULE_EXPORT CloseStorage(INT_PTR *storage)
+void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 	MimeFileInfo *minfo = (MimeFileInfo*) storage;
 	if (minfo)
@@ -176,7 +176,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	if (item_index < 0) return GET_ITEM_ERROR;
 
@@ -201,7 +201,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	return GET_ITEM_OK;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
+int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	MimeFileInfo *minfo = (MimeFileInfo*) storage;
 	if (minfo == NULL) return SER_ERROR_SYSTEM;

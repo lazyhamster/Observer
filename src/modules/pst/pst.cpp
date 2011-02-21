@@ -63,9 +63,9 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 	return TRUE;
 }
 
-int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
+int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	wstring strPath(path);
+	wstring strPath(params.FilePath);
 	pst *storeObj = NULL;
 	
 	try
@@ -87,17 +87,17 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 			wcsncpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, strDbName.c_str(), _TRUNCATE);
 			wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
 
-			return TRUE;
+			return SOR_SUCCESS;
 		}
 
 		delete objInfo;
 	}
 	catch(...) {}
 	
-	return FALSE;
+	return SOR_INVALID_FILE;
 }
 
-void MODULE_EXPORT CloseStorage(INT_PTR *storage)
+void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 	PstFileInfo* file = (PstFileInfo*) storage;
 	if (file)
@@ -106,7 +106,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	PstFileInfo* file = (PstFileInfo*) storage;
 	if (!file) return GET_ITEM_ERROR;
@@ -130,7 +130,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	return GET_ITEM_OK;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
+int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	PstFileInfo* file = (PstFileInfo*) storage;
 	if (!file) return SER_ERROR_SYSTEM;

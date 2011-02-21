@@ -11,13 +11,13 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 	return TRUE;
 }
 
-int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
+int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	CWiseFile* arc = new CWiseFile();
-	if (!arc->Open(path))
+	if (!arc->Open(params.FilePath))
 	{
 		delete arc;
-		return FALSE;
+		return SOR_INVALID_FILE;
 	}
 
 	*storage = (INT_PTR *) arc;
@@ -27,16 +27,16 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
 	memset(&info->Created, 0, sizeof(info->Created));
 
-	return TRUE;
+	return SOR_SUCCESS;
 }
 
-void MODULE_EXPORT CloseStorage(INT_PTR *storage)
+void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 	CWiseFile* arc = (CWiseFile *) storage;
 	if (arc) delete arc;
 }
 
-int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	CWiseFile* arc = (CWiseFile *) storage;
 	if (!arc || (item_index < 0)) return GET_ITEM_ERROR;
@@ -65,7 +65,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	return (noMoreItems) ? GET_ITEM_NOMOREITEMS : GET_ITEM_ERROR;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
+int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	CWiseFile* arc = (CWiseFile *) storage;
 	if (!arc) return SER_ERROR_SYSTEM;

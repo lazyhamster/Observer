@@ -78,19 +78,19 @@ int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 	return TRUE;
 }
 
-int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
+int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	// Check extension first
-	const wchar_t* fileExt = GetFileExt(path);
-	if (!fileExt || (wcslen(fileExt) != 4)) return FALSE;
+	const wchar_t* fileExt = GetFileExt(params.FilePath);
+	if (!fileExt || (wcslen(fileExt) != 4)) return SOR_INVALID_FILE;
 
 	if (_wcsicmp(fileExt, L".cat") == 0)
 	{
 		x2catbuffer* hCat = new x2catbuffer();
-		if (hCat->open(path))
+		if (hCat->open(params.FilePath))
 		{
 			XStorage* xst = new XStorage();
-			xst->Path = _wcsdup(path);
+			xst->Path = _wcsdup(params.FilePath);
 			xst->IsCatalog = true;
 			xst->Catalog = hCat;
 
@@ -99,18 +99,18 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 			wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
 			//wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
 
-			return TRUE;
+			return SOR_SUCCESS;
 		}
 		else
 			delete hCat;
 	}
 	else if ((_wcsicmp(fileExt, L".pck") == 0) || (_wcsicmp(fileExt, L".pbd") == 0) || (_wcsicmp(fileExt, L".pbb") == 0))
 	{
-		X2FILE hFile = X2FD_OpenFile(path, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_AUTO);
+		X2FILE hFile = X2FD_OpenFile(params.FilePath, X2FD_READ, X2FD_OPEN_EXISTING, X2FD_FILETYPE_AUTO);
 		if (hFile != 0)
 		{
 			XStorage* xst = new XStorage();
-			xst->Path = _wcsdup(path);
+			xst->Path = _wcsdup(params.FilePath);
 			xst->IsCatalog = false;
 			xst->FilePtr = hFile;
 
@@ -132,14 +132,14 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 					break;
 			}
 
-			return TRUE;
+			return SOR_SUCCESS;
 		}
 	}
 			
-	return FALSE;
+	return SOR_INVALID_FILE;
 }
 
-void MODULE_EXPORT CloseStorage(INT_PTR *storage)
+void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 	if (storage != NULL)
 	{
@@ -155,7 +155,7 @@ void MODULE_EXPORT CloseStorage(INT_PTR *storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	if ((storage == NULL) || (item_index < 0) || (item_data == NULL))
 		return GET_ITEM_ERROR;
@@ -216,7 +216,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	return GET_ITEM_NOMOREITEMS;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
+int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	if ((storage == NULL) || (params.item < 0))
 		return SER_ERROR_SYSTEM;

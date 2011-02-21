@@ -30,7 +30,7 @@ int StorageObject::Open( const wchar_t *Path, bool applyExtFilters )
 	Close();
 	
 	int moduleIndex = 0;
-	INT_PTR *storagePtr = NULL;
+	HANDLE storagePtr = NULL;
 	
 	if (m_pModules->OpenStorageFile(Path, applyExtFilters, &moduleIndex, &storagePtr, &GeneralInfo))
 	{

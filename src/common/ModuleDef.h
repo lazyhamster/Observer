@@ -23,6 +23,12 @@ struct StorageGeneralInfo
 	FILETIME Created;
 };
 
+struct StorageOpenParams
+{
+	const wchar_t* FilePath;
+	const wchar_t* Password;
+};
+
 struct ExtractOperationParams 
 {
 	int item;
@@ -32,18 +38,20 @@ struct ExtractOperationParams
 };
 
 typedef int (MODULE_EXPORT *LoadSubModuleFunc)(const wchar_t*);
-typedef int (MODULE_EXPORT *OpenStorageFunc)(const wchar_t*, INT_PTR**, StorageGeneralInfo*);
-typedef void (MODULE_EXPORT *CloseStorageFunc)(INT_PTR*);
-typedef int (MODULE_EXPORT *GetItemFunc)(INT_PTR*, int, LPWIN32_FIND_DATAW, wchar_t*, size_t);
-typedef int (MODULE_EXPORT *ExtractFunc)(INT_PTR*, ExtractOperationParams params);
+typedef int (MODULE_EXPORT *OpenStorageFunc)(StorageOpenParams, HANDLE*, StorageGeneralInfo*);
+typedef void (MODULE_EXPORT *CloseStorageFunc)(HANDLE);
+typedef int (MODULE_EXPORT *GetItemFunc)(HANDLE, int, LPWIN32_FIND_DATAW, wchar_t*, size_t);
+typedef int (MODULE_EXPORT *ExtractFunc)(HANDLE, ExtractOperationParams params);
+
+// Open storage return results
+#define SOR_INVALID_FILE 0
+#define SOR_SUCCESS 1
+#define SOR_PASSWORD_REQUIRED 2
 
 // Item retrieval result
 #define GET_ITEM_ERROR 0
 #define GET_ITEM_OK 1
 #define GET_ITEM_NOMOREITEMS 2
-
-// Extract operation flags
-#define SEP_ASKOVERWRITE 1
 
 // Extract result
 #define SER_SUCCESS 0
@@ -51,12 +59,6 @@ typedef int (MODULE_EXPORT *ExtractFunc)(INT_PTR*, ExtractOperationParams params
 #define SER_ERROR_READ 2
 #define SER_ERROR_SYSTEM 3
 #define SER_USERABORT 4
-
-// Extract error reasons
-#define EER_NOERROR 0
-#define EER_READERROR 1
-#define EER_WRITEERROR 2
-#define EER_TARGETEXISTS 3
 
 // Extract error reactions
 #define EEN_ABORT 1

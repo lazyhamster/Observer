@@ -33,8 +33,8 @@ public:
 	void Cleanup();
 	size_t NumModules() { return modules.size(); };
 
-	bool OpenStorageFile(const wchar_t* path, bool applyExtFilters, int *moduleIndex, INT_PTR **storage, StorageGeneralInfo *info);
-	void CloseStorageFile(int moduleIndex, INT_PTR *storage);
+	bool OpenStorageFile(const wchar_t* path, bool applyExtFilters, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *info);
+	void CloseStorageFile(int moduleIndex, HANDLE storage);
 };
 
 #endif // _ModulesController_h__

@@ -84,22 +84,15 @@ FILETIME VolumeDateTimeToFileTime(VolumeDateTime &vdtime);
 
 //////////////////////////////////////////////////////////////////////////
 
-struct IsoListContextInfo
-{
-	IsoImage* storage;	// pointer to image
-	wchar_t* path;		// path to dir for which list is searched
-	int itemIndex;		// last index of listed item, we start search from it
-};
-
 int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
 {
 	return TRUE;
 }
 
-int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGeneralInfo* info)
+int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	IsoImage* image = GetImage(path);
-	if (!image) return FALSE;
+	IsoImage* image = GetImage(params.FilePath);
+	if (!image) return SOR_INVALID_FILE;
 
 	DWORD count = 0;
 	if( LoadAllTrees( image, 0, &count, true ) && count )
@@ -113,7 +106,7 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	if ( (image->Index >= image->DirectoryCount) || !count )
 	{
 		FreeImage(image);
-		return FALSE;
+		return SOR_INVALID_FILE;
 	}
 		
 	*storage = (INT_PTR *) image;
@@ -144,16 +137,16 @@ int MODULE_EXPORT OpenStorage(const wchar_t *path, INT_PTR **storage, StorageGen
 	}
 	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
 	
-	return TRUE;
+	return SOR_SUCCESS;
 }
 
-void MODULE_EXPORT CloseStorage(INT_PTR *storage)
+void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 	if (storage)
 		FreeImage((IsoImage*) storage);
 }
 
-int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
 {
 	IsoImage* image = (IsoImage*) storage;
 	if (!image) return GET_ITEM_ERROR;
@@ -187,7 +180,7 @@ int MODULE_EXPORT GetStorageItem(INT_PTR* storage, int item_index, LPWIN32_FIND_
 	return GET_ITEM_OK;
 }
 
-int MODULE_EXPORT ExtractItem(INT_PTR *storage, ExtractOperationParams params)
+int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	IsoImage* image = (IsoImage*) storage;
 	if (!image) return SER_ERROR_SYSTEM;
