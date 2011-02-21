@@ -304,6 +304,26 @@ static DWORD GetVolumeDescriptor( const IsoImage* image, PrimaryVolumeDescriptor
     return 0;
 }
 
+static void CloseIsoHandle( IsoImage* image )
+{
+	assert( image );
+
+	if( image->hFile && image->hFile != INVALID_HANDLE_VALUE )
+	{
+		switch (image->ImageType)
+		{
+		case ISOTYPE_ISZ:
+			isz_close(image->hFile);
+			break;
+		default:
+			CloseHandle( image->hFile );
+			break;
+		}
+		
+		image->hFile = INVALID_HANDLE_VALUE;
+	}
+}
+
 IsoImage* GetImage( const wchar_t* filename )
 {
     DebugString( "GetImage" );
@@ -339,7 +359,7 @@ IsoImage* GetImage( const wchar_t* filename )
         !lstrcmpn( RarHeader, ArcHeaderBuf, sizeof( RarHeader ), false ) )
     {
         DebugString( "hmmm, this image can't be read or it has zip or rar signature..." );
-        CloseHandle( image.hFile );
+        CloseIsoHandle(&image);
         return NULL;
     }
     
@@ -355,7 +375,7 @@ IsoImage* GetImage( const wchar_t* filename )
         {
             // Something went wrong, probably EOF?
             DebugString("Could not read complete VolumeDescriptor block");
-            CloseHandle( image.hFile );
+            CloseIsoHandle(&image);
             return 0;
         }
 
@@ -368,7 +388,7 @@ IsoImage* GetImage( const wchar_t* filename )
             {
                 // Just to make sure we don't read in a too big file, stop after 1MB.
                 DebugString("Reached 1MB without descriptor");
-                CloseHandle( image.hFile );
+                CloseIsoHandle(&image);
                 return 0;
             }
             //image.DataOffset += sizeof( image.VolumeDescriptor );
@@ -382,7 +402,7 @@ IsoImage* GetImage( const wchar_t* filename )
         {
             // Something went wrong, probably EOF?
             DebugString("Could not read complete VolumeDescriptor block");
-            CloseHandle( image.hFile );
+            CloseIsoHandle(&image);
             return 0;
         }
 
@@ -399,7 +419,7 @@ IsoImage* GetImage( const wchar_t* filename )
     {
         // Just to make sure we don't read in a too big file.
         DebugString("Reached 1MB without descriptor");
-        CloseHandle( image.hFile );
+        CloseIsoHandle(&image);
         return 0;
     }
 
@@ -460,19 +480,7 @@ bool FreeImage( IsoImage* image )
     DebugString( "FreeImage" );
     assert( image );
 
-    if( image->hFile && image->hFile != INVALID_HANDLE_VALUE )
-	{
-        switch (image->ImageType)
-		{
-			case ISOTYPE_ISZ:
-				isz_close(image->hFile);
-				break;
-			default:
-				CloseHandle( image->hFile );
-				break;
-		}
-		
-	}
+    CloseIsoHandle(image);
 
     if( image->DirectoryList )
     {
