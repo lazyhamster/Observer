@@ -11,7 +11,7 @@
  * return isz_r pointer if successfully
  * return INVALID_HANDLE_VALUE for error
  */
-extern HANDLE isz_open(const wchar_t *filespec);
+extern HANDLE isz_open(HANDLE filePtr, const wchar_t *filespec);
 
 /*
  * Set password

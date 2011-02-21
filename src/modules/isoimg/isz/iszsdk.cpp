@@ -352,7 +352,7 @@ static int isz_read_sector(isz_reader *r,char *buf, unsigned int sector_no)
     return 0;
 }
 
-HANDLE isz_open(const wchar_t *filespec)
+HANDLE isz_open(HANDLE filePtr, const wchar_t *filespec)
 {
     void *isz_r;
     isz_reader *r;
@@ -363,35 +363,24 @@ HANDLE isz_open(const wchar_t *filespec)
     unsigned int ptr_size;
     unsigned char cf;
     unsigned int len;
-    HANDLE hFile;
 
-    if(filespec == NULL)
-       return INVALID_HANDLE_VALUE;
-
-    hFile =  CreateFile(filespec,
-        GENERIC_READ, FILE_SHARE_READ,
-        NULL, OPEN_EXISTING, 0, NULL);
-
-    if (hFile == INVALID_HANDLE_VALUE)  // Cannot open image file
+    if (filespec == NULL || filePtr == INVALID_HANDLE_VALUE)
        return INVALID_HANDLE_VALUE;
 
     isz_r = (void *)malloc(sizeof(isz_reader));
     if(isz_r == NULL)                   // Cannot allocate memory
-    {
-       CloseHandle(hFile);
        return INVALID_HANDLE_VALUE;
-    }
 
     r = (isz_reader *)isz_r;
     memset(r,0,sizeof(isz_reader));
     wcscpy(r->filespec,filespec); 
-    r->hFile = hFile;
+    r->hFile = INVALID_HANDLE_VALUE;
 
     // Initialize CB_HEADER_SIZE
     cb_header_size = sizeof(isz_header);
 
-    h_fseek(r->hFile,0,FILE_BEGIN);
-    if(h_fread(&r->isz,1,cb_header_size,r->hFile) != cb_header_size)
+    h_fseek(filePtr,0,FILE_BEGIN);
+    if(h_fread(&r->isz,1,cb_header_size,filePtr) != cb_header_size)
     {
        isz_close(r);
        return INVALID_HANDLE_VALUE;
@@ -440,8 +429,8 @@ HANDLE isz_open(const wchar_t *filespec)
           return INVALID_HANDLE_VALUE;
        }
 
-       h_fseek(r->hFile,r->isz.ptr_offs,FILE_BEGIN);
-       if(h_fread(isz_ptr,1,ptr_size,r->hFile) != ptr_size)
+       h_fseek(filePtr,r->isz.ptr_offs,FILE_BEGIN);
+       if(h_fread(isz_ptr,1,ptr_size,filePtr) != ptr_size)
        {
           isz_close(r);
           return INVALID_HANDLE_VALUE;
@@ -481,8 +470,8 @@ HANDLE isz_open(const wchar_t *filespec)
              return INVALID_HANDLE_VALUE;
           }
 
-          h_fseek(r->hFile,r->isz.seg_offs,FILE_BEGIN);
-          if(h_fread(isz_ptr,1,ptr_size,r->hFile) != ptr_size)
+          h_fseek(filePtr,r->isz.seg_offs,FILE_BEGIN);
+          if(h_fread(isz_ptr,1,ptr_size,filePtr) != ptr_size)
           {
              isz_close(r);
              return INVALID_HANDLE_VALUE;
@@ -598,7 +587,7 @@ HANDLE isz_open(const wchar_t *filespec)
        }
     }
 
-    r->hFile = hFile;
+    r->hFile = filePtr;
     r->cur_seg = 0;
     r->blk_no = -1;
 
