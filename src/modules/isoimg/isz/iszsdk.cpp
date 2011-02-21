@@ -551,7 +551,7 @@ HANDLE isz_open(const wchar_t *filespec)
                 dl = out_size;
              }
 
-             n = (dl + r->isz.block_size - 1) / r->isz.block_size;
+             n = (int) ((dl + r->isz.block_size - 1) / r->isz.block_size);
 
              out_size -= n * r->isz.block_size;
 
@@ -565,7 +565,7 @@ HANDLE isz_open(const wchar_t *filespec)
 
              if(out_size > 0)
              {
-                nleft = n * r->isz.block_size - dl;
+                nleft = (int)(n * r->isz.block_size - dl);
              }
              else
                 nleft = 0;

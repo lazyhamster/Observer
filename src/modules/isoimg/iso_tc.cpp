@@ -321,7 +321,7 @@ IsoImage* GetImage( const wchar_t* filename )
 	else
 	{
 		image.ImageType = ISOTYPE_RAW;
-		image.hFile = CreateFileW( filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
+		image.hFile = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
 		if( !image.hFile || image.hFile == INVALID_HANDLE_VALUE )
 			return NULL;
 	}
