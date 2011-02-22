@@ -17,6 +17,13 @@ struct ExternalModule
 	ExtractFunc Extract;
 };
 
+struct OpenStorageFileInParams
+{
+	const wchar_t* path;
+	const char* password;
+	bool applyExtFilters;
+};
+
 class ModulesController
 {
 private:
@@ -33,7 +40,7 @@ public:
 	void Cleanup();
 	size_t NumModules() { return modules.size(); };
 
-	bool OpenStorageFile(const wchar_t* path, bool applyExtFilters, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *info);
+	int OpenStorageFile(OpenStorageFileInParams srcParams, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *info);
 	void CloseStorageFile(int moduleIndex, HANDLE storage);
 };
 

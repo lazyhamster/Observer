@@ -25,26 +25,27 @@ StorageObject::~StorageObject()
 	Close();
 }
 
-int StorageObject::Open( const wchar_t *Path, bool applyExtFilters )
+int StorageObject::Open( OpenStorageFileInParams srcParams )
 {
 	Close();
 	
 	int moduleIndex = 0;
 	HANDLE storagePtr = NULL;
 	
-	if (m_pModules->OpenStorageFile(Path, applyExtFilters, &moduleIndex, &storagePtr, &GeneralInfo))
+	int retVal = m_pModules->OpenStorageFile(srcParams, &moduleIndex, &storagePtr, &GeneralInfo);
+	if (retVal == SOR_SUCCESS)
 	{
 		m_nModuleIndex = moduleIndex;
 		m_pStoragePtr = storagePtr;
-		m_wszStoragePath = _wcsdup(Path);
+		m_wszStoragePath = _wcsdup(srcParams.path);
 		
 		m_pRootDir = new ContentTreeNode();
 		m_pCurrentDir = NULL;
 
-		return TRUE;
+		return retVal;
 	}
 
-	return FALSE;
+	return retVal;
 }
 
 void StorageObject::Close()
@@ -65,9 +66,9 @@ void StorageObject::Close()
 	{
 		delete m_pRootDir;
 		m_pRootDir = NULL;
-		m_pCurrentDir = NULL;
 	}
 
+	m_pCurrentDir = NULL;
 	m_nTotalSize = 0;
 	m_nNumFiles = 0;
 	m_nNumDirectories = 0;

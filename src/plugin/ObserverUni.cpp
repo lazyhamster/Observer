@@ -189,8 +189,12 @@ static bool DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size
 
 static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters)
 {
+	OpenStorageFileInParams inParams = {0};
+	inParams.path = Name;
+	inParams.applyExtFilters = applyExtFilters;
+	
 	StorageObject *storage = new StorageObject(&g_pController);
-	if (!storage->Open(Name, applyExtFilters))
+	if (!storage->Open(inParams))
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;

@@ -188,8 +188,12 @@ static HANDLE OpenStorage(const char* Name, bool applyExtFilters)
 	wchar_t wszWideName[MAX_PATH] = {0};
 	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, MAX_PATH);
 
+	OpenStorageFileInParams inParams = {0};
+	inParams.path = wszWideName;
+	inParams.applyExtFilters = applyExtFilters;
+	
 	StorageObject *storage = new StorageObject(&g_pController);
-	if (!storage->Open(wszWideName, applyExtFilters))
+	if (!storage->Open(inParams))
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;

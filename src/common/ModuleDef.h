@@ -26,7 +26,7 @@ struct StorageGeneralInfo
 struct StorageOpenParams
 {
 	const wchar_t* FilePath;
-	const wchar_t* Password;
+	const char* Password;
 };
 
 struct ExtractOperationParams 
