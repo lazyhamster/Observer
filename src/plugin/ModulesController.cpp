@@ -72,14 +72,17 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 	{
 		const ExternalModule &modulePtr = modules[i];
 		if (!srcParams.applyExtFilters || DoesExtensionFilterMatch(srcParams.path, modulePtr.ExtensionFilter))
-			if (modulePtr.OpenStorage(openParams, storage, sinfo) == SOR_SUCCESS)
+		{
+			int openRes = modulePtr.OpenStorage(openParams, storage, sinfo);
+			if (openRes != SOR_INVALID_FILE)
 			{
 				*moduleIndex = (int) i;
-				return true;
+				return openRes;
 			}
+		}
 	}
 
-	return false;
+	return SOR_INVALID_FILE;
 }
 
 void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
