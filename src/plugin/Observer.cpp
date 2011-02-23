@@ -183,7 +183,7 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 
 static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 {
-	return false;
+	return FarSInfo.InputBox(GetLocMsg(MSG_PLUGIN_NAME), "Archive Password Required", NULL, NULL, buffer, bufferSize-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY) == TRUE;
 }
 
 //-----------------------------------  Content functions ----------------------------------------

@@ -187,7 +187,15 @@ static bool DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size
 
 static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 {
-	return false;
+	wchar_t passBuf[100] = {0};
+
+	bool fRet = FarSInfo.InputBox(GetLocMsg(MSG_PLUGIN_NAME), L"Archive Password Required", NULL, NULL, passBuf, ARRAY_SIZE(passBuf)-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY) == TRUE;
+	if (fRet)
+	{
+		memset(buffer, 0, bufferSize);
+		WideCharToMultiByte(CP_ACP, 0, passBuf, -1, buffer, bufferSize - 1, NULL, NULL);
+	}
+	return fRet;
 }
 
 //-----------------------------------  Content functions ----------------------------------------
