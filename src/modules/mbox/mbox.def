@@ -1,0 +1,8 @@
+LIBRARY	"mbox.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetStorageItem
+	ExtractItem

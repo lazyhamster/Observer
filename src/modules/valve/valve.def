@@ -1,0 +1,8 @@
+LIBRARY	"valve.so"
+
+EXPORTS
+	LoadSubModule
+	OpenStorage
+	CloseStorage
+	GetStorageItem
+	ExtractItem
