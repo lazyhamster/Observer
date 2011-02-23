@@ -4,10 +4,13 @@
 #include "ModulesController.h"
 #include "ContentStructures.h"
 
+typedef bool(*PasswordQueryCallbackFunc)(char*, size_t);
+
 class StorageObject
 {
 private:
-	StorageObject() {};
+	StorageObject() {}
+	StorageObject(const StorageObject& copy) {}
 
 private:
 	ModulesController* m_pModules;
@@ -24,10 +27,12 @@ private:
 	int m_nNumFiles;
 	int m_nNumDirectories;
 
+	PasswordQueryCallbackFunc m_fnPassCallback;
+
 public:
 	StorageGeneralInfo GeneralInfo;
 	
-	StorageObject(ModulesController *modules);
+	StorageObject(ModulesController *modules, PasswordQueryCallbackFunc PassCallback);
 	~StorageObject();
 
 	int Open(const wchar_t* path, bool applyExtFilters);

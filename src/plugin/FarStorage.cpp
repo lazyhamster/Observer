@@ -2,7 +2,7 @@
 #include "FarStorage.h"
 #include "CommonFunc.h"
 
-StorageObject::StorageObject( ModulesController *modules )
+StorageObject::StorageObject( ModulesController *modules, PasswordQueryCallbackFunc PassCallback )
 {
 	m_pModules = modules;
 	
@@ -16,6 +16,8 @@ StorageObject::StorageObject( ModulesController *modules )
 	m_nTotalSize = 0;
 	m_nNumFiles = 0;
 	m_nNumDirectories = 0;
+
+	m_fnPassCallback = PassCallback;
 
 	memset(&GeneralInfo, 0, sizeof(GeneralInfo));
 }

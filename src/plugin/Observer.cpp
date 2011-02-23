@@ -181,6 +181,11 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 	FarSInfo.Message(FarSInfo.ModuleNumber, flags, NULL, MsgLines, linesNum, 0);
 }
 
+static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
+{
+	return false;
+}
+
 //-----------------------------------  Content functions ----------------------------------------
 
 static HANDLE OpenStorage(const char* Name, bool applyExtFilters)
@@ -188,7 +193,7 @@ static HANDLE OpenStorage(const char* Name, bool applyExtFilters)
 	wchar_t wszWideName[MAX_PATH] = {0};
 	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, MAX_PATH);
 
-	StorageObject *storage = new StorageObject(&g_pController);
+	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
 	if (storage->Open(wszWideName, applyExtFilters) != SOR_SUCCESS)
 	{
 		delete storage;

@@ -185,11 +185,16 @@ static bool DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size
 	return false;
 }
 
+static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
+{
+	return false;
+}
+
 //-----------------------------------  Content functions ----------------------------------------
 
 static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters)
 {
-	StorageObject *storage = new StorageObject(&g_pController);
+	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
 	if (storage->Open(Name, applyExtFilters) != SOR_SUCCESS)
 	{
 		delete storage;
