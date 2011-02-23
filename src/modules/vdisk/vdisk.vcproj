@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="vdisk"
-	ProjectGUID="{FBD3F0D6-F516-436C-990A-9125D49D71C5}"
+	ProjectGUID="{03F029A2-9B80-44FA-94B8-62C21A7C2BE5}"
 	RootNamespace="vdisk"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"

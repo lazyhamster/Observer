@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="mbox"
-	ProjectGUID="{FBD3F0D6-F516-436C-990A-9125D49D71C5}"
+	ProjectGUID="{2FB0643D-DF6C-42F3-A2E9-EC2BE240FEC0}"
 	RootNamespace="mbox"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -916,6 +916,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\mbox.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\mbox.def"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -998,14 +1006,6 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\mbox.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\mbox.def"
-				>
 			</File>
 		</Filter>
 		<Filter

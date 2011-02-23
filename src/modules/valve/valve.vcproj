@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="valve"
-	ProjectGUID="{FBD3F0D6-F516-436C-990A-9125D49D71C5}"
+	ProjectGUID="{3BEAA8E4-28FA-44F7-8F8B-23A916D7D3E2}"
 	RootNamespace="valve"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
