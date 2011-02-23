@@ -22,6 +22,7 @@ struct OpenStorageFileInParams
 	const wchar_t* path;
 	const char* password;
 	bool applyExtFilters;
+	int startModuleIndex;
 };
 
 class ModulesController

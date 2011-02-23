@@ -61,14 +61,15 @@ void ModulesController::Cleanup()
 int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *sinfo)
 {
 	// Check input params
-	if (!moduleIndex || !sinfo || !storage) return false;
+	if (!moduleIndex || !sinfo || !storage)
+		return SOR_INVALID_FILE;
 
 	StorageOpenParams openParams = {0};
 	openParams.FilePath = srcParams.path;
 	openParams.Password = srcParams.password;
 	
 	*moduleIndex = -1;
-	for (size_t i = 0; i < modules.size(); i++)
+	for (size_t i = srcParams.startModuleIndex; i < modules.size(); i++)
 	{
 		const ExternalModule &modulePtr = modules[i];
 		if (!srcParams.applyExtFilters || DoesExtensionFilterMatch(srcParams.path, modulePtr.ExtensionFilter))
