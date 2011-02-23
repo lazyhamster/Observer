@@ -1,4 +1,4 @@
-m4_include(`version.m4')m4_dnl
+m4_include(`version.m4i')m4_dnl
 Observer OBSERVER_VERSION
 Plugin for FAR 1.7x / 2.x
 ---------------------------

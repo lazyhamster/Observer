@@ -1,4 +1,4 @@
-m4_include(`version.m4')m4_dnl
+m4_include(`version.m4i')m4_dnl
 .Language=English,English
 .PluginContents=Observer
 
