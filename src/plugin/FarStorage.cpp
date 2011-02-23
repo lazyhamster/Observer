@@ -25,12 +25,16 @@ StorageObject::~StorageObject()
 	Close();
 }
 
-int StorageObject::Open( OpenStorageFileInParams srcParams )
+int StorageObject::Open( const wchar_t* path, bool applyExtFilters )
 {
 	Close();
 	
 	int moduleIndex = 0;
 	HANDLE storagePtr = NULL;
+
+	OpenStorageFileInParams srcParams = {0};
+	srcParams.path = path;
+	srcParams.applyExtFilters = applyExtFilters;
 	
 	int retVal = m_pModules->OpenStorageFile(srcParams, &moduleIndex, &storagePtr, &GeneralInfo);
 	if (retVal == SOR_SUCCESS)

@@ -30,7 +30,7 @@ public:
 	StorageObject(ModulesController *modules);
 	~StorageObject();
 
-	int Open(OpenStorageFileInParams srcParams);
+	int Open(const wchar_t* path, bool applyExtFilters);
 	int ReadFileList(bool &aborted);
 	void Close();
 
