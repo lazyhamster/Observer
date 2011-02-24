@@ -90,11 +90,6 @@ static void CacheFilesList(MimeEntity* entity, MimeFileInfo* info)
 
 //////////////////////////////////////////////////////////////////////////
 
-int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
-{
-	return TRUE;
-}
-
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	File filePtr(params.FilePath);
@@ -249,4 +244,23 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	}
 	
 	return SER_ERROR_SYSTEM;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Exported Functions
+//////////////////////////////////////////////////////////////////////////
+
+int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
+{
+	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0, 0, 0);
+	LoadParams->OpenStorage = OpenStorage;
+	LoadParams->CloseStorage = CloseStorage;
+	LoadParams->GetItem = GetStorageItem;
+	LoadParams->ExtractItem = ExtractItem;
+
+	return TRUE;
+}
+
+void MODULE_EXPORT UnloadSubModule()
+{
 }

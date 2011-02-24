@@ -2,7 +2,4 @@ LIBRARY	"isoimg.so"
 
 EXPORTS
 	LoadSubModule
-	OpenStorage
-	CloseStorage
-	GetStorageItem
-	ExtractItem
+	UnloadSubModule

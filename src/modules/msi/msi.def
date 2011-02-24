@@ -2,7 +2,4 @@ LIBRARY	"msi.so"
 
 EXPORTS
 	LoadSubModule
-	OpenStorage
-	CloseStorage
-	GetStorageItem
-	ExtractItem
+	UnloadSubModule

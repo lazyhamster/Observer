@@ -14,30 +14,6 @@ extern "C"
 
 #include "7zip/UI/Common/LoadCodecs.h"
 
-int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
-{
-#if defined(_7ZIP_LARGE_PAGES)
-	SetLargePageSize();
-#endif
-
-	CCodecs *codecs = new CCodecs;
-	CMyComPtr<
-		#ifdef EXTERNAL_CODECS
-		ICompressCodecsInfo
-		#else
-		IUnknown
-		#endif
-	> compressCodecsInfo = codecs;
-	HRESULT result = codecs->Load();
-	if ((result != S_OK) || (codecs->Formats.Size() == 0))
-	{
-		delete codecs;
-		return FALSE;
-	}
-	
-	return TRUE;
-}
-
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	CNsisArchive* arc = new CNsisArchive();
@@ -85,4 +61,42 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	if (!arc) return SER_ERROR_SYSTEM;
 	
 	return arc->ExtractArcItem(params.item, params.destFilePath, &(params.callbacks));
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Exported Functions
+//////////////////////////////////////////////////////////////////////////
+
+int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
+{
+#if defined(_7ZIP_LARGE_PAGES)
+	SetLargePageSize();
+#endif
+
+	CCodecs *codecs = new CCodecs;
+	CMyComPtr<
+#ifdef EXTERNAL_CODECS
+		ICompressCodecsInfo
+#else
+		IUnknown
+#endif
+	> compressCodecsInfo = codecs;
+	HRESULT result = codecs->Load();
+	if ((result != S_OK) || (codecs->Formats.Size() == 0))
+	{
+		delete codecs;
+		return FALSE;
+	}
+	
+	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0, 0, 0);
+	LoadParams->OpenStorage = OpenStorage;
+	LoadParams->CloseStorage = CloseStorage;
+	LoadParams->GetItem = GetStorageItem;
+	LoadParams->ExtractItem = ExtractItem;
+
+	return TRUE;
+}
+
+void MODULE_EXPORT UnloadSubModule()
+{
 }
