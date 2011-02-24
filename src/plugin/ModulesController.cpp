@@ -108,8 +108,8 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 	if (module.ModuleHandle != NULL)
 	{
 		// Search for exported functions
-		module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadModule");
-		module.UnloadModule = (UnloadSubModuleFunc) GetProcAddress(module.ModuleHandle, "UnloadModule");
+		module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadSubModule");
+		module.UnloadModule = (UnloadSubModuleFunc) GetProcAddress(module.ModuleHandle, "UnloadSubModule");
 
 		// Try to load modules
 		if ((module.LoadModule != NULL) && (module.UnloadModule != NULL))
@@ -118,17 +118,17 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 			loadParams.Settings = moduleSettings;
 			loadParams.ApiVersion = 2;
 
-			if (module.LoadModule(&loadParams) && (loadParams.OpenStorage != NULL) &&
-				(loadParams.CloseStorage != NULL) && (loadParams.GetItem != NULL) && (loadParams.ExtractItem != NULL))
-			{
-				module.ModuleVersion = loadParams.ModuleVersion;
-				module.OpenStorage = loadParams.OpenStorage;
-				module.CloseStorage = loadParams.CloseStorage;
-				module.GetNextItem = loadParams.GetItem;
-				module.Extract = loadParams.ExtractItem;
+			if (module.LoadModule(&loadParams))
+				if ((loadParams.OpenStorage != NULL) &&	(loadParams.CloseStorage != NULL) && (loadParams.GetItem != NULL) && (loadParams.ExtractItem != NULL))
+				{
+					module.ModuleVersion = loadParams.ModuleVersion;
+					module.OpenStorage = loadParams.OpenStorage;
+					module.CloseStorage = loadParams.CloseStorage;
+					module.GetNextItem = loadParams.GetItem;
+					module.Extract = loadParams.ExtractItem;
 
-				return true;
-			}
+					return true;
+				}
 		}
 
 		FreeLibrary(module.ModuleHandle);
