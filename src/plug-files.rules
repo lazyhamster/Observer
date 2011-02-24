@@ -7,13 +7,19 @@
 		<CustomBuildRule
 			Name="M4 Macro"
 			DisplayName="M4 Macro Processor"
-			CommandLine="m4 -P [AllOptions] [AdditionalOptions] [inputs] &gt; $(OutDir)\$(InputName)"
-			Outputs="$(OutDir)\$(InputName)"
+			CommandLine="m4 -P [AllOptions] [AdditionalOptions] [inputs] &gt; [$DestDir]\$(InputName)"
+			Outputs="[$DestDir]\$(InputName)"
 			AdditionalDependencies="version.m4i"
 			FileExtensions="*.m4"
 			ExecutionDescription="Processing m4 script ($(InputFileName)) ..."
 			>
 			<Properties>
+				<StringProperty
+					Name="DestDir"
+					DisplayName="Destination Folder"
+					Description="Destination folder for the processed file"
+					DefaultValue="$(OutDir)"
+				/>
 			</Properties>
 		</CustomBuildRule>
 		<CustomBuildRule
