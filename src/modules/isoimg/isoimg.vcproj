@@ -920,10 +920,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\iso_std.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\iso_tc.cpp"
 				>
 			</File>
@@ -1035,10 +1031,6 @@
 			</File>
 			<File
 				RelativePath=".\iso_ext.h"
-				>
-			</File>
-			<File
-				RelativePath=".\iso_std.h"
 				>
 			</File>
 			<File

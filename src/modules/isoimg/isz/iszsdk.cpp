@@ -3,7 +3,6 @@
  * Copyright (C) 2006 EZB Systems, Inc.
  */
 #include "stdafx.h"
-#include "..\iso_std.h"
 #include "zlib\zlib.h"
 #include "bzip2\bzlib.h"
 

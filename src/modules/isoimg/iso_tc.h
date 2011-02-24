@@ -2,7 +2,6 @@
 #define _ISO_TC_H_
 
 #include "iso.h"
-#include "iso_std.h"
 
 #define LOWDWORD(x) (DWORD)(x)
 #define HIDWORD(x) (DWORD)((x) >> 32)
