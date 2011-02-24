@@ -254,7 +254,7 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 	if (nFileProgress != pc->nCurrentProgress)
 	{
 		pc->nCurrentProgress = nFileProgress;
-		
+
 		static wchar_t szFileProgressLine[100] = {0};
 		swprintf_s(szFileProgressLine, 100, L"File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, nFileProgress, nTotalProgress);
 
@@ -529,10 +529,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	pctx.nTotalSize = totalExtractSize;
 
 	// Win7 only feature
-	if (totalExtractSize > 0)
-		FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_NORMAL);
-	else
-		FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_INDETERMINATE);
+	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? (void*) PS_NORMAL : (void*) PS_INDETERMINATE);
 
 	// Extract all files one by one
 	for (ContentNodeList::const_iterator cit = items.begin(); cit != items.end(); cit++)
