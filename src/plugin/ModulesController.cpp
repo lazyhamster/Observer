@@ -53,6 +53,7 @@ void ModulesController::Cleanup()
 	for (size_t i = 0; i < modules.size(); i++)
 	{
 		ExternalModule &modulePtr = modules[i];
+		modulePtr.UnloadModule();
 		FreeLibrary(modulePtr.ModuleHandle);
 	}
 	modules.clear();
@@ -101,25 +102,33 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 		return false;
 
 	wchar_t wszFullModulePath[MAX_PATH] = {0};
-
-	wcscpy_s(wszFullModulePath, MAX_PATH, basePath);
-	wcscat_s(wszFullModulePath, MAX_PATH, module.LibraryFile);
+	swprintf_s(wszFullModulePath, MAX_PATH, L"%s%s", basePath, module.LibraryFile);
 
 	module.ModuleHandle = LoadLibraryEx(wszFullModulePath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
 	if (module.ModuleHandle != NULL)
 	{
-		module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadSubModule");
-		module.OpenStorage = (OpenStorageFunc) GetProcAddress(module.ModuleHandle, "OpenStorage");
-		module.CloseStorage = (CloseStorageFunc) GetProcAddress(module.ModuleHandle, "CloseStorage");
-		module.GetNextItem = (GetItemFunc) GetProcAddress(module.ModuleHandle, "GetStorageItem");
-		module.Extract = (ExtractFunc) GetProcAddress(module.ModuleHandle, "ExtractItem");
+		// Search for exported functions
+		module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadModule");
+		module.UnloadModule = (UnloadSubModuleFunc) GetProcAddress(module.ModuleHandle, "UnloadModule");
 
-		if ((module.LoadModule != NULL) && (module.OpenStorage != NULL) &&
-			(module.CloseStorage != NULL) && (module.GetNextItem != NULL) && (module.Extract != NULL))
+		// Try to load modules
+		if ((module.LoadModule != NULL) && (module.UnloadModule != NULL))
 		{
-			// Try to init module
-			if (module.LoadModule(moduleSettings))
+			ModuleLoadParameters loadParams = {0};
+			loadParams.Settings = moduleSettings;
+			loadParams.ApiVersion = 2;
+
+			if (module.LoadModule(&loadParams) && (loadParams.OpenStorage != NULL) &&
+				(loadParams.CloseStorage != NULL) && (loadParams.GetItem != NULL) && (loadParams.ExtractItem != NULL))
+			{
+				module.ModuleVersion = loadParams.ModuleVersion;
+				module.OpenStorage = loadParams.OpenStorage;
+				module.CloseStorage = loadParams.CloseStorage;
+				module.GetNextItem = loadParams.GetItem;
+				module.Extract = loadParams.ExtractItem;
+
 				return true;
+			}
 		}
 
 		FreeLibrary(module.ModuleHandle);

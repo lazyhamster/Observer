@@ -53,8 +53,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 1,6,7,0
- PRODUCTVERSION 1,6,7,0
+ FILEVERSION 1,7,0,0
+ PRODUCTVERSION 1,7,0,0
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -70,12 +70,12 @@ BEGIN
         BLOCK "041904b0"
         BEGIN
             VALUE "FileDescription", "Observer Plugin for FAR Manager"
-            VALUE "FileVersion", "1, 6, 7, 0"
+            VALUE "FileVersion", "1, 7, 0, 0"
             VALUE "InternalName", "Observer"
             VALUE "LegalCopyright", "Copyright (C) 2008-2011, Ariman"
             VALUE "OriginalFilename", "Observer.dll"
             VALUE "ProductName", "Observer"
-            VALUE "ProductVersion", "1, 6, 7, 0"
+            VALUE "ProductVersion", "1, 7, 0, 0"
         END
     END
     BLOCK "VarFileInfo"

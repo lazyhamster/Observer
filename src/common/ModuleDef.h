@@ -37,11 +37,29 @@ struct ExtractOperationParams
 	ExtractProcessCallbacks callbacks;
 };
 
-typedef int (MODULE_EXPORT *LoadSubModuleFunc)(const wchar_t*);
 typedef int (MODULE_EXPORT *OpenStorageFunc)(StorageOpenParams, HANDLE*, StorageGeneralInfo*);
 typedef void (MODULE_EXPORT *CloseStorageFunc)(HANDLE);
 typedef int (MODULE_EXPORT *GetItemFunc)(HANDLE, int, LPWIN32_FIND_DATAW, wchar_t*, size_t);
 typedef int (MODULE_EXPORT *ExtractFunc)(HANDLE, ExtractOperationParams params);
+
+struct ModuleLoadParameters
+{
+	//IN
+	const wchar_t* Settings;
+	DWORD ApiVersion;
+	//OUT
+	DWORD ModuleVersion;
+	OpenStorageFunc OpenStorage;
+	CloseStorageFunc CloseStorage;
+	GetItemFunc GetItem;
+	ExtractFunc ExtractItem;
+};
+
+// Function that should be exported from modules
+typedef int (MODULE_EXPORT *LoadSubModuleFunc)(ModuleLoadParameters*);
+typedef void (MODULE_EXPORT *UnloadSubModuleFunc)(void);
+
+#define MAKEMODULEVERSION(mj,mn,rv,b) ((mj << 24) | (mn << 16) | (rv << 8) | b)
 
 // Open storage return results
 #define SOR_INVALID_FILE 0

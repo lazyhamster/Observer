@@ -11,6 +11,9 @@ struct ExternalModule
 	wchar_t ExtensionFilter[128];
 
 	LoadSubModuleFunc LoadModule;
+	UnloadSubModuleFunc UnloadModule;
+
+	DWORD ModuleVersion;
 	OpenStorageFunc OpenStorage;
 	CloseStorageFunc CloseStorage;
 	GetItemFunc GetNextItem;
