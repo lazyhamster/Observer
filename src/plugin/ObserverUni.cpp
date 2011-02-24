@@ -265,6 +265,15 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 		InfoLines[3] = pc->wszFilePath;
 
 		FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
+
+		// Win7 only feature
+		if (pc->nTotalSize > 0)
+		{
+			PROGRESSVALUE pv;
+			pv.Completed = pc->nTotalProcessedBytes + pc->nProcessedFileBytes;
+			pv.Total = pc->nTotalSize;
+			FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSVALUE, &pv);
+		}
 	}
 
 	return TRUE;
@@ -519,6 +528,12 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	pctx.nTotalFiles = (int) items.size();
 	pctx.nTotalSize = totalExtractSize;
 
+	// Win7 only feature
+	if (totalExtractSize > 0)
+		FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_NORMAL);
+	else
+		FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_INDETERMINATE);
+
 	// Extract all files one by one
 	for (ContentNodeList::const_iterator cit = items.begin(); cit != items.end(); cit++)
 	{
@@ -538,6 +553,9 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 
 		if (nExtractResult != SER_SUCCESS) break;
 	}
+
+	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_NOPROGRESS);
+	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_PROGRESSNOTIFY, 0);
 
 	if (nExtractResult == SER_USERABORT)
 		return -1;
