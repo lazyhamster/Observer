@@ -2,7 +2,4 @@ LIBRARY	"pst.so"
 
 EXPORTS
 	LoadSubModule
-	OpenStorage
-	CloseStorage
-	GetStorageItem
-	ExtractItem
+	UnloadSubModule

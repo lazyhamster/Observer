@@ -2,7 +2,4 @@ LIBRARY	"vdisk.so"
 
 EXPORTS
 	LoadSubModule
-	OpenStorage
-	CloseStorage
-	GetStorageItem
-	ExtractItem
+	UnloadSubModule

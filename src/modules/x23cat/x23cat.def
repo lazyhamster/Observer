@@ -2,7 +2,4 @@ LIBRARY	"x23cat.so"
 
 EXPORTS
 	LoadSubModule
-	OpenStorage
-	CloseStorage
-	GetStorageItem
-	ExtractItem
+	UnloadSubModule

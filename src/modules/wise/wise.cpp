@@ -5,12 +5,6 @@
 #include "ModuleDef.h"
 #include "WiseFile.h"
 
-
-int MODULE_EXPORT LoadSubModule(const wchar_t* settings)
-{
-	return TRUE;
-}
-
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	CWiseFile* arc = new CWiseFile();
@@ -75,4 +69,23 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	bool rval = arc->ExtractFile(params.item, params.destFilePath);
 	return rval ? SER_SUCCESS : SER_ERROR_WRITE;
+}
+
+//////////////////////////////////////////////////////////////////////////
+// Exported Functions
+//////////////////////////////////////////////////////////////////////////
+
+int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
+{
+	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0, 0, 0);
+	LoadParams->OpenStorage = OpenStorage;
+	LoadParams->CloseStorage = CloseStorage;
+	LoadParams->GetItem = GetStorageItem;
+	LoadParams->ExtractItem = ExtractItem;
+
+	return TRUE;
+}
+
+void MODULE_EXPORT UnloadSubModule()
+{
 }
