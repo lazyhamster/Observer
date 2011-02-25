@@ -116,10 +116,10 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 		{
 			ModuleLoadParameters loadParams = {0};
 			loadParams.Settings = moduleSettings;
-			loadParams.ApiVersion = 2;
 
 			if (module.LoadModule(&loadParams))
-				if ((loadParams.OpenStorage != NULL) &&	(loadParams.CloseStorage != NULL) && (loadParams.GetItem != NULL) && (loadParams.ExtractItem != NULL))
+				if ((loadParams.ApiVersion == ACTUAL_API_VERSION) && (loadParams.OpenStorage != NULL)
+					&& (loadParams.CloseStorage != NULL) && (loadParams.GetItem != NULL) && (loadParams.ExtractItem != NULL))
 				{
 					module.ModuleVersion = loadParams.ModuleVersion;
 					module.OpenStorage = loadParams.OpenStorage;

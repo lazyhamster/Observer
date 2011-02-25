@@ -12,6 +12,7 @@ struct ExtractProcessCallbacks
 	ExtractProgressFunc FileProgress;
 };
 
+#define ACTUAL_API_VERSION 2
 #define STORAGE_FORMAT_NAME_MAX_LEN 32
 #define STORAGE_PARAM_MAX_LEN 64
 
@@ -46,9 +47,9 @@ struct ModuleLoadParameters
 {
 	//IN
 	const wchar_t* Settings;
-	DWORD ApiVersion;
 	//OUT
 	DWORD ModuleVersion;
+	DWORD ApiVersion;
 	OpenStorageFunc OpenStorage;
 	CloseStorageFunc CloseStorage;
 	GetItemFunc GetItem;
