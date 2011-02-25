@@ -637,7 +637,8 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 		PanelInfo pi;
 		memset(&pi, 0, sizeof(pi));
 		if (FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi))
-			if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
+			if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL)
+				&& ((pi.SelectedItems[0].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0))
 			{
 				char szPathBuf[MAX_PATH] = {0};
 				
@@ -645,7 +646,7 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 				IncludeTrailingPathDelim(szPathBuf, MAX_PATH);
 				strcat_s(szPathBuf, MAX_PATH, pi.SelectedItems[0].FindData.cFileName);
 
-				strFullSourcePath = strSubPath;
+				strFullSourcePath = szPathBuf;
 			}
 	}
 

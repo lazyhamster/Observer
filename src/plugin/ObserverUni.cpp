@@ -732,10 +732,12 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 				if (PPI)
 				{
 					FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, (LONG_PTR)PPI);
-					wcscat_s(szNameBuffer, PATH_BUFFER_SIZE, PPI->FindData.lpwszFileName);
+					if ((PPI->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+					{
+						wcscat_s(szNameBuffer, PATH_BUFFER_SIZE, PPI->FindData.lpwszFileName);
+						strFullSourcePath = szNameBuffer;
+					}
 					free(PPI);
-
-					strFullSourcePath = szNameBuffer;
 				}
 			}
 	}
