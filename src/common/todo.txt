@@ -8,6 +8,7 @@ MSI:
 
 ISO:
 - Handle extraction of harddisk emulation boot record (size issues)
+- Add support for AES encryption for ISZ
 
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)

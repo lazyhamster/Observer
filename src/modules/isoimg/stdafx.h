@@ -17,7 +17,7 @@
 // Additional headers
 #include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <malloc.h>
 
 #if defined(DEBUG) || defined(_DEBUG)
 #define DebugString(x) OutputDebugStringA( __STR__(__LINE__)": " ),OutputDebugStringA( x ),OutputDebugStringA( "\n" )

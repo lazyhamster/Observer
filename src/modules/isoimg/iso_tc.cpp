@@ -837,15 +837,18 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
             dir->VolumeDescriptor = desc;
 
             const wchar_t* boot_images = L"boot.images";
-            int len = lstrlen(path) + 1 + lstrlen(boot_images) + 1;
-            dir->FileName = (wchar_t*)malloc(len * sizeof(*dir->FileName));
-            dir->FilePath = (wchar_t*)malloc(len * sizeof(*dir->FilePath));
+            size_t len = (lstrlen(path) + 1 + lstrlen(boot_images) + 1) * sizeof(wchar_t);
+            dir->FileName = (wchar_t*)malloc(len);
+            dir->FilePath = (wchar_t*)malloc(len);
 
             if(!dir->FileName || !dir->FilePath)
             {
                 free(data);
                 return false;
             }
+
+			memset(dir->FileName, 0, len);
+			memset(dir->FilePath, 0, len);
 
             if( lstrlen( path ) )
             {
