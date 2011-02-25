@@ -185,6 +185,24 @@ static bool DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size
 	return false;
 }
 
+static int SelectModuleToOpenFileAs()
+{
+	size_t nNumModules = g_pController.modules.size();
+	
+	FarMenuItem* MenuItems = new FarMenuItem[nNumModules];
+	memset(MenuItems, 0, nNumModules * sizeof(FarMenuItem));
+	for (size_t i = 0; i < nNumModules; i++)
+	{
+		const ExternalModule& modInfo = g_pController.modules[i];
+		MenuItems[i].Text = modInfo.ModuleName;
+	}
+
+	int nMSel = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, L"Select Module", NULL, NULL, NULL, NULL, MenuItems, nNumModules);
+
+	delete [] MenuItems;
+	return nMSel;
+}
+
 static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 {
 	wchar_t passBuf[100] = {0};
@@ -235,6 +253,34 @@ static void CloseStorage(HANDLE hStorage)
 	StorageObject *sobj = (StorageObject*) hStorage;
 	sobj->Close();
 	delete sobj;
+}
+
+static bool GetSelectedPanelFilePath(wstring& nameStr)
+{
+	nameStr.clear();
+	
+	PanelInfo pi = {0};
+	if (FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR)&pi))
+		if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
+		{
+			wchar_t szNameBuffer[PATH_BUFFER_SIZE] = {0};
+			FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELDIR, ARRAY_SIZE(szNameBuffer), (LONG_PTR) szNameBuffer);
+			IncludeTrailingPathDelim(szNameBuffer, ARRAY_SIZE(szNameBuffer));
+
+			PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL));
+			if (PPI)
+			{
+				FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, (LONG_PTR)PPI);
+				if ((PPI->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+				{
+					wcscat_s(szNameBuffer, ARRAY_SIZE(szNameBuffer), PPI->FindData.lpwszFileName);
+					nameStr = szNameBuffer;
+				}
+				free(PPI);
+			}
+		}
+	
+	return (nameStr.size() > 0);
 }
 
 //-----------------------------------  Callback functions ----------------------------------------
@@ -700,6 +746,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 	
 	wstring strFullSourcePath;
 	wstring strSubPath;
+	int nOpenModuleIndex = -1;
 	
 	if ((OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
 	{
@@ -720,26 +767,29 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 	}
 	else if (OpenFrom == OPEN_PLUGINSMENU)
 	{
-		PanelInfo pi = {0};
-		if (FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR)&pi))
-			if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
-			{
-				wchar_t szNameBuffer[PATH_BUFFER_SIZE] = {0};
-				FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELDIR, PATH_BUFFER_SIZE, (LONG_PTR) szNameBuffer);
-				IncludeTrailingPathDelim(szNameBuffer, PATH_BUFFER_SIZE);
+		if (GetSelectedPanelFilePath(strFullSourcePath))
+		{
+			FarMenuItem MenuItems[2] = {0};
+			MenuItems[0].Text = L"Open file";
+			MenuItems[1].Text = L"Open files as ...";
 
-				PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL));
-				if (PPI)
-				{
-					FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, (LONG_PTR)PPI);
-					if ((PPI->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-					{
-						wcscat_s(szNameBuffer, PATH_BUFFER_SIZE, PPI->FindData.lpwszFileName);
-						strFullSourcePath = szNameBuffer;
-					}
-					free(PPI);
-				}
+			int nMItem = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_PLUGIN_NAME), NULL, NULL, NULL, NULL, MenuItems, ARRAY_SIZE(MenuItems));
+			
+			if (nMItem == -1)
+				return INVALID_HANDLE_VALUE;
+			else if (nMItem == 1) // Show modules selection dialog
+			{
+				int nSelectedModItem = SelectModuleToOpenFileAs();
+				if (nSelectedModItem >= 0)
+					nOpenModuleIndex = nSelectedModItem;
+				else
+					return INVALID_HANDLE_VALUE;
 			}
+		}
+		else
+		{
+			//Display massage about incompatible object
+		}
 	}
 
 	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false) : INVALID_HANDLE_VALUE;
