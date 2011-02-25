@@ -194,7 +194,7 @@ static HANDLE OpenStorage(const char* Name, bool applyExtFilters)
 	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, MAX_PATH);
 
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
-	if (storage->Open(wszWideName, applyExtFilters) != SOR_SUCCESS)
+	if (storage->Open(wszWideName, applyExtFilters, -1) != SOR_SUCCESS)
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;

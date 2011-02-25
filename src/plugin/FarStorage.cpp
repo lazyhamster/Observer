@@ -40,6 +40,19 @@ int StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWith
 	srcParams.openWithModule = openWithModule;
 	
 	int retVal = m_pModules->OpenStorageFile(srcParams, &moduleIndex, &storagePtr, &GeneralInfo);
+	
+	// If some module requested password, then try to request it from user and try to open file again
+	while (retVal == SOR_PASSWORD_REQUIRED && m_fnPassCallback != NULL)
+	{
+		char passBuf[100] = {0};
+		if ( ! m_fnPassCallback(passBuf, ARRAY_SIZE(passBuf)) )
+			break;
+
+		srcParams.password = passBuf;
+		srcParams.openWithModule = moduleIndex;
+		retVal = m_pModules->OpenStorageFile(srcParams, &moduleIndex, &storagePtr, &GeneralInfo);
+	} // while
+
 	if (retVal == SOR_SUCCESS)
 	{
 		m_nModuleIndex = moduleIndex;
