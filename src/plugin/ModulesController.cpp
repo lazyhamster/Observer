@@ -70,19 +70,22 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 	openParams.Password = srcParams.password;
 	
 	*moduleIndex = -1;
-	for (size_t i = srcParams.startModuleIndex; i < modules.size(); i++)
+	for (size_t i = 0; i < modules.size(); i++)
 	{
-		const ExternalModule &modulePtr = modules[i];
-		if (!srcParams.applyExtFilters || DoesExtensionFilterMatch(srcParams.path, modulePtr.ExtensionFilter))
+		if (srcParams.openWithModule == -1 || srcParams.openWithModule == i)
 		{
-			int openRes = modulePtr.OpenStorage(openParams, storage, sinfo);
-			if (openRes != SOR_INVALID_FILE)
+			const ExternalModule &modulePtr = modules[i];
+			if (!srcParams.applyExtFilters || DoesExtensionFilterMatch(srcParams.path, modulePtr.ExtensionFilter))
 			{
-				*moduleIndex = (int) i;
-				return openRes;
+				int openRes = modulePtr.OpenStorage(openParams, storage, sinfo);
+				if (openRes != SOR_INVALID_FILE)
+				{
+					*moduleIndex = (int) i;
+					return openRes;
+				}
 			}
 		}
-	}
+	} // for i
 
 	return SOR_INVALID_FILE;
 }

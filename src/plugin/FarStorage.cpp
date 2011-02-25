@@ -27,7 +27,7 @@ StorageObject::~StorageObject()
 	Close();
 }
 
-int StorageObject::Open( const wchar_t* path, bool applyExtFilters )
+int StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWithModule )
 {
 	Close();
 	
@@ -37,6 +37,7 @@ int StorageObject::Open( const wchar_t* path, bool applyExtFilters )
 	OpenStorageFileInParams srcParams = {0};
 	srcParams.path = path;
 	srcParams.applyExtFilters = applyExtFilters;
+	srcParams.openWithModule = openWithModule;
 	
 	int retVal = m_pModules->OpenStorageFile(srcParams, &moduleIndex, &storagePtr, &GeneralInfo);
 	if (retVal == SOR_SUCCESS)

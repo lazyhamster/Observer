@@ -35,7 +35,7 @@ public:
 	StorageObject(ModulesController *modules, PasswordQueryCallbackFunc PassCallback);
 	~StorageObject();
 
-	int Open(const wchar_t* path, bool applyExtFilters);
+	int Open(const wchar_t* path, bool applyExtFilters, int openWithModule);
 	int ReadFileList(bool &aborted);
 	void Close();
 

@@ -218,10 +218,10 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 
 //-----------------------------------  Content functions ----------------------------------------
 
-static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters)
+static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleIndex)
 {
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
-	if (storage->Open(Name, applyExtFilters) != SOR_SUCCESS)
+	if (storage->Open(Name, applyExtFilters, moduleIndex) != SOR_SUCCESS)
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;
@@ -770,8 +770,8 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 		if (GetSelectedPanelFilePath(strFullSourcePath))
 		{
 			FarMenuItem MenuItems[2] = {0};
-			MenuItems[0].Text = L"Open file";
-			MenuItems[1].Text = L"Open files as ...";
+			MenuItems[0].Text = L"&Open file";
+			MenuItems[1].Text = L"Open files &as ...";
 
 			int nMItem = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_PLUGIN_NAME), NULL, NULL, NULL, NULL, MenuItems, ARRAY_SIZE(MenuItems));
 			
@@ -792,7 +792,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 		}
 	}
 
-	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false) : INVALID_HANDLE_VALUE;
+	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
 
 	if ( (hOpenResult != INVALID_HANDLE_VALUE) && (strSubPath.size() > 0) )
 		SetDirectoryW(hOpenResult, strSubPath.c_str(), 0);
@@ -805,7 +805,7 @@ HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, in
 	if (!Name || !optEnabled)
 		return INVALID_HANDLE_VALUE;
 
-	HANDLE hOpenResult = OpenStorage(Name, optUseExtensionFilters != 0);
+	HANDLE hOpenResult = OpenStorage(Name, optUseExtensionFilters != 0, -1);
 	return hOpenResult;
 }
 
