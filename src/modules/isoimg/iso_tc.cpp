@@ -921,7 +921,10 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
                     MBR mbr;
                     if( ReadBlock( image, BootEntry->Entry.LoadRBA, 0x200, &mbr ) )
                         if( mbr.Signature == (unsigned short)0xaa55 )
+						{
                             dir->Record.DataLength = (mbr.Partition[0].start_sect + mbr.Partition[0].nr_sects) * 0x200;
+							dir->Record.FileFlags |= FATTR_ALLOWPARTIAL;
+						}
                         else
                         {
                             DebugString( "hard disk signature doesn't match" );

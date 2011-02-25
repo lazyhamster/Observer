@@ -20,6 +20,10 @@ typedef struct VolumeDateTime
 #define FATTR_HIDDEN       1
 #define FATTR_DIRECTORY    2
 
+#define FATTR_ALLOWPARTIAL 32	// This fake flag that uses one of the reserved spots
+								// It is needed to make a workaround on hard drive emulation boot files
+								// that usually have less physical size then reported one.
+
 typedef struct DirectoryRecord
 {
     unsigned char LengthOfDirectoryRecord;  //

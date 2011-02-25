@@ -7,8 +7,8 @@ MSI:
 - fix problem with real file and non showing the special folders mode
 
 ISO:
-- Handle extraction of harddisk emulation boot record (size issues)
 - Add support for AES encryption for ISZ
+- Add support for DAA format (PowerISO)
 
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)

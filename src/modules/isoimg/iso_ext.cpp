@@ -107,6 +107,7 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 	DWORD block = xbox ? dir->XBOXRecord.LocationOfExtent : (DWORD)dir->Record.LocationOfExtent;
 	DWORD sector = xbox ? 0x800 : (WORD)dir->VolumeDescriptor->VolumeDescriptor.LogicalBlockSize;
 	DWORD block_increment = 1;
+	bool fAllowPartialFile = xbox ? false : (dir->Record.FileFlags & FATTR_ALLOWPARTIAL) != 0;
 
 	if( sector == image->RealBlockSize ) // if logical block size == real block size then read/write by 10 blocks
 	{
@@ -120,32 +121,40 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 		CloseHandle(hFile);
 		return SER_ERROR_SYSTEM;
 	}
-
+	
 	for( ; size >= 0; size -= sector, block += block_increment )
 	{
 		DWORD cur_size = (DWORD) min( sector, size );
-		if( cur_size && ReadBlock( image, block, cur_size, buffer ) != cur_size )
+		if (cur_size == 0) break;
+
+		DWORD read_size = ReadBlock( image, block, cur_size, buffer );
+		if ( read_size != cur_size )
 		{
-			result = SER_ERROR_READ;
+			if (fAllowPartialFile)
+			{
+				cur_size = read_size;
+				size = 0; // force to quit after last write
+			}
+			else
+			{
+				result = SER_ERROR_READ;
+				break;
+			}
+		}
+
+		DWORD write;
+		if( !WriteFile( hFile, buffer, cur_size, &write, 0 ) || (write != cur_size) )
+		{
+			result = SER_ERROR_WRITE;
 			break;
 		}
 
-		if( cur_size )
+		if (epc && epc->FileProgress)
 		{
-			DWORD write;
-			if( !WriteFile( hFile, buffer, cur_size, &write, 0 ) || (write != cur_size) )
+			if (!epc->FileProgress(epc->signalContext, cur_size))
 			{
-				result = SER_ERROR_WRITE;
+				result = SER_USERABORT;
 				break;
-			}
-
-			if (epc && epc->FileProgress)
-			{
-				if (!epc->FileProgress(epc->signalContext, cur_size))
-				{
-					result = SER_USERABORT;
-					break;
-				}
 			}
 		}
 	} //for
