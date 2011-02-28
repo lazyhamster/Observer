@@ -88,7 +88,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 		return FALSE;
 	}
 	
-	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0, 0, 0);
+	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
 	LoadParams->OpenStorage = OpenStorage;
 	LoadParams->CloseStorage = CloseStorage;

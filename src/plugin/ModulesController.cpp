@@ -94,7 +94,7 @@ void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
 {
 	if ((moduleIndex >= 0) && (moduleIndex < (int) modules.size()))
 	{
-		ExternalModule &modulePtr = modules[moduleIndex];
+		const ExternalModule &modulePtr = modules[moduleIndex];
 		modulePtr.CloseStorage(storage);
 	}
 }

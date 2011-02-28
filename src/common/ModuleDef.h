@@ -60,7 +60,7 @@ struct ModuleLoadParameters
 typedef int (MODULE_EXPORT *LoadSubModuleFunc)(ModuleLoadParameters*);
 typedef void (MODULE_EXPORT *UnloadSubModuleFunc)(void);
 
-#define MAKEMODULEVERSION(mj,mn,rv,b) ((mj << 24) | (mn << 16) | (rv << 8) | b)
+#define MAKEMODULEVERSION(mj,mn) ((mj << 16) | mn)
 
 // Open storage return results
 #define SOR_INVALID_FILE 0
