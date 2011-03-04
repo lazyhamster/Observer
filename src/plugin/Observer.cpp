@@ -183,7 +183,7 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 
 static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 {
-	return FarSInfo.InputBox(GetLocMsg(MSG_PLUGIN_NAME), "Archive Password Required", NULL, NULL, buffer, bufferSize-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY) == TRUE;
+	return FarSInfo.InputBox(GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_PASS_REQUIRED), NULL, NULL, buffer, bufferSize-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY) == TRUE;
 }
 
 //-----------------------------------  Content functions ----------------------------------------
@@ -307,9 +307,9 @@ static int ExtractError(int errorReason, HANDLE context)
 	InfoLines[1] = GetLocMsg(MSG_EXTRACT_FAILED);
 	InfoLines[2] = pctx->szFilePath;
 	InfoLines[3] = "Retry";
-	InfoLines[4] = "Skip";
-	InfoLines[5] = "Skip All";
-	InfoLines[6] = "Abort";
+	InfoLines[4] = GetLocMsg(MSG_BTN_SKIP);
+	InfoLines[5] = GetLocMsg(MSG_BTN_SKIP_ALL);
+	InfoLines[6] = GetLocMsg(MSG_BTN_ABORT);
 
 	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 4);
 
@@ -370,8 +370,8 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, W
 	DlgLines[4] = szDialogLine4;
 	DlgLines[5] = GetLocMsg(MSG_OVERWRITE);
 	DlgLines[6] = GetLocMsg(MSG_OVERWRITE_ALL);
-	DlgLines[7] = GetLocMsg(MSG_SKIP);
-	DlgLines[8] = GetLocMsg(MSG_SKIP_ALL);
+	DlgLines[7] = GetLocMsg(MSG_BTN_SKIP);
+	DlgLines[8] = GetLocMsg(MSG_BTN_SKIP_ALL);
 	DlgLines[9] = GetLocMsg(MSG_BTN_CANCEL);
 
 	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
