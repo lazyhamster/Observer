@@ -69,13 +69,6 @@ typedef enum
 	HL_ERROR_SYSTEM,
 	HL_ERROR_SHORT_FORMATED,
 	HL_ERROR_LONG_FORMATED,
-	HL_PROC_OPEN,
-	HL_PROC_CLOSE,
-	HL_PROC_READ,
-	HL_PROC_WRITE,
-	HL_PROC_SEEK,
-	HL_PROC_TELL,
-	HL_PROC_SIZE,
 	HL_PROC_EXTRACT_ITEM_START,
 	HL_PROC_EXTRACT_ITEM_END,
 	HL_PROC_EXTRACT_FILE_PROGRESS,
@@ -90,10 +83,7 @@ typedef enum
 	HL_READ_ENCRYPTED,
 	HL_FORCE_DEFRAGMENT,
 	HL_PROC_DEFRAGMENT_PROGRESS,
-	HL_PROC_DEFRAGMENT_PROGRESS_EX,
-	HL_PROC_SEEK_EX,
-	HL_PROC_TELL_EX,
-	HL_PROC_SIZE_EX
+	HL_PROC_DEFRAGMENT_PROGRESS_EX
 } HLOption;
 
 typedef enum
@@ -321,17 +311,6 @@ typedef struct
 
 typedef hlVoid HLDirectoryItem;
 typedef hlVoid HLStream;
-
-typedef hlBool (*POpenProc) (hlUInt, hlVoid *);
-typedef hlVoid (*PCloseProc)(hlVoid *);
-typedef hlUInt (*PReadProc)  (hlVoid *, hlUInt, hlVoid *);
-typedef hlUInt (*PWriteProc)  (const hlVoid *, hlUInt, hlVoid *);
-typedef hlUInt (*PSeekProc) (hlLongLong, HLSeekMode, hlVoid *);
-typedef hlULongLong (*PSeekExProc) (hlLongLong, HLSeekMode, hlVoid *);
-typedef hlUInt (*PTellProc) (hlVoid *);
-typedef hlULongLong (*PTellExProc) (hlVoid *);
-typedef hlUInt (*PSizeProc) (hlVoid *);
-typedef hlULongLong (*PSizeExProc) (hlVoid *);
 
 typedef hlVoid (*PExtractItemStartProc) (const HLDirectoryItem *pItem);
 typedef hlVoid (*PExtractItemEndProc) (const HLDirectoryItem *pItem, hlBool bSuccess);

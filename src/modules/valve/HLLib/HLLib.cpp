@@ -19,17 +19,6 @@ namespace HLLib
 	hlBool bInitialized = hlFalse;
 	CError LastError = CError();
 
-	POpenProc pOpenProc = 0;
-	PCloseProc pCloseProc = 0;
-	PReadProc pReadProc = 0;
-	PWriteProc pWriteProc = 0;
-	PSeekProc pSeekProc = 0;
-	PSeekExProc pSeekExProc = 0;
-	PTellProc pTellProc = 0;
-	PTellExProc pTellExProc = 0;
-	PSizeProc pSizeProc = 0;
-	PSizeExProc pSizeExProc = 0;
-
 	PExtractItemStartProc pExtractItemStartProc = 0;
 	PExtractItemEndProc pExtractItemEndProc = 0;
 	PExtractFileProgressProc pExtractFileProgressProc = 0;
@@ -156,23 +145,6 @@ HLLIB_API hlVoid hlSetBoolean(HLOption eOption, hlBool bValue)
 	}
 }
 
-HLLIB_API hlFloat hlGetFloat(HLOption eOption)
-{
-	hlFloat fValue = 0.0f;
-	hlGetFloatValidate(eOption, &fValue);
-	return fValue;
-}
-
-HLLIB_API hlBool hlGetFloatValidate(HLOption eOption, hlFloat *pValue)
-{
-	return hlFalse;
-}
-
-HLLIB_API hlVoid hlSetFloat(HLOption eOption, hlFloat fValue)
-{
-	
-}
-
 HLLIB_API const hlChar *hlGetString(HLOption eOption)
 {
 	const hlChar *lpValue = 0;
@@ -220,36 +192,6 @@ HLLIB_API hlBool hlGetVoidValidate(HLOption eOption, const hlVoid **pValue)
 {
 	switch(eOption)
 	{
-	case HL_PROC_OPEN:
-		*pValue = (const hlVoid *)pOpenProc;
-		return hlTrue;
-	case HL_PROC_CLOSE:
-		*pValue = (const hlVoid *)pCloseProc;
-		return hlTrue;
-	case HL_PROC_READ:
-		*pValue = (const hlVoid *)pReadProc;
-		return hlTrue;
-	case HL_PROC_WRITE:
-		*pValue = (const hlVoid *)pWriteProc;
-		return hlTrue;
-	case HL_PROC_SEEK:
-		*pValue = (const hlVoid *)pSeekProc;
-		return hlTrue;
-	case HL_PROC_SEEK_EX:
-		*pValue = (const hlVoid *)pSeekExProc;
-		return hlTrue;
-	case HL_PROC_TELL:
-		*pValue = (const hlVoid *)pTellProc;
-		return hlTrue;
-	case HL_PROC_TELL_EX:
-		*pValue = (const hlVoid *)pTellExProc;
-		return hlTrue;
-	case HL_PROC_SIZE:
-		*pValue = (const hlVoid *)pSizeProc;
-		return hlTrue;
-	case HL_PROC_SIZE_EX:
-		*pValue = (const hlVoid *)pSizeExProc;
-		return hlTrue;
 	case HL_PROC_EXTRACT_ITEM_START:
 		*pValue = (const hlVoid *)pExtractItemStartProc;
 		return hlTrue;
@@ -277,36 +219,6 @@ HLLIB_API hlVoid hlSetVoid(HLOption eOption, const hlVoid *pValue)
 {
 	switch(eOption)
 	{
-	case HL_PROC_OPEN:
-		pOpenProc = (POpenProc)pValue;
-		break;
-	case HL_PROC_CLOSE:
-		pCloseProc = (PCloseProc)pValue;
-		break;
-	case HL_PROC_READ:
-		pReadProc = (PReadProc)pValue;
-		break;
-	case HL_PROC_WRITE:
-		pWriteProc = (PWriteProc)pValue;
-		break;
-	case HL_PROC_SEEK:
-		pSeekProc = (PSeekProc)pValue;
-		break;
-	case HL_PROC_SEEK_EX:
-		pSeekExProc = (PSeekExProc)pValue;
-		break;
-	case HL_PROC_TELL:
-		pTellProc = (PTellProc)pValue;
-		break;
-	case HL_PROC_TELL_EX:
-		pTellExProc = (PTellExProc)pValue;
-		break;
-	case HL_PROC_SIZE:
-		pSizeProc = (PSizeProc)pValue;
-		break;
-	case HL_PROC_SIZE_EX:
-		pSizeExProc = (PSizeExProc)pValue;
-		break;
 	case HL_PROC_EXTRACT_ITEM_START:
 		pExtractItemStartProc = (PExtractItemStartProc)pValue;
 		break;
