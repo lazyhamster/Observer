@@ -822,6 +822,30 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\AuxUtils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\BSPFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Checksum.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\DirectoryFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\DirectoryFolder.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\DirectoryItem.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\dllmain.cpp"
 				>
 				<FileConfiguration
@@ -916,6 +940,58 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\HLLib\Error.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\FileMapping.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\FileStream.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\GCFFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\GCFStream.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\HLLib.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Mapping.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\MappingStream.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\MemoryStream.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\NCFFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\NullStream.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Package.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\PAKFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -1000,11 +1076,35 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\HLLib\StreamMapping.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Utility.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\valve.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\valve.def"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\VBSPFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\VPKFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\WADFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\XZPFile.cpp"
 				>
 			</File>
 		</Filter>
@@ -1014,11 +1114,139 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\AuxUtils.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\BSPFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Checksum.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\DirectoryFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\DirectoryFolder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\DirectoryItem.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\DirectoryItems.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Error.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\FileMapping.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\FileStream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\GCFFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\GCFStream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\HLLib.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\HLTypes.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Mapping.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Mappings.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\MappingStream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\MemoryStream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\NCFFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\NullStream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Package.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Packages.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\PAKFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\resource.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
 			<File
+				RelativePath=".\HLLib\Stream.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\StreamMapping.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Streams.h"
+				>
+			</File>
+			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\Utility.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\VBSPFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\VPKFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\WADFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HLLib\XZPFile.h"
 				>
 			</File>
 		</Filter>
