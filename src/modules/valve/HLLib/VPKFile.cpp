@@ -46,9 +46,9 @@ const hlChar *CVPKFile::GetExtension() const
 	return "vpk";
 }
 
-const hlChar *CVPKFile::GetDescription() const
+const hlWChar *CVPKFile::GetDescription() const
 {
-	return "Valve Package File";
+	return L"Valve Package File";
 }
 
 hlBool CVPKFile::MapString(const hlChar *&lpViewData, const hlChar *lpViewDirectoryDataEnd, const hlChar *&lpString)

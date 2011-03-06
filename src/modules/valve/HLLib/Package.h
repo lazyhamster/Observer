@@ -42,7 +42,7 @@ namespace HLLib
 
 		virtual HLPackageType GetType() const = 0;
 		virtual const hlChar *GetExtension() const = 0;
-		virtual const hlChar *GetDescription() const = 0;
+		virtual const hlWChar *GetDescription() const = 0;
 
 		hlBool GetOpened() const;
 

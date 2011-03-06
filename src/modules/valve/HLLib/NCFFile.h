@@ -155,7 +155,7 @@ namespace HLLib
 
 		virtual HLPackageType GetType() const;
 		virtual const hlChar *GetExtension() const;
-		virtual const hlChar *GetDescription() const;
+		virtual const hlWChar *GetDescription() const;
 
 		const hlChar *GetRootPath() const;
 		hlVoid SetRootPath(const hlChar *lpRootPath);

@@ -49,9 +49,9 @@ const hlChar *CVBSPFile::GetExtension() const
 	return "bsp";
 }
 
-const hlChar *CVBSPFile::GetDescription() const
+const hlWChar *CVBSPFile::GetDescription() const
 {
-	return "Half-Life 2 Level";
+	return L"Half-Life 2 Level";
 }
 
 hlBool CVBSPFile::MapDataStructures()

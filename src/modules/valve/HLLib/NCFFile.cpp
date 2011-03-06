@@ -63,9 +63,9 @@ const hlChar *CNCFFile::GetExtension() const
 	return "ncf";
 }
 
-const hlChar *CNCFFile::GetDescription() const
+const hlWChar *CNCFFile::GetDescription() const
 {
-	return "Half-Life No Cache File";
+	return L"Half-Life No Cache File";
 }
 
 const hlChar *CNCFFile::GetRootPath() const

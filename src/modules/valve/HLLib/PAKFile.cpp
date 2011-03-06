@@ -36,9 +36,9 @@ const hlChar *CPAKFile::GetExtension() const
 	return "pak";
 }
 
-const hlChar *CPAKFile::GetDescription() const
+const hlWChar *CPAKFile::GetDescription() const
 {
-	return "Half-Life Package File";
+	return L"Half-Life Package File";
 }
 
 hlBool CPAKFile::MapDataStructures()
