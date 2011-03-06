@@ -89,7 +89,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 			xst->IsCatalog = true;
 			xst->Catalog = hCat;
 
-			*storage = (INT_PTR*) xst;
+			*storage = xst;
 			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"X-CAT");
 			wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
 			//wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
@@ -109,7 +109,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 			xst->IsCatalog = false;
 			xst->FilePtr = hFile;
 
-			*storage = (INT_PTR*) xst;
+			*storage = xst;
 			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"X-PCK");
 			//wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"");
 			
