@@ -90,25 +90,14 @@ const CDirectoryFolder *CDirectoryItem::GetParent() const
 
 hlVoid CDirectoryItem::GetPath(hlChar *lpPath, hlUInt uiPathSize) const
 {
-	hlChar *lpTemp = new hlChar[uiPathSize];
-
-	strncpy(lpPath, this->lpName, uiPathSize);
-	lpPath[uiPathSize - 1] = '\0';
-
-	const CDirectoryItem *pItem = this->pParent;
-	while(pItem)
+	if (pParent != NULL)
 	{
-		strcpy(lpTemp, lpPath);
-
-		strncpy(lpPath, pItem->lpName, uiPathSize);
-		lpPath[uiPathSize - 1] = '\0';
-
-		strncat(lpPath, PATH_SEPARATOR_STRING, uiPathSize - strlen(lpPath) - 1);
-
-		strncat(lpPath, lpTemp, uiPathSize - strlen(lpPath) - 1);
-
-		pItem = pItem->pParent;
+		pParent->GetPath(lpPath, uiPathSize);
+		strcat(lpPath, PATH_SEPARATOR_STRING);
+		strcat(lpPath, lpName);
 	}
-
-	delete []lpTemp;
+	else
+	{
+		strcpy(lpPath, lpName);
+	}
 }
