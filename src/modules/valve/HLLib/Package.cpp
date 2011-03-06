@@ -156,34 +156,6 @@ hlVoid CPackage::Close()
 	this->pStream = 0;
 }
 
-hlBool CPackage::Defragment()
-{
-	if(!this->GetOpened())
-	{
-		LastError.SetErrorMessage("Package not opened.");
-		return hlFalse;
-	}
-
-	if(!(this->GetMapping()->GetMode() & HL_MODE_WRITE))
-	{
-		LastError.SetErrorMessage("Package does not have write privileges, please enable them.");
-		return hlFalse;
-	}
-
-	if(this->GetMapping()->GetMode() & HL_MODE_VOLATILE)
-	{
-		LastError.SetErrorMessage("Package has volatile access enabled, please disable it.");
-		return hlFalse;
-	}
-
-	return this->DefragmentInternal();
-}
-
-hlBool CPackage::DefragmentInternal()
-{
-	return hlTrue;
-}
-
 const Mapping::CMapping* CPackage::GetMapping() const
 {
 	return this->pMapping;

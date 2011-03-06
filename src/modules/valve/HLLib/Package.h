@@ -51,8 +51,6 @@ namespace HLLib
 		hlBool Open(const hlChar *lpFileName, hlUInt uiMode);
 		hlVoid Close();
 
-		hlBool Defragment();
-
 		const Mapping::CMapping* GetMapping() const;
 		CDirectoryFolder *GetRoot();
 		const CDirectoryFolder *GetRoot() const;
@@ -76,8 +74,6 @@ namespace HLLib
 	protected:
 		virtual hlBool MapDataStructures() = 0;
 		virtual hlVoid UnmapDataStructures() = 0;
-
-		virtual hlBool DefragmentInternal();
 
 		virtual CDirectoryFolder *CreateRoot() = 0;
 		virtual hlVoid ReleaseRoot();

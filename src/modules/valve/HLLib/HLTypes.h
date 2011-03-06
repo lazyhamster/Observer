@@ -81,9 +81,6 @@ typedef enum
 	HL_PACKAGE_TOTAL_MEMORY_ALLOCATED,
 	HL_PACKAGE_TOTAL_MEMORY_USED,
 	HL_READ_ENCRYPTED,
-	HL_FORCE_DEFRAGMENT,
-	HL_PROC_DEFRAGMENT_PROGRESS,
-	HL_PROC_DEFRAGMENT_PROGRESS_EX
 } HLOption;
 
 typedef enum
@@ -316,8 +313,6 @@ typedef hlVoid (*PExtractItemStartProc) (const HLDirectoryItem *pItem);
 typedef hlVoid (*PExtractItemEndProc) (const HLDirectoryItem *pItem, hlBool bSuccess);
 typedef hlVoid (*PExtractFileProgressProc) (const HLDirectoryItem *pFile, hlUInt uiBytesExtracted, hlUInt uiBytesTotal, hlBool *pCancel);
 typedef hlVoid (*PValidateFileProgressProc) (const HLDirectoryItem *pFile, hlUInt uiBytesValidated, hlUInt uiBytesTotal, hlBool *pCancel);
-typedef hlVoid (*PDefragmentProgressProc) (const HLDirectoryItem *pFile, hlUInt uiFilesDefragmented, hlUInt uiFilesTotal, hlUInt uiBytesDefragmented, hlUInt uiBytesTotal, hlBool *pCancel);
-typedef hlVoid (*PDefragmentProgressExProc) (const HLDirectoryItem *pFile, hlUInt uiFilesDefragmented, hlUInt uiFilesTotal, hlULongLong uiBytesDefragmented, hlULongLong uiBytesTotal, hlBool *pCancel);
 
 #ifdef __cplusplus
 }

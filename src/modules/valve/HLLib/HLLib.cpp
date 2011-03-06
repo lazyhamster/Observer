@@ -23,12 +23,9 @@ namespace HLLib
 	PExtractItemEndProc pExtractItemEndProc = 0;
 	PExtractFileProgressProc pExtractFileProgressProc = 0;
 	PValidateFileProgressProc pValidateFileProgressProc = 0;
-	PDefragmentProgressProc pDefragmentProgressProc = 0;
-	PDefragmentProgressExProc pDefragmentProgressExProc = 0;
 
 	hlBool bOverwriteFiles = hlTrue;
 	hlBool bReadEncrypted = hlTrue;
-	hlBool bForceDefragment = hlFalse;
 
 	hlVoid hlExtractItemStart(const HLDirectoryItem *pItem)
 	{
@@ -59,18 +56,6 @@ namespace HLLib
 		if(pValidateFileProgressProc)
 		{
 			pValidateFileProgressProc(pFile, static_cast<hlUInt>(uiBytesValidated), static_cast<hlUInt>(uiBytesTotal), pCancel);
-		}
-	}
-
-	hlVoid hlDefragmentProgress(const HLDirectoryItem *pFile, hlUInt uiFilesDefragmented, hlUInt uiFilesTotal, hlULongLong uiBytesDefragmented, hlULongLong uiBytesTotal, hlBool *pCancel)
-	{
-		if(pDefragmentProgressProc)
-		{
-			pDefragmentProgressProc(pFile, uiFilesDefragmented, uiFilesTotal, static_cast<hlUInt>(uiBytesDefragmented), static_cast<hlUInt>(uiBytesTotal), pCancel);
-		}
-		if(pDefragmentProgressExProc)
-		{
-			pDefragmentProgressExProc(pFile, uiFilesDefragmented, uiFilesTotal, uiBytesDefragmented, uiBytesTotal, pCancel);
 		}
 	}
 }
@@ -121,9 +106,6 @@ HLLIB_API hlBool hlGetBooleanValidate(HLOption eOption, hlBool *pValue)
 	case HL_READ_ENCRYPTED:
 		*pValue = bReadEncrypted;
 		return hlTrue;
-	case HL_FORCE_DEFRAGMENT:
-		*pValue = bForceDefragment;
-		return hlTrue;
 	}
 
 	return hlFalse;
@@ -138,9 +120,6 @@ HLLIB_API hlVoid hlSetBoolean(HLOption eOption, hlBool bValue)
 		break;
 	case HL_READ_ENCRYPTED:
 		bReadEncrypted = bValue;
-		break;
-	case HL_FORCE_DEFRAGMENT:
-		bForceDefragment = bValue;
 		break;
 	}
 }
@@ -204,12 +183,6 @@ HLLIB_API hlBool hlGetVoidValidate(HLOption eOption, const hlVoid **pValue)
 	case HL_PROC_VALIDATE_FILE_PROGRESS:
 		*pValue = (const hlVoid *)pValidateFileProgressProc;
 		return hlTrue;
-	case HL_PROC_DEFRAGMENT_PROGRESS:
-		*pValue = (const hlVoid *)pDefragmentProgressProc;
-		return hlTrue;
-	case HL_PROC_DEFRAGMENT_PROGRESS_EX:
-		*pValue = (const hlVoid *)pDefragmentProgressExProc;
-		return hlTrue;
 	default:
 		return hlFalse;
 	}
@@ -230,12 +203,6 @@ HLLIB_API hlVoid hlSetVoid(HLOption eOption, const hlVoid *pValue)
 		break;
 	case HL_PROC_VALIDATE_FILE_PROGRESS:
 		pValidateFileProgressProc = (PValidateFileProgressProc)pValue;
-		break;
-	case HL_PROC_DEFRAGMENT_PROGRESS:
-		pDefragmentProgressProc = (PDefragmentProgressProc)pValue;
-		break;
-	case HL_PROC_DEFRAGMENT_PROGRESS_EX:
-		pDefragmentProgressExProc = (PDefragmentProgressExProc)pValue;
 		break;
 	}
 }
