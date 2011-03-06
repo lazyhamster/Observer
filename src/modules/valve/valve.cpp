@@ -111,8 +111,20 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	ValvePackage* vp = (ValvePackage*) storage;
 	if (vp == NULL) return SER_ERROR_SYSTEM;
+
+	if (params.item < 0 || params.item >= (int) vp->vItems.size())
+		return SER_ERROR_SYSTEM;
+
+	char buf[MAX_PATH] = {0};
+	WideCharToMultiByte(CP_ACP, 0, params.destFilePath, -1, buf, MAX_PATH, NULL, NULL);
+	char* sl = strrchr(buf, '\\');
+	*sl = 0;
+
+	CDirectoryFile* fileItem = vp->vItems[params.item];
+	if (fileItem->Extract(buf) == hlTrue)
+		return SER_SUCCESS;
 	
-	return SER_ERROR_SYSTEM;
+	return SER_ERROR_READ;
 }
 
 //////////////////////////////////////////////////////////////////////////
