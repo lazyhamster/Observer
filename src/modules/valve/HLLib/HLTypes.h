@@ -12,23 +12,7 @@
 #ifndef HLTYPE_H
 #define HLTYPE_H
 
-#define HLLIB_STATIC 1
-
-#ifdef _MSC_VER
-#	ifdef HLLIB_EXPORTS
-#		define HLLIB_API __declspec(dllexport)
-#	elif HLLIB_STATIC
-#		define HLLIB_API
-#	else
-#		define HLLIB_API __declspec(dllimport)
-#	endif
-#else
-#	if defined(HAVE_GCCVISIBILITYPATCH) || __GNUC__ >= 4
-#		define HLLIB_API __attribute__ ((visibility("default")))
-#	else
-#		define HLLIB_API
-#	endif
-#endif
+#define HLLIB_API
 
 typedef unsigned char		hlBool;
 typedef char				hlChar;
@@ -368,9 +352,6 @@ typedef hlVoid (*PDefragmentProgressExProc) (const HLDirectoryItem *pFile, hlUIn
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
-#include <list>
-#include <vector>
 
 #ifdef _WIN32
 #	define PATH_SEPARATOR_CHAR '\\'
