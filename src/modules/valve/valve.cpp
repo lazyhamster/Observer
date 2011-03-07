@@ -46,11 +46,6 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	CPackage* pkg = CreatePackage(ePackageType);
 	if (pkg->Open(lpFilename, HL_MODE_READ))
 	{
-		if (ePackageType == HL_PACKAGE_NCF)
-		{
-			static_cast<CNCFFile *>(pkg)->SetRootPath(NULL);
-		}
-		
 		ValvePackage* vp = new ValvePackage();
 		vp->ePackageType = HL_PACKAGE_GCF;
 		vp->pPackage = pkg;

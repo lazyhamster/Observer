@@ -12,7 +12,6 @@ static HLPackageTest lpPackageTests[] =
 {
 	{ HL_PACKAGE_BSP, 4, { 0x1e, 0x00, 0x00, 0x00 } },
 	{ HL_PACKAGE_GCF, 8, { 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 } },
-	{ HL_PACKAGE_NCF, 8, { 0x01, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 } },
 	{ HL_PACKAGE_PAK, 4, { 'P', 'A', 'C', 'K' } },
 	{ HL_PACKAGE_VBSP, 4, { 'V', 'B', 'S', 'P' } },
 	{ HL_PACKAGE_VPK, 4, { 0x34, 0x12, 0x55, 0xaa } },
@@ -69,9 +68,6 @@ HLLib::CPackage* CreatePackage(HLPackageType ePackageType)
 			break;
 		case HL_PACKAGE_GCF:
 			pNewPackage = new HLLib::CGCFFile();
-			break;
-		case HL_PACKAGE_NCF:
-			pNewPackage = new HLLib::CNCFFile();
 			break;
 		case HL_PACKAGE_PAK:
 			pNewPackage = new HLLib::CPAKFile();

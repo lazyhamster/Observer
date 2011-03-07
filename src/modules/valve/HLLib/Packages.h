@@ -12,7 +12,6 @@
 #include "Package.h"
 #include "BSPFile.h"
 #include "GCFFile.h"
-#include "NCFFile.h"
 #include "PAKFile.h"
 #include "VBSPFile.h"
 #include "VPKFile.h"

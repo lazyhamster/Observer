@@ -976,10 +976,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\HLLib\NCFFile.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\HLLib\NullStream.cpp"
 				>
 			</File>
@@ -1183,10 +1179,6 @@
 			</File>
 			<File
 				RelativePath=".\HLLib\MemoryStream.h"
-				>
-			</File>
-			<File
-				RelativePath=".\HLLib\NCFFile.h"
 				>
 			</File>
 			<File

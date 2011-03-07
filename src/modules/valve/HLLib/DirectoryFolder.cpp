@@ -644,49 +644,6 @@ hlUInt CDirectoryFolder::GetFileCount(hlBool bRecurse) const
  
 hlBool CDirectoryFolder::Extract(const hlChar *lpPath) const
 {
-	hlExtractItemStart(this);
-
-	hlChar *lpName = new hlChar[strlen(this->GetName()) + 1];
-	strcpy(lpName, this->GetName());
-	RemoveIllegalCharacters(lpName);
-
-	hlChar *lpFolderName;
-	if(lpPath == 0 || *lpPath == '\0')
-	{
-		lpFolderName = new hlChar[strlen(lpName) + 1];
-		strcpy(lpFolderName, lpName);
-	}
-	else
-	{
-		lpFolderName = new hlChar[strlen(lpPath) + 1 + strlen(lpName) + 1];
-		strcpy(lpFolderName, lpPath);
-		strcat(lpFolderName, PATH_SEPARATOR_STRING);
-		strcat(lpFolderName, lpName);
-	}
-
-	FixupIllegalCharacters(lpFolderName);
-
-	hlBool bResult;
-	if(!CreateFolder(lpFolderName))
-	{
-		LastError.SetSystemErrorMessage("CreateDirectory() failed.");
-
-		bResult = hlFalse;
-	}
-	else
-	{
-		bResult = hlTrue;
-
-		for(hlUInt i = 0; i < this->pDirectoryItemVector->size(); i++)
-		{
-			bResult &= (*this->pDirectoryItemVector)[i]->Extract(lpFolderName);
-		}
-	}
-
-	delete []lpFolderName;
-	delete []lpName;
-
-	hlExtractItemEnd(this, bResult);
-
-	return bResult;
+	//This functionality is not needed
+	return hlFalse;
 }
