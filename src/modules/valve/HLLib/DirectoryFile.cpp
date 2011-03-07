@@ -96,88 +96,56 @@ hlBool CDirectoryFile::Extract(const hlChar *lpPath) const
 {
 	hlExtractItemStart(this);
 
-	hlChar *lpName = new hlChar[strlen(this->GetName()) + 1];
-	strcpy(lpName, this->GetName());
-	RemoveIllegalCharacters(lpName);
+	hlBool bResult = hlFalse;
+	Streams::IStream *pInput = 0;
 
-	hlChar *lpFileName;
-	if(lpPath == 0 || *lpPath == '\0')
+	if(this->GetPackage()->CreateStream(this, pInput))
 	{
-		lpFileName = new hlChar[strlen(lpName) + 1];
-		strcpy(lpFileName, lpName);
-	}
-	else
-	{
-		lpFileName = new hlChar[strlen(lpPath) + 1 + strlen(lpName) + 1];
-		strcpy(lpFileName, lpPath);
-		strcat(lpFileName, PATH_SEPARATOR_STRING);
-		strcat(lpFileName, lpName);
-	}
-
-	FixupIllegalCharacters(lpFileName);
-
-	hlBool bResult;
-	if(!bOverwriteFiles && GetFileExists(lpFileName))
-	{
-		bResult = hlTrue;
-	}
-	else
-	{
-		bResult = hlFalse;
-
-		Streams::IStream *pInput = 0;
-
-		if(this->GetPackage()->CreateStream(this, pInput))
+		if(pInput->Open(HL_MODE_READ))
 		{
-			if(pInput->Open(HL_MODE_READ))
+			Streams::CFileStream Output = Streams::CFileStream(lpPath);
+
+			if(Output.Open(HL_MODE_WRITE | HL_MODE_CREATE))
 			{
-				Streams::CFileStream Output = Streams::CFileStream(lpFileName);
+				hlUInt uiTotalBytes = 0, uiFileBytes = this->GetSize();
+				hlByte lpBuffer[HL_DEFAULT_COPY_BUFFER_SIZE];
 
-				if(Output.Open(HL_MODE_WRITE | HL_MODE_CREATE))
+				hlBool bCancel = hlFalse;
+				hlExtractFileProgress(this, uiTotalBytes, uiFileBytes, &bCancel);
+
+				while(hlTrue)
 				{
-					hlUInt uiTotalBytes = 0, uiFileBytes = this->GetSize();
-					hlByte lpBuffer[HL_DEFAULT_COPY_BUFFER_SIZE];
-
-					hlBool bCancel = hlFalse;
-					hlExtractFileProgress(this, uiTotalBytes, uiFileBytes, &bCancel);
-
-					while(hlTrue)
+					if(bCancel)
 					{
-						if(bCancel)
-						{
-							LastError.SetErrorMessage("Canceled by user.");
-						}
-
-						hlUInt uiBytes = pInput->Read(lpBuffer, sizeof(lpBuffer));
-
-						if(uiBytes == 0)
-						{
-							bResult = uiTotalBytes == pInput->GetStreamSize();
-							break;
-						}
-
-						if(Output.Write(lpBuffer, uiBytes) != uiBytes)
-						{
-							break;
-						}
-
-						uiTotalBytes += uiBytes;
-
-						hlExtractFileProgress(this, uiTotalBytes, uiFileBytes, &bCancel);
+						LastError.SetErrorMessage("Canceled by user.");
 					}
 
-					Output.Close();
+					hlUInt uiBytes = pInput->Read(lpBuffer, sizeof(lpBuffer));
+
+					if(uiBytes == 0)
+					{
+						bResult = uiTotalBytes == pInput->GetStreamSize();
+						break;
+					}
+
+					if(Output.Write(lpBuffer, uiBytes) != uiBytes)
+					{
+						break;
+					}
+
+					uiTotalBytes += uiBytes;
+
+					hlExtractFileProgress(this, uiTotalBytes, uiFileBytes, &bCancel);
 				}
 
-				pInput->Close();
+				Output.Close();
 			}
 
-			this->GetPackage()->ReleaseStream(pInput);
+			pInput->Close();
 		}
-	}
 
-	delete []lpFileName;
-	delete []lpName;
+		this->GetPackage()->ReleaseStream(pInput);
+	}
 
 	hlExtractItemEnd(this, bResult);
 

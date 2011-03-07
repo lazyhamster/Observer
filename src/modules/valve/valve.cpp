@@ -36,10 +36,10 @@ void EnumFiles(ValvePackage* package, CDirectoryFolder* folder)
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	hlChar* lpFilename = "G:\\9\\valve\\half-life engine.gcf";
-	wchar_t* lpwFilename = L"G:\\9\\valve\\half-life engine.gcf";
+	hlChar lpFilename[MAX_PATH] = {0};
+	WideCharToMultiByte(CP_ACP, 0, params.FilePath, -1, lpFilename, MAX_PATH, NULL, NULL);
 
-	HLPackageType ePackageType = GetPackageType(lpwFilename);
+	HLPackageType ePackageType = GetPackageType(params.FilePath);
 	if (ePackageType == HL_PACKAGE_NONE)
 		return SOR_INVALID_FILE;
 	
@@ -117,8 +117,6 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	char buf[MAX_PATH] = {0};
 	WideCharToMultiByte(CP_ACP, 0, params.destFilePath, -1, buf, MAX_PATH, NULL, NULL);
-	char* sl = strrchr(buf, '\\');
-	*sl = 0;
 
 	CDirectoryFile* fileItem = vp->vItems[params.item];
 	if (fileItem->Extract(buf) == hlTrue)
