@@ -2,6 +2,7 @@ Changes history:
 
 1.7.0
 - You can now switch extension filters on/off in configuration dialog.
+- Added use of Win7 progress indicator during extraction.
 - ISO: Added support for ISZ (comressed ISO).
 - ISO: Fixed crash on some malformed images.
 - ISO: Added workaround for boot HDD emulation files extraction.
