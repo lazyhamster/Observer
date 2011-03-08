@@ -17,13 +17,13 @@ using namespace HLLib;
 using namespace HLLib::Mapping;
 
 #ifdef _WIN32
-CFileMapping::CFileMapping(const hlChar *lpFileName) : hFile(0), hFileMapping(0), uiMode(HL_MODE_INVALID), lpView(0), uiViewSize(0)
+CFileMapping::CFileMapping(const hlWChar *lpFileName) : hFile(0), hFileMapping(0), uiMode(HL_MODE_INVALID), lpView(0), uiViewSize(0)
 #else
 CFileMapping::CFileMapping(const hlChar *lpFileName) : iFile(-1), uiMode(HL_MODE_INVALID), lpView(0), uiViewSize(0)
 #endif
 {
-	this->lpFileName = new hlChar[strlen(lpFileName) + 1];
-	strcpy(this->lpFileName, lpFileName);
+	this->lpFileName = new hlWChar[wcslen(lpFileName) + 1];
+	wcscpy(this->lpFileName, lpFileName);
 
 #ifdef _WIN32
 	SYSTEM_INFO SystemInfo;
@@ -47,7 +47,7 @@ HLMappingType CFileMapping::GetType() const
 	return HL_MAPPING_FILE;
 }
 
-const hlChar *CFileMapping::GetFileName() const
+const hlWChar *CFileMapping::GetFileName() const
 {
 	return this->lpFileName;
 }
@@ -82,7 +82,7 @@ hlBool CFileMapping::OpenInternal(hlUInt uiMode)
 		return hlFalse;
 	}
 
-	this->hFile = CreateFileA(this->lpFileName, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL);
+	this->hFile = CreateFile(this->lpFileName, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if(this->hFile == INVALID_HANDLE_VALUE)
 	{

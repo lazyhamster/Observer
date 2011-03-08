@@ -36,15 +36,12 @@ void EnumFiles(ValvePackage* package, CDirectoryFolder* folder)
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	hlChar lpFilename[MAX_PATH] = {0};
-	WideCharToMultiByte(CP_ACP, 0, params.FilePath, -1, lpFilename, MAX_PATH, NULL, NULL);
-
 	HLPackageType ePackageType = GetPackageType(params.FilePath);
 	if (ePackageType == HL_PACKAGE_NONE)
 		return SOR_INVALID_FILE;
 	
 	CPackage* pkg = CreatePackage(ePackageType);
-	if (pkg->Open(lpFilename, HL_MODE_READ))
+	if (pkg->Open(params.FilePath, HL_MODE_READ))
 	{
 		ValvePackage* vp = new ValvePackage();
 		vp->ePackageType = HL_PACKAGE_GCF;
@@ -110,11 +107,8 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	if (params.item < 0 || params.item >= (int) vp->vItems.size())
 		return SER_ERROR_SYSTEM;
 
-	char buf[MAX_PATH] = {0};
-	WideCharToMultiByte(CP_ACP, 0, params.destFilePath, -1, buf, MAX_PATH, NULL, NULL);
-
 	CDirectoryFile* fileItem = vp->vItems[params.item];
-	if (fileItem->Extract(buf) == hlTrue)
+	if (fileItem->Extract(params.destFilePath) == hlTrue)
 		return SER_SUCCESS;
 	
 	return SER_ERROR_READ;

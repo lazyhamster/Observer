@@ -37,7 +37,7 @@ namespace HLLib
 		hlBool CreateStream(Streams::IStream *&pStream) const;
 		hlVoid ReleaseStream(Streams::IStream *pStream) const;
 
-		virtual hlBool Extract(const hlChar *lpPath) const;
+		virtual hlBool Extract(const hlWChar *lpPath) const;
 	};
 }
 

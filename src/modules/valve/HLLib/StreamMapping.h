@@ -31,7 +31,7 @@ namespace HLLib
 			virtual HLMappingType GetType() const;
 
 			const Streams::IStream& GetStream() const;
-			virtual const hlChar *GetFileName() const;
+			virtual const hlWChar *GetFileName() const;
 
 			virtual hlBool GetOpened() const;
 			virtual hlUInt GetMode() const;

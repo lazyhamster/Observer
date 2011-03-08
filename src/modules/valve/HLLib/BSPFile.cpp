@@ -355,13 +355,16 @@ hlVoid CBSPFile::GetFileName(hlChar *lpBuffer, hlUInt uiBufferSize)
 		return;
 	}
 
-	const hlChar *lpMappingName = this->pMapping->GetFileName();
+	const hlWChar *lpwMappingName = this->pMapping->GetFileName();
 
-	if(lpMappingName == 0 && *lpMappingName == '\0')
+	if(lpwMappingName == 0 && *lpwMappingName == '\0')
 	{
 		*lpBuffer = '\0';
 		return;
 	}
+
+	hlChar lpMappingName[MAX_PATH] = {0};
+	WideCharToMultiByte(CP_ACP, 0, lpwMappingName, -1, lpMappingName, MAX_PATH, NULL, NULL);
 
 	const hlChar *lpForward = strrchr(lpMappingName, '\\');
 	const hlChar *lpBackward = strrchr(lpMappingName, '/');

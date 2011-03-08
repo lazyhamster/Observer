@@ -45,7 +45,7 @@ hlBool CPackage::Open(Mapping::CMapping &Mapping, hlUInt uiMode)
 	return this->Open(&Mapping, uiMode, hlFalse);
 }
 
-hlBool CPackage::Open(const hlChar *lpFileName, hlUInt uiMode)
+hlBool CPackage::Open(const hlWChar *lpFileName, hlUInt uiMode)
 {
 	if(uiMode & HL_MODE_NO_FILEMAPPING)
 	{

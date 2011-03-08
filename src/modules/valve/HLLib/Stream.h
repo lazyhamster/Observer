@@ -25,7 +25,7 @@ namespace HLLib
 
 			virtual HLStreamType GetType() const = 0;
 
-			virtual const hlChar *GetFileName() const = 0;
+			virtual const hlWChar *GetFileName() const = 0;
 
 			virtual hlBool GetOpened() const = 0;
 			virtual hlUInt GetMode() const = 0;

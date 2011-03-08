@@ -41,9 +41,9 @@ hlULongLong CMemoryStream::GetBufferSize() const
 	return this->uiBufferSize;
 }
 
-const hlChar *CMemoryStream::GetFileName() const
+const hlWChar *CMemoryStream::GetFileName() const
 {
-	return "";
+	return L"";
 }
 
 hlBool CMemoryStream::GetOpened() const

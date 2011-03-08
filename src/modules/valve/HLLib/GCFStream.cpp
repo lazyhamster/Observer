@@ -36,9 +36,10 @@ const CGCFFile &CGCFStream::GetPackage() const
 	return this->GCFFile;
 }
 
-const hlChar *CGCFStream::GetFileName() const
+const hlWChar *CGCFStream::GetFileName() const
 {
-	return this->GCFFile.lpDirectoryNames + this->GCFFile.lpDirectoryEntries[this->uiFileID].uiNameOffset;
+	//return this->GCFFile.lpDirectoryNames + this->GCFFile.lpDirectoryEntries[this->uiFileID].uiNameOffset;
+	return L""; //TODO: do something about it
 }
 
 hlBool CGCFStream::GetOpened() const

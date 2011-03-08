@@ -92,7 +92,7 @@ hlVoid CDirectoryFile::ReleaseStream(Streams::IStream *pStream) const
 	return this->GetPackage()->ReleaseStream(pStream);
 }
 
-hlBool CDirectoryFile::Extract(const hlChar *lpPath) const
+hlBool CDirectoryFile::Extract(const hlWChar *lpPath) const
 {
 	hlExtractItemStart(this);
 

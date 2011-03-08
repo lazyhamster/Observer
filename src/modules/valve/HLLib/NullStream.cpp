@@ -31,9 +31,9 @@ HLStreamType CNullStream::GetType() const
 	return HL_STREAM_NULL;
 }
 
-const hlChar *CNullStream::GetFileName() const
+const hlWChar *CNullStream::GetFileName() const
 {
-	return "";
+	return L"";
 }
 
 hlBool CNullStream::GetOpened() const

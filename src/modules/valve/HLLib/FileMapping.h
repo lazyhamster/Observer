@@ -33,15 +33,15 @@ namespace HLLib
 			hlVoid *lpView;
 			hlULongLong uiViewSize;
 
-			hlChar *lpFileName;
+			hlWChar *lpFileName;
 
 		public:
-			CFileMapping(const hlChar *lpFileName);
+			CFileMapping(const hlWChar *lpFileName);
 			virtual ~CFileMapping();
 
 			virtual HLMappingType GetType() const;
 
-			virtual const hlChar *GetFileName() const;
+			virtual const hlWChar *GetFileName() const;
 
 			virtual hlBool GetOpened() const;
 			virtual hlUInt GetMode() const;

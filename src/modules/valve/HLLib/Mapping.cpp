@@ -71,9 +71,9 @@ CMapping::~CMapping()
 	assert(this->pViews == 0);
 }
 
-const hlChar *CMapping::GetFileName() const
+const hlWChar *CMapping::GetFileName() const
 {
-	return "";
+	return L"";
 }
 
 hlUInt CMapping::GetTotalAllocations() const

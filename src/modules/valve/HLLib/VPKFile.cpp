@@ -182,24 +182,24 @@ hlBool CVPKFile::MapDataStructures()
 		}
 	}
 
-	const hlChar *lpFileName = this->pMapping->GetFileName();
+	const hlWChar *lpFileName = this->pMapping->GetFileName();
 	if(this->uiArchiveCount > 0 && lpFileName != 0)
 	{
-		const hlChar *lpExtension = strrchr(lpFileName, '.');
-		if(lpExtension && lpExtension - lpFileName > 3 && _strnicmp(lpExtension - 3, "dir", 3) == 0)
+		const hlWChar *lpExtension = wcsrchr(lpFileName, '.');
+		if(lpExtension && lpExtension - lpFileName > 3 && _wcsnicmp(lpExtension - 3, L"dir", 3) == 0)
 		{
-			hlChar *lpArchiveFileName = new hlChar[strlen(lpFileName) + 2 + 1];  // We need 5 digits to print a short, but we already have 3 for dir.
-			hlChar *lpArchiveNumber = lpArchiveFileName + (lpExtension - lpFileName) - 3;
-			strcpy(lpArchiveFileName, lpFileName);
+			hlWChar *lpArchiveFileName = new hlWChar[wcslen(lpFileName) + 2 + 1];  // We need 5 digits to print a short, but we already have 3 for dir.
+			hlWChar *lpArchiveNumber = lpArchiveFileName + (lpExtension - lpFileName) - 3;
+			wcscpy(lpArchiveFileName, lpFileName);
 
 			this->lpArchives = new VPKArchive[this->uiArchiveCount];
 			memset(this->lpArchives, 0, this->uiArchiveCount * sizeof(VPKArchive));
 			for(hlUInt i = 0; i < this->uiArchiveCount; i++)
 			{
-				hlInt iPrinted = sprintf(lpArchiveNumber, "%0.3u", i);
+				hlInt iPrinted = swprintf(lpArchiveNumber, 4, L"%0.3u", i);
 				if(iPrinted > 0)
 				{
-					strcat(lpArchiveNumber + iPrinted, lpExtension);
+					wcscat(lpArchiveNumber + iPrinted, lpExtension);
 
 					if(this->pMapping->GetMode() & HL_MODE_NO_FILEMAPPING)
 					{

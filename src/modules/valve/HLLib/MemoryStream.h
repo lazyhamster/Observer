@@ -38,7 +38,7 @@ namespace HLLib
 
 			const hlVoid *GetBuffer() const;
 			hlULongLong GetBufferSize() const;
-			virtual const hlChar *GetFileName() const;
+			virtual const hlWChar *GetFileName() const;
 
 			virtual hlBool GetOpened() const;
 			virtual hlUInt GetMode() const;

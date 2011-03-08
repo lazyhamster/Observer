@@ -60,7 +60,7 @@ namespace HLLib
 
 			virtual HLMappingType GetType() const = 0;
 
-			virtual const hlChar *GetFileName() const;
+			virtual const hlWChar *GetFileName() const;
 
 			virtual hlBool GetOpened() const = 0;
 			virtual hlUInt GetMode() const = 0;

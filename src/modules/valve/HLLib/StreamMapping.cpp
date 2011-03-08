@@ -37,7 +37,7 @@ const Streams::IStream& CStreamMapping::GetStream() const
 	return this->Stream;
 }
 
-const hlChar *CStreamMapping::GetFileName() const
+const hlWChar *CStreamMapping::GetFileName() const
 {
 	return this->Stream.GetFileName();
 }

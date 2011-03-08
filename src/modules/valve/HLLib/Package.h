@@ -48,7 +48,7 @@ namespace HLLib
 
 		hlBool Open(Streams::IStream &Stream, hlUInt uiMode);
 		hlBool Open(Mapping::CMapping &Mapping, hlUInt uiMode);
-		hlBool Open(const hlChar *lpFileName, hlUInt uiMode);
+		hlBool Open(const hlWChar *lpFileName, hlUInt uiMode);
 		hlVoid Close();
 
 		const Mapping::CMapping* GetMapping() const;

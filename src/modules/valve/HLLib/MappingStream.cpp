@@ -51,9 +51,9 @@ const Mapping::CMapping &CMappingStream::GetMapping() const
 	return this->Mapping;
 }
 
-const hlChar *CMappingStream::GetFileName() const
+const hlWChar *CMappingStream::GetFileName() const
 {
-	return "";
+	return L"";
 }
 
 hlBool CMappingStream::GetOpened() const

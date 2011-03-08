@@ -17,13 +17,13 @@ using namespace HLLib;
 using namespace HLLib::Streams;
 
 #ifdef _WIN32
-CFileStream::CFileStream(const hlChar *lpFileName) : hFile(0), uiMode(HL_MODE_INVALID)
+CFileStream::CFileStream(const hlWChar *lpFileName) : hFile(0), uiMode(HL_MODE_INVALID)
 #else
 CFileStream::CFileStream(const hlChar *lpFileName) : iFile(-1), uiMode(HL_MODE_INVALID)
 #endif
 {
-	this->lpFileName = new hlChar[strlen(lpFileName) + 1];
-	strcpy(this->lpFileName, lpFileName);
+	this->lpFileName = new hlWChar[wcslen(lpFileName) + 1];
+	wcscpy(this->lpFileName, lpFileName);
 }
 
 CFileStream::~CFileStream()
@@ -38,7 +38,7 @@ HLStreamType CFileStream::GetType() const
 	return HL_STREAM_FILE;
 }
 
-const hlChar *CFileStream::GetFileName() const
+const hlWChar *CFileStream::GetFileName() const
 {
 	return this->lpFileName;
 }
@@ -73,7 +73,7 @@ hlBool CFileStream::Open(hlUInt uiMode)
 		return hlFalse;
 	}
 
-	this->hFile = CreateFileA(this->lpFileName, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL);
+	this->hFile = CreateFile(this->lpFileName, dwDesiredAccess, dwShareMode, NULL, dwCreationDisposition, FILE_ATTRIBUTE_NORMAL, NULL);
 
 	if(this->hFile == INVALID_HANDLE_VALUE)
 	{
