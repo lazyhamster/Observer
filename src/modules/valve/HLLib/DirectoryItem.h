@@ -46,7 +46,7 @@ namespace HLLib
 
 		hlVoid GetPath(hlChar *lpPath, hlUInt uiPathSize) const;
 
-		virtual hlBool Extract(const hlChar *lpPath) const = 0;
+		virtual hlBool Extract(const hlWChar *lpPath) const = 0;
 	};
 }
 

@@ -642,7 +642,7 @@ hlUInt CDirectoryFolder::GetFileCount(hlBool bRecurse) const
 	return uiCount;
 }
  
-hlBool CDirectoryFolder::Extract(const hlChar *lpPath) const
+hlBool CDirectoryFolder::Extract(const hlWChar *lpPath) const
 {
 	//This functionality is not needed
 	return hlFalse;

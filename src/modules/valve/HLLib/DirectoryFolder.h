@@ -59,7 +59,7 @@ namespace HLLib
 		hlUInt GetFolderCount(hlBool bRecurse = hlTrue) const;
 		hlUInt GetFileCount(hlBool bRecurse = hlTrue) const;
 
-		virtual hlBool Extract(const hlChar *lpPath) const;
+		virtual hlBool Extract(const hlWChar *lpPath) const;
 
 	private:
 		hlInt Compare(const hlChar *lpString0, const hlChar *lpString1, HLFindType eFind) const;
