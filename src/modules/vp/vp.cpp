@@ -11,7 +11,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	CVPFile* file = new CVPFile();
 	if (file->Open(params.FilePath))
 	{
-		*storage = (INT_PTR*) file;
+		*storage = file;
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Volition Pack");
