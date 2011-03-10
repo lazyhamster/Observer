@@ -162,7 +162,60 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
-	return SER_ERROR_SYSTEM;
+	VDisk* vdObj = (VDisk*) storage;
+	if (vdObj == NULL || params.item < 0 || params.item >= vdObj->vItems->Count || !params.destFilePath)
+		return SER_ERROR_SYSTEM;
+
+	List<VDFileInfo^> ^fileList = vdObj->vItems;
+	VDFileInfo^ fileInfo = fileList[params.item];
+	
+	DiscFileInfo^ dfi = fileInfo->FileRef;
+	if (!dfi->Exists) return SER_ERROR_READ;
+
+	String^ strDestFile = gcnew String(params.destFilePath);
+	int result = SER_SUCCESS;
+	
+	try
+	{
+		IO::Stream ^inStr = dfi->OpenRead();
+		IO::Stream ^outStr = gcnew IO::FileStream(strDestFile, IO::FileMode::Create, IO::FileAccess::Write, IO::FileShare::Read);
+
+		int copyBufSize = 32 * 1024;
+		array<Byte> ^copyBuf = gcnew array<Byte>(copyBufSize);
+		
+		Int64 bytesLeft = dfi->Length;
+		while (bytesLeft > 0)
+		{
+			int copySize = (int) Math::Min(bytesLeft, (Int64) copyBufSize);
+			int readNum = inStr->Read(copyBuf, 0, copyBufSize);
+
+			if (readNum != copySize)
+			{
+				result = SER_ERROR_READ;
+				break;
+			}
+			
+			outStr->Write(copyBuf, 0, readNum);
+			bytesLeft -= readNum;
+			
+			if (params.callbacks.FileProgress)
+				params.callbacks.FileProgress(params.callbacks.signalContext, readNum);
+		}
+		
+		outStr->Close();
+		inStr->Close();
+	}
+	catch (...)
+	{
+		result = SER_ERROR_WRITE;
+	}
+
+	if (result != SER_SUCCESS && IO::File::Exists(strDestFile))
+	{
+		IO::File::Delete(strDestFile);
+	}
+
+	return result;
 }
 
 //////////////////////////////////////////////////////////////////////////
