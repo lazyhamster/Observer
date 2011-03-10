@@ -7,7 +7,7 @@
 #include "bzip2\bzlib.h"
 
 #include "isz.h"
-//#include "aes.h"
+#include "aes.h"
 #include "iszsdk.h"
 
 #ifndef INVALID_SET_FILE_POINTER
@@ -45,7 +45,7 @@ typedef struct _isz_reader {
     int num_seg;
     unsigned char key[ISZ_KEY_MAX+1];
     int key_len;
-//    unsigned char aes[AES_CTX_SIZE];
+    aes_context aes_ctx;
 } isz_reader;
 
 #define CHECK_ZERO_BLOCKS
@@ -79,24 +79,22 @@ static int isz_decode(unsigned char *buffer, unsigned int size)
    return 1;
 }
 
-/*
 static int isz_decrypt(isz_reader *r, unsigned char *buffer, unsigned int size)
 {
-   unsigned int n,i;
+	unsigned int n,i;
 
-   CopyMemory(r->keybuf,buffer,size);
-   n = size / AES_BLOCK_SIZE;
-   i = 0;
-   while(n > 0)
-   {
-      aes_decrypt(&r->aes,buffer+i,r->keybuf+i);
-      --n;
-      i += AES_BLOCK_SIZE;
-   }
+	CopyMemory(r->keybuf,buffer,size);
+	n = size / AES_BLOCK_SIZE;
+	i = 0;
+	while(n > 0)
+	{
+		aes_decrypt(&r->aes_ctx, r->keybuf+i, buffer+i);
+		--n;
+		i += AES_BLOCK_SIZE;
+	}
 
-   return 1;
+	return 1;
 }
-*/
 
 static int h_fseek(HANDLE hFile, __int64 offs, DWORD moveto)
 {
@@ -219,7 +217,7 @@ static int isz_read_chunk(isz_reader *r,unsigned char *buffer, int blk_no)
       }
 
       if(r->isz.has_password)
-         return -1;//isz_decrypt(r,buffer,len);
+         isz_decrypt(r,buffer,len);
 
       return 0;
    }
@@ -283,7 +281,7 @@ static int isz_read_chunk(isz_reader *r,unsigned char *buffer, int blk_no)
    }
 
    if(r->isz.has_password)
-      return -1;//isz_decrypt(r,buffer,len);
+      isz_decrypt(r,buffer,len);
 
    return 0;
 }
@@ -610,7 +608,6 @@ int isz_setpassword(HANDLE h_isz, const char *isz_key)
 
 		r->key_len = strlen((char *)r->key);
 
-		/*
 		if (r->isz.has_password != ISZ_PASSWORD)
 		{
 			unsigned char aes_key[32+1];
@@ -634,9 +631,8 @@ int isz_setpassword(HANDLE h_isz, const char *isz_key)
 
 			memset(aes_key,0,keylen);
 			strncpy((char *)aes_key,(char *)r->key,keylen);
-			aes_set_key(&r->aes,aes_key,keylen);
+			aes_set_key(&r->aes_ctx, aes_key, keylen * 8);
 		}
-		*/
 
 		return 0;
 	}
