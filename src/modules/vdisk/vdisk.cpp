@@ -65,6 +65,12 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 static ::FILETIME DateTimeToFileTime(DateTime dt)
 {
 	::FILETIME ft = {0};
+
+	LARGE_INTEGER li;
+	li.QuadPart = dt.ToFileTime();
+
+	ft.dwLowDateTime = li.LowPart;
+	ft.dwHighDateTime = li.HighPart;
 	return ft;
 }
 
