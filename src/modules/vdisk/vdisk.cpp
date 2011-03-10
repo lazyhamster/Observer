@@ -68,6 +68,20 @@ static ::FILETIME DateTimeToFileTime(DateTime dt)
 	return ft;
 }
 
+const wchar_t* GetDiskType(VirtualDisk ^vdisk)
+{
+	if (vdisk->GetType() == Vmdk::Disk::typeid)
+		return L"VMWare Virtual Hard Disk";
+	else if (vdisk->GetType() == Vdi::Disk::typeid)
+		return L"Virtual Box Hard Disk";
+	else if (vdisk->GetType() == Vhd::Disk::typeid)
+		return L"Microsoft Virtual Hard Disk";
+	else if (vdisk->GetType() == Xva::Disk::typeid)
+		return L"Xen Virtual Appliance Disk";
+
+	return L"Virtual Disk";
+}
+
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	String ^strPath = gcnew String(params.FilePath);
@@ -94,7 +108,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		*storage = vdObj;
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Virtual Disk");
+		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, GetDiskType(vdisk));
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
 
