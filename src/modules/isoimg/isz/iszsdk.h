@@ -22,7 +22,7 @@ extern HANDLE isz_open(HANDLE filePtr, const wchar_t *filespec);
    ISZ_AES192      3
    ISZ_AES256      4
  */
-extern int isz_setpassword(HANDLE h_isz, char *isz_key);
+extern int isz_setpassword(HANDLE h_isz, const char *isz_key);
 
 /*
  * Get capacity
@@ -40,5 +40,7 @@ extern unsigned int isz_read_secs(HANDLE h_isz,void *buffer, unsigned int starts
  * Close file
  */
 extern void isz_close(HANDLE h_isz);
+
+bool isz_needpassword(HANDLE h_isz);
 
 #endif

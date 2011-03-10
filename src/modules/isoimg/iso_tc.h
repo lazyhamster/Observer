@@ -6,7 +6,7 @@
 #define LOWDWORD(x) (DWORD)(x)
 #define HIDWORD(x) (DWORD)((x) >> 32)
 
-IsoImage* GetImage( const wchar_t* filename );
+IsoImage* GetImage( const wchar_t* filename, const char* passwd, bool &needPasswd );
 bool FreeImage( IsoImage* image );
 bool LoadAllTrees( IsoImage* image, Directory** dirs, DWORD* count, bool boot = false );
 

@@ -324,10 +324,11 @@ static void CloseIsoHandle( IsoImage* image )
 	}
 }
 
-IsoImage* GetImage( const wchar_t* filename )
+IsoImage* GetImage( const wchar_t* filename, const char* passwd, bool &needPasswd )
 {
     DebugString( "GetImage" );
-    if( !filename )
+    needPasswd = false;
+	if( !filename )
         return NULL;
 
     IsoImage image;
@@ -346,6 +347,20 @@ IsoImage* GetImage( const wchar_t* filename )
 	{
 		image.ImageType = ISOTYPE_RAW;
 		image.hFile = hImgHandle;
+	}
+
+	//Check for password protection
+	if (image.ImageType == ISOTYPE_ISZ && isz_needpassword(image.hFile))
+	{
+		if (!passwd || !*passwd)
+		{
+			needPasswd = true;
+			return NULL;
+		}
+		else
+		{
+			isz_setpassword(image.hFile, passwd);
+		}
 	}
 
     assert( sizeof( PrimaryVolumeDescriptor ) == 0x800 ); // check for size of descriptor

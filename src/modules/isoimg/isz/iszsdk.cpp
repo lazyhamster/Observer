@@ -595,10 +595,10 @@ HANDLE isz_open(HANDLE filePtr, const wchar_t *filespec)
     return isz_r;
 }
 
-/*
-int isz_setpassword(HANDLE h_isz, char *isz_key)
+int isz_setpassword(HANDLE h_isz, const char *isz_key)
 {
-   isz_reader *r = (isz_reader *)h_isz;
+/*   
+	isz_reader *r = (isz_reader *)h_isz;
 
    if(isz_key == NULL)
    {
@@ -639,10 +639,10 @@ int isz_setpassword(HANDLE h_isz, char *isz_key)
 
       return 0;
    }
+*/
 
    return -1;
 }
-*/
 
 unsigned int isz_get_capacity(HANDLE h_isz, unsigned int *sect_size)
 {
@@ -707,4 +707,8 @@ void isz_close(HANDLE h_isz)
     free(r);
 }
 
-
+bool isz_needpassword(HANDLE h_isz)
+{
+	isz_reader *r = (isz_reader *)h_isz;
+	return (r->isz.has_password != ISZ_PLAIN);
+}

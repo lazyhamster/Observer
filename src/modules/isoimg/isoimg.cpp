@@ -8,8 +8,9 @@
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	IsoImage* image = GetImage(params.FilePath);
-	if (!image) return SOR_INVALID_FILE;
+	bool needPasswd = false;
+	IsoImage* image = GetImage(params.FilePath, params.Password, needPasswd);
+	if (!image) return needPasswd ? SOR_PASSWORD_REQUIRED : SOR_INVALID_FILE;
 
 	DWORD count = 0;
 	if( LoadAllTrees( image, 0, &count, true ) && count )
