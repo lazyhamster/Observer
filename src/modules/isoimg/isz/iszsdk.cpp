@@ -597,51 +597,51 @@ HANDLE isz_open(HANDLE filePtr, const wchar_t *filespec)
 
 int isz_setpassword(HANDLE h_isz, const char *isz_key)
 {
-/*   
 	isz_reader *r = (isz_reader *)h_isz;
 
-   if(isz_key == NULL)
-   {
-      return r->isz.has_password;
-   }
+	if(isz_key == NULL)
+	{
+	  return r->isz.has_password;
+	}
 
-   if(r->isz.has_password)
-   {
-      strncpy((char *)r->key,isz_key,ISZ_KEY_MAX);
+	if(r->isz.has_password)
+	{
+		strncpy((char *)r->key,isz_key,ISZ_KEY_MAX);
 
-      r->key_len = strlen((char *)r->key);
+		r->key_len = strlen((char *)r->key);
 
-      if(r->isz.has_password != ISZ_PASSWORD)
-      {
-         unsigned char aes_key[32+1];
-         int keylen;
+		/*
+		if (r->isz.has_password != ISZ_PASSWORD)
+		{
+			unsigned char aes_key[32+1];
+			int keylen;
 
-         switch(r->isz.has_password)
-         {
-            case ISZ_AES256:
-               keylen = 32;
-               break;
+			switch(r->isz.has_password)
+			{
+				case ISZ_AES256:
+				   keylen = 32;
+				   break;
 
-            case ISZ_AES192:
-               keylen = 24;
-               break;
+				case ISZ_AES192:
+				   keylen = 24;
+				   break;
 
-            //case ISZ_AES128:
-            default:
-               keylen = 16;
-               break;
-         }
+				//case ISZ_AES128:
+				default:
+				   keylen = 16;
+				   break;
+			}
 
-         memset(aes_key,0,keylen);
-         strncpy((char *)aes_key,(char *)r->key,keylen);
-         aes_set_key(&r->aes,aes_key,keylen);
-      }
+			memset(aes_key,0,keylen);
+			strncpy((char *)aes_key,(char *)r->key,keylen);
+			aes_set_key(&r->aes,aes_key,keylen);
+		}
+		*/
 
-      return 0;
-   }
-*/
+		return 0;
+	}
 
-   return -1;
+	return -1;
 }
 
 unsigned int isz_get_capacity(HANDLE h_isz, unsigned int *sect_size)
