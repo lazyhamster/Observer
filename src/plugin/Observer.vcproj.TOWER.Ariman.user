@@ -181,7 +181,7 @@
 				WorkingDirectory=""
 				CommandArguments=""
 				Attach="false"
-				DebuggerType="3"
+				DebuggerType="2"
 				Remote="1"
 				RemoteMachine="TOWER"
 				RemoteCommand=""

@@ -503,6 +503,7 @@
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
 			CharacterSet="1"
+			ManagedExtensions="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -524,12 +525,10 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;VDISK_EXPORTS"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -544,9 +543,9 @@
 				Name="VCLinkerTool"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
-				GenerateManifest="false"
 				ModuleDefinitionFile="vdisk.def"
 				GenerateDebugInformation="true"
+				AssemblyDebug="1"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
 				TargetMachine="1"
@@ -814,6 +813,16 @@
 		</Configuration>
 	</Configurations>
 	<References>
+		<AssemblyReference
+			RelativePath="System.dll"
+			AssemblyName="System, Version=2.0.0.0, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
+		/>
+		<AssemblyReference
+			RelativePath=".\Lib\DiscUtils.dll"
+			AssemblyName="DiscUtils, Version=0.9.0.0, PublicKeyToken=60a04f11f1df810d, processorArchitecture=MSIL"
+			MinFrameworkVersion="131072"
+		/>
 	</References>
 	<Files>
 		<Filter
@@ -821,6 +830,10 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath=".\AssemblyInfo.cpp"
+				>
+			</File>
 			<File
 				RelativePath=".\dllmain.cpp"
 				>
