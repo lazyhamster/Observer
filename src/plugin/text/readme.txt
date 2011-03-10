@@ -14,7 +14,7 @@ Add/Delete/Change operations are not planned.
 
 - MSI packages for Windows Installer
 - UDF images (ISO 13346).
-- CD/DVD images : ISO-9660 (incl. Joliet, RockRidge), CUE/BIN, MDF/MDS
+- CD/DVD images : ISO-9660 (incl. Joliet, RockRidge), CUE/BIN, MDF/MDS, ISZ
 - Installation packages made by NSIS (Nullsoft Installer)
 - Egosoft packages (for X-series games)
 - Volition Pack V2 files (from FreeSpace 1/2/Open)
@@ -22,6 +22,8 @@ Add/Delete/Change operations are not planned.
 - Containers from games made by Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
 - MS Outlook databases (*.pst).
 - WISE Installer packages.
+- Virtual disk images (VMDK, VDI, VHD, XVA).
+- Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
 
 1.2. Settings.
 
@@ -80,9 +82,6 @@ Didn't found license for this one, so it goes by LGPL too.
 libmspack is a library which provides compressors and decompressors,
 archivers and dearchivers for Microsoft compression formats.
 
-- NSIS (http://nsis.sourceforge.net/)
-Code used is for bzip2 support. Unpacker version is specific for NSIS.
-
 - X2 FileDriver (http://x-tools.doubleshadow.wz.cz/)
 Used for Egosoft (X2, X3, X3:TC) archives support.
 
@@ -99,10 +98,21 @@ MIME parsing library. Distributed under MIT license.
 - Wise UNpacker by J.Markus/Icebird
 Used as a reference, minor portions of code directly ported from Delphi to C++.
 
+- HLLib (http://nemesis.thewavelength.net/index.php?p=35)
+HLLib is a package library for Half-Life that abstracts several package formats and provides a simple interface for all of them.
+Distributed under LGPL license.
+
+- DiscUtils (http://discutils.codeplex.com/)
+DiscUtils is a .NET library to read and write ISO files and Virtual Machine disk files (VHD, VDI, XVA, VMDK, etc).
+Distributed under MIT license.
+
 3. System requirements.
-Minimal FAR versions are 1.75 build 2634 / 2.0 build 1777
-Windows Installer 4+ is required for MSI support.
-OS: Win2k+ (tested on WinXP and Win2003, but 2k should be suported too).
+OS: WinXP or higher.
+Minimal FAR versions are 1.75 build 2634 / 2.0 build 1807
+
+Windows Installer 4+
+Microsoft Visual C++ 2008 SP1 Redistributable Package
+Microsoft .NET Framework 3.5
 
 4. Diclaimer.
 This software is provided 'AS IS', without any express or implied warranty.

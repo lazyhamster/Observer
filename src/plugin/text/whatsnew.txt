@@ -1,6 +1,9 @@
 Changes history:
 
 1.7.0
+- Added support for several virtual disk formats (VMDK, VDI, VHD, XVA).
+- Added support for several formats used by Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
+- Sytem requirements were changed (now plugin also needs .NET 3.5 è VC++ Redist 2008 SP1).
 - You can now switch extension filters on/off in configuration dialog.
 - Added use of Win7 progress indicator during extraction.
 - ISO: Added support for ISZ (comressed ISO).
