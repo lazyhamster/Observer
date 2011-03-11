@@ -15,7 +15,6 @@ ref class VDFileInfo
 {
 public:
 	DiscFileInfo^ FileRef;
-	LogicalVolumeInfo^ VolumeRef;
 	int VolumeIndex;
 };
 
@@ -58,7 +57,6 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 	{
 		VDFileInfo^ fileInfo = gcnew VDFileInfo();
 		fileInfo->FileRef = fileList[i];
-		fileInfo->VolumeRef = vol;
 		fileInfo->VolumeIndex = volIndex;
 
 		vdObj->vItems->Add(fileInfo);
@@ -153,10 +151,16 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	LARGE_INTEGER liSize;
 	liSize.QuadPart = fileInfo->FileRef->Length;
 
+	String^ filePath;
+	if (!String::IsNullOrEmpty(fileInfo->FileRef->FileSystem->VolumeLabel))
+		filePath = String::Format("[{0}]\\{1}", fileInfo->FileRef->FileSystem->VolumeLabel->Trim(), fileInfo->FileRef->FullName);
+	else
+		filePath = String::Format("Volume_#{0}\\{1}", fileInfo->VolumeIndex, fileInfo->FileRef->FullName);
+
 	// Helper class for String^ to wchar_t* conversion
 	msclr::interop::marshal_context ctx;
 
-	wcscpy_s(item_path, path_size, ctx.marshal_as<const wchar_t*>(fileInfo->FileRef->FullName));
+	wcscpy_s(item_path, path_size, ctx.marshal_as<const wchar_t*>(filePath));
 
 	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
 	wcscpy_s(item_data->cFileName, MAX_PATH, ctx.marshal_as<const wchar_t*>(fileInfo->FileRef->Name));
