@@ -24,13 +24,16 @@ ref class AssemblyLoaderEx
 public:
 	static Assembly^ AssemblyResolveEventHandler( Object^ sender, ResolveEventArgs^ args )
 	{
-		if (args->Name->StartsWith("DiscUtils"))
+		String^ dllName = args->Name->Substring(0, args->Name->IndexOf(','));
+		if (dllName->Length > 0)
 		{
 			String ^strOwnPath = Assembly::GetAssembly(AssemblyLoaderEx::typeid)->Location;
-			String ^strTargetPath = IO::Path::GetDirectoryName(strOwnPath) + "\\DiscUtils.dll";
-			
-			return Assembly::LoadFile(strTargetPath);
+			String ^strTargetPath = IO::Path::GetDirectoryName(strOwnPath) + "\\" + dllName + ".dll";
+
+			if (IO::File::Exists(strTargetPath))
+				return Assembly::LoadFile(strTargetPath);
 		}
+		
 		return nullptr;
 	}
 
