@@ -114,7 +114,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	minfo->entity = me;
 	UnixTimeToFileTime(filePtr.GetMTime(), &minfo->mtime);
 
-	*storage = (INT_PTR*) minfo;
+	*storage = minfo;
 
 	memset(info, 0, sizeof(StorageGeneralInfo));
 	swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MIME %d.%d", mimeVer.maj(), mimeVer.minor());

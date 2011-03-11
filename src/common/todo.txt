@@ -7,7 +7,6 @@ MSI:
 - fix problem with real file and non showing the special folders mode
 
 ISO:
-- Add support for AES encryption for ISZ
 - Add support for DAA format (PowerISO)
 
 PST:

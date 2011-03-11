@@ -23,7 +23,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		return SOR_INVALID_FILE;
 	}
 
-	*storage = (INT_PTR *) arc;
+	*storage = arc;
 	
 	wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"NSIS");
 	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, arc->GetSubType());

@@ -11,7 +11,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	int nOpenRes = view->Open(params.FilePath, MSI_OPENFLAG_SHOWSPECIALS);
 	if (nOpenRes == ERROR_SUCCESS)
 	{
-		*storage = (INT_PTR *) view;
+		*storage = view;
 
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI");
 		switch (view->GetCompressionType())

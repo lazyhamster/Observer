@@ -22,7 +22,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	CHWAbstractStorage* fileObj = CHWClassFactory::LoadFile(params.FilePath);
 	if (fileObj != NULL)
 	{
-		*storage = (INT_PTR*) fileObj;
+		*storage = fileObj;
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, fileObj->GetFormatName());

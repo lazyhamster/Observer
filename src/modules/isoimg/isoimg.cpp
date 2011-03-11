@@ -27,7 +27,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		return SOR_INVALID_FILE;
 	}
 		
-	*storage = (INT_PTR *) image;
+	*storage = image;
 
 	if (image->VolumeDescriptors && image->VolumeDescriptors->XBOX)
 	{

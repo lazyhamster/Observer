@@ -36,7 +36,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 	if (storageRec->arc.Open(params.FilePath, NULL))
 	{
-		*storage = (INT_PTR *) storageRec;
+		*storage = storageRec;
 
 		// Create reference links array
 		bool showVolName = (storageRec->arc.LogVols.Size() > 1);
