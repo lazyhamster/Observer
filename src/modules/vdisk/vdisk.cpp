@@ -151,11 +151,9 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	LARGE_INTEGER liSize;
 	liSize.QuadPart = fileInfo->FileRef->Length;
 
-	String^ filePath;
-	if (!String::IsNullOrEmpty(fileInfo->FileRef->FileSystem->VolumeLabel))
-		filePath = String::Format("[{0}]\\{1}", fileInfo->FileRef->FileSystem->VolumeLabel->Trim(), fileInfo->FileRef->FullName);
-	else
-		filePath = String::Format("Volume_#{0}\\{1}", fileInfo->VolumeIndex, fileInfo->FileRef->FullName);
+	String^ volLabel = fileInfo->FileRef->FileSystem->VolumeLabel->Trim();
+	if (String::IsNullOrEmpty(volLabel)) volLabel = "Volume_#" + fileInfo->VolumeIndex;
+	String^ filePath = String::Format("[{0}]\\{1}", volLabel, fileInfo->FileRef->FullName);
 
 	// Helper class for String^ to wchar_t* conversion
 	msclr::interop::marshal_context ctx;
