@@ -39,6 +39,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		*storage = storageRec;
 
 		// Create reference links array
+		char udfVerMajor = 0, udfVerMinor = 0;
 		bool showVolName = (storageRec->arc.LogVols.Size() > 1);
 		for (int volIndex = 0; volIndex < storageRec->arc.LogVols.Size(); volIndex++)
 		{
@@ -56,9 +57,14 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 					storageRec->refs2.Add(ref2);
 				}
 			}
+			udfVerMajor = vol.DomainId.Suffix[1];
+			udfVerMinor = vol.DomainId.Suffix[0];
 		} //for volIndex
 
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"UDF");
+		if (udfVerMajor > 0)
+			swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"UDF %x.%02x", udfVerMajor, udfVerMinor);
+		else
+			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"UDF");
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
 		CopyArcParam(info->Comment, storageRec->arc.GetComment());
 		info->Created = storageRec->arc.GetCreatedTime();

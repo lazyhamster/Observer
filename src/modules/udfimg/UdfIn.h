@@ -89,7 +89,6 @@ struct CTime
 
 // ECMA 1/7.4
 
-/*
 struct CRegId
 {
   Byte Flags;
@@ -98,7 +97,6 @@ struct CRegId
 
   void Parse(const Byte *buf);
 };
-*/
 
 // ---------- ECMA Part 3: Volume Structure ----------
 
@@ -404,7 +402,7 @@ struct CLogVol
 {
   CDString128 Id;
   UInt32 BlockSize;
-  // CRegId DomainId;
+  CRegId DomainId;
   
   // Byte ContentsUse[16];
   CLongAllocDesc FileSetLocation; // UDF

@@ -112,14 +112,12 @@ UString CDString128::GetString() const
 
 void CTime::Parse(const Byte *buf) { memcpy(Data, buf, sizeof(Data)); }
 
-/*
 void CRegId::Parse(const Byte *buf)
 {
   Flags = buf[0];
   memcpy(Id, buf + 1, sizeof(Id));
   memcpy(Suffix, buf + 24, sizeof(Suffix));
 }
-*/
 
 // ECMA 3/7.1
 
@@ -722,10 +720,13 @@ HRESULT CUdfArchive::Open2()
       CLogVol vol;
       vol.Id.Parse(buf + 84);
       vol.BlockSize = Get32(buf + 212);
-      // vol.DomainId.Parse(buf + 216);
+      vol.DomainId.Parse(buf + 216);
 
       if (vol.BlockSize < 512 || vol.BlockSize > ((UInt32)1 << 30))
         return S_FALSE;
+
+	  if (strcmp(vol.DomainId.Id, "*OSTA UDF Compliant") != 0)
+		  return S_FALSE;
       
       // memcpy(vol.ContentsUse, buf + 248, sizeof(vol.ContentsUse));
       vol.FileSetLocation.Parse(buf + 248);
