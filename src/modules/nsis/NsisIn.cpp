@@ -381,558 +381,561 @@ static AString GetRegRootID(UInt32 val)
 
 HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 {
-  _posInData = bh.Offset + GetOffset();
-  AString prefixA;
-  UString prefixU;
-  for (UInt32 i = 0; i < bh.Num; i++)
-  {
-    CEntry e;
-    e.Which = ReadUInt32();
-    for (UInt32 j = 0; j < kNumEntryParams; j++)
-      e.Params[j] = ReadUInt32();
-	if (IsLegacyVer)
-		e.Which = ResolveLegacyOpcode(e.Which);
-    #ifdef NSIS_SCRIPT
-    if (e.Which != EW_PUSHPOP && e.Which < sizeof(kCommandPairs) / sizeof(kCommandPairs[0]))
-    {
-      const CCommandPair &pair = kCommandPairs[e.Which];
-      Script += pair.Name;
-    }
-    #endif
+	_posInData = bh.Offset + GetOffset();
+	AString prefixA;
+	UString prefixU;
+	for (UInt32 i = 0; i < bh.Num; i++)
+	{
+		CEntry e;
+		e.Which = ReadUInt32();
+		for (UInt32 j = 0; j < kNumEntryParams; j++)
+			e.Params[j] = ReadUInt32();
+		if (IsLegacyVer)
+			e.Which = ResolveLegacyOpcode(e.Which);
+#ifdef NSIS_SCRIPT
+		if (e.Which != EW_PUSHPOP && e.Which < sizeof(kCommandPairs) / sizeof(kCommandPairs[0]))
+		{
+			const CCommandPair &pair = kCommandPairs[e.Which];
+			Script += pair.Name;
+		}
+#endif
 
-    switch (e.Which)
-    {
-      case EW_CREATEDIR:
-      {
-        if (IsUnicode)
-        {
-          prefixU.Empty();
-          prefixU = ReadString2U(e.Params[0]);
-        }
-        else
-        {
-          prefixA.Empty();
-          prefixA = ReadString2A(e.Params[0]);
-        }
-        #ifdef NSIS_SCRIPT
-        Script += " ";
-        if (IsUnicode)
-          Script += UnicodeStringToMultiByte(prefixU);
-        else
-          Script += prefixA;
-        #endif
-        break;
-      }
+		switch (e.Which)
+		{
+		case EW_CREATEDIR:
+			{
+				if (IsUnicode)
+				{
+					prefixU.Empty();
+					prefixU = ReadString2U(e.Params[0]);
+				}
+				else
+				{
+					prefixA.Empty();
+					prefixA = ReadString2A(e.Params[0]);
+				}
+#ifdef NSIS_SCRIPT
+				Script += " ";
+				if (IsUnicode)
+					Script += UnicodeStringToMultiByte(prefixU);
+				else
+					Script += prefixA;
+#endif
+				break;
+			}
 
-      case EW_EXTRACTFILE:
-      {
-        CItem item;
-        item.IsUnicode = IsUnicode;
-        if (IsUnicode)
-        {
-          item.PrefixU = prefixU;
-          item.NameU = ReadString2U(e.Params[1]);
-        }
-        else
-        {
-          item.PrefixA = prefixA;
-          item.NameA = ReadString2A(e.Params[1]);
-        }
-        /* UInt32 overwriteFlag = e.Params[0]; */
-        item.Pos = e.Params[2];
-        item.MTime.dwLowDateTime = e.Params[3];
-        item.MTime.dwHighDateTime = e.Params[4];
-        /* UInt32 allowIgnore = e.Params[5]; */
-        if (Items.Size() > 0)
-        {
-          /*
-          if (item.Pos == Items.Back().Pos)
-            continue;
-          */
-        }
-        Items.Add(item);
-        #ifdef NSIS_SCRIPT
-        Script += " ";
+		case EW_EXTRACTFILE:
+			{
+				CItem item;
+				item.IsUnicode = IsUnicode;
+				if (IsUnicode)
+				{
+					item.PrefixU = prefixU;
+					item.NameU = ReadString2U(e.Params[1]);
+				}
+				else
+				{
+					item.PrefixA = prefixA;
+					item.NameA = ReadString2A(e.Params[1]);
+				}
+				/* UInt32 overwriteFlag = e.Params[0]; */
+				item.Pos = e.Params[2];
+				item.MTime.dwLowDateTime = e.Params[3];
+				item.MTime.dwHighDateTime = e.Params[4];
+				/* UInt32 allowIgnore = e.Params[5]; */
+				if (Items.Size() > 0)
+				{
+					/*
+					if (item.Pos == Items.Back().Pos)
+					continue;
+					*/
+				}
+				Items.Add(item);
+#ifdef NSIS_SCRIPT
+				Script += " ";
 
-        if (IsUnicode)
-          Script += UnicodeStringToMultiByte(item.NameU);
-        else
-          Script += item.NameA;
-        #endif
-        break;
-      }
-
-
-      #ifdef NSIS_SCRIPT
-      case EW_UPDATETEXT:
-      {
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += UIntToString(e.Params[1]);
-        break;
-      }
-      case EW_SETFILEATTRIBUTES:
-      {
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += UIntToString(e.Params[1]);
-        break;
-      }
-      case EW_IFFILEEXISTS:
-      {
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += UIntToString(e.Params[1]);
-        Script += " ";
-        Script += UIntToString(e.Params[2]);
-        break;
-      }
-      case EW_RENAME:
-      {
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += ReadString2(e.Params[1]);
-        Script += " ";
-        Script += UIntToString(e.Params[2]);
-        break;
-      }
-      case EW_GETFULLPATHNAME:
-      {
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += ReadString2(e.Params[1]);
-        Script += " ";
-        Script += UIntToString(e.Params[2]);
-        break;
-      }
-      case EW_SEARCHPATH:
-      {
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += ReadString2(e.Params[1]);
-        break;
-      }
-      case EW_GETTEMPFILENAME:
-      {
-        AString s;
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += ReadString2(e.Params[1]);
-        break;
-      }
-
-      case EW_DELETEFILE:
-      {
-        UInt64 flag = e.Params[1];
-        if (flag != 0)
-        {
-          Script += " ";
-          if (flag == DEL_REBOOT)
-            Script += "/REBOOTOK";
-          else
-            Script += UIntToString(e.Params[1]);
-        }
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        break;
-      }
-      case EW_RMDIR:
-      {
-        UInt64 flag = e.Params[1];
-        if (flag != 0)
-        {
-          if ((flag & DEL_REBOOT) != 0)
-            Script += " /REBOOTOK";
-          if ((flag & DEL_RECURSE) != 0)
-            Script += " /r";
-        }
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        break;
-      }
-      case EW_STRLEN:
-      {
-        Script += " ";
-        Script += GetVar(e.Params[0]);;
-        Script += " ";
-        Script += ReadString2Qw(e.Params[1]);
-        break;
-      }
-      case EW_ASSIGNVAR:
-      {
-        Script += " ";
-        Script += GetVar(e.Params[0]);;
-        Script += " ";
-        Script += ReadString2Qw(e.Params[1]);
-        AString maxLen, startOffset;
-        if (e.Params[2] != 0)
-          maxLen = ReadString2(e.Params[2]);
-        if (e.Params[3] != 0)
-          startOffset = ReadString2(e.Params[3]);
-        if (!maxLen.IsEmpty() || !startOffset.IsEmpty())
-        {
-          Script += " ";
-          if (maxLen.IsEmpty())
-            Script += "\"\"";
-          else
-            Script += maxLen;
-          if (!startOffset.IsEmpty())
-          {
-            Script += " ";
-            Script += startOffset;
-          }
-        }
-        break;
-      }
-      case EW_STRCMP:
-      {
-        Script += " ";
-
-        Script += " ";
-        Script += ReadString2Qw(e.Params[0]);
-        
-        Script += " ";
-        Script += ReadString2Qw(e.Params[1]);
-
-        for (int j = 2; j < 5; j++)
-        {
-          Script += " ";
-          Script += UIntToString(e.Params[j]);
-        }
-        break;
-      }
-      case EW_INTCMP:
-      {
-        if (e.Params[5] != 0)
-          Script += "U";
-
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += ReadString2(e.Params[1]);
-
-        for (int i = 2; i < 5; i++)
-        {
-          Script += " ";
-          Script += UIntToString(e.Params[i]);
-        }
-        break;
-      }
-      case EW_INTOP:
-      {
-        Script += " ";
-        Script += GetVar(e.Params[0]);
-        Script += " ";
-        int numOps = 2;
-        AString op;
-        switch (e.Params[3])
-        {
-          case 0: op = '+'; break;
-          case 1: op = '-'; break;
-          case 2: op = '*'; break;
-          case 3: op = '/'; break;
-          case 4: op = '|'; break;
-          case 5: op = '&'; break;
-          case 6: op = '^'; break;
-          case 7: op = '~'; numOps = 1; break;
-          case 8: op = '!'; numOps = 1; break;
-          case 9: op = "||"; break;
-          case 10: op = "&&"; break;
-          case 11: op = '%'; break;
-          default: op = UIntToString(e.Params[3]);
-        }
-        AString p1 = ReadString2(e.Params[1]);
-        if (numOps == 1)
-        {
-          Script += op;
-          Script += p1;
-        }
-        else
-        {
-          Script += p1;
-          Script += " ";
-          Script += op;
-          Script += " ";
-          Script += ReadString2(e.Params[2]);
-        }
-        break;
-      }
-
-      case EW_PUSHPOP:
-      {
-        int isPop = (e.Params[1] != 0);
-        if (isPop)
-        {
-          Script += "Pop";
-          Script += " ";
-          Script += GetVar(e.Params[0]);;
-        }
-        else
-        {
-          int isExch = (e.Params[2] != 0);
-          if (isExch)
-          {
-            Script += "Exch";
-          }
-          else
-          {
-            Script += "Push";
-            Script += " ";
-            Script += ReadString2(e.Params[0]);
-          }
-        }
-        break;
-      }
-
-      case EW_SENDMESSAGE:
-      {
-        // SendMessage: 6 [output, hwnd, msg, wparam, lparam, [wparamstring?1:0 | lparamstring?2:0 | timeout<<2]
-        Script += " ";
-        // Script += ReadString2(e.Params[0]);
-        // Script += " ";
-        Script += ReadString2(e.Params[1]);
-        Script += " ";
-        Script += ReadString2(e.Params[2]);
-        
-        Script += " ";
-        UInt32 spec = e.Params[5];
-        // if (spec & 1)
-          Script += IntToString(e.Params[3]);
-        // else
-        //   Script += ReadString2(e.Params[3]);
-        
-        Script += " ";
-        // if (spec & 2)
-          Script += IntToString(e.Params[4]);
-        // else
-        //   Script += ReadString2(e.Params[4]);
-
-        if ((Int32)e.Params[0] >= 0)
-        {
-          Script += " ";
-          Script += GetVar(e.Params[1]);
-        }
-
-        spec >>= 2;
-        if (spec != 0)
-        {
-          Script += " /TIMEOUT=";
-          Script += IntToString(spec);
-        }
-        break;
-      }
-
-      case EW_GETDLGITEM:
-      {
-        Script += " ";
-        Script += GetVar(e.Params[0]);;
-        Script += " ";
-        Script += ReadString2(e.Params[1]);
-        Script += " ";
-        Script += ReadString2(e.Params[2]);
-        break;
-     }
+				if (IsUnicode)
+					Script += UnicodeStringToMultiByte(item.NameU);
+				else
+					Script += item.NameA;
+#endif
+				break;
+			}
 
 
-      case EW_REGISTERDLL:
-      {
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        Script += " ";
-        Script += ReadString2(e.Params[1]);
-        Script += " ";
-        Script += UIntToString(e.Params[2]);
-        break;
-      }
+#ifdef NSIS_SCRIPT
+		case EW_UPDATETEXT:
+			{
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += UIntToString(e.Params[1]);
+				break;
+			}
+		case EW_SETFILEATTRIBUTES:
+			{
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += UIntToString(e.Params[1]);
+				break;
+			}
+		case EW_IFFILEEXISTS:
+			{
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += UIntToString(e.Params[1]);
+				Script += " ";
+				Script += UIntToString(e.Params[2]);
+				break;
+			}
+		case EW_RENAME:
+			{
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += ReadString2(e.Params[1]);
+				Script += " ";
+				Script += UIntToString(e.Params[2]);
+				break;
+			}
+		case EW_GETFULLPATHNAME:
+			{
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += ReadString2(e.Params[1]);
+				Script += " ";
+				Script += UIntToString(e.Params[2]);
+				break;
+			}
+		case EW_SEARCHPATH:
+			{
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += ReadString2(e.Params[1]);
+				break;
+			}
+		case EW_GETTEMPFILENAME:
+			{
+				AString s;
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += ReadString2(e.Params[1]);
+				break;
+			}
 
-      case EW_CREATESHORTCUT:
-      {
-        AString s;
+		case EW_DELETEFILE:
+			{
+				UInt64 flag = e.Params[1];
+				if (flag != 0)
+				{
+					Script += " ";
+					if (flag == DEL_REBOOT)
+						Script += "/REBOOTOK";
+					else
+						Script += UIntToString(e.Params[1]);
+				}
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				break;
+			}
+		case EW_RMDIR:
+			{
+				UInt64 flag = e.Params[1];
+				if (flag != 0)
+				{
+					if ((flag & DEL_REBOOT) != 0)
+						Script += " /REBOOTOK";
+					if ((flag & DEL_RECURSE) != 0)
+						Script += " /r";
+				}
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				break;
+			}
+		case EW_STRLEN:
+			{
+				Script += " ";
+				Script += GetVar(e.Params[0]);;
+				Script += " ";
+				Script += ReadString2Qw(e.Params[1]);
+				break;
+			}
+		case EW_ASSIGNVAR:
+			{
+				AString sVarName = GetVar(e.Params[0]);
+				AString sVarValue = ReadString2Qw(e.Params[1]);
 
-        Script += " ";
-        Script += ReadString2Qw(e.Params[0]);
+				Script += " ";
+				Script += sVarName;
+				Script += " ";
+				Script += sVarValue;
+				AString maxLen, startOffset;
+				if (e.Params[2] != 0)
+					maxLen = ReadString2(e.Params[2]);
+				if (e.Params[3] != 0)
+					startOffset = ReadString2(e.Params[3]);
+				if (!maxLen.IsEmpty() || !startOffset.IsEmpty())
+				{
+					Script += " ";
+					if (maxLen.IsEmpty())
+						Script += "\"\"";
+					else
+						Script += maxLen;
+					if (!startOffset.IsEmpty())
+					{
+						Script += " ";
+						Script += startOffset;
+					}
+				}
+				break;
+			}
+		case EW_STRCMP:
+			{
+				Script += " ";
 
-        Script += " ";
-        Script += ReadString2Qw(e.Params[1]);
+				Script += " ";
+				Script += ReadString2Qw(e.Params[0]);
 
-        for (int j = 2; j < 5; j++)
-        {
-          Script += " ";
-          Script += UIntToString(e.Params[j]);
-        }
-        break;
-      }
+				Script += " ";
+				Script += ReadString2Qw(e.Params[1]);
 
-      /*
-      case EW_DELREG:
-      {
-        AString keyName, valueName;
-        keyName = ReadString2(e.Params[1]);
-        bool isValue = (e.Params[2] != -1);
-        if (isValue)
-        {
-          valueName = ReadString2(e.Params[2]);
-          Script += "Key";
-        }
-        else
-          Script += "Value";
-        Script += " ";
-        Script += UIntToString(e.Params[0]);
-        Script += " ";
-        Script += keyName;
-        if (isValue)
-        {
-          Script += " ";
-          Script += valueName;
-        }
-        Script += " ";
-        Script += UIntToString(e.Params[3]);
-        break;
-      }
-      */
+				for (int j = 2; j < 5; j++)
+				{
+					Script += " ";
+					Script += UIntToString(e.Params[j]);
+				}
+				break;
+			}
+		case EW_INTCMP:
+			{
+				if (e.Params[5] != 0)
+					Script += "U";
 
-      case EW_WRITEREG:
-      {
-        AString s;
-        switch(e.Params[4])
-        {
-          case 1:  s = "Str"; break;
-          case 2:  s = "ExpandStr"; break;
-          case 3:  s = "Bin"; break;
-          case 4:  s = "DWORD"; break;
-          default: s = "?" + UIntToString(e.Params[4]); break;
-        }
-        Script += s;
-        Script += " ";
-        Script += GetRegRootID(e.Params[0]);
-        Script += " ";
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += ReadString2(e.Params[1]);
 
-        AString keyName, valueName;
-        keyName = ReadString2Qw(e.Params[1]);
-        Script += keyName;
-        Script += " ";
-        
-        valueName = ReadString2Qw(e.Params[2]);
-        Script += valueName;
-        Script += " ";
+				for (int i = 2; i < 5; i++)
+				{
+					Script += " ";
+					Script += UIntToString(e.Params[i]);
+				}
+				break;
+			}
+		case EW_INTOP:
+			{
+				Script += " ";
+				Script += GetVar(e.Params[0]);
+				Script += " ";
+				int numOps = 2;
+				AString op;
+				switch (e.Params[3])
+				{
+				case 0: op = '+'; break;
+				case 1: op = '-'; break;
+				case 2: op = '*'; break;
+				case 3: op = '/'; break;
+				case 4: op = '|'; break;
+				case 5: op = '&'; break;
+				case 6: op = '^'; break;
+				case 7: op = '~'; numOps = 1; break;
+				case 8: op = '!'; numOps = 1; break;
+				case 9: op = "||"; break;
+				case 10: op = "&&"; break;
+				case 11: op = '%'; break;
+				default: op = UIntToString(e.Params[3]);
+				}
+				AString p1 = ReadString2(e.Params[1]);
+				if (numOps == 1)
+				{
+					Script += op;
+					Script += p1;
+				}
+				else
+				{
+					Script += p1;
+					Script += " ";
+					Script += op;
+					Script += " ";
+					Script += ReadString2(e.Params[2]);
+				}
+				break;
+			}
 
-        valueName = ReadString2Qw(e.Params[3]);
-        Script += valueName;
-        Script += " ";
+		case EW_PUSHPOP:
+			{
+				int isPop = (e.Params[1] != 0);
+				if (isPop)
+				{
+					Script += "Pop";
+					Script += " ";
+					Script += GetVar(e.Params[0]);;
+				}
+				else
+				{
+					int isExch = (e.Params[2] != 0);
+					if (isExch)
+					{
+						Script += "Exch";
+					}
+					else
+					{
+						Script += "Push";
+						Script += " ";
+						Script += ReadString2(e.Params[0]);
+					}
+				}
+				break;
+			}
 
-        break;
-      }
+		case EW_SENDMESSAGE:
+			{
+				// SendMessage: 6 [output, hwnd, msg, wparam, lparam, [wparamstring?1:0 | lparamstring?2:0 | timeout<<2]
+				Script += " ";
+				// Script += ReadString2(e.Params[0]);
+				// Script += " ";
+				Script += ReadString2(e.Params[1]);
+				Script += " ";
+				Script += ReadString2(e.Params[2]);
 
-      case EW_WRITEUNINSTALLER:
-      {
-        Script += " ";
-        Script += ReadString2(e.Params[0]);
-        for (int j = 1; j < 3; j++)
-        {
-          Script += " ";
-          Script += UIntToString(e.Params[j]);
-        }
-        break;
-      }
+				Script += " ";
+				UInt32 spec = e.Params[5];
+				// if (spec & 1)
+				Script += IntToString(e.Params[3]);
+				// else
+				//   Script += ReadString2(e.Params[3]);
 
-      default:
-      {
-        int numParams = kNumEntryParams;
-        if (e.Which < sizeof(kCommandPairs) / sizeof(kCommandPairs[0]))
-        {
-          const CCommandPair &pair = kCommandPairs[e.Which];
-          // Script += pair.Name;
-          numParams = pair.NumParams;
-        }
-        else
-        {
-          Script += "Unknown";
-          Script += UIntToString(e.Which);
-        }
-        Script += e.GetParamsString(numParams);
-      }
-      #endif
-    }
-    #ifdef NSIS_SCRIPT
-    Script += kCrLf;
-    #endif
-  }
+				Script += " ";
+				// if (spec & 2)
+				Script += IntToString(e.Params[4]);
+				// else
+				//   Script += ReadString2(e.Params[4]);
 
-  {
-    Items.Sort(CompareItems, 0);
-    int i;
-    // if (IsSolid)
-    for (i = 0; i + 1 < Items.Size();)
-    {
-      bool sameName = IsUnicode ?
-        (Items[i].NameU == Items[i + 1].NameU) :
-        (Items[i].NameA == Items[i + 1].NameA);
-      if (Items[i].Pos == Items[i + 1].Pos && sameName)
-        Items.Delete(i + 1);
-      else
-        i++;
-    }
-    for (i = 0; i < Items.Size(); i++)
-    {
-      CItem &item = Items[i];
-      UInt32 curPos = item.Pos + 4;
-      for (int nextIndex = i + 1; nextIndex < Items.Size(); nextIndex++)
-      {
-        UInt32 nextPos = Items[nextIndex].Pos;
-        if (curPos <= nextPos)
-        {
-      item.EstimatedSizeIsDefined = true;
-          item.EstimatedSize = nextPos - curPos;
-          break;
-        }
-      }
-    }
-    if (!IsSolid)
-    {
-      for (i = 0; i < Items.Size(); i++)
-      {
-        CItem &item = Items[i];
-        RINOK(_stream->Seek(GetPosOfNonSolidItem(i), STREAM_SEEK_SET, NULL));
-        const UInt32 kSigSize = 4 + 1 + 5;
-        BYTE sig[kSigSize];
-        size_t processedSize = kSigSize;
-        RINOK(ReadStream(_stream, sig, &processedSize));
-        if (processedSize < 4)
-          return S_FALSE;
-        UInt32 size = Get32(sig);
-        if ((size & 0x80000000) != 0)
-        {
-          item.IsCompressed = true;
-          // is compressed;
-          size &= ~0x80000000;
-          if (Method == NMethodType::kLZMA)
-          {
-            if (processedSize < 9)
-              return S_FALSE;
-            if (FilterFlag)
-              item.UseFilter = (sig[4] != 0);
-            item.DictionarySize = Get32(sig + 5 + (FilterFlag ? 1 : 0));
-          }
-        }
-        else
-        {
-          item.IsCompressed = false;
-          item.Size = size;
-          item.SizeIsDefined = true;
-        }
-        item.CompressedSize = size;
-        item.CompressedSizeIsDefined = true;
-      }
-    }
-  }
-  return S_OK;
+				if ((Int32)e.Params[0] >= 0)
+				{
+					Script += " ";
+					Script += GetVar(e.Params[1]);
+				}
+
+				spec >>= 2;
+				if (spec != 0)
+				{
+					Script += " /TIMEOUT=";
+					Script += IntToString(spec);
+				}
+				break;
+			}
+
+		case EW_GETDLGITEM:
+			{
+				Script += " ";
+				Script += GetVar(e.Params[0]);;
+				Script += " ";
+				Script += ReadString2(e.Params[1]);
+				Script += " ";
+				Script += ReadString2(e.Params[2]);
+				break;
+			}
+
+
+		case EW_REGISTERDLL:
+			{
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				Script += " ";
+				Script += ReadString2(e.Params[1]);
+				Script += " ";
+				Script += UIntToString(e.Params[2]);
+				break;
+			}
+
+		case EW_CREATESHORTCUT:
+			{
+				AString s;
+
+				Script += " ";
+				Script += ReadString2Qw(e.Params[0]);
+
+				Script += " ";
+				Script += ReadString2Qw(e.Params[1]);
+
+				for (int j = 2; j < 5; j++)
+				{
+					Script += " ";
+					Script += UIntToString(e.Params[j]);
+				}
+				break;
+			}
+
+			/*
+			case EW_DELREG:
+			{
+			AString keyName, valueName;
+			keyName = ReadString2(e.Params[1]);
+			bool isValue = (e.Params[2] != -1);
+			if (isValue)
+			{
+			valueName = ReadString2(e.Params[2]);
+			Script += "Key";
+			}
+			else
+			Script += "Value";
+			Script += " ";
+			Script += UIntToString(e.Params[0]);
+			Script += " ";
+			Script += keyName;
+			if (isValue)
+			{
+			Script += " ";
+			Script += valueName;
+			}
+			Script += " ";
+			Script += UIntToString(e.Params[3]);
+			break;
+			}
+			*/
+
+		case EW_WRITEREG:
+			{
+				AString s;
+				switch(e.Params[4])
+				{
+				case 1:  s = "Str"; break;
+				case 2:  s = "ExpandStr"; break;
+				case 3:  s = "Bin"; break;
+				case 4:  s = "DWORD"; break;
+				default: s = "?" + UIntToString(e.Params[4]); break;
+				}
+				Script += s;
+				Script += " ";
+				Script += GetRegRootID(e.Params[0]);
+				Script += " ";
+
+				AString keyName, valueName;
+				keyName = ReadString2Qw(e.Params[1]);
+				Script += keyName;
+				Script += " ";
+
+				valueName = ReadString2Qw(e.Params[2]);
+				Script += valueName;
+				Script += " ";
+
+				valueName = ReadString2Qw(e.Params[3]);
+				Script += valueName;
+				Script += " ";
+
+				break;
+			}
+
+		case EW_WRITEUNINSTALLER:
+			{
+				Script += " ";
+				Script += ReadString2(e.Params[0]);
+				for (int j = 1; j < 3; j++)
+				{
+					Script += " ";
+					Script += UIntToString(e.Params[j]);
+				}
+				break;
+			}
+
+		default:
+			{
+				int numParams = kNumEntryParams;
+				if (e.Which < sizeof(kCommandPairs) / sizeof(kCommandPairs[0]))
+				{
+					const CCommandPair &pair = kCommandPairs[e.Which];
+					// Script += pair.Name;
+					numParams = pair.NumParams;
+				}
+				else
+				{
+					Script += "Unknown";
+					Script += UIntToString(e.Which);
+				}
+				Script += e.GetParamsString(numParams);
+			}
+#endif
+		}
+#ifdef NSIS_SCRIPT
+		Script += kCrLf;
+#endif
+	}
+
+	{
+		Items.Sort(CompareItems, 0);
+		int i;
+		// if (IsSolid)
+		for (i = 0; i + 1 < Items.Size();)
+		{
+			bool sameName = IsUnicode ?
+				(Items[i].NameU == Items[i + 1].NameU) :
+			(Items[i].NameA == Items[i + 1].NameA);
+			if (Items[i].Pos == Items[i + 1].Pos && sameName)
+				Items.Delete(i + 1);
+			else
+				i++;
+		}
+		for (i = 0; i < Items.Size(); i++)
+		{
+			CItem &item = Items[i];
+			UInt32 curPos = item.Pos + 4;
+			for (int nextIndex = i + 1; nextIndex < Items.Size(); nextIndex++)
+			{
+				UInt32 nextPos = Items[nextIndex].Pos;
+				if (curPos <= nextPos)
+				{
+					item.EstimatedSizeIsDefined = true;
+					item.EstimatedSize = nextPos - curPos;
+					break;
+				}
+			}
+		}
+		if (!IsSolid)
+		{
+			for (i = 0; i < Items.Size(); i++)
+			{
+				CItem &item = Items[i];
+				RINOK(_stream->Seek(GetPosOfNonSolidItem(i), STREAM_SEEK_SET, NULL));
+				const UInt32 kSigSize = 4 + 1 + 5;
+				BYTE sig[kSigSize];
+				size_t processedSize = kSigSize;
+				RINOK(ReadStream(_stream, sig, &processedSize));
+				if (processedSize < 4)
+					return S_FALSE;
+				UInt32 size = Get32(sig);
+				if ((size & 0x80000000) != 0)
+				{
+					item.IsCompressed = true;
+					// is compressed;
+					size &= ~0x80000000;
+					if (Method == NMethodType::kLZMA)
+					{
+						if (processedSize < 9)
+							return S_FALSE;
+						if (FilterFlag)
+							item.UseFilter = (sig[4] != 0);
+						item.DictionarySize = Get32(sig + 5 + (FilterFlag ? 1 : 0));
+					}
+				}
+				else
+				{
+					item.IsCompressed = false;
+					item.Size = size;
+					item.SizeIsDefined = true;
+				}
+				item.CompressedSize = size;
+				item.CompressedSizeIsDefined = true;
+			}
+		}
+	}
+	return S_OK;
 }
 
 HRESULT CInArchive::Parse()
