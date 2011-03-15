@@ -63,30 +63,17 @@ static int CompareItems(void *const *p1, void *const *p2, void * /* param */)
   const CItem &i1 = **(CItem **)p1;
   const CItem &i2 = **(CItem **)p2;
   RINOZ(MyCompare(i1.Pos, i2.Pos));
-  if (i1.IsUnicode)
-  {
-	  if (i1.NameU[0] == L'$' && i2.NameU[0] != L'$')
-		  return 1;
-	  else if (i1.NameU[0] != L'$' && i2.NameU[0] == L'$')
-		  return -1;
-	  else
-	  {
-		RINOZ(i1.PrefixU.Compare(i2.PrefixU));
-		RINOZ(i1.NameU.Compare(i2.NameU));
-	  }
-  }
+
+  if (i1.Name[0] == L'$' && i2.Name[0] != L'$')
+	  return 1;
+  else if (i1.Name[0] != L'$' && i2.Name[0] == L'$')
+	  return -1;
   else
   {
-	  if (i1.NameA[0] == '$' && i2.NameA[0] != '$')
-		  return 1;
-	  else if (i1.NameA[0] != '$' && i2.NameA[0] == '$')
-		  return -1;
-	  else
-	  {
-		RINOZ(i1.PrefixA.Compare(i2.PrefixA));
-		RINOZ(i1.NameA.Compare(i2.NameA));
-	  }
+	RINOZ(i1.Prefix.Compare(i2.Prefix));
+	RINOZ(i1.Name.Compare(i2.Name));
   }
+
   return 0;
 }
 
@@ -382,7 +369,6 @@ static AString GetRegRootID(UInt32 val)
 HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 {
 	_posInData = bh.Offset + GetOffset();
-	AString prefixA;
 	UString prefixU;
 	for (UInt32 i = 0; i < bh.Num; i++)
 	{
@@ -404,22 +390,19 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 		{
 		case EW_CREATEDIR:
 			{
+				prefixU.Empty();
 				if (IsUnicode)
 				{
-					prefixU.Empty();
 					prefixU = ReadString2U(e.Params[0]);
 				}
 				else
 				{
-					prefixA.Empty();
-					prefixA = ReadString2A(e.Params[0]);
+					AString prefixA = ReadString2A(e.Params[0]);
+					prefixU = MultiByteToUnicodeString(prefixA);
 				}
 #ifdef NSIS_SCRIPT
 				Script += " ";
-				if (IsUnicode)
-					Script += UnicodeStringToMultiByte(prefixU);
-				else
-					Script += prefixA;
+				Script += UnicodeStringToMultiByte(prefixU);
 #endif
 				break;
 			}
@@ -427,16 +410,15 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 		case EW_EXTRACTFILE:
 			{
 				CItem item;
-				item.IsUnicode = IsUnicode;
+				item.Prefix = prefixU;
 				if (IsUnicode)
 				{
-					item.PrefixU = prefixU;
-					item.NameU = ReadString2U(e.Params[1]);
+					item.Name = ReadString2U(e.Params[1]);
 				}
 				else
 				{
-					item.PrefixA = prefixA;
-					item.NameA = ReadString2A(e.Params[1]);
+					AString nameA = ReadString2A(e.Params[1]);
+					item.Name = MultiByteToUnicodeString(nameA);
 				}
 				/* UInt32 overwriteFlag = e.Params[0]; */
 				item.Pos = e.Params[2];
@@ -453,11 +435,7 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 				Items.Add(item);
 #ifdef NSIS_SCRIPT
 				Script += " ";
-
-				if (IsUnicode)
-					Script += UnicodeStringToMultiByte(item.NameU);
-				else
-					Script += item.NameA;
+				Script += UnicodeStringToMultiByte(item.Name);
 #endif
 				break;
 			}
@@ -874,9 +852,7 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 		// if (IsSolid)
 		for (i = 0; i + 1 < Items.Size();)
 		{
-			bool sameName = IsUnicode ?
-				(Items[i].NameU == Items[i + 1].NameU) :
-			(Items[i].NameA == Items[i + 1].NameA);
+			bool sameName = (Items[i].Name == Items[i + 1].Name);
 			if (Items[i].Pos == Items[i + 1].Pos && sameName)
 				Items.Delete(i + 1);
 			else
@@ -1244,16 +1220,8 @@ void CInArchive::PostProcess()
 	for (int i = 0; i < Items.Size(); i++)
 	{
 		CItem &item = Items[i];
-		if (item.IsUnicode)
-		{
-			if (item.PrefixU.Length() > 0 && (item.NameU.Find(L"$PLUGINSDIR") == 0))
-				item.PrefixU.Empty();
-		}
-		else
-		{
-			if (item.PrefixA.Length() > 0 && (item.NameA.Find("$PLUGINSDIR") == 0))
-				item.PrefixA.Empty();
-		}
+		if (item.Prefix.Length() > 0 && (item.Name.Find(L"$PLUGINSDIR") == 0))
+			item.Prefix.Empty();
 	}
 }
 

@@ -54,12 +54,9 @@ struct CBlockHeader
 
 struct CItem
 {
-  AString PrefixA;
-  UString PrefixU;
-  AString NameA;
-  UString NameU;
+  UString Prefix;
+  UString Name;
   FILETIME MTime;
-  bool IsUnicode;
   bool UseFilter;
   bool IsCompressed;
   bool SizeIsDefined;
@@ -71,28 +68,15 @@ struct CItem
   UInt32 EstimatedSize;
   UInt32 DictionarySize;
   
-  CItem(): IsUnicode(false), UseFilter(false), IsCompressed(true), SizeIsDefined(false),
+  CItem(): UseFilter(false), IsCompressed(true), SizeIsDefined(false),
       CompressedSizeIsDefined(false), EstimatedSizeIsDefined(false), Size(0), DictionarySize(1) {}
 
-  bool IsINSTDIR() const
+  UString GetReducedName() const
   {
-    return (PrefixA.Length() >= 3 || PrefixU.Length() >= 3);
-  }
-
-  UString GetReducedName(bool unicode) const
-  {
-    UString s;
-    if (unicode)
-      s = PrefixU;
-    else
-      s = MultiByteToUnicodeString(PrefixA);
-    if (s.Length() > 0)
-      if (s[s.Length() - 1] != L'\\')
+    UString s = Prefix;
+    if (s.Length() > 0 && (s[s.Length() - 1] != L'\\'))
         s += L'\\';
-    if (unicode)
-      s += NameU;
-    else
-      s += MultiByteToUnicodeString(NameA);
+    s += Name;
     //const int len = 9;
     //if (s.Left(len).CompareNoCase(L"$INSTDIR\\") == 0)
       //s = s.Mid(len);

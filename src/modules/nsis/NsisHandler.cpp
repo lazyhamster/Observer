@@ -229,7 +229,7 @@ STDMETHODIMP CHandler::GetProperty(UInt32 index, PROPID propID, PROPVARIANT *val
     {
       case kpidPath:
       {
-        UString s = NItemName::WinNameToOSName(item.GetReducedName(_archive.IsUnicode));
+        UString s = NItemName::WinNameToOSName(item.GetReducedName());
         if (!s.IsEmpty())
           prop = (const wchar_t *)s;
         break;
