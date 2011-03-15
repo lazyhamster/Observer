@@ -1220,7 +1220,7 @@ void CInArchive::PostProcess()
 	for (int i = 0; i < Items.Size(); i++)
 	{
 		CItem &item = Items[i];
-		if (item.Prefix.Length() > 0 && (item.Name.Find(L"$PLUGINSDIR") == 0))
+		if ( (item.Prefix.Length() > 0) && (item.Name.Length() > 0) && (item.Name[0] == '$') && (item.Name.Find('\\') > 0) )
 			item.Prefix.Empty();
 	}
 }
