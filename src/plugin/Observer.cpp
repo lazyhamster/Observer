@@ -9,7 +9,7 @@
 #include "PlugLang.h"
 #include "FarStorage.h"
 
-#include "OptionsParser.h"
+#include "OptionsFile.h"
 #include "RegistrySettings.h"
 
 extern HMODULE g_hDllHandle;

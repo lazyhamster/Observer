@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "ModulesController.h"
-#include "OptionsParser.h"
+#include "OptionsFile.h"
 
 #define SECTION_BUF_SIZE 1024
 

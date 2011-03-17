@@ -912,6 +912,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OptionsFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\common\OptionsParser.cpp"
 				>
 			</File>
@@ -1011,6 +1015,10 @@
 			</File>
 			<File
 				RelativePath=".\ModulesController.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OptionsFile.h"
 				>
 			</File>
 			<File
