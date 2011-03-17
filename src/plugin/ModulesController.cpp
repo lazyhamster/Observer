@@ -4,11 +4,11 @@
 
 #define SECTION_BUF_SIZE 1024
 
-int ModulesController::Init( const wchar_t* basePath )
+int ModulesController::Init( const wchar_t* basePath, const wchar_t* configPath )
 {
 	Cleanup();
 
-	OptionsFile optFile(basePath);
+	OptionsFile optFile(configPath);
 
 	// Get list of modules from config file
 	OptionsList *mModulesList = optFile.GetSection(L"Modules");

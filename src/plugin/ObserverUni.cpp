@@ -17,9 +17,11 @@ static PluginStartupInfo FarSInfo;
 static FarStandardFunctions FSF;
 
 static wchar_t wszPluginLocation[MAX_PATH];
+static wchar_t wszConfigFileLocation[MAX_PATH];
 static ModulesController g_pController;
 
 #define CP_FAR_INTERNAL CP_OEMCP
+#define CONFIG_FILE L"observer.ini"
 
 // Settings
 #define MAX_PREFIX_SIZE 32
@@ -84,7 +86,7 @@ static const wchar_t* GetLocMsg(int MsgID)
 static void LoadSettings()
 {
 	// Load static settings from .ini file.
-	OptionsFile opFile(wszPluginLocation);
+	OptionsFile opFile(wszConfigFileLocation);
 	OptionsList *opList = opFile.GetSection(L"General");
 	if (opList != NULL)
 	{
@@ -669,9 +671,10 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	{
 		wmemset(wszPluginLocation, 0, MAX_PATH);
 	}
+	swprintf_s(wszConfigFileLocation, ARRAY_SIZE(wszConfigFileLocation), L"%s%s", wszPluginLocation, CONFIG_FILE);
 
 	LoadSettings();
-	g_pController.Init(wszPluginLocation);
+	g_pController.Init(wszPluginLocation, wszConfigFileLocation);
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)

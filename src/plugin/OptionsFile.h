@@ -6,7 +6,7 @@
 class OptionsFile
 {
 private:
-	wchar_t m_wszFilePath[MAX_PATH];
+	wchar_t* m_wszFilePath;
 
 	// Make class non-copyable
 	OptionsFile(const OptionsFile &other) {}
@@ -14,6 +14,7 @@ private:
 
 public:
 	OptionsFile(const wchar_t* ConfigLocation);
+	~OptionsFile();
 
 	OptionsList* GetSection(const wchar_t* SectionName);
 	bool GetSectionLines(const wchar_t* SectionName, wchar_t* Buffer, size_t BufferSize);

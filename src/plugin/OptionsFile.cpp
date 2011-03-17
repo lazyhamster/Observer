@@ -2,11 +2,16 @@
 #include "OptionsFile.h"
 
 #define SECTION_BUF_SIZE 1024
-#define CONFIG_FILE L"observer.ini"
 
 OptionsFile::OptionsFile( const wchar_t* ConfigLocation )
 {
-	swprintf_s(m_wszFilePath, MAX_PATH, L"%s%s", ConfigLocation, CONFIG_FILE);
+	m_wszFilePath = _wcsdup(ConfigLocation);
+}
+
+OptionsFile::~OptionsFile()
+{
+	if (m_wszFilePath != NULL)
+		free(m_wszFilePath);
 }
 
 OptionsList* OptionsFile::GetSection( const wchar_t* SectionName )

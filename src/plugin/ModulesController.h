@@ -40,7 +40,7 @@ public:
 	ModulesController(void) {};
 	~ModulesController(void) { this->Cleanup(); };
 
-	int Init(const wchar_t* basePath);
+	int Init(const wchar_t* basePath, const wchar_t* configPath);
 	void Cleanup();
 	size_t NumModules() { return modules.size(); };
 
