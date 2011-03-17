@@ -13,11 +13,14 @@ struct OptionsItem
 class OptionsList
 {
 private:
-	vector<OptionsItem> m_vValues;
+	std::vector<OptionsItem> m_vValues;
 
 	bool AddOption(const wchar_t* Key, const wchar_t* Value);
 
 public:
+	OptionsList() {}
+	OptionsList(const wchar_t* Input) { ParseLines(Input); }
+	
 	int ParseLines(const wchar_t* Input); // Array of strings, separated with \0
 	
 	bool GetValue(const wchar_t* Key, bool &Value) const;

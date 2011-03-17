@@ -19,9 +19,7 @@ OptionsList* OptionsFile::GetSection( const wchar_t* SectionName )
 	wchar_t wszBuffer[SECTION_BUF_SIZE] = {0};
 	if (GetSectionLines(SectionName, wszBuffer, SECTION_BUF_SIZE))
 	{
-		OptionsList *opl = new OptionsList();
-		opl->ParseLines(wszBuffer);
-		return opl;
+		return new OptionsList(wszBuffer);
 	}
 
 	return NULL;
