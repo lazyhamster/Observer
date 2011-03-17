@@ -360,6 +360,9 @@ typedef struct IsoImage
     Directory*               DirectoryList;
     DWORD                    DirectoryCount;
     DWORD                    Index;
+
+	UINT                     DefaultCharset;    // Manually assigned code page for non-Unicode default charset
+	BOOL                     UseRockRidge;       // Disable RockRidge extension
 } IsoImage;
 
 typedef struct Partition

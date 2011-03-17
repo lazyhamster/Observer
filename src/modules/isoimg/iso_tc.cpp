@@ -333,6 +333,9 @@ IsoImage* GetImage( const wchar_t* filename, const char* passwd, bool &needPassw
 
     IsoImage image;
     ZeroMemory( &image, sizeof( image ) );
+	
+	image.DefaultCharset = GetACP();
+	image.UseRockRidge = TRUE;
 
 	HANDLE hImgHandle = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
 	if (hImgHandle == INVALID_HANDLE_VALUE) return NULL;
@@ -767,7 +770,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
             {
 			    // Search for NM record (RockRidge extension)
 				bool fNMRecFound = false;
-				if (desc->SystemUseAreas)
+				if (desc->SystemUseAreas && image->UseRockRidge)
 				{
 					SystemUseEntryHeader* suh = GetSystemUseEntry("NM", 1, record);
 					if (suh)
@@ -780,7 +783,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
 							free(data);
 							return false;
 						}
-						MultiByteToWideChar(GetACP(), 0, (char*)suh + 5, (int) nNameBufLen - 1, directory.FileName, (int) nNameBufLen + 1);
+						MultiByteToWideChar(image->DefaultCharset, 0, (char*)suh + 5, (int) nNameBufLen - 1, directory.FileName, (int) nNameBufLen + 1);
 						directory.FileName[nNameBufLen] = 0;
 							
 						fNMRecFound = true;
@@ -797,7 +800,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
 	                    free(data);
 		                return false;
 			        }
-				    MultiByteToWideChar(GetACP(), 0, (char*)record->FileIdentifier, record->LengthOfFileIdentifier, directory.FileName, record->LengthOfFileIdentifier + 2);
+				    MultiByteToWideChar(image->DefaultCharset, 0, (char*)record->FileIdentifier, record->LengthOfFileIdentifier, directory.FileName, record->LengthOfFileIdentifier + 2);
 					directory.FileName[record->LengthOfFileIdentifier] = 0;
 				}
 
@@ -818,7 +821,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
             }
 
 			// Check for System Use Entries
-			if (!desc->Unicode && (record->LengthOfFileIdentifier == 1) && (*count == 0) && (!path || !*path) && !num)
+			if (image->UseRockRidge && !desc->Unicode && (record->LengthOfFileIdentifier == 1) && (*count == 0) && (!path || !*path) && !num)
 			{
 				SystemUseEntryHeader* suh = GetSystemUseEntry("SP", 1, record);
 				if (suh)
