@@ -210,7 +210,11 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			bytesLeft -= readNum;
 			
 			if (params.callbacks.FileProgress)
-				params.callbacks.FileProgress(params.callbacks.signalContext, readNum);
+				if (!params.callbacks.FileProgress(params.callbacks.signalContext, readNum))
+				{
+					result = SER_USERABORT;
+					break;
+				}
 		}
 		
 		outStr->Close();
