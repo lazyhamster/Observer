@@ -26,6 +26,7 @@
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
 			CharacterSet="1"
+			ManagedExtensions="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -47,12 +48,12 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;VDISK_EXPORTS"
-				MinimalRebuild="true"
-				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				MinimalRebuild="false"
+				BasicRuntimeChecks="0"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				DebugInformationFormat="4"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -70,6 +71,7 @@
 				GenerateManifest="false"
 				ModuleDefinitionFile="vdisk.def"
 				GenerateDebugInformation="true"
+				AssemblyDebug="1"
 				SubSystem="2"
 				ImportLibrary="$(IntDir)\$(TargetName).lib"
 				TargetMachine="1"
@@ -496,6 +498,7 @@
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
 			CharacterSet="1"
+			ManagedExtensions="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -519,7 +522,7 @@
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;VDISK_EXPORTS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
