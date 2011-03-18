@@ -218,8 +218,9 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 		fileEntry.Attributes = MsiRecordGetInteger(hFileRec, 7);
 		fileEntry.Sequence = MsiRecordGetInteger(hFileRec, 8);
 
-		if (!fileEntry.Component[0])
-			return ERROR_INVALID_DATA;
+		// Sometimes there are strange files with empty component, let's just skip them
+		if (!fileEntry.Component[0] || !wcscmp(fileEntry.Component, L" "))
+			continue;
 
 		FileNode *node = new FileNode();
 		node->Init(&fileEntry);
