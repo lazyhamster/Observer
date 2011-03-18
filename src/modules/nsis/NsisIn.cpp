@@ -366,10 +366,68 @@ static AString GetRegRootID(UInt32 val)
 
 #endif
 
+class ScriptVarCache
+{
+private:
+	UStringVector m_varNames;
+	UStringVector m_varValues;
+
+	int GetVarIndex(const UString& name);
+
+public:
+	void SetVar(const UString& name, const UString& value);
+	UString ResolvePath(const UString& path);
+};
+
+void ScriptVarCache::SetVar(const UString& name, const UString& value)
+{
+	if (name.Length() == 0 || name[0] != '$') return;
+	
+	if (name.Length() == 2) return; // Ditch registers
+	if (name == L"$INSTDIR") return;
+	
+	int vIndex = GetVarIndex(name);
+	if (vIndex >= 0)
+	{
+		m_varValues[vIndex] = ResolvePath(value);
+	}
+	else
+	{
+		m_varNames.Add(name);
+		m_varValues.Add(ResolvePath(value));
+	}
+}
+
+int ScriptVarCache::GetVarIndex(const UString& name)
+{
+	return m_varNames.Find(name);
+}
+
+UString ScriptVarCache::ResolvePath(const UString& path)
+{
+	if (path.Length() == 0 || path[0] != '$')
+		return path;
+
+	// Get var name
+	int slashIndex = path.Find('\\');
+	UString varName = (slashIndex > 0) ? path.Left(slashIndex) : path;
+	int varIndex = GetVarIndex(varName);
+	if (varIndex >= 0)
+	{
+		UString resVar = m_varValues[varIndex];
+		if (slashIndex > 0) resVar += path.Mid(slashIndex);
+
+		return ResolvePath(resVar);
+	}
+
+	return path;
+}
+
 HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 {
 	_posInData = bh.Offset + GetOffset();
 	UString prefixU;
+	ScriptVarCache varCache;
 	for (UInt32 i = 0; i < bh.Num; i++)
 	{
 		CEntry e;
@@ -400,6 +458,7 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 					AString prefixA = ReadString2A(e.Params[0]);
 					prefixU = MultiByteToUnicodeString(prefixA);
 				}
+				varCache.SetVar(L"$OUTDIR", prefixU);
 #ifdef NSIS_SCRIPT
 				Script += " ";
 				Script += UnicodeStringToMultiByte(prefixU);
@@ -421,7 +480,7 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 				}
 				if ( (prefixU.Length() > 0) && (item.Name.Length() > 0) && (item.Name[0] != '$' || item.Name.Find('\\') <= 0) )
 				{
-					item.Prefix = prefixU;
+					item.Prefix = varCache.ResolvePath(prefixU);
 				}
 
 				/* UInt32 overwriteFlag = e.Params[0]; */
@@ -551,6 +610,7 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 			{
 				AString sVarName = GetVar(e.Params[0]);
 				AString sVarValue = ReadString2Qw(e.Params[1]);
+				varCache.SetVar(MultiByteToUnicodeString(sVarName), MultiByteToUnicodeString(ReadString2(e.Params[1])));
 
 				Script += " ";
 				Script += sVarName;
