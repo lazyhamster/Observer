@@ -10,9 +10,11 @@ Changes history:
 - ISO: Fixed crash on some malformed images.
 - ISO: Added workaround for boot HDD emulation files extraction.
 - MSI: Now embedded service files are shown.
+- MSI: Improved tolerance to invalid data.
 - PST: Fixed several sources of crashes.
 - PST: Fixed inability to open some files.
 - UDF: Now UDF revision is displayed in info panel.
+- NSIS: Improved path processing (directory tree is more close to reality now).
 
 1.6.6
 - Significantly improved loading speed for NSIS archives with large number of files inside.
