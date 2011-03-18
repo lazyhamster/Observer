@@ -106,8 +106,6 @@ class CInArchive
 
   HRESULT ParseLegacy();
 
-  void PostProcess();
-
   CByteBuffer _data;
   UInt64 _size;
 

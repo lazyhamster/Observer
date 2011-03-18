@@ -410,7 +410,6 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 		case EW_EXTRACTFILE:
 			{
 				CItem item;
-				item.Prefix = prefixU;
 				if (IsUnicode)
 				{
 					item.Name = ReadString2U(e.Params[1]);
@@ -420,6 +419,11 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 					AString nameA = ReadString2A(e.Params[1]);
 					item.Name = MultiByteToUnicodeString(nameA);
 				}
+				if ( (prefixU.Length() > 0) && (item.Name.Length() > 0) && (item.Name[0] != '$' || item.Name.Find('\\') <= 0) )
+				{
+					item.Prefix = prefixU;
+				}
+
 				/* UInt32 overwriteFlag = e.Params[0]; */
 				item.Pos = e.Params[2];
 				item.MTime.dwLowDateTime = e.Params[3];
@@ -1128,10 +1132,7 @@ HRESULT CInArchive::Open2(
   }
   // end of ugly hack
   
-  HRESULT res = IsLegacyVer ? ParseLegacy() : Parse();
-  if (res == S_OK)
-	  PostProcess();
-  return res;
+  return IsLegacyVer ? ParseLegacy() : Parse();
 }
 
 /*
@@ -1212,17 +1213,6 @@ void CInArchive::Clear()
   #endif
   Items.Clear();
   _stream.Release();
-}
-
-void CInArchive::PostProcess()
-{
-	// Remove prefix if file in $PLUGINSDIR folder
-	for (int i = 0; i < Items.Size(); i++)
-	{
-		CItem &item = Items[i];
-		if ( (item.Prefix.Length() > 0) && (item.Name.Length() > 0) && (item.Name[0] == '$') && (item.Name.Find('\\') > 0) )
-			item.Prefix.Empty();
-	}
 }
 
 }}
