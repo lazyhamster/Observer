@@ -54,7 +54,7 @@ bool OptionsList::AddOption( const wchar_t* Key, const wchar_t* Value )
 bool OptionsList::GetValue( const wchar_t* Key, bool &Value ) const
 {
 	wchar_t tmpBuf[10] = {0};
-	if ( GetValue(Key, tmpBuf, ARRAY_SIZE(tmpBuf)) )
+	if ( GetValue(Key, tmpBuf, sizeof(tmpBuf) / sizeof(tmpBuf[0])) )
 	{
 		Value = _wcsicmp(tmpBuf, L"true") || wcscmp(tmpBuf, L"1");
 		return true;
@@ -66,7 +66,7 @@ bool OptionsList::GetValue( const wchar_t* Key, bool &Value ) const
 bool OptionsList::GetValue( const wchar_t* Key, int &Value ) const
 {
 	wchar_t tmpBuf[10] = {0};
-	if ( GetValue(Key, tmpBuf, ARRAY_SIZE(tmpBuf)) )
+	if ( GetValue(Key, tmpBuf, sizeof(tmpBuf) / sizeof(tmpBuf[0])) )
 	{
 		int resVal = wcstol(tmpBuf, NULL, 10);
 		
@@ -82,7 +82,7 @@ bool OptionsList::GetValue( const wchar_t* Key, int &Value ) const
 
 bool OptionsList::GetValue( const wchar_t* Key, wchar_t *Value, size_t MaxValueSize ) const
 {
-	vector<OptionsItem>::const_iterator cit;
+	std::vector<OptionsItem>::const_iterator cit;
 	for (cit = m_vValues.begin(); cit != m_vValues.end(); cit++)
 	{
 		if (_wcsicmp(cit->key, Key) == 0)

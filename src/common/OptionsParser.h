@@ -1,6 +1,8 @@
 #ifndef OptionsParser_h__
 #define OptionsParser_h__
 
+#include <vector>
+
 #define OPT_KEY_MAXLEN 32
 #define OPT_VAL_MAXLEN 64
 
