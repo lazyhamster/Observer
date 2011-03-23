@@ -376,6 +376,7 @@ private:
 
 public:
 	void SetVar(const UString& name, const UString& value);
+	void ResetVar(const UString& name);
 	UString ResolvePath(const UString& path);
 };
 
@@ -421,6 +422,16 @@ UString ScriptVarCache::ResolvePath(const UString& path)
 	}
 
 	return path;
+}
+
+void ScriptVarCache::ResetVar(const UString& name)
+{
+	int varIndex = GetVarIndex(name);
+	if (varIndex >= 0)
+	{
+		m_varNames.Delete(varIndex);
+		m_varValues.Delete(varIndex);
+	}
 }
 
 HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
@@ -717,7 +728,10 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 				{
 					Script += "Pop";
 					Script += " ";
-					Script += GetVar(e.Params[0]);;
+					Script += GetVar(e.Params[0]);
+					
+					// Reset variable in cache because we can not predict what will be popped
+					varCache.ResetVar(MultiByteToUnicodeString(GetVar(e.Params[0])));
 				}
 				else
 				{
@@ -916,8 +930,8 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 		// if (IsSolid)
 		for (i = 0; i + 1 < Items.Size();)
 		{
-			bool sameName = (Items[i].Name == Items[i + 1].Name);
-			if (Items[i].Pos == Items[i + 1].Pos && sameName)
+			const CItem& item1 = Items[i], item2 = Items[i+1];
+			if ( (item1.Pos == item2.Pos) && (item1.Name == item2.Name) && (item1.Prefix == item2.Prefix) )
 				Items.Delete(i + 1);
 			else
 				i++;
