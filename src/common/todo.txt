@@ -8,7 +8,6 @@ MSI:
 
 ISO:
 - Add support for DAA format (PowerISO)
-- Add customizable charset for ANSI encoding
 
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)
@@ -18,9 +17,6 @@ WISE:
 
 MIME:
 - display real file sizes
-
-NSIS:
-- improve tree handling (try to resolve dirs like $_OUTDIR)
 
 VALVE:
 - extraction progress

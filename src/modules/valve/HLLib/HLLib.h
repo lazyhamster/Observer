@@ -46,22 +46,6 @@ HLLIB_API hlVoid hlShutdown();
 // Get/Set
 //
 
-HLLIB_API hlBool hlGetBoolean(HLOption eOption);
-HLLIB_API hlBool hlGetBooleanValidate(HLOption eOption, hlBool *pValue);
-HLLIB_API hlVoid hlSetBoolean(HLOption eOption, hlBool bValue);
-
-HLLIB_API hlInt hlGetInteger(HLOption eOption);
-HLLIB_API hlBool hlGetIntegerValidate(HLOption eOption, hlInt *pValue);
-HLLIB_API hlVoid hlSetInteger(HLOption eOption, hlInt iValue);
-
-HLLIB_API hlLongLong hlGetLongLong(HLOption eOption);
-HLLIB_API hlBool hlGetLongLongValidate(HLOption eOption, hlLongLong *pValue);
-HLLIB_API hlVoid hlSetLongLong(HLOption eOption, hlLongLong iValue);
-
-HLLIB_API const hlChar *hlGetString(HLOption eOption);
-HLLIB_API hlBool hlGetStringValidate(HLOption eOption, const hlChar **pValue);
-HLLIB_API hlVoid hlSetString(HLOption eOption, const hlChar *lpValue);
-
 HLLIB_API const hlVoid *hlGetVoid(HLOption eOption);
 HLLIB_API hlBool hlGetVoidValidate(HLOption eOption, const hlVoid **pValue);
 HLLIB_API hlVoid hlSetVoid(HLOption eOption, const hlVoid *pValue);
