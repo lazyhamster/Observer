@@ -5,12 +5,19 @@
 #include "ModuleDef.h"
 #include "iso_tc.h"
 #include "iso_ext.h"
+#include "OptionsParser.h"
+
+static int g_DefaultCharser = CP_ACP;
+static BOOL g_UseRockRidge = TRUE;
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	bool needPasswd = false;
 	IsoImage* image = GetImage(params.FilePath, params.Password, needPasswd);
 	if (!image) return needPasswd ? SOR_PASSWORD_REQUIRED : SOR_INVALID_FILE;
+
+	image->DefaultCharset = g_DefaultCharser;
+	image->UseRockRidge = g_UseRockRidge;
 
 	DWORD count = 0;
 	if( LoadAllTrees( image, 0, &count, true ) && count )
@@ -129,6 +136,10 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->CloseStorage = CloseStorage;
 	LoadParams->GetItem = GetStorageItem;
 	LoadParams->ExtractItem = ExtractItem;
+
+	OptionsList opts(LoadParams->Settings);
+	opts.GetValue(L"Charset", g_DefaultCharser);
+	opts.GetValue(L"RockRidge", g_UseRockRidge);
 
 	return TRUE;
 }

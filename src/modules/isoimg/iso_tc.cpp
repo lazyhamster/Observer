@@ -334,9 +334,6 @@ IsoImage* GetImage( const wchar_t* filename, const char* passwd, bool &needPassw
     IsoImage image;
     ZeroMemory( &image, sizeof( image ) );
 	
-	image.DefaultCharset = GetACP();
-	image.UseRockRidge = TRUE;
-
 	HANDLE hImgHandle = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
 	if (hImgHandle == INVALID_HANDLE_VALUE) return NULL;
 

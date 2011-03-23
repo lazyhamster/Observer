@@ -761,6 +761,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\common\OptionsParser.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -856,6 +860,10 @@
 			</File>
 			<File
 				RelativePath=".\isz\iszsdk.h"
+				>
+			</File>
+			<File
+				RelativePath="..\..\common\OptionsParser.h"
 				>
 			</File>
 			<File
