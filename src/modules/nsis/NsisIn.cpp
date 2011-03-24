@@ -385,7 +385,7 @@ void ScriptVarCache::SetVar(const UString& name, const UString& value)
 	if (name.Length() == 0 || name[0] != '$') return;
 	
 	if (name.Length() == 2) return; // Ditch registers
-	if (name == L"$INSTDIR") return;
+	if ((name == L"$INSTDIR") || (name == value)) return;
 	
 	int vIndex = GetVarIndex(name);
 	if (vIndex >= 0)
@@ -394,8 +394,9 @@ void ScriptVarCache::SetVar(const UString& name, const UString& value)
 	}
 	else
 	{
+		UString resolvedValue = ResolvePath(value);
 		m_varNames.Add(name);
-		m_varValues.Add(ResolvePath(value));
+		m_varValues.Add(resolvedValue);
 	}
 }
 
