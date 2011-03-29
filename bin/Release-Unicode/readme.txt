@@ -1,6 +1,6 @@
 Observer
 Plug-in for FAR Manager 1.75+ / 2.0+
-Copyright: 2009-2010, Ariman
+Copyright: 2009-2011, Ariman
 
 -------------------------------------------------------------------
 
@@ -13,8 +13,8 @@ Add/Delete/Change operations are not planned.
 1.1. Supported formats:
 
 - MSI packages for Windows Installer
-- UDF images (ISO 13346).
-- CD/DVD images : ISO-9660 (incl. Joliet, RockRidge), CUE/BIN, MDF/MDS
+- UDF images (ISO 13346) up to revision 2.60.
+- CD/DVD images : ISO-9660 (incl. Joliet, RockRidge), NRG, CUE/BIN, MDF/MDS, ISZ
 - Installation packages made by NSIS (Nullsoft Installer)
 - Egosoft packages (for X-series games)
 - Volition Pack V2 files (from FreeSpace 1/2/Open)
@@ -22,6 +22,8 @@ Add/Delete/Change operations are not planned.
 - Containers from games made by Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
 - MS Outlook databases (*.pst).
 - WISE Installer packages.
+- Virtual disk images (VMDK, VDI, VHD, XVA).
+- Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
 
 1.2. Settings.
 
@@ -38,6 +40,8 @@ All of this is actual for [General] section only.
 
 Currently you can configure following options:
 
+1.2.1 General settings.
+
 [General] -> PanelHeaderPrefix
 Here you can set string that will be shown in file panel header before module name.
 Works for all modules simultaneously. Maximum value size in 32 symbols.
@@ -51,6 +55,8 @@ WARNING:
 This feature uses undocumented specifics of curent directory processing by FAR,
 so it can have unpredictabe side-effects or stop working at all after next update.
 
+1.2.2 Filters.
+
 [Filters]
 This section sets file extention masks for modules to speed up files processing.
 Filters are used when entering file by Enter or PgDn keys.
@@ -60,6 +66,18 @@ Module names are from [Modules] section and case sensitive. Extentions in list a
 by semicolon and have dot in front. They are case-insensitive.
 If any module don't have filters set or extentions list is empty, then it is considered
 that module accepts all files.
+
+1.2.3 Настройки для модулей.
+
+[ISO] -> Charset
+Default code page for non-Unicode file names.
+You can set here specific code page (e.g. 866 or 1251),
+or you can set special system code page values:
+1 - current OEM code page (default value),
+0 - current ANSI code page.
+
+[ISO] -> RockRidge
+Enables (1) / disables (0) support for RockRidge extension. It's enabled by default.
 
 2. License and copyright.
 
@@ -80,9 +98,6 @@ Didn't found license for this one, so it goes by LGPL too.
 libmspack is a library which provides compressors and decompressors,
 archivers and dearchivers for Microsoft compression formats.
 
-- NSIS (http://nsis.sourceforge.net/)
-Code used is for bzip2 support. Unpacker version is specific for NSIS.
-
 - X2 FileDriver (http://x-tools.doubleshadow.wz.cz/)
 Used for Egosoft (X2, X3, X3:TC) archives support.
 
@@ -99,10 +114,23 @@ MIME parsing library. Distributed under MIT license.
 - Wise UNpacker by J.Markus/Icebird
 Used as a reference, minor portions of code directly ported from Delphi to C++.
 
+- HLLib (http://nemesis.thewavelength.net/index.php?p=35)
+HLLib is a package library for Half-Life that abstracts several package formats and provides a simple interface for all of them.
+Distributed under LGPL license.
+
+- DiscUtils (http://discutils.codeplex.com/)
+DiscUtils is a .NET library to read and write ISO files and Virtual Machine disk files (VHD, VDI, XVA, VMDK, etc).
+Distributed under MIT license.
+
 3. System requirements.
-Minimal FAR versions are 1.75 build 2632 / 2.0 build 1666
-Windows Installer 4+ is required for MSI support.
-OS: Win2k+ (tested on WinXP and Win2003, but 2k should be suported too).
+OS: WinXP or higher.
+Minimal FAR versions are 1.75 build 2634 / 2.0 build 1807
+
+Windows Installer 4+
+Microsoft Visual C++ 2008 SP1 Redistributable Package
+
+VDISK module requires Microsoft .NET Framework 3.5 to be installed.
+If you don't install .NET then this modile will not load.
 
 4. Diclaimer.
 This software is provided 'AS IS', without any express or implied warranty.

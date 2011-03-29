@@ -6,6 +6,7 @@
 "Observer Configuration"
 "&Enable plugin"
 "Use &prefix"
+"Use extension &filters"
 
 "Format"
 "Compression"
@@ -29,6 +30,10 @@
 "Reading files list"
 "Content Error"
 "Invalid item returned during listing"
+"Select Module"
+"Password Required"
+"&Open file"
+"Open file &as ..."
 
 "&Overwrite"
 "Overwrite &all"
@@ -36,5 +41,6 @@
 "S&kip all"
 "&Cancel"
 "E&xtract"
+"Abort"
 
 "ToCurr"
