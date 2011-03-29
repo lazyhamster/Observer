@@ -606,7 +606,7 @@ int isz_setpassword(HANDLE h_isz, const char *isz_key)
 	{
 		strncpy((char *)r->key,isz_key,ISZ_KEY_MAX);
 
-		r->key_len = strlen((char *)r->key);
+		r->key_len = (int) strlen((char *)r->key);
 
 		if (r->isz.has_password != ISZ_PASSWORD)
 		{

@@ -599,7 +599,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\;..\..\depends\zlib\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;ISOIMG_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

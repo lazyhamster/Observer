@@ -199,7 +199,7 @@ static int SelectModuleToOpenFileAs()
 		MenuItems[i].Text = modInfo.ModuleName;
 	}
 
-	int nMSel = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_OPEN_SELECT_MODULE), NULL, NULL, NULL, NULL, MenuItems, nNumModules);
+	int nMSel = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_OPEN_SELECT_MODULE), NULL, NULL, NULL, NULL, MenuItems, (int) nNumModules);
 
 	delete [] MenuItems;
 	return nMSel;
@@ -213,7 +213,7 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 	if (fRet)
 	{
 		memset(buffer, 0, bufferSize);
-		WideCharToMultiByte(CP_ACP, 0, passBuf, -1, buffer, bufferSize - 1, NULL, NULL);
+		WideCharToMultiByte(CP_ACP, 0, passBuf, -1, buffer, (int) bufferSize - 1, NULL, NULL);
 	}
 	return fRet;
 }

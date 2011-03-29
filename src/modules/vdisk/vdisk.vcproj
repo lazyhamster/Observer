@@ -578,6 +578,7 @@
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
 			CharacterSet="1"
+			ManagedExtensions="1"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -602,7 +603,7 @@
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="..\..\common\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;VDISK_EXPORTS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"

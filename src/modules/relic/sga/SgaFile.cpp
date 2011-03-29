@@ -115,7 +115,7 @@ bool CSgaFile::Open( CBasicFile* inFile )
 		inFile->ReadArray(headerBuf, m_oFileHeader.iDataHeaderSize);
 
 		md5_init(&md5ctx);
-		md5_append(&md5ctx, (const md5_byte_t*) hashMagicStr, strlen(hashMagicStr));
+		md5_append(&md5ctx, (const md5_byte_t*) hashMagicStr, (int) strlen(hashMagicStr));
 		md5_append(&md5ctx, headerBuf, m_oFileHeader.iDataHeaderSize);
 		md5_finish(&md5ctx, aHeaderHash);
 
@@ -130,7 +130,7 @@ bool CSgaFile::Open( CBasicFile* inFile )
 	RETNOK( inFile->Seek(m_iDataHeaderOffset + m_oDataHeader.iStringOffset, FILE_BEGIN) );
 	size_t iStringsLength = m_oFileHeader.iDataHeaderSize - m_oDataHeader.iStringOffset;
 	m_sStringBlob = (char*) malloc(iStringsLength);
-	RETNOK( inFile->ReadArray(m_sStringBlob, iStringsLength) );
+	RETNOK( inFile->ReadArray(m_sStringBlob, (DWORD) iStringsLength) );
 
 	// Read directory entries
 	sga_directory_raw_info_t* dirList = new sga_directory_raw_info_t[m_oDataHeader.iDirectoryCount];
