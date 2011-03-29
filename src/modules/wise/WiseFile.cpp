@@ -238,6 +238,22 @@ bool CWiseFile::Approximate(int &approxOffset, bool &isPkZip)
 		pkzip = false;
 	}
 
+	// Additional test because simple check gives too many
+	// false positives on ZIP SFX file. Search for WiseMain word.
+	if (pkzip)
+	{
+		bool fFound = false;
+		for (int i = 4096; i < 0xc200; i++)
+		{
+			if (strncmp((char*)(buf+i), "WiseMain", 8) == 0)
+			{
+				fFound = true;
+				break;
+			}
+		} // for
+		if (!fFound) offsa = 0;
+	}
+
 	approxOffset = offsa;
 	isPkZip = pkzip;
 	free(buf);
