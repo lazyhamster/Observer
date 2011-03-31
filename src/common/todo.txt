@@ -12,11 +12,11 @@ ISO:
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)
 
-WISE:
-- Handle false positives on sfx zip archives.
-
 MIME:
 - display real file sizes
 
 VALVE:
 - extraction progress
+
+VISK:
+- add long file names support for FAT
