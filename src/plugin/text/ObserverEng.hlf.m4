@@ -18,6 +18,8 @@ m4_include(`version.m4i')m4_dnl
  - MIME containers
  - MS Outlook databases
  - #WISE# Installer packages
+ - Virtual disk images (VMDK, VDI, VHD, XVA).
+ - Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
 
  (c) 2009-2010, Ariman
  -----------------------------------------
