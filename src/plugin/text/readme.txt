@@ -6,24 +6,40 @@ Copyright: 2009-2011, Ariman
 
 1. General information.
 
-This plug-in assists in listing and extracting
-files from several types of containers.
+This plug-in assists in listing and extracting content from several types of containers.
 Add/Delete/Change operations are not planned.
 
 1.1. Supported formats:
 
-- MSI packages for Windows Installer
-- UDF images (ISO 13346) up to revision 2.60.
-- CD/DVD images : ISO-9660 (incl. Joliet, RockRidge), NRG, CUE/BIN, MDF/MDS, ISZ
-- Installation packages made by NSIS (Nullsoft Installer)
-- Egosoft packages (for X-series games)
-- Volition Pack V2 files (from FreeSpace 1/2/Open)
-- MIME containers (.eml, .mht, etc.)
-- Containers from games made by Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
-- MS Outlook databases (*.pst).
-- WISE Installer packages.
-- Virtual disk images (VMDK, VDI, VHD, XVA).
-- Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
+- Installation packages
+  - Installation packages made with NSIS
+  - MSI packages for Windows Installer
+  - Installation packages made with Wise Installer
+
+- Образы оптических дисков (CD/DVD/Blu-ray)
+  - ISO-images. Following formats are supported:
+    - ISO-9660 (incl. Joliet, RockRidge)
+    - UDF (ISO 13346) up to revision 2.60
+  - NRG-images Nero Burning ROM
+  - BIN-images CDRWIN (CUE/BIN)
+  - MDF-images Alcohol 120% (MDF/MDS)
+  - ISZ-images UltraISO
+
+- Virtual disk images
+  - VMDK (VMware)
+  - VDI  (Virtual Box)
+  - VHD  (Microsoft Virtual PC)
+  - XVA  (Xen Virtual Appliance)
+
+- MIME
+  - MIME containers (.eml, .mht, etc.)
+  - MS Outlook databases (*.pst)
+
+- Containers used in various games
+  - CAT, PCK, PBD, PBB - used by Egosoft for X-series games
+  - VP - Volition Pack V2 (from FreeSpace 1/2/Open)
+  - BIG, SGA - containers from games made by Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
+  - GCF, WAD, XZP, PAK, BSP, VBSP - used inside Steam
 
 1.2. Settings.
 
