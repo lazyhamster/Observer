@@ -14,8 +14,14 @@ using namespace DiscUtils;
 ref class VDFileInfo
 {
 public:
-	DiscFileInfo^ FileRef;
+	DiscFileSystemInfo^ Ref;
 	int VolumeIndex;
+
+	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex)
+		: Ref(objRef), VolumeIndex(volIndex)
+	{
+		//
+	}
 };
 
 ref class AssemblyLoaderEx
@@ -42,6 +48,7 @@ struct VDisk
 {
 	gcroot<VirtualDisk^> pVdiskObj;
 	gcroot< List<VDFileInfo^>^ > vItems;
+	gcroot< List<String^>^ > vVolLabels; // Cache for volume labels
 };
 
 static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex)
@@ -57,10 +64,7 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 	array<DiscFileInfo^> ^fileList = dirInfo->GetFiles();
 	for (int i = 0; i < fileList->Length; i++)
 	{
-		VDFileInfo^ fileInfo = gcnew VDFileInfo();
-		fileInfo->FileRef = fileList[i];
-		fileInfo->VolumeIndex = volIndex;
-
+		VDFileInfo^ fileInfo = gcnew VDFileInfo(fileList[i], volIndex);
 		vdObj->vItems->Add(fileInfo);
 	}
 }
@@ -100,6 +104,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		VDisk* vdObj = new VDisk();
 		vdObj->pVdiskObj = vdisk;
 		vdObj->vItems = gcnew List<VDFileInfo^>();
+		vdObj->vVolLabels = gcnew List<String^>();
 		
 		VolumeManager^ volm = gcnew VolumeManager(vdisk);
 
@@ -119,6 +124,10 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 				//ntfsFS->NtfsOptions->HideMetafiles = false;
 			}
 			EnumFilesInVolume(vdObj, dfs->Root, vi, i);
+
+			String^ volLabel = dfs->VolumeLabel->Trim();
+			if (String::IsNullOrEmpty(volLabel)) volLabel = "Volume_#" + i;
+			vdObj->vVolLabels->Add(volLabel);
 		}
 
 		*storage = vdObj;
@@ -158,11 +167,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	VDFileInfo^ fileInfo = fileList[item_index];
 	
 	LARGE_INTEGER liSize;
-	liSize.QuadPart = fileInfo->FileRef->Length;
+	liSize.QuadPart = (fileInfo->Ref->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fileInfo->Ref)->Length : 0;
 
-	String^ volLabel = fileInfo->FileRef->FileSystem->VolumeLabel->Trim();
-	if (String::IsNullOrEmpty(volLabel)) volLabel = "Volume_#" + fileInfo->VolumeIndex;
-	String^ filePath = String::Format("[{0}]\\{1}", volLabel, fileInfo->FileRef->FullName);
+	List<String^> ^volLabels = vdObj->vVolLabels;
+	String^ filePath = String::Format("[{0}]\\{1}", volLabels[fileInfo->VolumeIndex], fileInfo->Ref->FullName);
 
 	// Helper class for String^ to wchar_t* conversion
 	msclr::interop::marshal_context ctx;
@@ -170,12 +178,12 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	wcscpy_s(item_path, path_size, ctx.marshal_as<const wchar_t*>(filePath));
 
 	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	wcscpy_s(item_data->cFileName, MAX_PATH, ctx.marshal_as<const wchar_t*>(fileInfo->FileRef->Name));
-	item_data->dwFileAttributes = (DWORD) fileInfo->FileRef->Attributes;
+	wcscpy_s(item_data->cFileName, MAX_PATH, ctx.marshal_as<const wchar_t*>(fileInfo->Ref->Name));
+	item_data->dwFileAttributes = (DWORD) fileInfo->Ref->Attributes;
 	item_data->nFileSizeLow = liSize.LowPart;
 	item_data->nFileSizeHigh = liSize.HighPart;
-	item_data->ftCreationTime = DateTimeToFileTime(fileInfo->FileRef->CreationTimeUtc);
-	item_data->ftLastWriteTime = DateTimeToFileTime(fileInfo->FileRef->LastWriteTimeUtc);
+	item_data->ftCreationTime = DateTimeToFileTime(fileInfo->Ref->CreationTimeUtc);
+	item_data->ftLastWriteTime = DateTimeToFileTime(fileInfo->Ref->LastWriteTimeUtc);
 	
 	return GET_ITEM_OK;
 }
@@ -189,7 +197,11 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	List<VDFileInfo^> ^fileList = vdObj->vItems;
 	VDFileInfo^ fileInfo = fileList[params.item];
 	
-	DiscFileInfo^ dfi = fileInfo->FileRef;
+	// We do not extract directories
+	if (fileInfo->Ref->GetType() != DiscFileInfo::typeid)
+		return SER_ERROR_SYSTEM;
+	
+	DiscFileInfo^ dfi = (DiscFileInfo^) fileInfo->Ref;
 	if (!dfi->Exists) return SER_ERROR_READ;
 
 	String^ strDestFile = gcnew String(params.destFilePath);
