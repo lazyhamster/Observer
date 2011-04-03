@@ -58,7 +58,10 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 	{
 		DiscDirectoryInfo^ subDir = subDirList[i];
 		if (subDir->Name != "." && subDir->Name != "..")
+		{
+			vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex));
 			EnumFilesInVolume(vdObj, subDir, vol, volIndex);
+		}
 	}
 
 	array<DiscFileInfo^> ^fileList = dirInfo->GetFiles();
@@ -176,6 +179,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	msclr::interop::marshal_context ctx;
 
 	wcscpy_s(item_path, path_size, ctx.marshal_as<const wchar_t*>(filePath));
+	
+	// Remove trailing backslash if present
+	size_t nPathLen = wcslen(item_path);
+	if (item_path[nPathLen - 1] == '\\') item_path[nPathLen - 1] = 0;
 
 	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
 	wcscpy_s(item_data->cFileName, MAX_PATH, ctx.marshal_as<const wchar_t*>(fileInfo->Ref->Name));
@@ -219,7 +226,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		while (bytesLeft > 0)
 		{
 			int copySize = (int) Math::Min(bytesLeft, (Int64) copyBufSize);
-			int readNum = inStr->Read(copyBuf, 0, copyBufSize);
+			int readNum = inStr->Read(copyBuf, 0, copySize);
 
 			if (readNum != copySize)
 			{
