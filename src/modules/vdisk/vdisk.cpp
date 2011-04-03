@@ -152,8 +152,14 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	VDisk* vdObj = (VDisk*) storage;
 	if (vdObj != NULL)
 	{
-		vdObj->pVdiskObj = nullptr;
+		vdObj->vVolLabels->Clear();
+		vdObj->vVolLabels = nullptr;
+		
+		vdObj->vItems->Clear();
 		vdObj->vItems = nullptr;
+
+		vdObj->pVdiskObj = nullptr;
+		
 		delete vdObj;
 	}
 }
