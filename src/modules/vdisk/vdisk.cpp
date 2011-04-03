@@ -49,7 +49,9 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 	array<DiscDirectoryInfo^> ^subDirList = dirInfo->GetDirectories();
 	for (int i = 0; i < subDirList->Length; i++)
 	{
-		EnumFilesInVolume(vdObj, subDirList[i], vol, volIndex);
+		DiscDirectoryInfo^ subDir = subDirList[i];
+		if (subDir->Name != "." && subDir->Name != "..")
+			EnumFilesInVolume(vdObj, subDir, vol, volIndex);
 	}
 
 	array<DiscFileInfo^> ^fileList = dirInfo->GetFiles();
@@ -109,6 +111,13 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 			if (fsinfo == nullptr || fsinfo->Length == 0) continue;
 
 			DiscFileSystem^ dfs = fsinfo[0]->Open(vi);
+			if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
+			{
+				Ntfs::NtfsFileSystem^ ntfsFS = (Ntfs::NtfsFileSystem^)dfs;
+				ntfsFS->NtfsOptions->HideHiddenFiles = false;
+				ntfsFS->NtfsOptions->HideSystemFiles = false;
+				//ntfsFS->NtfsOptions->HideMetafiles = false;
+			}
 			EnumFilesInVolume(vdObj, dfs->Root, vi, i);
 		}
 
