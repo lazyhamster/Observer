@@ -685,7 +685,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
     
     DWORD offset = 0;
     DWORD num = 0;
-    while( offset < size - 0x21 )
+    while( (size > 0) && (offset < size - 0x21) )
     {
         while( !data[offset] && offset < size - 0x21 )
             offset++;
