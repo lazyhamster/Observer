@@ -143,6 +143,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		return SOR_SUCCESS;
 	}
 
+	if (vdisk != nullptr) delete vdisk;
 	vdisk = nullptr;
 	return SOR_INVALID_FILE;
 }
@@ -158,6 +159,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 		vdObj->vItems->Clear();
 		vdObj->vItems = nullptr;
 
+		delete vdObj->pVdiskObj;
 		vdObj->pVdiskObj = nullptr;
 		
 		delete vdObj;
@@ -273,7 +275,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
-	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
+	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 1);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
 	LoadParams->OpenStorage = OpenStorage;
 	LoadParams->CloseStorage = CloseStorage;
