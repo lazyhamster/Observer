@@ -355,6 +355,7 @@ IsoImage* GetImage( const wchar_t* filename, const char* passwd, bool &needPassw
 		if (!passwd || !*passwd)
 		{
 			needPasswd = true;
+			CloseIsoHandle(&image);
 			return NULL;
 		}
 		else

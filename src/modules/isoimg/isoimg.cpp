@@ -68,7 +68,10 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 	if (storage)
-		FreeImage((IsoImage*) storage);
+	{
+		IsoImage* img = (IsoImage*) storage;
+		FreeImage(img);
+	}
 }
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
