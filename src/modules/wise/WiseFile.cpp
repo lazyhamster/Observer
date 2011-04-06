@@ -4,6 +4,17 @@
 
 #define ZIP_FILE_HEADER 0x04034b50
 
+static bool IsScriptBuffer(const char* buf)
+{
+	return (buf[0] == 0x04 || buf[0] == 0x14) && (buf[1] == 0);
+}
+
+// Service file types
+#define SFT_WhatIsBin 0
+#define SFT_Script 1
+#define SFT_Wise001DLL 2
+#define SFT_Other 3
+
 CWiseFile::CWiseFile()
 {
 	m_hSourceFile = INVALID_HANDLE_VALUE;
@@ -12,6 +23,7 @@ CWiseFile::CWiseFile()
 	m_pScriptBuf = NULL;
 	m_nScriptBufSize = 0;
 	m_nScriptOffsetBaseFileIndex = 0;
+	m_nFileTypeOffset = 0;
 }
 
 CWiseFile::~CWiseFile()
@@ -90,10 +102,14 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 				SetFilePointer(m_hSourceFile, len1 + len2, NULL, FILE_CURRENT);
 		}
 
+		int eFileType = (i < SFT_Other) ? i + m_nFileTypeOffset : SFT_Other;
+		char *scriptBuf = NULL;
+		size_t scriptSize = 0;
+
 		InflatedDataInfo inflateInfo;
 		bool inflRes;
-		if (i == 1)
-			inflRes = inflateData(m_hSourceFile, m_pScriptBuf, m_nScriptBufSize, inflateInfo);
+		if (eFileType <= SFT_Script)
+			inflRes = inflateData(m_hSourceFile, scriptBuf, scriptSize, inflateInfo);
 		else
 			inflRes = inflateData(m_hSourceFile, NULL, inflateInfo);
 		
@@ -117,22 +133,38 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 			// If we have valid file entry, add it to list
 			if (inflateInfo.crc == newcrc)
 			{
+				if (eFileType == SFT_WhatIsBin && IsScriptBuffer(scriptBuf))
+				{
+					eFileType = SFT_Script;
+					m_nFileTypeOffset = 1;
+				}
+				
 				infoBuf->PackedSize = inflateInfo.packedSize;
 				infoBuf->UnpackedSize = inflateInfo.unpackedSize;
 				infoBuf->StartOffset = nFilePos;
 				infoBuf->CRC32 = inflateInfo.crc;
 				infoBuf->EndOffset = SetFilePointer(m_hSourceFile, 0, NULL, FILE_CURRENT) - 1;
 				
-				switch(i)
+				switch(eFileType)
 				{
-					case 0:
+					case SFT_WhatIsBin:
 						wcscpy_s(infoBuf->FileName, MAX_PATH, L"WhatIs.bin");
+						if (scriptBuf)
+						{
+							free(scriptBuf);
+							scriptBuf = NULL;
+						}
+						eFileType++;
 						break;
-					case 1:
+					case SFT_Script:
 						wcscpy_s(infoBuf->FileName, MAX_PATH, L"script.bin");
+						m_pScriptBuf = scriptBuf;
+						m_nScriptBufSize = scriptSize;
+						eFileType++;
 						break;
-					case 2:
+					case SFT_Wise001DLL:
 						wcscpy_s(infoBuf->FileName, MAX_PATH, L"wise001.dll");
+						eFileType++;
 						break;
 					default:
 						TryResolveFileName(infoBuf);

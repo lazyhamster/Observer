@@ -4,6 +4,7 @@ Changes history:
 - VDISK: Now hidden and system files on NTFS volumes are shown.
 - VDISK: Fixed situation when image file remained locked after panel is closed.
 - ISO: Fixed handle leak when working with encrypted ISZ files.
+- WISE: Improved script file recognition.
 
 1.7.0
 - Sytem requirements were changed. Now plugin also needs VC++ Redist 2008 SP1.
