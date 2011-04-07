@@ -6,24 +6,40 @@ Observer
 
 1. Общее описание.
 
-Плагин предназначен для просмотра и извлечения файлов
-и разнообразных файловых контейнеров.
+Плагин предназначен для просмотра и извлечения содержимого разнообразных файловых контейнеров.
 Операции добавления/удаления/изменения файлов не предусмотрены.
 
 1.1. Поддерживаемые форматы:
 
-- MSI пакеты для Windows Installer-а
-- Образы UDF (ISO 13346) до версии 2.60 включительно
-- Образы CD/DVD дисков : ISO-9660 (incl. Joliet, RockRidge), NRG, CUE/BIN, MDF/MDS, ISZ
-- Инсталляционные пакеты, сделаные программой NSIS
-- Контейнеры, используемые Egosoft для игр серии X
-- Контейнеры Volition Pack V2 (для игр FreeSpace 1/2/Open)
-- MIME контейнеры (.eml, .mht, etc.)
-- Контейнеры из игр компании Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
-- Базы MS Outlook (*.pst).
-- Инсталляционные пакеты, сделаные Wise Installer-ом.
-- Образы виртуальных дисков (VMDK, VDI, VHD, XVA).
-- Несколько контейнеров используемых в системе Steam (GCF, WAD, XZP, PAK, BSP, VBSP).
+- Инсталляционные пакеты
+  - Инсталляторы, сделаные с помощью системы NSIS
+  - MSI пакеты для Windows Installer-а
+  - Инсталляционные пакеты, сделаные Wise Installer-ом.
+
+- Образы оптических дисков (CD/DVD/Blu-ray)
+  - ISO-образы. Поддерживаются следующие файловые системы:
+    - ISO-9660 (incl. Joliet, RockRidge)
+    - UDF (ISO 13346) до версии 2.60 включительно
+  - NRG-образ Nero Burning ROM
+  - BIN-образ CDRWIN (CUE/BIN)
+  - MDF-образ Alcohol 120% (MDF/MDS)
+  - ISZ-образ UltraISO
+
+- Образы дисков виртуальных машин
+  - VMDK (VMware)
+  - VDI  (Virtual Box)
+  - VHD  (Microsoft Virtual PC)
+  - XVA  (Xen Virtual Appliance)
+
+- MIME
+  - MIME контейнеры (.eml, .mht, etc.)
+  - Базы MS Outlook (*.pst)
+
+- Архивы-контейнеры, применяемые в различных играх
+  - CAT, PCK, PBD, PBB - используются Egosoft для игр серии X
+  - VP - Volition Pack V2 (для игр FreeSpace 1/2/Open)
+  - BIG, SGA - контейнеры из игр компании Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
+  - GCF, WAD, XZP, PAK, BSP, VBSP - используются в системе Steam
 
 1.2. Настройки.
 
