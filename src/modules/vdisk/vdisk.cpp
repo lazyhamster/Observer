@@ -53,15 +53,23 @@ struct VDisk
 
 static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex)
 {
-	array<DiscDirectoryInfo^> ^subDirList = dirInfo->GetDirectories();
-	for (int i = 0; i < subDirList->Length; i++)
+	try
 	{
-		DiscDirectoryInfo^ subDir = subDirList[i];
-		if (subDir->Name != "." && subDir->Name != "..")
+		array<DiscDirectoryInfo^> ^subDirList = dirInfo->GetDirectories();
+		for (int i = 0; i < subDirList->Length; i++)
 		{
-			vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex));
-			EnumFilesInVolume(vdObj, subDir, vol, volIndex);
+			DiscDirectoryInfo^ subDir = subDirList[i];
+			if (subDir->Name != "." && subDir->Name != "..")
+			{
+				vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex));
+				EnumFilesInVolume(vdObj, subDir, vol, volIndex);
+			}
 		}
+	}
+	catch (System::IO::IOException^)
+	{
+		//Usually this exception occurs on corrupted data
+		//So we just skip all underlying directories
 	}
 
 	array<DiscFileInfo^> ^fileList = dirInfo->GetFiles();
