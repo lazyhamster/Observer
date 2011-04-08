@@ -331,7 +331,11 @@ static int isz_read_sector(isz_reader *r,char *buf, unsigned int sector_no)
 
           case ISZ_BZ2:
             iRet = isz_read_chunk(r,r->inbuf,blk_no);
-            zerr = BZ2_bzBuffToBuffDecompress((char *)r->outbuf, &bytes, (char *)r->inbuf, len,0,0);
+			if (iRet == 0)
+			{
+				if (strncmp((char*) r->inbuf, "ISz", 3) == 0) memcpy(r->inbuf, "BZh", 3);
+				zerr = BZ2_bzBuffToBuffDecompress((char *)r->outbuf, &bytes, (char *)r->inbuf, len, 0, 0);
+			}
             break;
 
           default:   // Unknown type
