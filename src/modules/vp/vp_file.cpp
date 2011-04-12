@@ -53,7 +53,7 @@ bool CVPFile::Open( const wchar_t* path )
 	}
 
 	if (!GetFileSizeEx(hFile, &nFileSize) || (nFileSize.HighPart > 0)
-		|| (nFileSize.QuadPart < header.diroffset + (__int64) header.direntries * sizeof(VP_DirEntry)))
+		|| (nFileSize.QuadPart < header.diroffset + (__int64) header.direntries * (__int64) sizeof(VP_DirEntry)))
 	{
 		goto err_exit;
 	}

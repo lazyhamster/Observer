@@ -773,7 +773,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
 					SystemUseEntryHeader* suh = GetSystemUseEntry("NM", 1, record);
 					if (suh)
 					{
-						size_t nNameBufLen = (suh->Length - 4);
+						size_t nNameBufLen = (suh->Length - 5);
 						directory.FileName = (wchar_t*) malloc((nNameBufLen + 1) * sizeof(wchar_t));
 						assert(directory.FileName);
 						if(!directory.FileName)
@@ -781,7 +781,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
 							free(data);
 							return false;
 						}
-						MultiByteToWideChar(image->DefaultCharset, 0, (char*)suh + 5, (int) nNameBufLen - 1, directory.FileName, (int) nNameBufLen + 1);
+						MultiByteToWideChar(image->DefaultCharset, 0, (char*)suh + 5, (int) nNameBufLen, directory.FileName, (int) nNameBufLen + 1);
 						directory.FileName[nNameBufLen] = 0;
 							
 						fNMRecFound = true;
