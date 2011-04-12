@@ -44,7 +44,16 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	}
 	else
 	{
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"ISO");
+		switch (image->ImageType)
+		{
+			case ISOTYPE_ISZ:
+				wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"ISZ");
+				break;
+			default:
+				wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"ISO");
+				break;
+		}
+
 		info->Created = StringToTime((char*)image->VolumeDescriptors->VolumeDescriptor.VolumeCreationDateAndTime);
 
 		if (image->VolumeDescriptors->Unicode)
