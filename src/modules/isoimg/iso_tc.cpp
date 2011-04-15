@@ -854,7 +854,7 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
 
             const wchar_t* boot_images = L"boot.images";
             size_t len = (lstrlen(path) + 1 + lstrlen(boot_images) + 1) * sizeof(wchar_t);
-            dir->FileName = (wchar_t*)malloc(len);
+            dir->FileName = _wcsdup(boot_images);
             dir->FilePath = (wchar_t*)malloc(len);
 
             if(!dir->FileName || !dir->FilePath)
@@ -863,18 +863,15 @@ static bool LoadTree( IsoImage* image, PrimaryVolumeDescriptorEx* desc, const wc
                 return false;
             }
 
-			memset(dir->FileName, 0, len);
 			memset(dir->FilePath, 0, len);
 
             if( lstrlen( path ) )
             {
-                lstrcpy( dir->FilePath, lstrcpy( dir->FileName, path ) );
+                lstrcpy( dir->FilePath, path );
                 lstrcat( dir->FilePath, L"\\" );
-                lstrcat( dir->FileName, L"\\" );
             }
             
             lstrcat( dir->FilePath, boot_images );
-            lstrcat( dir->FileName, boot_images );
             dir->Record.FileFlags = FATTR_DIRECTORY | FATTR_HIDDEN;
         }
         (*count)++;
