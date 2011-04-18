@@ -472,7 +472,7 @@ IsoImage* GetImage( const wchar_t* filename, const char* passwd, bool &needPassw
         // checking for XBOX image inside of current ISO image
         DWORD xbox = fblock + 0x10;
         fblock += (DWORD)descriptorex.VolumeDescriptor.VolumeSpaceSize;
-        xbox = GetVolumeDescriptor(&image, &descriptorex, xbox, true);
+        xbox = 0; //GetVolumeDescriptor(&image, &descriptorex, xbox, true); // NOTE: disabled for now, causes crashes
         if(xbox)
         {
             image.VolumeDescriptors = (PrimaryVolumeDescriptorEx*)realloc( image.VolumeDescriptors,
