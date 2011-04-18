@@ -91,7 +91,53 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
-	return SER_ERROR_SYSTEM;
+	MoPaQ_File* fileObj = (MoPaQ_File*) storage;
+	if (!fileObj) return SER_ERROR_SYSTEM;
+
+	if (params.item < 0 || params.item >= (int) fileObj->vFiles.size())
+		return SER_ERROR_SYSTEM;
+
+	const SFILE_FIND_DATA &ffd = fileObj->vFiles[params.item];
+
+	HANDLE hInFile = NULL;
+	HANDLE hOutFile;
+
+	if (!SFileOpenFileEx(fileObj->hMpq, ffd.cFileName, 0, &hInFile))
+		return SER_ERROR_READ;
+	
+	hOutFile = CreateFileW(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	if (hOutFile == INVALID_HANDLE_VALUE)
+	{
+		SFileCloseFile(hInFile);
+		return SER_ERROR_WRITE;
+	}
+
+	char copyBuf[32 * 1024];
+	DWORD dwBytes = 1;
+	int nRetVal = SER_SUCCESS;
+
+	while (dwBytes > 0)
+	{
+		if (!SFileReadFile(hInFile, copyBuf, sizeof(copyBuf), &dwBytes, NULL) && (GetLastError() != ERROR_HANDLE_EOF))
+		{
+			nRetVal = SER_ERROR_READ;
+			break;
+		}
+
+		if (dwBytes > 0)
+		{
+			if (!WriteFile(hOutFile, copyBuf, dwBytes, &dwBytes, NULL))
+			{
+				nRetVal = SER_ERROR_WRITE;
+				break;
+			}
+		}
+	}
+
+	SFileCloseFile(hInFile);
+	CloseHandle(hOutFile);
+
+	return nRetVal;
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -40,6 +40,7 @@ Observer
   - VP - Volition Pack V2 (для игр FreeSpace 1/2/Open)
   - BIG, SGA - контейнеры из игр компании Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
   - GCF, WAD, XZP, PAK, BSP, VBSP - используются в системе Steam
+  - MoPaQ архивы (используются Blizzard)
 
 1.2. Настройки.
 
@@ -135,6 +136,9 @@ archivers and dearchivers for Microsoft compression formats.
 - DiscUtils (http://discutils.codeplex.com/)
 Библиотека для чтения и записи файлов ISO и образов жестких дисков для виртуальных машин (VHD, VDI, XVA, VMDK, etc).
 Распространяется по лицензии MIT.
+
+- StormLib (http://www.zezula.net/en/mpq/stormlib.html)
+Библиотека для чтения/записи MPQ архивов.
 
 3. Системные требования.
 OS: WinXP или новее.

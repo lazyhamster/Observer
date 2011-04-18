@@ -40,6 +40,7 @@ Add/Delete/Change operations are not planned.
   - VP - Volition Pack V2 (from FreeSpace 1/2/Open)
   - BIG, SGA - containers from games made by Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
   - GCF, WAD, XZP, PAK, BSP, VBSP - used inside Steam
+  - MoPaQ packages (used by Blizzard)
 
 1.2. Settings.
 
@@ -137,6 +138,9 @@ Distributed under LGPL license.
 - DiscUtils (http://discutils.codeplex.com/)
 DiscUtils is a .NET library to read and write ISO files and Virtual Machine disk files (VHD, VDI, XVA, VMDK, etc).
 Distributed under MIT license.
+
+- StormLib (http://www.zezula.net/en/mpq/stormlib.html)
+The StormLib library is a pack of modules, written in C++, which are able to read and also to write files from/to the MPQ archives.
 
 3. System requirements.
 OS: WinXP or higher.
