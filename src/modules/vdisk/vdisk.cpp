@@ -109,7 +109,16 @@ const wchar_t* GetDiskType(VirtualDisk ^vdisk)
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	String ^strPath = gcnew String(params.FilePath);
-	VirtualDisk ^vdisk = VirtualDisk::OpenDisk(strPath, IO::FileAccess::Read);
+	VirtualDisk ^vdisk;
+	try
+	{
+		vdisk = VirtualDisk::OpenDisk(strPath, IO::FileAccess::Read);
+	}
+	catch (Exception^)
+	{
+		vdisk = nullptr;
+	}
+
 	if (vdisk != nullptr && vdisk->IsPartitioned)
 	{
 		VDisk* vdObj = new VDisk();
@@ -151,8 +160,12 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		return SOR_SUCCESS;
 	}
 
-	if (vdisk != nullptr) delete vdisk;
-	vdisk = nullptr;
+	if (vdisk != nullptr)
+	{
+		delete vdisk;
+		vdisk = nullptr;
+	}
+
 	return SOR_INVALID_FILE;
 }
 
