@@ -2,8 +2,9 @@ Changes history:
 
 1.7.2
 - ISO: Fixed support for bzip2 compressed ISZ images.
-- ISO: Fixed adding of garbage at the end of the file names on RockRidge volumes.
-- VDISK: Skip broken file system entries.
+- ISO: Fixed garbage at the end of the file names on RockRidge volumes.
+- VDISK: Gracefully skip broken file system entries.
+- VDISK: Fixed crash on some non-image files.
 
 1.7.1
 - VDISK: Now hidden and system files on NTFS volumes are shown.
