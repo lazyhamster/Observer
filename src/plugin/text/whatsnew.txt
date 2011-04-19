@@ -1,6 +1,7 @@
 Changes history:
 
 1.7.2
+- Added support for MoPaQ files.
 - ISO: Fixed support for bzip2 compressed ISZ images.
 - ISO: Fixed garbage at the end of the file names on RockRidge volumes.
 - VDISK: Gracefully skip broken file system entries.
