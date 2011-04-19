@@ -126,6 +126,8 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 		if (dwBytes > 0)
 		{
+			params.callbacks.FileProgress(params.callbacks.signalContext, dwBytes);
+
 			if (!WriteFile(hOutFile, copyBuf, dwBytes, &dwBytes, NULL))
 			{
 				nRetVal = SER_ERROR_WRITE;
