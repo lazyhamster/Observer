@@ -4,6 +4,7 @@ Changes history:
 - Added support for MoPaQ files.
 - ISO: Fixed support for bzip2 compressed ISZ images.
 - ISO: Fixed garbage at the end of the file names on RockRidge volumes.
+- ISO: Fixed possbile crash when exiting file panel.
 - VDISK: Gracefully skip broken file system entries.
 - VDISK: Fixed crash on some non-image files.
 
