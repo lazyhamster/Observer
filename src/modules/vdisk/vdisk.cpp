@@ -42,6 +42,13 @@ public:
 		return nullptr;
 	}
 
+	static void UnhandledExceptionHandler( Object^ sender, UnhandledExceptionEventArgs^ args )
+	{
+		String^ msgText = String::Format("ACHTUNG!!!! DANGER!!!! : {0}", args->ExceptionObject);
+		
+		msclr::interop::marshal_context ctx;
+		MessageBox(0, ctx.marshal_as<const wchar_t*>(msgText), L"Global Error", MB_OK | MB_ICONERROR);
+	}
 };
 
 struct VDisk
@@ -304,6 +311,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ExtractItem = ExtractItem;
 
 	AppDomain::CurrentDomain->AssemblyResolve += gcnew ResolveEventHandler(AssemblyLoaderEx::AssemblyResolveEventHandler);
+	AppDomain::CurrentDomain->UnhandledException += gcnew UnhandledExceptionEventHandler(AssemblyLoaderEx::UnhandledExceptionHandler);
 
 	return TRUE;
 }
