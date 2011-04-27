@@ -45,7 +45,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -180,7 +180,7 @@
 			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -202,11 +202,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -496,7 +496,7 @@
 			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -518,11 +518,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -576,7 +576,7 @@
 			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)-$(PlatformName)\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -599,11 +599,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
