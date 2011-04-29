@@ -13,7 +13,16 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	{
 		*storage = view;
 
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI");
+		switch (view->GetFileType())
+		{
+			case MSI_TYPE_MERGE_MODULE:
+				wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI Merge Module");
+				break;
+			default:
+				wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI Installation Database");
+				break;
+		}
+		
 		switch (view->GetCompressionType())
 		{
 			case MSI_COMPRESSION_NONE:

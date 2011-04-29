@@ -93,6 +93,9 @@ int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 	// List all embedded binary streams as files
 	OK ( readEmbeddedFiles(mDirs) );
 
+	// Check type of package
+	OK ( readPackageType() );
+
 	// Assign parent nodes (only after all entries are processed)
 	// Should be done only after files are read to remove empty special folder refs
 	OK ( assignParentDirs(mDirs, (openFlags & MSI_OPENFLAG_SHOWSPECIALS) != 0) );
@@ -334,6 +337,38 @@ int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 		embFile->FileSize = nStreamSize;
 		embFile->FakeFileContent = pStreamData;
 		dirNode->AddFile(embFile);
+	}
+
+	return ERROR_SUCCESS;
+}
+
+int CMsiViewer::readPackageType()
+{
+	UINT res;
+	PMSIHANDLE hQuery;
+
+	// Merge Module must have ModuleComponents table with some data
+	// If this table is absent of empty then we have regular MSI database.
+
+	m_eType = MSI_TYPE_MSI;
+
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQuery) );
+	OK( MsiViewExecute(hQuery, 0) );
+
+	PMSIHANDLE hCompRec;
+	wchar_t wszStreamName[256] = {0};
+	DWORD nCellSize;
+
+	while ((res = MsiViewFetch(hQuery, &hCompRec)) != ERROR_NO_MORE_ITEMS)
+	{
+		OK(res);
+
+		READ_STR(hCompRec, 1, wszStreamName);
+		if (wcscmp(wszStreamName, L"MergeModule.CABinet") == 0)
+		{
+			m_eType = MSI_TYPE_MERGE_MODULE;
+			break;
+		}
 	}
 
 	return ERROR_SUCCESS;
@@ -963,6 +998,9 @@ FileNode* CMsiViewer::GetFile( const int fileIndex )
 
 const wchar_t* CMsiViewer::getFileStorageName( FileNode* file )
 {
+	if (m_eType == MSI_TYPE_MERGE_MODULE)
+		return L"MergeModule.CABinet";
+	
 	// Check flags first to filter uncompressed files
 	if ((file->Attributes & msidbFileAttributesNoncompressed) ||
 		((file->Attributes & msidbFileAttributesCompressed) == 0 && (m_nSummaryWordCount & 2) == 0))
@@ -1054,7 +1092,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 		else
 		{
 			wstring strCabPath;
-			if (cab[0] == '#')
+			if (cab[0] == '#' || m_eType == MSI_TYPE_MERGE_MODULE)
 			{
 				// Copy from internal stream
 				if (cacheInternalStream(cab))
@@ -1144,7 +1182,7 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 		OK(res);
 
 		READ_STR(hStreamRec, 1, wszStreamName);
-		if (wcscmp(wszStreamName, streamName + 1) == 0)
+		if ((streamName[0] == '#' && wcscmp(wszStreamName, streamName + 1) == 0) || (wcscmp(wszStreamName, streamName) == 0))
 		{
 			wstring strCabPath = m_strStreamCacheLocation + (streamName + 1);
 			HANDLE hOutputFile = CreateFileW(strCabPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);

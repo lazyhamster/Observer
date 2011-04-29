@@ -15,6 +15,12 @@ typedef map<wstring, wstring> WStringMap;
 #define MSI_COMPRESSION_CAB 1
 #define MSI_COMPRESSION_MIXED 2
 
+enum MsiFileType
+{
+	MSI_TYPE_MSI,
+	MSI_TYPE_MERGE_MODULE
+};
+
 class CMsiViewer
 {
 private:
@@ -25,6 +31,7 @@ private:
 	vector <BasicNode*> m_vFlatIndex;
 	int m_nSummaryWordCount;
 	FILETIME m_ftCreateTime;
+	MsiFileType m_eType;
 	
 	CCabControl* m_pCabControl;
 	wstring m_strStreamCacheLocation;
@@ -37,6 +44,7 @@ private:
 	int readAppSearch(WStringMap &entries);
 	int readCreateFolder(WStringMap &entries);
 	int readEmbeddedFiles(DirectoryNodesMap &nodemap);
+	int readPackageType();
 
 	int assignParentDirs(DirectoryNodesMap &nodemap, bool processSpecialDirs);
 	void removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolders);
@@ -71,6 +79,7 @@ public:
 	__int64 GetTotalSize() { return m_pRootDir->GetTotalSize(); }
 	int GetCompressionType();
 	FILETIME GetCreateDateTime() { return m_ftCreateTime; };
+	MsiFileType GetFileType() { return m_eType; }
 
 	DirectoryNode* GetDirectory(const wchar_t* path);
 	FileNode* GetFile(const int fileIndex);
