@@ -48,8 +48,6 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="..\..\common\"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;VDISK_EXPORTS"
-				MinimalRebuild="false"
-				BasicRuntimeChecks="0"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
