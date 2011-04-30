@@ -4,6 +4,7 @@ Changes history:
 - Fixed error when overwriting read-only files.
 - MSI: Added support for Merge Modules (.msm).
 - MPQ: Fixed too long search for signature inside files.
+- MIME: Show unpacked file sizes.
 
 1.7.2
 - Added support for MoPaQ files.

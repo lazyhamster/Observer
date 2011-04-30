@@ -10,6 +10,7 @@
 #include "mimetic/mimetic.h"
 #include "mimetic/rfc822/datetime.h"
 #include "NameDecode.h"
+#include "NullStream.h"
 
 using namespace mimetic;
 using namespace std;
@@ -86,6 +87,33 @@ static void CacheFilesList(MimeEntity* entity, MimeFileInfo* info)
 		wstring strChildName = GetEntityName(entity);
 		info->childNames.push_back(strChildName);
 	}
+}
+
+static size_t ExtractBodyToStream(const MimeEntity* entity, ostream& strm)
+{
+	const Body& body = entity->body();
+	const ContentTransferEncoding& enc = entity->header().contentTransferEncoding();
+	size_t startPos = strm.tellp();
+
+	string encName = enc.str();
+	if (_stricmp(encName.c_str(), "base64") == 0)
+	{
+		Base64::Decoder dec;
+		ostream_iterator<char> oit(strm);
+		decode(body.begin(), body.end(), dec, oit);
+	}
+	else if (_stricmp(encName.c_str(), "quoted-printable") == 0)
+	{
+		QP::Decoder dec;
+		ostream_iterator<char> oit(strm);
+		decode(body.begin(), body.end(), dec, oit);
+	}
+	else
+	{
+		strm << body;
+	}
+
+	return (size_t) strm.tellp() - startPos;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -191,7 +219,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	wcscpy_s(item_data->cFileName, MAX_PATH, name.c_str());
 	wcscpy_s(item_data->cAlternateFileName, 14, L"");
 	item_data->dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-	item_data->nFileSizeLow = (DWORD) entity->body().length();
+	//item_data->nFileSizeLow = (DWORD) entity->body().length();
+	
+	onullstream nstrm;
+	item_data->nFileSizeLow = (DWORD) ExtractBodyToStream(entity, nstrm);
 
 	return GET_ITEM_OK;
 }
@@ -206,30 +237,11 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	MimeEntity* entity = minfo->children[params.item];
 	if (!entity) return GET_ITEM_ERROR;
-	wstring itemName = minfo->childNames[params.item];
 
-	Body& body = entity->body();
-	ContentTransferEncoding& enc = entity->header().contentTransferEncoding();
 	fstream fs(params.destFilePath, ios_base::out | ios_base::binary | ios_base::trunc);
 	if (fs.is_open())
 	{
-		string encName = enc.str();
-		if (_stricmp(encName.c_str(), "base64") == 0)
-		{
-			Base64::Decoder dec;
-			ostream_iterator<char> oit(fs);
-			decode(body.begin(), body.end(), dec, oit);
-		}
-		else if (_stricmp(encName.c_str(), "quoted-printable") == 0)
-		{
-			QP::Decoder dec;
-			ostream_iterator<char> oit(fs);
-			decode(body.begin(), body.end(), dec, oit);
-		}
-		else
-		{
-			fs << body;
-		}
+		ExtractBodyToStream(entity, fs);
 		fs.close();
 
 		// Set proper file modification time
