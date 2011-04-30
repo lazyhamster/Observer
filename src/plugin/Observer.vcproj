@@ -1074,6 +1074,42 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Observer.rc.m4"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="M4 Macro"
+						DestDir="$(ProjectDir)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="M4 Macro"
+						DestDir="$(ProjectDir)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug-Unicode|Win32"
+					>
+					<Tool
+						Name="M4 Macro"
+						DestDir="$(ProjectDir)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|Win32"
+					>
+					<Tool
+						Name="M4 Macro"
+						DestDir="$(ProjectDir)"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\text\ObserverEng.hlf.m4"
 				>
 			</File>
