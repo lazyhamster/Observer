@@ -193,7 +193,7 @@ bool WINAPI SFileOpenArchive(
         DWORD dwHeaderID;
 		
 		// If we didn't find signature before this limit then stop the search.
-		const ULONGLONG SearchPosMax = 100 * 1024 * 1024;
+		const ULONGLONG SearchPosMax = 10 * 1024 * 1024;
 
         while(SearchPos < FileSize && SearchPos < SearchPosMax)
         {
