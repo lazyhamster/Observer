@@ -459,7 +459,9 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
-	if (!silent && FileExists(destPath, &fdExistingFile))
+	bool fAlreadyExists = FileExists(destPath, &fdExistingFile);
+
+	if (!silent && fAlreadyExists)
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
 			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item->data))
@@ -478,16 +480,25 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	}
 
 	// Create directory if needed
-	wstring strTargetDir = GetDirectoryName(destPath, false);
-	if (strTargetDir.length() > 0)
+	if (!fAlreadyExists)
 	{
-		if (!ForceDirectoryExist(strTargetDir.c_str()))
+		wstring strTargetDir = GetDirectoryName(destPath, false);
+		if (strTargetDir.length() > 0)
 		{
-			if (!silent)
-				DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, strTargetDir.c_str());
+			if (!ForceDirectoryExist(strTargetDir.c_str()))
+			{
+				if (!silent)
+					DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, strTargetDir.c_str());
 
-			return SER_ERROR_WRITE;
+				return SER_ERROR_WRITE;
+			}
 		}
+	}
+
+	// Remove read-only attribute from target file if present
+	if (fAlreadyExists && (fdExistingFile.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
+	{
+		SetFileAttributes(destPath, fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 	}
 
 	ProgressContext* pctx = (ProgressContext*) callbackContext;

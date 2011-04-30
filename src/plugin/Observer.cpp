@@ -397,7 +397,9 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
-	if (!silent && FileExists(destPath, &fdExistingFile))
+	bool fAlreadyExists = FileExists(destPath, &fdExistingFile);
+
+	if (!silent && fAlreadyExists)
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
 			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item->data))
@@ -416,20 +418,29 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	}
 
 	// Create directory if needed
-	wstring strTargetDir = GetDirectoryName(destPath, false);
-	if (strTargetDir.length() > 0)
+	if (!fAlreadyExists)
 	{
-		if (!ForceDirectoryExist(strTargetDir.c_str()))
+		wstring strTargetDir = GetDirectoryName(destPath, false);
+		if (strTargetDir.length() > 0)
 		{
-			if (!silent)
+			if (!ForceDirectoryExist(strTargetDir.c_str()))
 			{
-				char tmpPathBuf[MAX_PATH] = {0};
-				WideCharToMultiByte(CP_FAR_INTERNAL, 0, strTargetDir.c_str(), -1, tmpPathBuf, MAX_PATH, NULL, NULL);
-				DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, tmpPathBuf);
+				if (!silent)
+				{
+					char tmpPathBuf[MAX_PATH] = {0};
+					WideCharToMultiByte(CP_FAR_INTERNAL, 0, strTargetDir.c_str(), -1, tmpPathBuf, MAX_PATH, NULL, NULL);
+					DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, tmpPathBuf);
+				}
+				
+				return FALSE;
 			}
-			
-			return FALSE;
 		}
+	}
+
+	// Remove read-only attribute from target file if present
+	if (fAlreadyExists && (fdExistingFile.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
+	{
+		SetFileAttributes(destPath, fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 	}
 
 	ProgressContext* pctx = (ProgressContext*) callbackContext;
