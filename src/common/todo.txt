@@ -12,9 +12,6 @@ ISO:
 PST:
 - (?) Handle calendar records more gracefully (not as mail messages)
 
-MIME:
-- display real file sizes
-
 VALVE:
 - extraction progress
 

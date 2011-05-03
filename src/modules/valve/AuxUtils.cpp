@@ -14,7 +14,7 @@ static HLPackageTest lpPackageTests[] =
 	{ HL_PACKAGE_GCF, 8, { 0x01, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00 } },
 	{ HL_PACKAGE_PAK, 4, { 'P', 'A', 'C', 'K' } },
 	{ HL_PACKAGE_VBSP, 4, { 'V', 'B', 'S', 'P' } },
-	{ HL_PACKAGE_VPK, 4, { 0x34, 0x12, 0x55, 0xaa } },
+	{ HL_PACKAGE_VPK, 4, { 0x34, 0x12, 0xAA, 0x55 } },
 	{ HL_PACKAGE_WAD, 4, { 'W', 'A', 'D', '3' } },
 	{ HL_PACKAGE_XZP, 4, { 'p', 'i', 'Z', 'x' } },
 	{ HL_PACKAGE_NONE, 0, { } }
@@ -46,8 +46,9 @@ HLPackageType GetPackageType(const wchar_t* filepath)
 
 	HLPackageType type = HL_PACKAGE_NONE;
 	
-	char readBuf[128] = {0};
+	hlByte readBuf[128] = {0};
 	DWORD dwRead;
+
 	if (ReadFile(hFile, readBuf, sizeof(readBuf), &dwRead, NULL) && dwRead > 0)
 	{
 		type = hlGetPackageTypeFromMemory(readBuf, sizeof(readBuf));
