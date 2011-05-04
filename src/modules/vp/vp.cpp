@@ -34,7 +34,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	CVPFile* file = (CVPFile*) storage;
 	if (!file) return GET_ITEM_ERROR;
@@ -46,14 +46,11 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	if (!file->GetItem(item_index, frec))
 		return GET_ITEM_ERROR;
 
-	wcscpy_s(item_path, path_size, frec.full_path);
-
-	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	wcscpy_s(item_data->cFileName, MAX_PATH, GetFileName(frec.full_path));
-	wcscpy_s(item_data->cAlternateFileName, 14, L"");
-	item_data->dwFileAttributes = (frec.IsDir()) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
-	item_data->nFileSizeLow = frec.size;
-	item_data->ftLastWriteTime = frec.timestamp;
+	memset(item_info, 0, sizeof(WIN32_FIND_DATAW));
+	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), frec.full_path);
+	item_info->Attributes = (frec.IsDir()) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
+	item_info->Size = frec.size;
+	item_info->ModificationTime = frec.timestamp;
 
 	return GET_ITEM_OK;
 }

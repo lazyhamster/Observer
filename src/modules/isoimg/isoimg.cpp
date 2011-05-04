@@ -83,7 +83,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	IsoImage* image = (IsoImage*) storage;
 	if (!image) return GET_ITEM_ERROR;
@@ -93,25 +93,22 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 
 	Directory dir = image->DirectoryList[item_index];
 
-	wcscpy_s(item_path, path_size, dir.FilePath);
-	
-	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	wcscpy_s(item_data->cFileName, MAX_PATH, dir.FileName);
-	wcscpy_s(item_data->cAlternateFileName, 14, L"");
-	item_data->dwFileAttributes = GetDirectoryAttributes(&dir);
+	memset(item_info, 0, sizeof(StorageItemInfo));
+	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), dir.FilePath);
+	item_info->Attributes = GetDirectoryAttributes(&dir);
 
 	if (dir.VolumeDescriptor->XBOX)
 	{
-		item_data->nFileSizeLow = (DWORD) dir.XBOXRecord.DataLength;
+		item_info->Size = (DWORD) dir.XBOXRecord.DataLength;
 	}
 	else
 	{
-		item_data->nFileSizeLow = (dir.Record.FileFlags & FATTR_DIRECTORY)? 0 : (DWORD) dir.Record.DataLength;
+		item_info->Size = (dir.Record.FileFlags & FATTR_DIRECTORY)? 0 : (DWORD) dir.Record.DataLength;
 
 		FILETIME ftime = VolumeDateTimeToFileTime(dir.Record.RecordingDateAndTime);
 		
-		item_data->ftLastWriteTime = ftime;
-		item_data->ftCreationTime = ftime;
+		item_info->ModificationTime = ftime;
+		item_info->CreationTime = ftime;
 	}
 
 	return GET_ITEM_OK;

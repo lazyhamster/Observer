@@ -150,9 +150,9 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
-	if ((storage == NULL) || (item_index < 0) || (item_data == NULL))
+	if ((storage == NULL) || (item_index < 0) || (item_info == NULL))
 		return GET_ITEM_ERROR;
 
 	XStorage* xst = (XStorage*) storage;
@@ -164,15 +164,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 		x2catentry* entry = GetCatEntryByIndex(xst->Catalog, item_index);
 		if (entry == NULL) return GET_ITEM_ERROR;
 
-		memset(item_path, 0, path_size * sizeof(wchar_t));
-		wcscpy_s(item_path, path_size, entry->pszFileName);
-
-		const wchar_t* fileName = GetFileName(item_path);
-
-		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-		wcscpy_s(item_data->cFileName, MAX_PATH, fileName);
-		wcscpy_s(item_data->cAlternateFileName, 14, L"");
-		item_data->nFileSizeLow = (DWORD) entry->size;
+		memset(item_info, 0, sizeof(StorageItemInfo));
+		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), entry->pszFileName);
+		item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
+		item_info->Size = entry->size;
 
 		return GET_ITEM_OK;
 	}
@@ -182,27 +177,26 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 		if (X2FD_FileStatByHandle(xst->FilePtr, &finfo) == 0)
 			return GET_ITEM_ERROR;
 
+		memset(item_info, 0, sizeof(StorageItemInfo));
+		item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
+		item_info->Size = finfo.size;
+
 		const wchar_t* fileName = GetFileName(xst->Path);
-		wcscpy_s(item_path, path_size, fileName);
+		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fileName);
 
 		// Change extension
-		wchar_t *oldExt = GetFileExt(item_path);
+		wchar_t *oldExt = GetFileExt(item_info->Path);
 		if (oldExt)
 		{
 			*oldExt = 0;
-			wcscat_s(item_path, path_size, GetInternalFileExt(xst->FilePtr, xst->Path));
+			wcscat_s(item_info->Path, STRBUF_SIZE(item_info->Path), GetInternalFileExt(xst->FilePtr, xst->Path));
 		}
-
-		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-		wcscpy_s(item_data->cFileName, MAX_PATH, item_path);
-		wcscpy_s(item_data->cAlternateFileName, 14, L"");
-		item_data->nFileSizeLow = (DWORD) finfo.size;
 		
 		if (finfo.mtime != -1)
 		{
 			FILETIME ftMTime;
 			UnixTimeToFileTime(finfo.mtime, &ftMTime);
-			FileTimeToLocalFileTime(&ftMTime, &item_data->ftLastWriteTime);
+			FileTimeToLocalFileTime(&ftMTime, &item_info->ModificationTime);
 		}
 
 		return GET_ITEM_OK;

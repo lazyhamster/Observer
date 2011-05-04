@@ -18,13 +18,26 @@ static int GetStrHash(const wchar_t* src, size_t max_len = -1)
 }
 */
 
+const wchar_t* GetFileName(const wchar_t* fullPath)
+{
+	const wchar_t* lastSlash = wcsrchr(fullPath, '\\');
+	if (lastSlash)
+		return lastSlash + 1;
+	else
+		return fullPath;
+}
+
 //////////////////////////////////////////////////////
 
 ContentTreeNode::ContentTreeNode()
 {
-	parent = NULL;
-	storageIndex = -1;
-	memset(&data, 0, sizeof(data));
+	StorageItemInfo nullInfo = {0};
+	Init(-1, &nullInfo);
+}
+
+ContentTreeNode::ContentTreeNode( int index, StorageItemInfo* info )
+{
+	Init(index, info);
 }
 
 ContentTreeNode::~ContentTreeNode()
@@ -39,9 +52,20 @@ ContentTreeNode::~ContentTreeNode()
 	//subitems.clear();
 }
 
+void ContentTreeNode::Init( int item_index, StorageItemInfo* item_info )
+{
+	parent = NULL;
+	StorageIndex = item_index;
+	m_strName = GetFileName(item_info->Path);
+	m_nSize = item_info->Size;
+	Attributes = item_info->Attributes;
+	LastModificationTime = item_info->ModificationTime;
+	CreationTime = item_info->CreationTime;
+}
+
 size_t ContentTreeNode::GetPath(wchar_t* dest, size_t destSize, ContentTreeNode* upRoot) const
 {
-	if (!data.cFileName[0])
+	if (m_strName.length() == 0)
 	{
 		if (dest) *dest = 0;
 		return 0;
@@ -58,15 +82,15 @@ size_t ContentTreeNode::GetPath(wchar_t* dest, size_t destSize, ContentTreeNode*
 			ret++;
 		}
 		if (dest != NULL)
-			wcscat_s(dest, destSize, data.cFileName);
+			wcscat_s(dest, destSize, Name());
 	}
 	else
 	{
 		if (dest != NULL)
-			wcscpy_s(dest, destSize, data.cFileName);
+			wcscpy_s(dest, destSize, Name());
 	}
 
-	ret += wcslen(data.cFileName);
+	ret += m_strName.length();
 	return ret;
 }
 
@@ -104,7 +128,7 @@ bool ContentTreeNode::AddChild(wchar_t* path, ContentTreeNode* child)
 		if (child->IsDir())
 		{
 			if (!GetSubDir(path))
-				subdirs.insert(pair<wstring, ContentTreeNode* > (child->data.cFileName, child));
+				subdirs.insert(pair<wstring, ContentTreeNode* > (child->Name(), child));
 		}
 		else
 		{
@@ -120,9 +144,9 @@ ContentTreeNode* ContentTreeNode::insertDummyDirectory(const wchar_t *name)
 	ContentTreeNode* dummyDir = new ContentTreeNode();
 	
 	dummyDir->parent = this;
-	dummyDir->storageIndex = -1;
-	wcscpy_s(dummyDir->data.cFileName, MAX_PATH, name);
-	dummyDir->data.dwFileAttributes = FILE_ATTRIBUTE_DIRECTORY;
+	dummyDir->StorageIndex = -1;
+	dummyDir->m_strName = name;
+	dummyDir->Attributes = FILE_ATTRIBUTE_DIRECTORY;
 
 	this->subdirs.insert(pair<wstring, ContentTreeNode*> (name, dummyDir));
 	m_dummyFolders.push_back(dummyDir);
@@ -186,7 +210,7 @@ size_t ContentTreeNode::GetSubDirectoriesNum( bool recursive )
 
 void ContentTreeNode::AddFile( ContentTreeNode* child )
 {
-	wchar_t *nameBuf = child->data.cFileName;
+	wchar_t *nameBuf = _wcsdup(Name());
 
 	// If file with same name already exists in the directory then append number to name
 	if (files.find(nameBuf) != files.end())
@@ -213,4 +237,6 @@ void ContentTreeNode::AddFile( ContentTreeNode* child )
 	} //if
 
 	files.insert(pair<wstring, ContentTreeNode*> (nameBuf, child));
+	
+	free(nameBuf);
 }

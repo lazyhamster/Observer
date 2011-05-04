@@ -55,12 +55,12 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 		delete view;
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	CMsiViewer *view = (CMsiViewer *) storage;
 	if (!view) return GET_ITEM_ERROR;
 
-	if (view->FindNodeDataByIndex(item_index, item_data, item_path, path_size))
+	if (view->FindNodeDataByIndex(item_index, item_info))
 		return GET_ITEM_OK;
 	
 	return GET_ITEM_NOMOREITEMS;

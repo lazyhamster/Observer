@@ -37,7 +37,7 @@ public:
 	const wchar_t* GetSubType() { return m_archSubtype; };
 
 	int GetItemsCount();
-	int GetItem(int itemIndex, WIN32_FIND_DATAW *itemData, wchar_t* itemPath, size_t itemPathSize);
+	int GetItem(int itemIndex, StorageItemInfo* item_info);
 	DWORD GetItemSize(int itemIndex);
 
 	int ExtractArcItem(const int itemIndex, const wchar_t* destFilePath, const ExtractProcessCallbacks* epc);

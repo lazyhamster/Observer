@@ -86,5 +86,5 @@ public:
 
 	int DumpFileContent(FileNode *file, const wchar_t *destFilePath, ExtractProcessCallbacks callbacks);
 
-	bool FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, wchar_t* itemPathBuf, size_t itemPathBufSize);
+	bool FindNodeDataByIndex(int itemIndex, StorageItemInfo* item_info);
 };

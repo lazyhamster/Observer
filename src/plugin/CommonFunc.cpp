@@ -81,7 +81,7 @@ int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 
 			ContentTreeNode* child = cit->second;
 			targetlist.push_back(child);
 			numItems++;
-			totalSize += child->GetSize();
+			totalSize += child->Size();
 		} //for
 
 		// If it is empty directory then just add it
@@ -92,7 +92,7 @@ int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 
 	{
 		targetlist.push_back(node);
 		numItems++;
-		totalSize += node->GetSize();
+		totalSize += node->Size();
 	}
 
 	return numItems;

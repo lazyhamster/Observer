@@ -1278,16 +1278,12 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 	return false;
 }
 
-bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, wchar_t* itemPathBuf, size_t itemPathBufSize)
+bool CMsiViewer::FindNodeDataByIndex(int itemIndex, StorageItemInfo* item_info)
 {
 	if (itemIndex < 0 || itemIndex >= (int) m_vFlatIndex.size())
 		return false;
 
 	BasicNode* node = m_vFlatIndex[itemIndex];
-
-	wcscpy_s(dataBuf->cFileName, MAX_PATH, node->TargetName);
-	wcscpy_s(dataBuf->cAlternateFileName, MAX_SHORT_NAME_LEN, node->TargetShortName);
-	dataBuf->dwFileAttributes = node->GetSytemAttributes();
 
 	// Retrieve file attributes from real files
 	if (!node->IsDir())
@@ -1297,16 +1293,16 @@ bool CMsiViewer::FindNodeDataByIndex(int itemIndex, LPWIN32_FIND_DATAW dataBuf, 
 			FileNode* file = dynamic_cast<FileNode*>(node);
 			readRealFileAttributes(file);
 		}
-		dataBuf->ftCreationTime = node->ftCreationTime;
-		dataBuf->ftLastWriteTime = node->ftModificationTime;
+		item_info->CreationTime = node->ftCreationTime;
+		item_info->ModificationTime = node->ftModificationTime;
 	}
 
-	dataBuf->nFileSizeLow = (DWORD) node->GetSize();
-	dataBuf->nFileSizeHigh = (DWORD) (node->GetSize() >> 32);
+	item_info->Size = node->GetSize();
+	item_info->Attributes = node->GetSytemAttributes();
 
 	wstring path = node->GetTargetPath();
-	wmemcpy_s(itemPathBuf, itemPathBufSize, path.c_str(), path.length());
-	itemPathBuf[path.length()] = 0;
+	wmemcpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), path.c_str(), path.length());
+	item_info->Path[path.length()] = 0;
 	
 	return true;
 }

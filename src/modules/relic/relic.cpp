@@ -6,15 +6,6 @@
 
 #include "base\HWClassFactory.h"
 
-static const wchar_t* GetFileName(const wchar_t* fullPath)
-{
-	const wchar_t* lastSlash = wcsrchr(fullPath, '\\');
-	if (lastSlash)
-		return lastSlash + 1;
-	else
-		return fullPath;
-}
-
 //////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
@@ -44,7 +35,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	CHWAbstractStorage* fileObj = (CHWAbstractStorage*) storage;
 	if (!fileObj) return GET_ITEM_ERROR;
@@ -55,14 +46,12 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	HWStorageItem item = {0};
 	if (fileObj->GetFileInfo(item_index, &item))
 	{
-		wcscpy_s(item_path, path_size, item.Name);
+		memset(item_info, 0, sizeof(StorageItemInfo));
 
-		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-		wcscpy_s(item_data->cFileName, MAX_PATH, GetFileName(item.Name));
-		wcscpy_s(item_data->cAlternateFileName, 14, L"");
-		item_data->dwFileAttributes = 0;
-		item_data->nFileSizeLow = item.UncompressedSize;
-		item_data->ftLastWriteTime = item.ModTime;
+		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), item.Name);
+		item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
+		item_info->Size = item.UncompressedSize;
+		item_info->ModificationTime = item.ModTime;
 
 		return GET_ITEM_OK;
 	}

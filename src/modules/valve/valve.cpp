@@ -74,7 +74,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	ValvePackage* vp = (ValvePackage*) storage;
 	if (vp == NULL || item_index < 0) return GET_ITEM_ERROR;
@@ -84,17 +84,13 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 
 	CDirectoryFile* fileItem = vp->vItems[item_index];
 
-	//wcscpy_s(item_path, path_size, L"");
-	
-	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	//wcscpy_s(item_data->cFileName, MAX_PATH, L"");
-	item_data->dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-	item_data->nFileSizeLow = fileItem->GetSize();
+	memset(item_info, 0, sizeof(StorageItemInfo));
+	item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
+	item_info->Size = fileItem->GetSize();
 
 	hlChar path[1024] = {0};
 	fileItem->GetPath(path, sizeof(path));
-	MultiByteToWideChar(CP_ACP, 0, path, -1, item_path, path_size);
-	MultiByteToWideChar(CP_ACP, 0, fileItem->GetName(), -1, item_data->cFileName, MAX_PATH);
+	MultiByteToWideChar(CP_ACP, 0, path, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
 
 	return GET_ITEM_OK;
 }

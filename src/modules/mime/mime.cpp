@@ -199,7 +199,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	if (item_index < 0) return GET_ITEM_ERROR;
 
@@ -213,16 +213,12 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	if (!entity) return GET_ITEM_ERROR;
 	wstring &name = minfo->childNames[item_index];
 	
-	wcscpy_s(item_path, path_size, name.c_str());
-
-	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	wcscpy_s(item_data->cFileName, MAX_PATH, name.c_str());
-	wcscpy_s(item_data->cAlternateFileName, 14, L"");
-	item_data->dwFileAttributes = FILE_ATTRIBUTE_NORMAL;
-	//item_data->nFileSizeLow = (DWORD) entity->body().length();
+	memset(item_info, 0, sizeof(StorageItemInfo));
+	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), name.c_str());
+	item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
 	
 	onullstream nstrm;
-	item_data->nFileSizeLow = (DWORD) ExtractBodyToStream(entity, nstrm);
+	item_info->Size = ExtractBodyToStream(entity, nstrm);
 
 	return GET_ITEM_OK;
 }

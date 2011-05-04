@@ -40,7 +40,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 		delete arc;
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	CNsisArchive* arc = (CNsisArchive *) storage;
 	if (!arc) return GET_ITEM_ERROR;
@@ -51,7 +51,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	if (item_index >= arc->GetItemsCount())
 		return GET_ITEM_NOMOREITEMS;
 
-	int nRes = arc->GetItem(item_index, item_data, item_path, path_size);
+	int nRes = arc->GetItem(item_index, item_info);
 	return (nRes) ? GET_ITEM_OK : GET_ITEM_ERROR;
 }
 

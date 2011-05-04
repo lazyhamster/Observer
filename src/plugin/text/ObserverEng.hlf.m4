@@ -20,8 +20,9 @@ m4_include(`version.m4i')m4_dnl
  - #WISE# Installer packages
  - Virtual disk images (VMDK, VDI, VHD, XVA).
  - Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
+ - #MoPaQ# containers
 
- (c) 2009-2010, Ariman
+ (c) 2009-2011, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
  Contact E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@

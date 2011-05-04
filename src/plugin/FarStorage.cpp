@@ -111,17 +111,15 @@ int StorageObject::ReadFileList(bool &aborted)
 	__int64 nTotalSize = 0;
 	DWORD nNumFiles = 0, nNumDirs = 0;
 
-	size_t nItemPathBufSize = PATH_BUFFER_SIZE;
-	wchar_t* wszItemPathBuf = (wchar_t*) malloc(nItemPathBufSize * sizeof(wchar_t));
-
 	ExternalModule &module = m_pModules->modules[m_nModuleIndex];
 		
 	DWORD item_index = 0;
-	WIN32_FIND_DATAW child_data;
+	StorageItemInfo item_info;
+
 	do
 	{
-		memset(&child_data, 0, sizeof(child_data));
-		int res = module.GetNextItem(m_pStoragePtr, item_index, &child_data, wszItemPathBuf, nItemPathBufSize);
+		memset(&item_info, 0, sizeof(item_info));
+		int res = module.GetNextItem(m_pStoragePtr, item_index, &item_info);
 
 		if (res == GET_ITEM_NOMOREITEMS)
 		{
@@ -130,17 +128,15 @@ int StorageObject::ReadFileList(bool &aborted)
 		}
 		else if (res == GET_ITEM_OK)
 		{
-			ContentTreeNode* child = new ContentTreeNode();
-			child->storageIndex = item_index;
-			memcpy(&(child->data), &child_data, sizeof(child_data));
+			ContentTreeNode* child = new ContentTreeNode(item_index, &item_info);
 			
-			if (m_pRootDir->AddChild(wszItemPathBuf, child))
+			if (m_pRootDir->AddChild(item_info.Path, child))
 			{
 				m_vItems.push_back(child);
 				if (!child->IsDir())
 				{
 					nNumFiles++;
-					nTotalSize += child->GetSize();
+					nTotalSize += child->Size();
 				}
 				else
 				{
@@ -168,8 +164,6 @@ int StorageObject::ReadFileList(bool &aborted)
 		item_index++;
 
 	} while (fListOK);
-
-	free(wszItemPathBuf);
 
 	if (fListOK)
 	{

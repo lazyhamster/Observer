@@ -194,7 +194,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	VDisk* vdObj = (VDisk*) storage;
 	if (vdObj == NULL || item_index < 0) return GET_ITEM_ERROR;
@@ -205,28 +205,21 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	List<VDFileInfo^> ^fileList = vdObj->vItems;
 	VDFileInfo^ fileInfo = fileList[item_index];
 	
-	LARGE_INTEGER liSize;
-	liSize.QuadPart = (fileInfo->Ref->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fileInfo->Ref)->Length : 0;
-
 	List<String^> ^volLabels = vdObj->vVolLabels;
 	String^ filePath = String::Format("[{0}]\\{1}", volLabels[fileInfo->VolumeIndex], fileInfo->Ref->FullName);
+	
+	// Remove trailing backslash if present
+	if (filePath->EndsWith("\\")) filePath->Remove(filePath->Length - 1);
 
 	// Helper class for String^ to wchar_t* conversion
 	msclr::interop::marshal_context ctx;
 
-	wcscpy_s(item_path, path_size, ctx.marshal_as<const wchar_t*>(filePath));
-	
-	// Remove trailing backslash if present
-	size_t nPathLen = wcslen(item_path);
-	if (item_path[nPathLen - 1] == '\\') item_path[nPathLen - 1] = 0;
-
-	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	wcscpy_s(item_data->cFileName, MAX_PATH, ctx.marshal_as<const wchar_t*>(fileInfo->Ref->Name));
-	item_data->dwFileAttributes = (DWORD) fileInfo->Ref->Attributes;
-	item_data->nFileSizeLow = liSize.LowPart;
-	item_data->nFileSizeHigh = liSize.HighPart;
-	item_data->ftCreationTime = DateTimeToFileTime(fileInfo->Ref->CreationTimeUtc);
-	item_data->ftLastWriteTime = DateTimeToFileTime(fileInfo->Ref->LastWriteTimeUtc);
+	memset(item_info, 0, sizeof(StorageItemInfo));
+	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), ctx.marshal_as<const wchar_t*>(filePath));
+	item_info->Attributes = (DWORD) fileInfo->Ref->Attributes;
+	item_info->Size = (fileInfo->Ref->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fileInfo->Ref)->Length : 0;;
+	item_info->CreationTime = DateTimeToFileTime(fileInfo->Ref->CreationTimeUtc);
+	item_info->ModificationTime = DateTimeToFileTime(fileInfo->Ref->LastWriteTimeUtc);
 	
 	return GET_ITEM_OK;
 }

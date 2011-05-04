@@ -14,7 +14,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	return GET_ITEM_NOMOREITEMS;
 }

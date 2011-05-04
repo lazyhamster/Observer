@@ -83,7 +83,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 		delete storageRec;
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	UdfStorage *storageRec = (UdfStorage*) storage;
 	if (!storageRec) return GET_ITEM_ERROR;
@@ -99,18 +99,14 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 
 	UString fname = file.GetName();
 
-	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	wcscpy_s(item_data->cFileName, MAX_PATH, fname);
-	wcscpy_s(item_data->cAlternateFileName, 14, L"");
-	item_data->dwFileAttributes = item.IsDir() ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
-	item_data->nFileSizeLow = (DWORD) item.Size;
-	item_data->nFileSizeHigh = (DWORD) (item.Size >> 32);
-	item.MTime.GetFileTime(item_data->ftLastWriteTime);
-	item.CreateTime.GetFileTime(item_data->ftCreationTime);
-	item.ATime.GetFileTime(item_data->ftLastAccessTime);
+	memset(item_info, 0, sizeof(StorageItemInfo));
+	item_info->Attributes = item.IsDir() ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
+	item_info->Size = item.Size;
+	item.MTime.GetFileTime(item_info->ModificationTime);
+	item.CreateTime.GetFileTime(item_info->CreationTime);
 
 	UString fullPath = storageRec->arc.GetItemPath(ref2.Vol, ref2.Fs, ref2.Ref, storageRec->arc.LogVols.Size() > 1, vol.FileSets.Size() > 1);
-	wcscpy_s(item_path, path_size, fullPath);
+	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fullPath);
 	
 	return GET_ITEM_OK;
 }

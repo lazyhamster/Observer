@@ -332,7 +332,7 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
 
 	context->nCurrentFileNumber++;
-	context->nCurrentFileSize = item->GetSize();
+	context->nCurrentFileSize = item->Size();
 	context->nProcessedFileBytes = 0;
 	context->nCurrentProgress = -1;
 	
@@ -401,21 +401,21 @@ static int ExtractError(int errorReason, HANDLE context)
 #define EXTR_OVERWRITE_SKIP 3
 #define EXTR_OVERWRITE_SKIPSILENT 4
 
-static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, WIN32_FIND_DATAW newFile)
+static bool AskExtractOverwrite(int &overwrite, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
 {
-	__int64 nOldSize = ((__int64) existingFile.nFileSizeHigh >> 32) + existingFile.nFileSizeLow;
-	__int64 nNewSize = ((__int64) newFile.nFileSizeHigh >> 32) + newFile.nFileSizeLow;
+	__int64 nOldSize = ((__int64) existingFile->nFileSizeHigh >> 32) + existingFile->nFileSizeLow;
+	__int64 nNewSize = newFile->Size();
 	
 	SYSTEMTIME stOldUTC, stOldLocal;
-	FileTimeToSystemTime(&existingFile.ftLastWriteTime, &stOldUTC);
+	FileTimeToSystemTime(&existingFile->ftLastWriteTime, &stOldUTC);
 	SystemTimeToTzSpecificLocalTime(NULL, &stOldUTC, &stOldLocal);
 
 	SYSTEMTIME stNewUTC, stNewLocal;
-	FileTimeToSystemTime(&newFile.ftLastWriteTime, &stNewUTC);
+	FileTimeToSystemTime(&newFile->LastModificationTime, &stNewUTC);
 	SystemTimeToTzSpecificLocalTime(NULL, &stNewUTC, &stNewLocal);
 	
 	static wchar_t szDialogLine1[120] = {0};
-	swprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_OVERWRITE), newFile.cFileName);
+	swprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_OVERWRITE), newFile->Name());
 	static wchar_t szDialogLine2[120] = {0};
 	swprintf_s(szDialogLine2, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), L"%21s  %s", L"Size", L"Last Modification");
 	static wchar_t szDialogLine3[120] = {0};
@@ -464,7 +464,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	if (!silent && fAlreadyExists)
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
-			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item->data))
+			if (!AskExtractOverwrite(doOverwrite, &fdExistingFile, item))
 				return SER_USERABORT;
 		
 		// Check either ask result or present value
@@ -509,7 +509,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	{
 		// Set extract params
 		ExtractOperationParams params;
-		params.item = item->storageIndex;
+		params.item = item->StorageIndex;
 		params.flags = 0;
 		params.destFilePath = destPath;
 		params.callbacks.FileProgress = ExtractProgress;
@@ -844,13 +844,11 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 
 		ContentTreeNode* node = (cit->second);
 
-		panelItem->FindData.lpwszFileName = node->data.cFileName;
-		panelItem->FindData.lpwszAlternateFileName = node->data.cAlternateFileName;
-		panelItem->FindData.dwFileAttributes = node->data.dwFileAttributes;
-		panelItem->FindData.ftCreationTime = node->data.ftCreationTime;
-		panelItem->FindData.ftLastWriteTime = node->data.ftLastWriteTime;
-		panelItem->FindData.ftLastAccessTime = node->data.ftLastAccessTime;
-		panelItem->FindData.nFileSize = node->GetSize();
+		panelItem->FindData.lpwszFileName = node->Name();
+		panelItem->FindData.dwFileAttributes = node->Attributes;
+		panelItem->FindData.ftCreationTime = node->CreationTime;
+		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
+		panelItem->FindData.nFileSize = node->Size();
 
 		panelItem++;
 	}
@@ -862,13 +860,11 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 
 		ContentTreeNode* node = (cit->second);
 
-		panelItem->FindData.lpwszFileName = node->data.cFileName;
-		panelItem->FindData.lpwszAlternateFileName = node->data.cAlternateFileName;
-		panelItem->FindData.dwFileAttributes = node->data.dwFileAttributes;
-		panelItem->FindData.ftCreationTime = node->data.ftCreationTime;
-		panelItem->FindData.ftLastWriteTime = node->data.ftLastWriteTime;
-		panelItem->FindData.ftLastAccessTime = node->data.ftLastAccessTime;
-		panelItem->FindData.nFileSize = node->GetSize();
+		panelItem->FindData.lpwszFileName = node->Name();
+		panelItem->FindData.dwFileAttributes = node->Attributes;
+		panelItem->FindData.ftCreationTime = node->CreationTime;
+		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
+		panelItem->FindData.nFileSize = node->Size();
 
 		panelItem++;
 	}

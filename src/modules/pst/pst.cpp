@@ -101,7 +101,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	PstFileInfo* file = (PstFileInfo*) storage;
 	if (!file) return GET_ITEM_ERROR;
@@ -111,16 +111,13 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 		return GET_ITEM_NOMOREITEMS;
 
 	const PstFileEntry &fentry = file->Entries[item_index];
-	wcscpy_s(item_path, path_size, fentry.FullPath.c_str());
-
-	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	wcscpy_s(item_data->cFileName, MAX_PATH, fentry.Name.c_str());
-	wcscpy_s(item_data->cAlternateFileName, 14, L"");
-	item_data->dwFileAttributes = (fentry.Type == ETYPE_FOLDER) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
-	item_data->nFileSizeLow = (DWORD) fentry.Size;
-	item_data->nFileSizeHigh = (DWORD) (fentry.Size >> 32);
-	item_data->ftLastWriteTime = fentry.LastModificationTime;
-	item_data->ftCreationTime = fentry.CreationTime;
+	
+	memset(item_info, 0, sizeof(StorageItemInfo));
+	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fentry.FullPath.c_str());
+	item_info->Attributes = (fentry.Type == ETYPE_FOLDER) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
+	item_info->Size = fentry.Size;
+	item_info->ModificationTime = fentry.LastModificationTime;
+	item_info->CreationTime = fentry.CreationTime;
 
 	return GET_ITEM_OK;
 }

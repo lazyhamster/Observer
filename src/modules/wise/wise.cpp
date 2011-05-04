@@ -30,7 +30,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	if (arc) delete arc;
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	CWiseFile* arc = (CWiseFile *) storage;
 	if (!arc || (item_index < 0)) return GET_ITEM_ERROR;
@@ -39,19 +39,14 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 	bool noMoreItems = false;
 	if (arc->GetFileInfo(item_index, &fileData, noMoreItems))
 	{
+		memset(item_info, 0, sizeof(StorageItemInfo));
+		item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
+		item_info->Size = fileData.UnpackedSize;
+
 		if (fileData.FileName[0])
-			wcscpy_s(item_path, path_size, fileData.FileName);
+			wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fileData.FileName);
 		else
-			swprintf_s(item_path, path_size, L"file%04d.bin", item_index);
-		
-		memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-		
-		wchar_t* wszSlash = wcsrchr(item_path, '\\');
-		if (wszSlash)
-			wcscpy_s(item_data->cFileName, MAX_PATH, wszSlash + 1);
-		else
-			wcscpy_s(item_data->cFileName, MAX_PATH, item_path);
-		item_data->nFileSizeLow = fileData.UnpackedSize;
+			swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"file%04d.bin", item_index);
 
 		return GET_ITEM_OK;
 	}

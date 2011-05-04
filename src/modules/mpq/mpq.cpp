@@ -62,7 +62,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DATAW item_data, wchar_t* item_path, size_t path_size)
+int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	MoPaQ_File* fileObj = (MoPaQ_File*) storage;
 	if (fileObj == NULL || item_index < 0) return GET_ITEM_ERROR;
@@ -72,19 +72,12 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, LPWIN32_FIND_DA
 
 	const SFILE_FIND_DATA &ffd = fileObj->vFiles[item_index];
 
-	MultiByteToWideChar(CP_ACP, 0, ffd.cFileName, -1, item_path, path_size);
-
-	memset(item_data, 0, sizeof(WIN32_FIND_DATAW));
-	item_data->dwFileAttributes = ffd.dwFileFlags;
-	item_data->nFileSizeLow = ffd.dwFileSize;
-	item_data->ftLastWriteTime.dwHighDateTime = ffd.dwFileTimeHi;
-	item_data->ftLastWriteTime.dwLowDateTime = ffd.dwFileTimeLo;
-
-	wchar_t* lastSlash = wcsrchr(item_path, '\\');
-	if (lastSlash && *(lastSlash + 1))
-		wcscpy_s(item_data->cFileName, MAX_PATH, lastSlash + 1);
-	else
-		wcscpy_s(item_data->cFileName, MAX_PATH, item_path);
+	memset(item_info, 0, sizeof(StorageItemInfo));
+	MultiByteToWideChar(CP_ACP, 0, ffd.cFileName, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
+	item_info->Attributes = ffd.dwFileFlags;
+	item_info->Size = ffd.dwFileSize;
+	item_info->ModificationTime.dwHighDateTime = ffd.dwFileTimeHi;
+	item_info->ModificationTime.dwLowDateTime = ffd.dwFileTimeLo;
 
 	return GET_ITEM_OK;
 }

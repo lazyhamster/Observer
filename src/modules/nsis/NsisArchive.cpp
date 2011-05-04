@@ -343,27 +343,21 @@ UString CNsisArchive::getItemPath( int itemIndex )
 	return name;
 }
 
-int CNsisArchive::GetItem(int itemIndex, WIN32_FIND_DATAW *itemData, wchar_t* itemPath, size_t itemPathSize)
+int CNsisArchive::GetItem(int itemIndex, StorageItemInfo* item_info)
 {
 	if (!m_handler) return FALSE;
 
-	memset(itemData, 0, sizeof(*itemData));
+	memset(item_info, 0, sizeof(*item_info));
 
 	NWindows::NCOM::CPropVariant prop;
 	
 	UString name = getItemPath(itemIndex);
-	wcscpy_s(itemPath, itemPathSize, name);
+	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), name);
 	
-	wchar_t* wszSlash = wcsrchr(itemPath, '\\');
-	if (wszSlash)
-		wcscpy_s(itemData->cFileName, MAX_PATH, wszSlash + 1);
-	else
-		wcscpy_s(itemData->cFileName, MAX_PATH, itemPath);
-	
-	itemData->nFileSizeLow = GetItemSize(itemIndex);
+	item_info->Size = GetItemSize(itemIndex);
 	
 	if ( (m_handler->GetProperty(itemIndex, kpidMTime, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
-		itemData->ftLastWriteTime = prop.filetime;
+		item_info->ModificationTime = prop.filetime;
 
 	return TRUE;
 }
