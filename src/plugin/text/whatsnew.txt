@@ -1,5 +1,8 @@
 Changes history:
 
+1.8.0
+- VALVE: Fixed signature detection for VPK files.
+
 1.7.3
 - Fixed error when overwriting read-only files.
 - MSI: Added support for Merge Modules (.msm).

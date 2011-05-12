@@ -210,7 +210,8 @@ size_t ContentTreeNode::GetSubDirectoriesNum( bool recursive )
 
 void ContentTreeNode::AddFile( ContentTreeNode* child )
 {
-	wchar_t *nameBuf = _wcsdup(Name());
+	wchar_t nameBuf[MAX_PATH] = {0};
+	wcscpy_s(nameBuf, MAX_PATH, child->Name());
 
 	// If file with same name already exists in the directory then append number to name
 	if (files.find(nameBuf) != files.end())
@@ -237,6 +238,4 @@ void ContentTreeNode::AddFile( ContentTreeNode* child )
 	} //if
 
 	files.insert(pair<wstring, ContentTreeNode*> (nameBuf, child));
-	
-	free(nameBuf);
 }
