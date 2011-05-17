@@ -22,6 +22,8 @@
  - Несколько контейнеров исползуемых в системе #Steam# (GCF, WAD, XZP, PAK, BSP, VBSP).
  - #MoPaQ# контейнеры
 
+ Для дополнительной информации смотрите файл readme_ru.txt
+
  (c) 2009-2011, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@

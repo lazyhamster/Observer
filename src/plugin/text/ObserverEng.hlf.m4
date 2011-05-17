@@ -22,6 +22,8 @@ m4_include(`version.m4i')m4_dnl
  - Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
  - #MoPaQ# containers
 
+ For additional information look in supplied readme.txt
+
  (c) 2009-2011, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@

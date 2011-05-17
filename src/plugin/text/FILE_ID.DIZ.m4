@@ -17,6 +17,9 @@ Supported file formats:
 - Containers from games made by Relic (Homeworld 1/2, CoH, WH40k DOW 1/2)
 - MS Outlook databases
 - WISE Installer packages
+- Virtual disk images (VMDK, VDI, VHD, XVA)
+- Steam containers (GCF, WAD, XZP, PAK, BSP, VBSP)
+- MoPaQ containers
 
 (c) 2009-2011, Ariman
 -----------------------------------------
