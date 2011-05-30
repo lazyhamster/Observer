@@ -251,69 +251,72 @@ CDirectoryFolder *CVBSPFile::CreateRoot()
 		}
 	}
 
-	hlUInt uiTest, uiOffset = 0;
-	while(uiOffset < this->pEndOfCentralDirectoryRecord->uiCentralDirectorySize - sizeof(uiTest))
+	if(this->pEndOfCentralDirectoryRecord != 0)
 	{
-		uiTest = *(hlUInt *)((hlByte *)this->pFileHeaderView->GetView() + uiOffset);
-
-		switch(uiTest)
+		hlUInt uiTest, uiOffset = 0;
+		while(uiOffset < this->pEndOfCentralDirectoryRecord->uiCentralDirectorySize - sizeof(uiTest))
 		{
-			case HL_VBSP_ZIP_FILE_HEADER_SIGNATURE:
+			uiTest = *(hlUInt *)((hlByte *)this->pFileHeaderView->GetView() + uiOffset);
+
+			switch(uiTest)
 			{
-				ZIPFileHeader *pFileHeader = static_cast<ZIPFileHeader *>((hlVoid *)((hlByte *)this->pFileHeaderView->GetView() + uiOffset));
-
-				hlChar *lpFileName = new hlChar[pFileHeader->uiFileNameLength + 1];
-				memcpy(lpFileName, (hlByte *)pFileHeader + sizeof(ZIPFileHeader), pFileHeader->uiFileNameLength);
-				lpFileName[pFileHeader->uiFileNameLength] = '\0';
-
-				// Check if we have just a file, or if the file has directories we need to create.
-				if(strchr(lpFileName, '/') == 0 && strchr(lpFileName, '\\') == 0)
+				case HL_VBSP_ZIP_FILE_HEADER_SIGNATURE:
 				{
-					pRoot->AddFile(lpFileName, HL_ID_INVALID, pFileHeader);
-				}
-				else
-				{
-					// Tokenize the file path and create the directories.
-					CDirectoryFolder *pInsertFolder = pRoot;
+					ZIPFileHeader *pFileHeader = static_cast<ZIPFileHeader *>((hlVoid *)((hlByte *)this->pFileHeaderView->GetView() + uiOffset));
 
-					hlChar lpTemp[256] = "";
-					hlChar *lpToken = strtok(lpFileName, "/\\");
-					while(lpToken != 0)
+					hlChar *lpFileName = new hlChar[pFileHeader->uiFileNameLength + 1];
+					memcpy(lpFileName, (hlByte *)pFileHeader + sizeof(ZIPFileHeader), pFileHeader->uiFileNameLength);
+					lpFileName[pFileHeader->uiFileNameLength] = '\0';
+
+					// Check if we have just a file, or if the file has directories we need to create.
+					if(strchr(lpFileName, '/') == 0 && strchr(lpFileName, '\\') == 0)
 					{
-						strcpy(lpTemp, lpToken);
+						pRoot->AddFile(lpFileName, HL_ID_INVALID, pFileHeader);
+					}
+					else
+					{
+						// Tokenize the file path and create the directories.
+						CDirectoryFolder *pInsertFolder = pRoot;
 
-						lpToken = strtok(0, "/\\");
-
-						if(lpToken != 0)
+						hlChar lpTemp[256] = "";
+						hlChar *lpToken = strtok(lpFileName, "/\\");
+						while(lpToken != 0)
 						{
-							// Check if the directory exists.
-							CDirectoryItem *pItem = pInsertFolder->GetItem(lpTemp);
-							if(pItem == 0 || pItem->GetType() == HL_ITEM_FILE)
+							strcpy(lpTemp, lpToken);
+
+							lpToken = strtok(0, "/\\");
+
+							if(lpToken != 0)
 							{
-								// It doesn't, create it.
-								pInsertFolder = pInsertFolder->AddFolder(lpTemp);
-							}
-							else
-							{
-								// It does, use it.
-								pInsertFolder = static_cast<CDirectoryFolder *>(pItem);
+								// Check if the directory exists.
+								CDirectoryItem *pItem = pInsertFolder->GetItem(lpTemp);
+								if(pItem == 0 || pItem->GetType() == HL_ITEM_FILE)
+								{
+									// It doesn't, create it.
+									pInsertFolder = pInsertFolder->AddFolder(lpTemp);
+								}
+								else
+								{
+									// It does, use it.
+									pInsertFolder = static_cast<CDirectoryFolder *>(pItem);
+								}
 							}
 						}
+
+						// The file name is the last token, add it.
+						pInsertFolder->AddFile(lpTemp, HL_ID_INVALID, pFileHeader);
 					}
 
-					// The file name is the last token, add it.
-					pInsertFolder->AddFile(lpTemp, HL_ID_INVALID, pFileHeader);
+					delete []lpFileName;
+
+					uiOffset += sizeof(ZIPFileHeader) + pFileHeader->uiFileNameLength + pFileHeader->uiExtraFieldLength + pFileHeader->uiFileCommentLength;
+					break;
 				}
-
-				delete []lpFileName;
-
-				uiOffset += sizeof(ZIPFileHeader) + pFileHeader->uiFileNameLength + pFileHeader->uiExtraFieldLength + pFileHeader->uiFileCommentLength;
-				break;
-			}
-			default:
-			{
-				uiOffset = this->pEndOfCentralDirectoryRecord->uiCentralDirectorySize;
-				break;
+				default:
+				{
+					uiOffset = this->pEndOfCentralDirectoryRecord->uiCentralDirectorySize;
+					break;
+				}
 			}
 		}
 	}
@@ -444,7 +447,7 @@ hlBool CVBSPFile::GetItemAttributeInternal(const CDirectoryItem *pItem, HLPackag
 					}
 				}
 
-				if(pItem->GetID() == HL_VBSP_LUMP_PAKFILE)
+				if(this->pEndOfCentralDirectoryRecord != 0 && pItem->GetID() == HL_VBSP_LUMP_PAKFILE)
 				{
 					switch(eAttribute)
 					{
