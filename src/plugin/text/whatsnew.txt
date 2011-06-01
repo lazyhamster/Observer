@@ -2,6 +2,7 @@ Changes history:
 
 1.8.0
 - VALVE: Fixed signature detection for VPK files.
+- VALVE: Fixed possible crash on some VBSP files.
 
 1.7.3
 - Fixed error when overwriting read-only files.

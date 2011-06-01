@@ -137,6 +137,16 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 		FreeLibrary(module.ModuleHandle);
 		return false;
 	}
+#ifdef _DEBUG
+	else
+	{
+		DWORD err = GetLastError();
+		
+		wchar_t msgText[200] = {0};
+		swprintf_s(msgText, ARRAY_SIZE(msgText), L"Can not load modules (Error: %d, Path: %s)", err, module.LibraryFile);
+		MessageBox(0, msgText, L"Error", MB_OK);
+	}
+#endif
 	
 	return false;
 }
