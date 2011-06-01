@@ -45,11 +45,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\gmime;&quot;..\..\depends\glib&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MBOX_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -65,9 +65,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
-				GenerateManifest="false"
 				ModuleDefinitionFile="mbox.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -123,11 +123,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\gmime;&quot;..\..\depends\glib&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MBOX_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -143,9 +143,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
-				GenerateManifest="false"
 				ModuleDefinitionFile="mbox.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -202,9 +202,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\gmime;&quot;..\..\depends\glib&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MBOX_EXPORTS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -221,9 +221,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
-				GenerateManifest="false"
 				ModuleDefinitionFile="mbox.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
@@ -283,9 +283,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\gmime;&quot;..\..\depends\glib&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MBOX_EXPORTS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -302,9 +302,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
-				GenerateManifest="false"
 				ModuleDefinitionFile="mbox.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
@@ -361,11 +361,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\gmime;&quot;..\..\depends\glib&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MBOX_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -381,9 +381,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
-				GenerateManifest="false"
 				ModuleDefinitionFile="mbox.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -439,11 +439,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\gmime;&quot;..\..\depends\glib&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;MBOX_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -459,9 +459,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="2"
-				GenerateManifest="false"
 				ModuleDefinitionFile="mbox.def"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -518,9 +518,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\gmime;&quot;..\..\depends\glib&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MBOX_EXPORTS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -537,9 +537,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
-				GenerateManifest="false"
 				ModuleDefinitionFile="mbox.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
@@ -599,9 +599,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\..\common\"
+				AdditionalIncludeDirectories="..\..\common\;..\..\depends\gmime;&quot;..\..\depends\glib&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;MBOX_EXPORTS"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -618,9 +618,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="Ws2_32.lib"
 				OutputFile="$(OutDir)\$(ProjectName).so"
 				LinkIncremental="1"
-				GenerateManifest="false"
 				ModuleDefinitionFile="mbox.def"
 				GenerateDebugInformation="false"
 				SubSystem="2"
@@ -745,6 +745,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MboxReader.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -818,6 +822,14 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\MboxItems.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MboxReader.h"
+				>
+			</File>
 			<File
 				RelativePath=".\stdafx.h"
 				>

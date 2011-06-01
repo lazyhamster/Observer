@@ -13,3 +13,8 @@
 
 
 // Additional headers
+#include "config.h"
+#include "gmime/gmime.h"
+
+#include <string>
+#include <vector>

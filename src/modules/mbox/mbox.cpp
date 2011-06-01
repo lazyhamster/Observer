@@ -3,25 +3,65 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
-
+#include "MboxReader.h"
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	return FALSE;
+	CMboxReader* reader = new CMboxReader();
+	if (!reader->Open(params.FilePath))
+	{
+		delete reader;
+		return SOR_INVALID_FILE;
+	}
+
+	*storage = reader;
+
+	memset(info, 0, sizeof(StorageGeneralInfo));
+	wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Unix MBox");
+	wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
+	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
+	
+	return SOR_SUCCESS;
 }
 
 void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
+	CMboxReader* reader = (CMboxReader*) storage;
+	if (reader)	delete reader;
 }
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
-	return GET_ITEM_NOMOREITEMS;
+	CMboxReader* reader = (CMboxReader*) storage;
+	if (!reader) return GET_ITEM_ERROR;
+
+	if (item_index >= (int) reader->vItems.size())
+		return GET_ITEM_NOMOREITEMS;
+
+	const MBoxItem &mbi = reader->vItems[item_index];
+
+	memset(item_info, 0, sizeof(StorageItemInfo));
+	swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"msg%05d.eml", item_index);
+	item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
+	item_info->Size = mbi.EndPos - mbi.StartPos;
+	//item_info->ModificationTime.dwHighDateTime = ffd.dwFileTimeHi;
+	//item_info->ModificationTime.dwLowDateTime = ffd.dwFileTimeLo;
+
+	return GET_ITEM_OK;
 }
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
-	return SER_ERROR_SYSTEM;
+	CMboxReader* reader = (CMboxReader*) storage;
+	if (!reader) return SER_ERROR_SYSTEM;
+
+	if (params.item < 0 || params.item >= (int) reader->vItems.size())
+		return SER_ERROR_SYSTEM;
+
+	if (!reader->Extract(params.item, params.destFilePath))
+		return SER_ERROR_READ;
+	
+	return SER_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -36,6 +76,8 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->CloseStorage = CloseStorage;
 	LoadParams->GetItem = GetStorageItem;
 	LoadParams->ExtractItem = ExtractItem;
+
+	g_mime_init(0);
 
 	return TRUE;
 }

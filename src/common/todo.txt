@@ -1,6 +1,7 @@
 General:
 - add extract progress where it is possible
 - change console title on extraction like FAR copy operation
+- make file name comparison case insensitive
 
 MSI:
 - extract progress
