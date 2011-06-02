@@ -1,23 +1,15 @@
 #ifndef MboxReader_h__
 #define MboxReader_h__
 
-#include "MboxItems.h"
+#include "MailReader.h"
 
-class CMboxReader
+class CMboxReader : public IMailReader
 {
-private:
-	FILE* m_pFile;
+protected:
+	virtual bool IsValidFile( FILE* f );
 
 public:
-	std::vector<MBoxItem> vItems;
-	
-	CMboxReader() : m_pFile(NULL) {}
-	~CMboxReader() { Close(); }
-
-	bool Open(const wchar_t* filepath);
-	void Close();
-
-	bool Extract(int itemindex, const wchar_t* destpath);
+	virtual int Scan();
 };
 
 #endif // MboxReader_h__

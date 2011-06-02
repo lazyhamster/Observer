@@ -35,10 +35,13 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	CMboxReader* reader = (CMboxReader*) storage;
 	if (!reader) return GET_ITEM_ERROR;
 
-	if (item_index >= (int) reader->vItems.size())
+	if (reader->GetItemsCount() == 0)
+		reader->Scan();
+	
+	if (item_index >= reader->GetItemsCount())
 		return GET_ITEM_NOMOREITEMS;
 
-	const MBoxItem &mbi = reader->vItems[item_index];
+	const MBoxItem &mbi = reader->GetItem(item_index);
 
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"msg%05d.eml", item_index);
@@ -55,13 +58,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	CMboxReader* reader = (CMboxReader*) storage;
 	if (!reader) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= (int) reader->vItems.size())
+	if (params.item < 0 || params.item >= reader->GetItemsCount())
 		return SER_ERROR_SYSTEM;
 
-	if (!reader->Extract(params.item, params.destFilePath))
-		return SER_ERROR_READ;
-	
-	return SER_SUCCESS;
+	return reader->Extract(params.item, params.destFilePath);
 }
 
 //////////////////////////////////////////////////////////////////////////

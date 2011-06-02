@@ -737,6 +737,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\MailReader.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\mbox.cpp"
 				>
 			</File>
@@ -823,7 +827,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\MboxItems.h"
+				RelativePath=".\MailReader.h"
 				>
 			</File>
 			<File
