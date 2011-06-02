@@ -8,9 +8,11 @@ struct MBoxItem
 	__int64 StartPos;
 	__int64 EndPos;
 
-	std::string Subject;
-	std::string Sender;
-	std::string Date;
+	std::wstring Subject;
+	std::wstring Sender;
+
+	time_t Date;
+	int TimeZone;
 
 	__int64 Size() const { return EndPos - StartPos; }
 };
@@ -37,5 +39,7 @@ public:
 
 	int Extract(int itemindex, const wchar_t* destpath);
 };
+
+std::wstring ConvertString(const char* src);
 
 #endif // MailReader_h__

@@ -5,6 +5,33 @@
 #include "ModuleDef.h"
 #include "MboxReader.h"
 
+static void UnixTimeToFileTime(time_t t, LPFILETIME pft)
+{
+	// Note that LONGLONG is a 64-bit value
+	LONGLONG ll;
+
+	ll = Int32x32To64(t, 10000000) + 116444736000000000;
+	pft->dwLowDateTime = (DWORD)ll;
+	pft->dwHighDateTime = ll >> 32;
+}
+
+static bool IsValidPathChar(wchar_t ch)
+{
+	return (wcschr(L":*?\"<>|\\/", ch) == NULL);
+}
+
+static void RenameInvalidPathChars(wchar_t* input)
+{
+	size_t inputLen = wcslen(input);
+	for (size_t i = 0; i < inputLen; i++)
+	{
+		if (!IsValidPathChar(input[i]))
+			input[i] = '_';
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	CMboxReader* reader = new CMboxReader();
@@ -44,11 +71,14 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	const MBoxItem &mbi = reader->GetItem(item_index);
 
 	memset(item_info, 0, sizeof(StorageItemInfo));
-	swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"msg%05d.eml", item_index);
+	if (mbi.Subject.length() > 0)
+		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"%04d - %s.eml", item_index, mbi.Subject.c_str());
+	else
+		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"%04d.eml", item_index);
+	RenameInvalidPathChars(item_info->Path);
 	item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
 	item_info->Size = mbi.EndPos - mbi.StartPos;
-	//item_info->ModificationTime.dwHighDateTime = ffd.dwFileTimeHi;
-	//item_info->ModificationTime.dwLowDateTime = ffd.dwFileTimeLo;
+	UnixTimeToFileTime(mbi.Date, &item_info->ModificationTime);
 
 	return GET_ITEM_OK;
 }

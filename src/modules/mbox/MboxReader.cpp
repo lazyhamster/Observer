@@ -34,11 +34,11 @@ int CMboxReader::Scan()
 		const char* strDate = g_mime_message_get_date_as_string(message);
 
 		MBoxItem item = {0};
-		item.StartPos = msgStart;
+		item.StartPos = g_mime_parser_get_headers_begin(parser);
 		item.EndPos = g_mime_parser_tell(parser);
-		item.Sender = (strFrom != NULL) ? g_mime_message_get_sender(message) : "";
-		item.Subject = (strSubj != NULL) ? g_mime_message_get_subject(message) : "";
-		item.Date = (strDate != NULL) ? g_mime_message_get_date_as_string(message) : "";
+		item.Sender = ConvertString(strFrom);
+		item.Subject = ConvertString(strSubj);
+		g_mime_message_get_date(message, &item.Date, &item.TimeZone);
 		
 		m_vItems.push_back(item);
 		nFoundItems++;

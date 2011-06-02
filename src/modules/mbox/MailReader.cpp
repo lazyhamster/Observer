@@ -1,6 +1,25 @@
 #include "stdafx.h"
 #include "MailReader.h"
 
+std::wstring ConvertString(const char* src)
+{
+	if (!src || !*src) return L"";
+	
+	size_t tmpBufSize = strlen(src) + 1;
+	
+	wchar_t* tmpBuf = (wchar_t*) malloc(tmpBufSize * sizeof(wchar_t));
+	memset(tmpBuf, 0, tmpBufSize * sizeof(wchar_t));
+
+	MultiByteToWideChar(CP_UTF8, 0, src, -1, tmpBuf, (int) tmpBufSize);
+
+	std::wstring retVal(tmpBuf);
+	free(tmpBuf);
+
+	return retVal;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 bool IMailReader::Open( const wchar_t* filepath )
 {
 	Close();
