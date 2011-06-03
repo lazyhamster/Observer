@@ -131,7 +131,7 @@ bool CHW2BigFile::FetchFolder( CBasicFile* inFile, BIG_FolderListEntry* folders,
 		RETNOK( inFile->ReadExact(&fileHeader, sizeof(fileHeader)) );
 
 		new_item.CRC = fileHeader.UncompressedDataCRC;
-		UnixTimeToFileTime(fileHeader.FileModificationDate, &new_item.ModTime);
+		new_item.ModTime = fileHeader.FileModificationDate;
 
 		m_vItems.push_back(new_item);
 	}

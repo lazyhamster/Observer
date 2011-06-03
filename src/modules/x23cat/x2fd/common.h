@@ -17,7 +17,6 @@ struct X2FILEINFO
 };
 
 bool FileExists(const wchar_t* path);
-void UnixTimeToFileTime(time_t t, LPFILETIME pft);
 
 const wchar_t* GetFileName(const wchar_t* path);
 wchar_t* GetFileExt(wchar_t* path);

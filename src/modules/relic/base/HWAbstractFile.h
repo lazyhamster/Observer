@@ -9,7 +9,7 @@ struct HWStorageItem
 	uint32_t Flags;
 	uint32_t CompressedSize;
 	uint32_t UncompressedSize;
-	FILETIME ModTime;
+	time_t ModTime;
 	uint32_t CRC;
 	uint32_t DataOffset;
 	int CustomData;
@@ -46,7 +46,5 @@ public:
 
 	virtual bool ExtractFile(int index, HANDLE outfile) = 0;
 };
-
-void UnixTimeToFileTime(time_t t, LPFILETIME pft);
 
 #endif // HWAbstractFile_h__

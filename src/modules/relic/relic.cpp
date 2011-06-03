@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
+#include "ModuleCRT.h"
 
 #include "base\HWClassFactory.h"
 
@@ -51,7 +52,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), item.Name);
 		item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
 		item_info->Size = item.UncompressedSize;
-		item_info->ModificationTime = item.ModTime;
+		UnixTimeToFileTime(item.ModTime, &item_info->ModificationTime);
 
 		return GET_ITEM_OK;
 	}
@@ -76,8 +77,12 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 		bool fOpRes = fileObj->ExtractFile(params.item, hOutputFile);
 
-		if (fOpRes && (item.ModTime.dwLowDateTime || item.ModTime.dwHighDateTime))
-			SetFileTime(hOutputFile, NULL, NULL, &item.ModTime);
+		if (fOpRes && item.ModTime)
+		{
+			FILETIME ft = {0};
+			UnixTimeToFileTime(item.ModTime, &ft);
+			SetFileTime(hOutputFile, NULL, NULL, &ft);
+		}
 
 		CloseHandle(hOutputFile);
 

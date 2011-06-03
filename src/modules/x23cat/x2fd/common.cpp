@@ -14,16 +14,6 @@ bool FileExists(const wchar_t* path)
 	return false;
 }
 
-void UnixTimeToFileTime(time_t t, LPFILETIME pft)
-{
-	// Note that LONGLONG is a 64-bit value
-	LONGLONG ll;
-
-	ll = Int32x32To64(t, 10000000) + 116444736000000000i64;
-	pft->dwLowDateTime = (DWORD)ll;
-	pft->dwHighDateTime = ll >> 32;
-}
-
 const wchar_t* GetFileName(const wchar_t* path)
 {
 	const wchar_t* fileName = wcsrchr(path, '\\');

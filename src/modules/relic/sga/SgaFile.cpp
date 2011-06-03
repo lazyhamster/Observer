@@ -39,9 +39,7 @@ static bool ProcessDirEntry(sga_directory_raw_info_t *dirList, sga_file_info_t *
 		new_item.DataOffset = file.iDataOffset + dataBaseOffset;
 		new_item.Flags = file.iFlags32;
 		new_item.CustomData = i;
-
-		//new_item.CRC = fileHeader.UncompressedDataCRC;
-		UnixTimeToFileTime(file.iModificationTime, &new_item.ModTime);
+		new_item.ModTime = file.iModificationTime;
 
 		destList.push_back(new_item);
 	}

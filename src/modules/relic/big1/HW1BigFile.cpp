@@ -97,7 +97,7 @@ bool CHW1BigFile::Open( CBasicFile* inFile )
 		item.UncompressedSize = fileEntry.realLength;
 		item.CompressedSize = fileEntry.storedLength;
 		item.DataOffset = fileEntry.offset + fileEntry.nameLength + 1;
-		UnixTimeToFileTime(fileEntry.timeStamp, &item.ModTime);
+		item.ModTime = fileEntry.timeStamp;
 		
 		m_vItems.push_back(item);
 	}

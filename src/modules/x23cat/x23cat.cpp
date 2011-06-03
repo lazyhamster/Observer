@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
+#include "ModuleCRT.h"
 
 #include "x2fd/x2fd.h"
 #include "x2fd/common.h"
