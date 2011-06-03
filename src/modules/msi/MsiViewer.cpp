@@ -624,15 +624,21 @@ int CMsiViewer::generateInfoText()
 	OK ( dumpProperties(sstr) );
 
 	wstring content = sstr.str();
+
+	// Read "Last Save Time/Date" property
+	FILETIME ftSaveTimeVal = {0};
+	MsiSummaryInfoGetPropertyW(hSummary, 13, &nDataType, NULL, &ftSaveTimeVal, NULL, NULL);
 	
 	// Add fake file with general info to root folder
 	FileNode *fake = new FileNode();
 	fake->TargetName = _wcsdup(L"{msi_info}.txt");
 	fake->TargetShortName = _wcsdup(L"msi_info.txt");
-	fake->Attributes = 0;
+	fake->Attributes = FILE_ATTRIBUTE_NORMAL;
 	fake->IsFake = true;
 	fake->FileSize = (INT32) (content.size() * sizeof(wchar_t) + 2);	// sizeof BOM = 2
 	fake->FakeFileContent = (char *) malloc(fake->FileSize + sizeof(wchar_t)); // +1 for 0-terminator
+	fake->ftCreationTime = m_ftCreateTime;
+	fake->ftModificationTime = ftSaveTimeVal;
 	strcpy_s(fake->FakeFileContent, 3, "\xFF\xFE");
 	memcpy_s(fake->FakeFileContent + 2, fake->FileSize - 2, content.c_str(), fake->FileSize - 2);
 	m_pRootDir->AddFile(fake);
