@@ -2332,6 +2332,7 @@ g_variant_hash (gconstpointer value_)
       g_return_val_if_fail (!g_variant_is_container (value), 0);
       g_assert_not_reached ();
     }
+  return 0;
 }
 
 /**
@@ -2502,6 +2503,7 @@ g_variant_compare (gconstpointer one,
       g_return_val_if_fail (!g_variant_is_container (a), 0);
       g_assert_not_reached ();
     }
+  return 0;
 }
 
 /* GVariantIter {{{1 */
@@ -4678,6 +4680,7 @@ g_variant_deep_copy (GVariant *value)
     }
 
   g_assert_not_reached ();
+  return NULL;
 }
 
 /**

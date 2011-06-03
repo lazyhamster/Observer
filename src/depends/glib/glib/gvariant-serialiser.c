@@ -1317,6 +1317,7 @@ g_variant_serialised_n_children (GVariantSerialised serialised)
 
                  )
   g_assert_not_reached ();
+  return 0;
 }
 
 /* < private >
@@ -1432,6 +1433,7 @@ g_variant_serialiser_needed_size (GVariantTypeInfo         *type_info,
 
                  )
   g_assert_not_reached ();
+  return 0;
 }
 
 /* Byteswapping {{{2 */

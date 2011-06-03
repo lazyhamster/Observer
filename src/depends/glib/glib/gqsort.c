@@ -236,7 +236,9 @@ g_qsort_with_data (gconstpointer    pbase,
      of the array to sort, and END_PTR points at the very last element in
      the array (*not* one beyond it!). */
 
+#ifndef min
 #define min(x, y) ((x) < (y) ? (x) : (y))
+#endif
 
   {
     char *const end_ptr = &base_ptr[size * (total_elems - 1)];

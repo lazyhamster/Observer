@@ -29,6 +29,8 @@
 
 #pragma warning(disable:4146)	/* Unary minus to unsigned type */
 #pragma warning(disable:4018)	/* Signed/unsigned */
+#pragma warning(disable:4116)	/* Unnamed type definition */
+#pragma warning(disable:4090)	/* Different 'const' qualifiers */
 
 /* work around Microsoft's premature attempt to deprecate the C-Library */
 #pragma warning(disable:4996)   /* This function or variable may be unsafe. */

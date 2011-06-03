@@ -1519,7 +1519,7 @@ static GMimeObject *
 multipart_guess_body (GMimeMultipart *multipart)
 {
 	GMimeContentType *type;
-	GMimeObject *mime_part;
+	GMimeObject *mime_part = NULL;
 	int count, i;
 	
 	if (GMIME_IS_MULTIPART_ENCRYPTED (multipart)) {
