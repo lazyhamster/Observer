@@ -3756,6 +3756,7 @@ g_variant_valist_new_nnp (const gchar **str,
     default:
       g_assert_not_reached ();
     }
+	return NULL;
 }
 
 static gpointer
@@ -3822,6 +3823,7 @@ g_variant_valist_get_nnp (const gchar **str,
     default:
       g_assert_not_reached ();
     }
+  return NULL;
 }
 
 /* Leaves {{{2 */
@@ -3904,6 +3906,7 @@ g_variant_valist_new_leaf (const gchar **str,
     default:
       g_assert_not_reached ();
     }
+  return NULL;
 }
 
 /* The code below assumes this */
