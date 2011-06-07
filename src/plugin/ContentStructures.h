@@ -44,6 +44,7 @@ public:
 
 	__int64 Size() const {return IsDir() ? 0 : m_nSize; };
 	const wchar_t* Name() const { return m_strName.c_str(); }
+	void SetName(const wchar_t* newName) { m_strName = newName; }
 
 	size_t GetSubDirectoriesNum(bool recursive);
 };

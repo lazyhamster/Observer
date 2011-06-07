@@ -234,8 +234,8 @@ void ContentTreeNode::AddFile( ContentTreeNode* child )
 			}
 		} while (files.find(tmpBuf) != files.end());
 
-		wcscpy_s(nameBuf, MAX_PATH, tmpBuf);
+		child->SetName(tmpBuf);
 	} //if
 
-	files.insert(pair<wstring, ContentTreeNode*> (nameBuf, child));
+	files.insert(pair<wstring, ContentTreeNode*> (child->Name(), child));
 }
