@@ -1066,6 +1066,9 @@ parser_step_headers (GMimeParser *parser)
 						 * headers with an empty line. *sigh* */
 						goto content_start;
 					}
+
+					priv->state = GMIME_PARSER_STATE_ERROR;
+					return 0;
 				}
 			}
 			
