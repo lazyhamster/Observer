@@ -417,9 +417,12 @@ UString ScriptVarCache::ResolvePath(const UString& path)
 	if (varIndex >= 0)
 	{
 		UString resVar = m_varValues[varIndex];
-		if (slashIndex > 0) resVar += path.Mid(slashIndex);
+		if (resVar.Length() > 0)
+		{
+			if (slashIndex > 0) resVar += path.Mid(slashIndex);
 
-		return ResolvePath(resVar);
+			return ResolvePath(resVar);
+		}
 	}
 
 	return path;
