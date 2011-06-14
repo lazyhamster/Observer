@@ -20,6 +20,7 @@ Supported file formats:
 - Virtual disk images (VMDK, VDI, VHD, XVA)
 - Steam containers (GCF, WAD, XZP, PAK, BSP, VBSP)
 - MoPaQ containers
+- Mail containers in MBox format
 
 (c) 2009-2011, Ariman
 -----------------------------------------
