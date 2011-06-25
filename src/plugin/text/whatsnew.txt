@@ -6,6 +6,7 @@ Changes history:
 - VALVE: Fixed signature detection for VPK files.
 - VALVE: Fixed possible crash on some VBSP files.
 - MSI: File {msi_info.txt} have creation/modification date from package info.
+- NSIS: Fixed issue with empty directory names.
 
 1.7.3
 - Fixed error when overwriting read-only files.

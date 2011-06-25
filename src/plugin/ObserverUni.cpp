@@ -590,11 +590,16 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	// Win7 only feature
 	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? (void*) PS_NORMAL : (void*) PS_INDETERMINATE);
 
+	wchar_t wszSaveTitle[512], wszCurTitle[128];
+	GetConsoleTitle(wszSaveTitle, ARRAY_SIZE(wszSaveTitle));
+
 	// Extract all files one by one
 	for (ContentNodeList::const_iterator cit = items.begin(); cit != items.end(); cit++)
 	{
+		swprintf_s(wszCurTitle, ARRAY_SIZE(wszCurTitle), L"Extracting Files (%d / %d)", pctx.nCurrentFileNumber, pctx.nTotalFiles);
+		SetConsoleTitle(wszCurTitle);
+		
 		ContentTreeNode* nextItem = *cit;
-
 		wstring strFullTargetPath = GetFinalExtractionPath(info, nextItem, extParams.strDestPath.c_str(), extParams.nPathProcessing);
 		
 		if (nextItem->IsDir())
@@ -610,6 +615,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 		if (nExtractResult != SER_SUCCESS) break;
 	}
 
+	SetConsoleTitle(wszSaveTitle);
 	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_NOPROGRESS);
 	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_PROGRESSNOTIFY, 0);
 
