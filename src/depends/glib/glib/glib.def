@@ -1,18 +1,5 @@
 EXPORTS  
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 g_array_append_vals
 g_array_free
 g_array_insert_vals
@@ -60,9 +47,6 @@ g_ptr_array_sort
 g_ptr_array_sort_with_data
 
 
-
-
-
 g_async_queue_length
 g_async_queue_length_unlocked
 g_async_queue_lock
@@ -89,9 +73,6 @@ g_async_queue_unref_and_unlock
 
 
 
-
-
-
 g_atomic_int_add
 g_atomic_int_compare_and_exchange
 g_atomic_int_exchange_and_add
@@ -104,15 +85,8 @@ g_atomic_int_set
 g_atomic_pointer_set
 
 
-
-
-
-
 g_on_error_query
 g_on_error_stack_trace
-
-
-
 
 
 g_base64_encode_step
@@ -121,9 +95,6 @@ g_base64_encode
 g_base64_decode_step
 g_base64_decode 
 g_base64_decode_inplace
-
-
-
 
 
 g_bookmark_file_error_quark
@@ -168,9 +139,6 @@ g_bookmark_file_remove_item
 g_bookmark_file_move_item
 
 
-
-
-
 g_cache_destroy
 g_cache_insert
 g_cache_key_foreach
@@ -178,10 +146,6 @@ g_cache_new
 g_cache_remove
 
 g_cache_value_foreach
-
-
-
-
 
 
 g_checksum_type_get_length
@@ -194,10 +158,6 @@ g_checksum_get_string
 g_checksum_get_digest
 g_compute_checksum_for_data
 g_compute_checksum_for_string
-
-
-
-
 
 g_completion_add_items
 g_completion_clear_items
@@ -225,21 +185,12 @@ g_locale_to_utf8
 g_filename_display_name 
 g_filename_display_basename 
 
-g_filename_from_uri PRIVATE 
-g_filename_from_utf8 PRIVATE 
-g_filename_to_uri PRIVATE 
-g_filename_to_utf8 PRIVATE  
-
-
 g_filename_from_uri_utf8 
 g_filename_from_utf8_utf8
 g_filename_to_uri_utf8 
 g_filename_to_utf8_utf8
 
 g_uri_list_extract_uris 
-
-
-
 
 
 g_datalist_clear
@@ -267,9 +218,6 @@ g_quark_to_string
 g_quark_try_string
 g_intern_string
 g_intern_static_string
-
-
-
 
 
 g_date_add_days
@@ -324,9 +272,6 @@ g_date_valid_weekday
 g_date_valid_year 
 
 
-
-
-
 g_date_time_add
 g_date_time_add_days
 g_date_time_add_full
@@ -376,9 +321,6 @@ g_date_time_to_utc
 g_date_time_unref
 
 
-
-
-
 g_time_zone_new
 g_time_zone_new_local
 g_time_zone_new_utc
@@ -390,23 +332,12 @@ g_time_zone_get_abbreviation
 g_time_zone_get_offset
 g_time_zone_is_dst
 
-
-
-
-
 g_dir_close
-
-g_dir_open PRIVATE
-g_dir_read_name PRIVATE
-
 
 g_dir_open_utf8
 g_dir_read_name_utf8
 
 g_dir_rewind
-
-
-
 
 
 g_clear_error
@@ -423,9 +354,6 @@ g_prefix_error ;G_GNUC_PRINTF(2,3)
 g_propagate_prefixed_error ;G_GNUC_PRINTF(3,4)
 
 
-
-
-
 g_build_filename  
 g_build_filenamev 
 g_build_path  
@@ -433,17 +361,10 @@ g_build_pathv
 g_file_error_from_errno
 g_file_error_quark
 
-g_file_get_contents PRIVATE
-
 g_file_set_contents
-
-g_file_open_tmp PRIVATE
-g_file_test PRIVATE
 
 g_file_read_link
 g_format_size_for_display
-
-g_mkstemp PRIVATE
 
 g_mkstemp_full
 g_mkdir_with_parents
@@ -452,10 +373,6 @@ g_file_get_contents_utf8
 g_file_open_tmp_utf8
 g_file_test_utf8
 g_mkstemp_utf8
-
-
-
-
 
 
 g_hash_table_destroy
@@ -572,8 +489,6 @@ g_io_channel_write_unichar
 g_io_channel_unix_get_fd
 g_io_channel_unix_new
 
-g_io_channel_new_file PRIVATE
-
 g_io_channel_new_file_utf8
 g_io_channel_win32_get_fd
 g_io_channel_win32_make_pollfd
@@ -581,14 +496,8 @@ g_io_channel_win32_new_fd
 g_io_channel_win32_new_messages
 g_io_channel_win32_new_socket
 
-g_io_channel_win32_new_stream_socket PRIVATE
-
 g_io_channel_win32_poll
 g_io_channel_win32_set_debug
-
-
-
-
 
 
 g_key_file_error_quark
@@ -638,9 +547,6 @@ g_key_file_set_value
 g_key_file_to_data 
 
 
-
-
-
 g_list_alloc
 g_list_append
 g_list_concat
@@ -677,9 +583,6 @@ g_list_remove_link
 g_list_reverse
 g_list_sort
 g_list_sort_with_data
-
-
-
 
 
 g_child_watch_add
@@ -765,9 +668,6 @@ g_timeout_source_new
 g_timeout_source_new_seconds
 
 
-
-
-
 g_mapped_file_new 
 g_mapped_file_get_length
 g_mapped_file_get_contents
@@ -775,10 +675,6 @@ g_mapped_file_ref
 g_mapped_file_unref
 
 g_mapped_file_free
-
-
-
-
 
 
 g_markup_error_quark
@@ -846,14 +742,6 @@ g_slice_get_config
 g_slice_get_config_state
 
 
-
-
-
-
-
-
-
-
 g_printf_string_upper_bound
 g_log ;G_GNUC_PRINTF(3,4)
 g_log_default_handler
@@ -872,9 +760,6 @@ g_print ;G_GNUC_PRINTF(1,2)
 g_printerr ;G_GNUC_PRINTF(1,2)
 g_set_printerr_handler
 g_set_print_handler
-
-
-
 
 
 g_node_child_index
@@ -909,9 +794,6 @@ g_node_push_allocator
 g_node_reverse_children
 g_node_traverse
 g_node_unlink
-
-
-
 
 
 g_option_context_add_group
@@ -952,20 +834,10 @@ g_pattern_spec_equal
 g_pattern_spec_free
 g_pattern_spec_new
 
-
-
-
-
 g_poll
 
 
-
-
-
 g_spaced_primes_closest 
-
-
-
 
 
 g_fprintf ;G_GNUC_PRINTF(2,3)
@@ -1186,23 +1058,9 @@ g_slist_reverse
 g_slist_sort
 g_slist_sort_with_data
 
-
-
-
-
-
-g_spawn_async PRIVATE
-g_spawn_async_with_pipes PRIVATE
-
 g_spawn_close_pid
 
-g_spawn_command_line_async PRIVATE
-g_spawn_command_line_sync PRIVATE
-
 g_spawn_error_quark
-
-g_spawn_sync PRIVATE
-
 
 g_spawn_async_utf8
 g_spawn_async_with_pipes_utf8
@@ -1639,15 +1497,7 @@ g_basename
 
 g_get_application_name
 
-g_find_program_in_path PRIVATE
-g_get_current_dir PRIVATE
-g_getenv PRIVATE
-g_unsetenv PRIVATE
-g_get_home_dir PRIVATE
-
 g_get_host_name
-
-g_setenv PRIVATE
 
 g_listenv
 g_get_environ
@@ -1663,8 +1513,6 @@ g_get_language_names
 g_get_locale_variants
 g_get_prgname
 
-g_get_real_name PRIVATE
-
 
 g_get_real_name_utf8
 
@@ -1672,9 +1520,6 @@ g_get_system_config_dirs
 g_get_system_data_dirs
 
 g_win32_get_system_data_dirs_for_module
-
-
-g_get_tmp_dir PRIVATE
 
 
 g_get_tmp_dir_utf8
@@ -1685,8 +1530,6 @@ g_get_user_data_dir
 g_reload_user_special_dirs_cache
 g_get_user_runtime_dir
 g_get_user_special_dir
-
-g_get_user_name PRIVATE
 
 
 g_get_user_name_utf8
@@ -1951,11 +1794,7 @@ g_win32_error_message
 g_win32_ftruncate
 g_win32_get_package_installation_directory_of_module
 
-g_win32_get_package_installation_directory PRIVATE
-
 g_win32_get_package_installation_directory_utf8
-
-g_win32_get_package_installation_subdirectory PRIVATE
 
 g_win32_get_package_installation_subdirectory_utf8
 g_win32_get_windows_version
@@ -1963,32 +1802,8 @@ g_win32_getlocale
 g_win32_locale_filename_from_utf8
 
 
-
-
-
-
 g_hostname_is_non_ascii
 g_hostname_is_ascii_encoded
 g_hostname_is_ip_address
 g_hostname_to_ascii
 g_hostname_to_unicode
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

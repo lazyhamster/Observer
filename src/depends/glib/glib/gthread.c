@@ -463,7 +463,7 @@ GThreadFunctions g_thread_functions_for_glib_use = {
  * <note><para>This function will abort if g_thread_init() has not been
  * called yet.</para></note>
  **/
-  (GMutex*(*)())g_thread_fail,
+  (GMutex*(*)(void))g_thread_fail,
 
 /**
  * g_mutex_lock:
@@ -599,7 +599,7 @@ GThreadFunctions g_thread_functions_for_glib_use = {
  * Creates a new #GCond. This function will abort, if g_thread_init()
  * has not been called yet.
  **/
-  (GCond*(*)())g_thread_fail,
+  (GCond*(*)(void))g_thread_fail,
 
 /**
  * g_cond_signal:
