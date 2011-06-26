@@ -13,6 +13,10 @@
 #ifndef MSPACK_QTM_H
 #define MSPACK_QTM_H 1
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /* Quantum compression / decompression definitions */
 
 #define QTM_FRAME_SIZE (32768)
@@ -44,7 +48,7 @@ struct qtmd_stream {
   /* I/O buffers */
   unsigned char *inbuf, *i_ptr, *i_end, *o_ptr, *o_end;
   unsigned int  bit_buffer, inbuf_size;
-  unsigned char bits_left;
+  unsigned char bits_left, input_end;
 
   /* four literal models, each representing 64 symbols
    * model0 for literals from   0 to  63 (selector = 0)
@@ -116,5 +120,9 @@ extern int qtmd_decompress(struct qtmd_stream *qtm, off_t out_bytes);
  * - calls system->free() using the system pointer given in qtmd_init()
  */
 void qtmd_free(struct qtmd_stream *qtm);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

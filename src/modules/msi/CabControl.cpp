@@ -103,7 +103,7 @@ struct mspack_file_s
 	int nMemCacheSize;
 };
 
-static struct mspack_file *msp_fake_open(struct mspack_system *thisPtr,	char *filename, int mode)
+static struct mspack_file *msp_fake_open(struct mspack_system *thisPtr,	const char *filename, int mode)
 {
 	if (mode != MSPACK_SYS_OPEN_READ)
 		return NULL;
@@ -252,7 +252,7 @@ static off_t msp_fake_tell(struct mspack_file *file)
 	return -1;
 }
 
-static void msp_fake_msg(struct mspack_file *file, char *format, ...) {
+static void msp_fake_msg(struct mspack_file *file, const char *format, ...) {
 	va_list ap;
 	if (file) fprintf(stderr, "%S: ", ((struct mspack_file_s *) file)->streamName);
 	va_start(ap, format);

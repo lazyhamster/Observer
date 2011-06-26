@@ -11,16 +11,28 @@
 # include <config.h>
 #endif
 
-#define _CRT_SECURE_NO_WARNINGS 1
+#include <system.h>
 
-#include "mspack.h"
+#ifndef LARGEFILE_SUPPORT
+const char *largefile_msg = "library not compiled to support large files.";
+#endif
+
 
 int mspack_version(int entity) {
   switch (entity) {
+   /* CHM decoder version 1 -> 2 changes:
+    * - added mschmd_sec_mscompressed::spaninfo
+    * - added mschmd_header::first_pmgl
+    * - added mschmd_header::last_pmgl
+    * - added mschmd_header::chunk_cache;
+    */
+  case MSPACK_VER_MSCHMD:
+    return 2;
   case MSPACK_VER_LIBRARY:
   case MSPACK_VER_SYSTEM:
   case MSPACK_VER_MSCABD:
-  case MSPACK_VER_MSCHMD:
+  case MSPACK_VER_MSSZDDD:
+  case MSPACK_VER_MSKWAJD:
     return 1;
   case MSPACK_VER_MSCABC:
   case MSPACK_VER_MSCHMC:
@@ -28,9 +40,7 @@ int mspack_version(int entity) {
   case MSPACK_VER_MSLITC:
   case MSPACK_VER_MSHLPD:
   case MSPACK_VER_MSHLPC:
-  case MSPACK_VER_MSSZDDD:
   case MSPACK_VER_MSSZDDC:
-  case MSPACK_VER_MSKWAJD:
   case MSPACK_VER_MSKWAJC:
     return 0;
   }
@@ -97,78 +107,60 @@ struct mspack_system *mspack_default_system = NULL;
 
 struct mspack_file_p {
   FILE *fh;
-  char *name;
+  const char *name;
 };
 
-// Local definition to avoid including <windows.h>
-#define CP_UTF8                   65001       // UTF-8 translation
-int __stdcall MultiByteToWideChar(unsigned int CodePage, unsigned int dwFlags, const char* lpMultiByteStr, int cbMultiByte, wchar_t* lpWideCharStr, int cchWideChar);
-// End of <windows.h> rip
-
-static struct mspack_file *msp_open(struct mspack_system *this,
-				    char *filename, int mode)
+static struct mspack_file *msp_open(struct mspack_system *self,
+				    const char *filename, int mode)
 {
   struct mspack_file_p *fh;
-  wchar_t *fmode;
-  size_t slen;
-  wchar_t *wname;
+  const char *fmode;
 
   switch (mode) {
-  case MSPACK_SYS_OPEN_READ:   fmode = L"rb";  break;
-  case MSPACK_SYS_OPEN_WRITE:  fmode = L"wb";  break;
-  case MSPACK_SYS_OPEN_UPDATE: fmode = L"r+b"; break;
-  case MSPACK_SYS_OPEN_APPEND: fmode = L"ab";  break;
+  case MSPACK_SYS_OPEN_READ:   fmode = "rb";  break;
+  case MSPACK_SYS_OPEN_WRITE:  fmode = "wb";  break;
+  case MSPACK_SYS_OPEN_UPDATE: fmode = "r+b"; break;
+  case MSPACK_SYS_OPEN_APPEND: fmode = "ab";  break;
   default: return NULL;
   }
 
-  if ((fh = malloc(sizeof(struct mspack_file_p)))) {
+  if ((fh = (struct mspack_file_p *) malloc(sizeof(struct mspack_file_p)))) {
     fh->name = filename;
-	
-	// To avoid changing char* to wchar_t* in all function signatures
-	// it is easier to pass file name here in UTF-8 and decode before open
-
-	slen = strlen(filename);
-	wname  = (wchar_t*) malloc((slen + 1) * sizeof(wchar_t));
-	memset(wname, 0, (slen + 1) * sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, filename, (int)slen, wname, (int)slen + 1);
-
-	fh->fh = _wfopen(wname, fmode);
-	free(wname);
-	if (fh->fh) return (struct mspack_file *) fh;
+    if ((fh->fh = fopen(filename, fmode))) return (struct mspack_file *) fh;
     free(fh);
   }
   return NULL;
 }
 
 static void msp_close(struct mspack_file *file) {
-  struct mspack_file_p *this = (struct mspack_file_p *) file;
-  if (this) {
-    fclose(this->fh);
-    free(this);
+  struct mspack_file_p *self = (struct mspack_file_p *) file;
+  if (self) {
+    fclose(self->fh);
+    free(self);
   }
 }
 
 static int msp_read(struct mspack_file *file, void *buffer, int bytes) {
-  struct mspack_file_p *this = (struct mspack_file_p *) file;
-  if (this) {
-    size_t count = fread(buffer, 1, (size_t) bytes, this->fh);
-    if (!ferror(this->fh)) return (int) count;
+  struct mspack_file_p *self = (struct mspack_file_p *) file;
+  if (self && buffer && bytes >= 0) {
+    size_t count = fread(buffer, 1, (size_t) bytes, self->fh);
+    if (!ferror(self->fh)) return (int) count;
   }
   return -1;
 }
 
 static int msp_write(struct mspack_file *file, void *buffer, int bytes) {
-  struct mspack_file_p *this = (struct mspack_file_p *) file;
-  if (this) {
-    size_t count = fwrite(buffer, 1, (size_t) bytes, this->fh);
-    if (!ferror(this->fh)) return (int) count;
+  struct mspack_file_p *self = (struct mspack_file_p *) file;
+  if (self && buffer && bytes >= 0) {
+    size_t count = fwrite(buffer, 1, (size_t) bytes, self->fh);
+    if (!ferror(self->fh)) return (int) count;
   }
   return -1;
 }
 
 static int msp_seek(struct mspack_file *file, off_t offset, int mode) {
-  struct mspack_file_p *this = (struct mspack_file_p *) file;
-  if (this) {
+  struct mspack_file_p *self = (struct mspack_file_p *) file;
+  if (self) {
     switch (mode) {
     case MSPACK_SYS_SEEK_START: mode = SEEK_SET; break;
     case MSPACK_SYS_SEEK_CUR:   mode = SEEK_CUR; break;
@@ -176,24 +168,24 @@ static int msp_seek(struct mspack_file *file, off_t offset, int mode) {
     default: return -1;
     }
 #ifdef HAVE_FSEEKO
-    return fseeko(this->fh, offset, mode);
+    return fseeko(self->fh, offset, mode);
 #else
-    return fseek(this->fh, offset, mode);
+    return fseek(self->fh, offset, mode);
 #endif
   }
   return -1;
 }
 
 static off_t msp_tell(struct mspack_file *file) {
-  struct mspack_file_p *this = (struct mspack_file_p *) file;
+  struct mspack_file_p *self = (struct mspack_file_p *) file;
 #ifdef HAVE_FSEEKO
-  return (this) ? (off_t) ftello(this->fh) : 0;
+  return (self) ? (off_t) ftello(self->fh) : 0;
 #else
-  return (this) ? (off_t) ftell(this->fh) : 0;
+  return (self) ? (off_t) ftell(self->fh) : 0;
 #endif
 }
 
-static void msp_msg(struct mspack_file *file, char *format, ...) {
+static void msp_msg(struct mspack_file *file, const char *format, ...) {
   va_list ap;
   if (file) fprintf(stderr, "%s: ", ((struct mspack_file_p *) file)->name);
   va_start(ap, format);
@@ -203,7 +195,7 @@ static void msp_msg(struct mspack_file *file, char *format, ...) {
   fflush(stderr);
 }
 
-static void *msp_alloc(struct mspack_system *this, size_t bytes) {
+static void *msp_alloc(struct mspack_system *self, size_t bytes) {
 #ifdef DEBUG
   /* make uninitialised data obvious */
   char *buf = malloc(bytes + 8);
