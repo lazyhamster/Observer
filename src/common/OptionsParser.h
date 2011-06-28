@@ -4,7 +4,7 @@
 #include <vector>
 
 #define OPT_KEY_MAXLEN 32
-#define OPT_VAL_MAXLEN 64
+#define OPT_VAL_MAXLEN 128
 
 struct OptionsItem
 {
