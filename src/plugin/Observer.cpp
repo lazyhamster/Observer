@@ -268,7 +268,7 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
 
 	context->nCurrentFileNumber++;
-	context->nCurrentFileSize = item->GetSize();
+	context->nCurrentFileSize = item->Size();
 	context->nProcessedFileBytes = 0;
 	context->nCurrentProgress = -1;
 
@@ -337,21 +337,21 @@ static int ExtractError(int errorReason, HANDLE context)
 #define EXTR_OVERWRITE_SKIP 3
 #define EXTR_OVERWRITE_SKIPSILENT 4
 
-static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, WIN32_FIND_DATAW newFile)
+static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, const ContentTreeNode* newFile)
 {
 	__int64 nOldSize = ((__int64) existingFile.nFileSizeHigh >> 32) + existingFile.nFileSizeLow;
-	__int64 nNewSize = ((__int64) newFile.nFileSizeHigh >> 32) + newFile.nFileSizeLow;
+	__int64 nNewSize = newFile->Size();
 	
 	SYSTEMTIME stOldUTC, stOldLocal;
 	FileTimeToSystemTime(&existingFile.ftLastWriteTime, &stOldUTC);
 	SystemTimeToTzSpecificLocalTime(NULL, &stOldUTC, &stOldLocal);
 
 	SYSTEMTIME stNewUTC, stNewLocal;
-	FileTimeToSystemTime(&newFile.ftLastWriteTime, &stNewUTC);
+	FileTimeToSystemTime(&newFile->LastModificationTime, &stNewUTC);
 	SystemTimeToTzSpecificLocalTime(NULL, &stNewUTC, &stNewLocal);
 
 	char szFileName[MAX_PATH] = {0};
-	WideCharToMultiByte(CP_FAR_INTERNAL, 0, newFile.cFileName, wcslen(newFile.cFileName), szFileName, MAX_PATH, NULL, NULL);
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, newFile->Name(), -1, szFileName, MAX_PATH, NULL, NULL);
 	
 	static char szDialogLine1[120] = {0};
 	sprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_OVERWRITE), szFileName);
@@ -402,7 +402,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	if (!silent && fAlreadyExists)
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
-			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item->data))
+			if (!AskExtractOverwrite(doOverwrite, fdExistingFile, item))
 				return FALSE;
 		
 		// Check either ask result or present value
@@ -451,7 +451,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	{
 		// Set extract params
 		ExtractOperationParams params;
-		params.item = item->storageIndex;
+		params.item = item->StorageIndex;
 		params.flags = 0;
 		params.destFilePath = destPath;
 		params.callbacks.FileProgress = ExtractProgress;
@@ -700,15 +700,14 @@ int WINAPI GetFindData(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int 
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
-		WIN32_FIND_DATAW* fd = &(cit->second->data);
+		const ContentTreeNode* node = (cit->second);
 
-		WideCharToMultiByte(CP_FAR_INTERNAL, 0, fd->cFileName, wcslen(fd->cFileName), panelItem->FindData.cFileName, MAX_PATH, NULL, NULL);
-		WideCharToMultiByte(CP_FAR_INTERNAL, 0, fd->cAlternateFileName, wcslen(fd->cAlternateFileName), panelItem->FindData.cAlternateFileName, 14, NULL, NULL);
-		panelItem->FindData.dwFileAttributes = fd->dwFileAttributes;
-		panelItem->FindData.ftCreationTime = fd->ftCreationTime;
-		panelItem->FindData.ftLastWriteTime = fd->ftLastWriteTime;
-		panelItem->FindData.nFileSizeHigh = fd->nFileSizeHigh;
-		panelItem->FindData.nFileSizeLow = fd->nFileSizeLow;
+		WideCharToMultiByte(CP_FAR_INTERNAL, 0, node->Name(), -1, panelItem->FindData.cFileName, MAX_PATH, NULL, NULL);
+		panelItem->FindData.dwFileAttributes = node->Attributes;
+		panelItem->FindData.ftCreationTime = node->CreationTime;
+		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
+		panelItem->FindData.nFileSizeHigh = (node->Size() >> 32);
+		panelItem->FindData.nFileSizeLow = (DWORD) node->Size();
 
 		panelItem++;
 	}
@@ -718,16 +717,14 @@ int WINAPI GetFindData(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int 
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
-		WIN32_FIND_DATAW* fd = &(cit->second->data);
+		const ContentTreeNode* node = (cit->second);
 
-		WideCharToMultiByte(CP_FAR_INTERNAL, 0, fd->cFileName, wcslen(fd->cFileName), panelItem->FindData.cFileName, MAX_PATH, NULL, NULL);
-		WideCharToMultiByte(CP_FAR_INTERNAL, 0, fd->cAlternateFileName, wcslen(fd->cAlternateFileName), panelItem->FindData.cAlternateFileName, 14, NULL, NULL);
-		panelItem->FindData.dwFileAttributes = fd->dwFileAttributes;
-		panelItem->FindData.ftCreationTime = fd->ftCreationTime;
-		panelItem->FindData.ftLastWriteTime = fd->ftLastWriteTime;
-		panelItem->FindData.ftLastAccessTime = fd->ftLastAccessTime;
-		panelItem->FindData.nFileSizeHigh = fd->nFileSizeHigh;
-		panelItem->FindData.nFileSizeLow = fd->nFileSizeLow;
+		WideCharToMultiByte(CP_FAR_INTERNAL, 0, node->Name(), -1, panelItem->FindData.cFileName, MAX_PATH, NULL, NULL);
+		panelItem->FindData.dwFileAttributes = node->Attributes;
+		panelItem->FindData.ftCreationTime = node->CreationTime;
+		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
+		panelItem->FindData.nFileSizeHigh = (node->Size() >> 32);
+		panelItem->FindData.nFileSizeLow = (DWORD) node->Size();
 
 		panelItem++;
 	}
