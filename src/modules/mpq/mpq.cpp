@@ -11,16 +11,24 @@
 struct MoPaQ_File
 {
 	HANDLE hMpq;
+	bool isEncrypted;
 	std::vector<SFILE_FIND_DATA> vFiles;
 };
+
+bool ShouldOpenAsEncrypted(const wchar_t* path)
+{
+	const wchar_t* ext = wcsrchr(path, '.');
+	return ext && !_wcsicmp(ext, L".mpqe");
+}
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	char szNameBuf[MAX_PATH] = {0};
 	WideCharToMultiByte(CP_ACP, 0, params.FilePath, -1, szNameBuf, MAX_PATH, NULL, NULL);
-
+	
+	bool fTryEncrypted = ShouldOpenAsEncrypted(params.FilePath);
 	HANDLE hMpq = NULL;
-	if (!SFileOpenArchive(szNameBuf, 0, MPQ_OPEN_READ_ONLY, &hMpq))
+	if (!SFileOpenArchive(szNameBuf, 0, fTryEncrypted ? MPQ_OPEN_ENCRYPTED : MPQ_OPEN_READ_ONLY, &hMpq))
 		return SOR_INVALID_FILE;
 
 	SFILE_FIND_DATA ffd;
@@ -33,6 +41,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 	MoPaQ_File* file = new MoPaQ_File();
 	file->hMpq = hMpq;
+	file->isEncrypted = fTryEncrypted;
 
 	// Enumerate content
 	do 
