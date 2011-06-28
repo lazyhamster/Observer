@@ -340,8 +340,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug-Unicode|x64"
-			OutputDirectory="$(SolutionDir)..\obj\$(ConfigurationName)\$(ProjectName)"
-			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)\$(ProjectName)"
+			OutputDirectory="$(SolutionDir)..\obj\$(ConfigurationName)-$(PlatformName)\$(ProjectName)"
+			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)-$(PlatformName)\$(ProjectName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
 			CharacterSet="1"
@@ -468,8 +468,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release-Unicode|x64"
-			OutputDirectory="$(SolutionDir)..\obj\$(ConfigurationName)\$(ProjectName)"
-			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)\$(ProjectName)"
+			OutputDirectory="$(SolutionDir)..\obj\$(ConfigurationName)-$(PlatformName)\$(ProjectName)"
+			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)-$(PlatformName)\$(ProjectName)"
 			ConfigurationType="4"
 			InheritedPropertySheets="..\..\plugin\ObserverProps.vsprops"
 			CharacterSet="1"
