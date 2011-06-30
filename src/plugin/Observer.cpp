@@ -526,6 +526,11 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	return false;
 }
 
+static bool ItemSortPred(ContentTreeNode* item1, ContentTreeNode* item2)
+{
+	return (item1->StorageIndex < item2->StorageIndex);
+}
+
 //-----------------------------------  Export functions ----------------------------------------
 
 int WINAPI GetMinFarVersion(void)
@@ -944,7 +949,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	}
 
 	// Items should be sorted (e.g. for access to solid archives)
-	sort(vcExtractItems.begin(), vcExtractItems.end());
+	sort(vcExtractItems.begin(), vcExtractItems.end(), ItemSortPred);
 
 	// Prepare destination path
 	wchar_t wszWideDestPath[MAX_PATH] = {0};
