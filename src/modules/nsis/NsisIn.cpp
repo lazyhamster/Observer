@@ -419,7 +419,11 @@ UString ScriptVarCache::ResolvePath(const UString& path)
 		UString resVar = m_varValues[varIndex];
 		if (resVar.Length() > 0)
 		{
-			if (slashIndex > 0) resVar += path.Mid(slashIndex);
+			if (slashIndex > 0)
+			{
+				while(resVar.Back() == '\\') resVar.DeleteBack(); // to avoid duplicated slashes
+				resVar += path.Mid(slashIndex);
+			}
 
 			return ResolvePath(resVar);
 		}
