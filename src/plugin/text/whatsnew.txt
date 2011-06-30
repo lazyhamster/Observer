@@ -3,6 +3,7 @@ Changes history:
 1.8.0
 - Added support for files in Mbox format.
 - Replaced MIME module. It should be faster and more standard compliant.
+- Now standard wildcards are used in filter extensions.
 - VALVE: Fixed signature detection for VPK files.
 - VALVE: Fixed possible crash on some VBSP files.
 - MSI: File {msi_info.txt} have creation/modification date from package info.

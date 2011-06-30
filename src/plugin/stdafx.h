@@ -15,6 +15,7 @@
 // Additional headers
 #include <wchar.h>
 #include <ShlObj.h>
+#include <Shlwapi.h>
 
 // STL
 #include <string>

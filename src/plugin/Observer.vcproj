@@ -77,6 +77,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib"
 				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="2"
 				GenerateManifest="false"
@@ -165,6 +166,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib"
 				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="2"
 				GenerateManifest="false"
@@ -253,6 +255,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib"
 				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="1"
 				ModuleDefinitionFile="Observer.def"
@@ -343,6 +346,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib"
 				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="1"
 				ModuleDefinitionFile="Observer.def"
@@ -431,6 +435,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib"
 				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="2"
 				GenerateManifest="false"
@@ -519,6 +524,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib"
 				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="2"
 				GenerateManifest="false"
@@ -607,6 +613,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib"
 				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="1"
 				ModuleDefinitionFile="ObserverUni.def"
@@ -697,6 +704,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="shlwapi.lib"
 				OutputFile="$(OutDir)\4Observer.dll"
 				LinkIncremental="1"
 				ModuleDefinitionFile="ObserverUni.def"

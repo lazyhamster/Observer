@@ -189,14 +189,14 @@ static bool DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size
 
 static int SelectModuleToOpenFileAs()
 {
-	size_t nNumModules = g_pController.modules.size();
+	size_t nNumModules = g_pController.NumModules();
 	
 	FarMenuItem* MenuItems = new FarMenuItem[nNumModules];
 	memset(MenuItems, 0, nNumModules * sizeof(FarMenuItem));
 	for (size_t i = 0; i < nNumModules; i++)
 	{
-		const ExternalModule& modInfo = g_pController.modules[i];
-		MenuItems[i].Text = modInfo.ModuleName;
+		const ExternalModule& modInfo = g_pController.GetModule(i);
+		MenuItems[i].Text = modInfo.Name();
 	}
 
 	int nMSel = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_OPEN_SELECT_MODULE), NULL, NULL, NULL, NULL, MenuItems, (int) nNumModules);

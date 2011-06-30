@@ -111,7 +111,7 @@ int StorageObject::ReadFileList(bool &aborted)
 	__int64 nTotalSize = 0;
 	DWORD nNumFiles = 0, nNumDirs = 0;
 
-	ExternalModule &module = m_pModules->modules[m_nModuleIndex];
+	const ExternalModule &module = m_pModules->GetModule(m_nModuleIndex);
 		
 	DWORD item_index = 0;
 	StorageItemInfo item_info;
@@ -185,7 +185,7 @@ int StorageObject::ReadFileList(bool &aborted)
 
 int StorageObject::Extract( ExtractOperationParams &params )
 {
-	return m_pModules->modules[m_nModuleIndex].Extract(m_pStoragePtr, params);
+	return m_pModules->GetModule(m_nModuleIndex).Extract(m_pStoragePtr, params);
 }
 
 int StorageObject::ChangeCurrentDir( const wchar_t* path )

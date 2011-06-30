@@ -5,10 +5,19 @@
 
 struct ExternalModule
 {
-	wchar_t ModuleName[32];
-	wchar_t LibraryFile[32];
+	ExternalModule(const wchar_t* Name, const wchar_t* Library)
+		: m_sModuleName(Name), m_sLibraryFile(Library), ModuleHandle(0), ModuleVersion(0)
+	{
+		LoadModule = NULL;
+		UnloadModule = NULL;
+		OpenStorage = NULL;
+		CloseStorage = NULL;
+		GetNextItem = NULL;
+		Extract = NULL;
+	}
+	
 	HMODULE ModuleHandle;
-	wchar_t ExtensionFilter[128];
+	std::vector<wstring> ExtensionFilter;
 
 	LoadSubModuleFunc LoadModule;
 	UnloadSubModuleFunc UnloadModule;
@@ -18,6 +27,13 @@ struct ExternalModule
 	CloseStorageFunc CloseStorage;
 	GetItemFunc GetNextItem;
 	ExtractFunc Extract;
+
+	const wchar_t* Name() const { return m_sModuleName.c_str(); }
+	const wchar_t* LibraryFile() const { return m_sLibraryFile.c_str(); }
+
+private:
+	std::wstring m_sModuleName;
+	std::wstring m_sLibraryFile;
 };
 
 struct OpenStorageFileInParams
@@ -31,18 +47,19 @@ struct OpenStorageFileInParams
 class ModulesController
 {
 private:
-	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings);
-	bool DoesExtensionFilterMatch(const wchar_t* path, const wchar_t* filter);
-
-public:
 	vector<ExternalModule> modules;
 	
+	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings);
+
+public:
 	ModulesController(void) {};
 	~ModulesController(void) { this->Cleanup(); };
 
 	int Init(const wchar_t* basePath, const wchar_t* configPath);
 	void Cleanup();
-	size_t NumModules() { return modules.size(); };
+	
+	size_t NumModules() { return modules.size(); }
+	const ExternalModule& GetModule(int index) { return modules[index]; }
 
 	int OpenStorageFile(OpenStorageFileInParams srcParams, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *info);
 	void CloseStorageFile(int moduleIndex, HANDLE storage);
