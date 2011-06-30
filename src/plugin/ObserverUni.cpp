@@ -551,10 +551,15 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	return ret;
 }
 
+static bool ItemSortPred(ContentTreeNode* item1, ContentTreeNode* item2)
+{
+	return (item1->StorageIndex < item2->StorageIndex);
+}
+
 int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtractSize, bool silent, ExtractSelectedParams &extParams)
 {
 	// Items should be sorted (e.g. for access to solid archives)
-	sort(items.begin(), items.end());
+	sort(items.begin(), items.end(), ItemSortPred);
 
 	if (!ForceDirectoryExist(extParams.strDestPath.c_str()))
 	{
