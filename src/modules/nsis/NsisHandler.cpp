@@ -299,266 +299,266 @@ STDMETHODIMP CHandler::SetProperty( UInt32 index, PROPID propID, PROPVARIANT *va
 STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
     Int32 _aTestMode, IArchiveExtractCallback *extractCallback)
 {
-  COM_TRY_BEGIN
-  bool testMode = (_aTestMode != 0);
-  bool allFilesMode = (numItems == UInt32(-1));
-  if (allFilesMode)
-    GetNumberOfItems(&numItems);
-  if(numItems == 0)
-    return S_OK;
-  UInt64 totalSize = 0;
-  bool fakeOnly = true;
+	COM_TRY_BEGIN
+	bool testMode = (_aTestMode != 0);
+	bool allFilesMode = (numItems == UInt32(-1));
+	if (allFilesMode)
+		GetNumberOfItems(&numItems);
+	if(numItems == 0)
+		return S_OK;
+	UInt64 totalSize = 0;
+	bool fakeOnly = true;
 
-  UInt32 i;
-  for(i = 0; i < numItems; i++)
-  {
-    UInt32 index = (allFilesMode ? i : indices[i]);
-    #ifdef NSIS_SCRIPT
-    if (index >= (UInt32)_archive.Items.Size())
+	UInt32 i;
+	for(i = 0; i < numItems; i++)
 	{
-      totalSize += _archive.Script.Length();
-	  fakeOnly = fakeOnly && true;
+		UInt32 index = (allFilesMode ? i : indices[i]);
+#ifdef NSIS_SCRIPT
+		if (index >= (UInt32)_archive.Items.Size())
+		{
+			totalSize += _archive.Script.Length();
+			fakeOnly = fakeOnly && true;
+		}
+		else
+#endif
+		{
+			UInt32 size;
+			if (_archive.IsSolid)
+			{
+				GetUncompressedSize(index, size);
+				UInt64 pos = _archive.GetPosOfSolidItem(index);
+				if (pos > totalSize)
+					totalSize = pos + size;
+			}
+			else
+			{
+				if (GetUncompressedSize(index, size))
+					totalSize += size;
+				else
+				{
+					GetCompressedSize(index, size);
+					totalSize += size;
+				}
+			}
+			fakeOnly = false;
+		}
 	}
-    else
-    #endif
-    {
-      UInt32 size;
-      if (_archive.IsSolid)
-      {
-        GetUncompressedSize(index, size);
-        UInt64 pos = _archive.GetPosOfSolidItem(index);
-        if (pos > totalSize)
-          totalSize = pos + size;
-      }
-      else
-      {
-		  if (GetUncompressedSize(index, size))
-			  totalSize += size;
-		  else
-		  {
-			  GetCompressedSize(index, size);
-			  totalSize += size;
-		  }
-      }
-	  fakeOnly = false;
-    }
-  }
-  extractCallback->SetTotal(totalSize);
+	extractCallback->SetTotal(totalSize);
 
-  UInt64 currentTotalSize = 0;
-  UInt32 currentItemSize = 0;
+	UInt64 currentTotalSize = 0;
+	UInt32 currentItemSize = 0;
 
-  bool solidInit = !fakeOnly;
-  if (_archive.IsSolid && !fakeOnly && _lastSolidPos > 0)
-	  solidInit = _archive.GetPosOfSolidItem(indices[0]) < _lastSolidPos;
+	bool solidInit = !fakeOnly;
+	if (_archive.IsSolid && !fakeOnly && _lastSolidPos > 0)
+		solidInit = _archive.GetPosOfSolidItem(indices[0]) < _lastSolidPos;
 
-  UInt64 streamPos = _archive.IsSolid ? _lastSolidPos : 0;
-  if (_archive.IsSolid && solidInit)
-  {
-    RINOK(_inStream->Seek(_archive.StreamOffset, STREAM_SEEK_SET, NULL));
-    bool useFilter;
-    RINOK(_archive.Decoder.Init(
-        EXTERNAL_CODECS_VARS
-        _inStream, _archive.Method, _archive.FilterFlag, useFilter));
-	streamPos = 0;
-  }
+	UInt64 streamPos = _archive.IsSolid ? _lastSolidPos : 0;
+	if (_archive.IsSolid && solidInit)
+	{
+		RINOK(_inStream->Seek(_archive.StreamOffset, STREAM_SEEK_SET, NULL));
+		bool useFilter;
+		RINOK(_archive.Decoder.Init(
+			EXTERNAL_CODECS_VARS
+			_inStream, _archive.Method, _archive.FilterFlag, useFilter));
+		streamPos = 0;
+	}
 
-  CByteBuffer byteBuf;
-  const UInt32 kBufferLength = 1 << 16;
-  byteBuf.SetCapacity(kBufferLength);
-  Byte *buffer = byteBuf;
+	CByteBuffer byteBuf;
+	const UInt32 kBufferLength = 1 << 16;
+	byteBuf.SetCapacity(kBufferLength);
+	Byte *buffer = byteBuf;
 
-  CByteBuffer tempBuf;
+	CByteBuffer tempBuf;
 
-  bool dataError = false;
-  for (i = 0; i < numItems; i++, currentTotalSize += currentItemSize)
-  {
-    currentItemSize = 0;
-    RINOK(extractCallback->SetCompleted(&currentTotalSize));
-    CMyComPtr<ISequentialOutStream> realOutStream;
-    Int32 askMode = testMode ?
-        NExtract::NAskMode::kTest :
-        NExtract::NAskMode::kExtract;
-    UInt32 index = allFilesMode ? i : indices[i];
+	bool dataError = false;
+	for (i = 0; i < numItems; i++, currentTotalSize += currentItemSize)
+	{
+		currentItemSize = 0;
+		RINOK(extractCallback->SetCompleted(&currentTotalSize));
+		CMyComPtr<ISequentialOutStream> realOutStream;
+		Int32 askMode = testMode ?
+			NExtract::NAskMode::kTest :
+			NExtract::NAskMode::kExtract;
+		UInt32 index = allFilesMode ? i : indices[i];
 
-    RINOK(extractCallback->GetStream(index, &realOutStream, askMode));
+		RINOK(extractCallback->GetStream(index, &realOutStream, askMode));
 
-    #ifdef NSIS_SCRIPT
-    if (index >= (UInt32)_archive.Items.Size())
-    {
-      currentItemSize = _archive.Script.Length();
-      if (!testMode && !realOutStream)
-        continue;
-      RINOK(extractCallback->PrepareOperation(askMode));
-      if (!testMode)
-        RINOK(WriteStream(realOutStream, (const char *)_archive.Script, (UInt32)_archive.Script.Length()));
-    }
-    else
-    #endif
-    {
-      const CItem &item = _archive.Items[index];
-      
-      if (_archive.IsSolid)
-        GetUncompressedSize(index, currentItemSize);
-      else
-        GetCompressedSize(index, currentItemSize);
-      
-      if (!testMode && !realOutStream)
-        continue;
-      
-      RINOK(extractCallback->PrepareOperation(askMode));
-      
-      if (!dataError)
-      {
-        bool needDecompress = false;
-        bool sizeIsKnown = false;
-        UInt32 fullSize = 0;
+#ifdef NSIS_SCRIPT
+		if (index >= (UInt32)_archive.Items.Size())
+		{
+			currentItemSize = _archive.Script.Length();
+			if (!testMode && !realOutStream)
+				continue;
+			RINOK(extractCallback->PrepareOperation(askMode));
+			if (!testMode)
+				RINOK(WriteStream(realOutStream, (const char *)_archive.Script, (UInt32)_archive.Script.Length()));
+		}
+		else
+#endif
+		{
+			const CItem &item = _archive.Items[index];
 
-        bool writeToTemp = false;
-        bool readFromTemp = false;
+			if (_archive.IsSolid)
+				GetUncompressedSize(index, currentItemSize);
+			else
+				GetCompressedSize(index, currentItemSize);
 
-        if (_archive.IsSolid)
-        {
-          UInt64 pos = _archive.GetPosOfSolidItem(index);
-          while(streamPos < pos)
-          {
-            size_t processedSize = (UInt32)MyMin(pos - streamPos, (UInt64)kBufferLength);
-            HRESULT res = _archive.Decoder.Read(buffer, &processedSize);
-            if (res != S_OK)
-            {
-              if (res != S_FALSE)
-                return res;
-              dataError = true;
-              break;
-            }
-            if (processedSize == 0)
-            {
-              dataError = true;
-              break;
-            }
-            streamPos += processedSize;
-          }
-          if (streamPos == pos)
-          {
-            Byte buffer2[4];
-            size_t processedSize = 4;
-            RINOK(_archive.Decoder.Read(buffer2, &processedSize));
-            if (processedSize != 4)
-              return E_FAIL;
-            streamPos += processedSize;
-            fullSize = Get32(buffer2);
-            sizeIsKnown = true;
-            needDecompress = true;
+			if (!testMode && !realOutStream)
+				continue;
 
-            if (!testMode && i + 1 < numItems)
-            {
-              UInt64 nextPos = _archive.GetPosOfSolidItem(allFilesMode ? i : indices[i + 1]);
-              if (nextPos < streamPos + fullSize)
-              {
-                tempBuf.Free();
-                tempBuf.SetCapacity(fullSize);
-                writeToTemp = true;
-              }
-            }
-          }
-          else
-            readFromTemp = true;
-        }
-        else
-        {
-          RINOK(_inStream->Seek(_archive.GetPosOfNonSolidItem(index) + 4, STREAM_SEEK_SET, NULL));
-          if (item.IsCompressed)
-          {
-            needDecompress = true;
-            bool useFilter;
-            RINOK(_archive.Decoder.Init(
-                EXTERNAL_CODECS_VARS
-                _inStream, _archive.Method, _archive.FilterFlag, useFilter));
-            // fullSize = Get32(buffer); // It's bug !!!
-            // Test it: what is exact fullSize?
-            fullSize =  0xFFFFFFFF;
-          }
-          else
-            fullSize = item.Size;
-        }
-        if (!dataError)
-        {
-          if (needDecompress)
-          {
-            UInt64 offset = 0;
-            while(!sizeIsKnown || fullSize > 0)
-            {
-              UInt32 curSize = kBufferLength;
-              if (sizeIsKnown && curSize > fullSize)
-                curSize = fullSize;
-              size_t processedSize = curSize;
-              HRESULT res = _archive.Decoder.Read(buffer, &processedSize);
-              if (res != S_OK)
-              {
-                if (res != S_FALSE)
-                  return res;
-                dataError = true;
-                break;
-              }
-              if (processedSize == 0)
-              {
-                if (sizeIsKnown)
-                  dataError = true;
-                break;
-              }
-              
-              if (writeToTemp)
-                memcpy((Byte *)tempBuf + (size_t)offset, buffer, processedSize);
-              
-              fullSize -= (UInt32)processedSize;
-              streamPos += processedSize;
-              offset += processedSize;
-              
-              UInt64 completed;
-              if (_archive.IsSolid)
-                completed = currentTotalSize + offset;
-              else
-                completed = streamPos;
-              RINOK(extractCallback->SetCompleted(&completed));
-              if (!testMode)
-                RINOK(WriteStream(realOutStream, buffer, processedSize));
-            }
-          }
-          else
-          {
-            if (readFromTemp)
-            {
-              if (!testMode)
-                RINOK(WriteStream(realOutStream, tempBuf, tempBuf.GetCapacity()));
-            }
-            else
-            while(fullSize > 0)
-            {
-              UInt32 curSize = MyMin(fullSize, kBufferLength);
-              UInt32 processedSize;
-              RINOK(_inStream->Read(buffer, curSize, &processedSize));
-              if (processedSize == 0)
-              {
-                dataError = true;
-                break;
-              }
-              fullSize -= processedSize;
-              streamPos += processedSize;
-              if (!testMode)
-                RINOK(WriteStream(realOutStream, buffer, processedSize));
-            }
-          }
-        }
-      }
-    }
-    _lastSolidPos = _archive.IsSolid ? streamPos : 0;
-    realOutStream.Release();
-    RINOK(extractCallback->SetOperationResult(dataError ?
-        NExtract::NOperationResult::kDataError :
-        NExtract::NOperationResult::kOK));
-  }
-  return S_OK;
-  COM_TRY_END
+			RINOK(extractCallback->PrepareOperation(askMode));
+
+			if (!dataError)
+			{
+				bool needDecompress = false;
+				bool sizeIsKnown = false;
+				UInt32 fullSize = 0;
+
+				bool writeToTemp = false;
+				bool readFromTemp = false;
+
+				if (_archive.IsSolid)
+				{
+					UInt64 pos = _archive.GetPosOfSolidItem(index);
+					while(streamPos < pos)
+					{
+						size_t processedSize = (UInt32)MyMin(pos - streamPos, (UInt64)kBufferLength);
+						HRESULT res = _archive.Decoder.Read(buffer, &processedSize);
+						if (res != S_OK)
+						{
+							if (res != S_FALSE)
+								return res;
+							dataError = true;
+							break;
+						}
+						if (processedSize == 0)
+						{
+							dataError = true;
+							break;
+						}
+						streamPos += processedSize;
+					}
+					if (streamPos == pos)
+					{
+						Byte buffer2[4];
+						size_t processedSize = 4;
+						RINOK(_archive.Decoder.Read(buffer2, &processedSize));
+						if (processedSize != 4)
+							return E_FAIL;
+						streamPos += processedSize;
+						fullSize = Get32(buffer2);
+						sizeIsKnown = true;
+						needDecompress = true;
+
+						if (!testMode && i + 1 < numItems)
+						{
+							UInt64 nextPos = _archive.GetPosOfSolidItem(allFilesMode ? i : indices[i + 1]);
+							if (nextPos < streamPos + fullSize)
+							{
+								tempBuf.Free();
+								tempBuf.SetCapacity(fullSize);
+								writeToTemp = true;
+							}
+						}
+					}
+					else
+						readFromTemp = true;
+				}
+				else
+				{
+					RINOK(_inStream->Seek(_archive.GetPosOfNonSolidItem(index) + 4, STREAM_SEEK_SET, NULL));
+					if (item.IsCompressed)
+					{
+						needDecompress = true;
+						bool useFilter;
+						RINOK(_archive.Decoder.Init(
+							EXTERNAL_CODECS_VARS
+							_inStream, _archive.Method, _archive.FilterFlag, useFilter));
+						// fullSize = Get32(buffer); // It's bug !!!
+						// Test it: what is exact fullSize?
+						fullSize =  0xFFFFFFFF;
+					}
+					else
+						fullSize = item.Size;
+				}
+
+				if (!dataError)
+				{
+					if (needDecompress)
+					{
+						UInt64 offset = 0;
+						while(!sizeIsKnown || fullSize > 0)
+						{
+							UInt32 curSize = kBufferLength;
+							if (sizeIsKnown && curSize > fullSize)
+								curSize = fullSize;
+							size_t processedSize = curSize;
+							HRESULT res = _archive.Decoder.Read(buffer, &processedSize);
+							if (res != S_OK)
+							{
+								if (res != S_FALSE)
+									return res;
+								dataError = true;
+								break;
+							}
+							if (processedSize == 0)
+							{
+								if (sizeIsKnown)
+									dataError = true;
+								break;
+							}
+
+							if (writeToTemp)
+								memcpy((Byte *)tempBuf + (size_t)offset, buffer, processedSize);
+
+							fullSize -= (UInt32)processedSize;
+							streamPos += processedSize;
+							offset += processedSize;
+
+							UInt64 completed;
+							if (_archive.IsSolid)
+								completed = currentTotalSize + offset;
+							else
+								completed = streamPos;
+							RINOK(extractCallback->SetCompleted(&completed));
+							if (!testMode)
+								RINOK(WriteStream(realOutStream, buffer, processedSize));
+						}
+					}
+					else
+					{
+						if (readFromTemp)
+						{
+							if (!testMode)
+								RINOK(WriteStream(realOutStream, tempBuf, tempBuf.GetCapacity()));
+						}
+						else
+							while(fullSize > 0)
+							{
+								UInt32 curSize = MyMin(fullSize, kBufferLength);
+								UInt32 processedSize;
+								RINOK(_inStream->Read(buffer, curSize, &processedSize));
+								if (processedSize == 0)
+								{
+									dataError = true;
+									break;
+								}
+								fullSize -= processedSize;
+								streamPos += processedSize;
+								if (!testMode)
+									RINOK(WriteStream(realOutStream, buffer, processedSize));
+							}
+					}
+				}
+			}
+		}
+		_lastSolidPos = _archive.IsSolid ? streamPos : 0;
+		realOutStream.Release();
+		RINOK(extractCallback->SetOperationResult(dataError	? NExtract::NOperationResult::kDataError : NExtract::NOperationResult::kOK));
+	} //for
+
+	return S_OK;
+	COM_TRY_END
 }
 
 IMPL_ISetCompressCodecsInfo
