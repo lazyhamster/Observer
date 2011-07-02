@@ -939,7 +939,7 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 		for (i = 0; i + 1 < Items.Size();)
 		{
 			const CItem& item1 = Items[i], item2 = Items[i+1];
-			if ( (item1.Pos == item2.Pos) && (item1.Name == item2.Name) && (item1.Prefix == item2.Prefix) )
+			if ( (item1.Pos == item2.Pos) && (item1.Name == item2.Name) && (item1.Prefix.CompareNoCase(item2.Prefix) == 0) )
 				Items.Delete(i + 1);
 			else
 				i++;
