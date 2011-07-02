@@ -13,7 +13,8 @@ protected:
 public:
   void Free()
   {
-    delete []_items;
+	if (_items != NULL)
+		delete []_items;
     _items = 0;
     _capacity = 0;
   }

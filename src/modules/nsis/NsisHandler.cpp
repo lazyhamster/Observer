@@ -93,7 +93,9 @@ STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 * maxCheckStartPosit
         stream, maxCheckStartPosition) != S_OK)
       return S_FALSE;
     _inStream = stream;
-	_lastSolidPos = 0;
+	
+	_solidStreamPos = 0;
+	_solidBufItemStartPos = 0;
   }
   return S_OK;
   COM_TRY_END
@@ -349,10 +351,13 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
 	UInt32 currentItemSize = 0;
 
 	bool solidInit = !fakeOnly;
-	if (_archive.IsSolid && !fakeOnly && _lastSolidPos > 0)
-		solidInit = _archive.GetPosOfSolidItem(indices[0]) < _lastSolidPos;
+	if (_archive.IsSolid && !fakeOnly && _solidStreamPos > 0)
+	{
+		UInt64 itemStartPos = _archive.GetPosOfSolidItem(indices[0]);
+		solidInit = (itemStartPos < _solidStreamPos) && (itemStartPos != _solidBufItemStartPos);
+	}
 
-	UInt64 streamPos = _archive.IsSolid ? _lastSolidPos : 0;
+	UInt64 streamPos = _archive.IsSolid ? _solidStreamPos : 0;
 	if (_archive.IsSolid && solidInit)
 	{
 		RINOK(_inStream->Seek(_archive.StreamOffset, STREAM_SEEK_SET, NULL));
@@ -367,8 +372,6 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
 	const UInt32 kBufferLength = 1 << 16;
 	byteBuf.SetCapacity(kBufferLength);
 	Byte *buffer = byteBuf;
-
-	CByteBuffer tempBuf;
 
 	bool dataError = false;
 	for (i = 0; i < numItems; i++, currentTotalSize += currentItemSize)
@@ -450,19 +453,23 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
 						sizeIsKnown = true;
 						needDecompress = true;
 
-						if (!testMode && i + 1 < numItems)
+						if (!testMode && (index + 1 < (UInt32) _archive.Items.Size()))
 						{
-							UInt64 nextPos = _archive.GetPosOfSolidItem(allFilesMode ? i : indices[i + 1]);
-							if (nextPos < streamPos + fullSize)
+							_solidItemBuf.Free();
+							_solidBufItemStartPos = 0;
+							UInt64 nextPos = _archive.GetPosOfSolidItem(index + 1);
+							if (nextPos == pos)
 							{
-								tempBuf.Free();
-								tempBuf.SetCapacity(fullSize);
+								_solidItemBuf.SetCapacity(fullSize);
+								_solidBufItemStartPos = pos;
 								writeToTemp = true;
 							}
 						}
 					}
-					else
+					else if (pos == _solidBufItemStartPos)
 						readFromTemp = true;
+					else
+						return S_FALSE;
 				}
 				else
 				{
@@ -509,7 +516,7 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
 							}
 
 							if (writeToTemp)
-								memcpy((Byte *)tempBuf + (size_t)offset, buffer, processedSize);
+								memcpy((Byte *)_solidItemBuf + (size_t)offset, buffer, processedSize);
 
 							fullSize -= (UInt32)processedSize;
 							streamPos += processedSize;
@@ -530,7 +537,7 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
 						if (readFromTemp)
 						{
 							if (!testMode)
-								RINOK(WriteStream(realOutStream, tempBuf, tempBuf.GetCapacity()));
+								RINOK(WriteStream(realOutStream, _solidItemBuf, _solidItemBuf.GetCapacity()));
 						}
 						else
 							while(fullSize > 0)
@@ -552,7 +559,7 @@ STDMETHODIMP CHandler::Extract(const UInt32* indices, UInt32 numItems,
 				}
 			}
 		}
-		_lastSolidPos = _archive.IsSolid ? streamPos : 0;
+		_solidStreamPos = _archive.IsSolid ? streamPos : 0;
 		realOutStream.Release();
 		RINOK(extractCallback->SetOperationResult(dataError	? NExtract::NOperationResult::kDataError : NExtract::NOperationResult::kOK));
 	} //for

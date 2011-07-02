@@ -20,7 +20,10 @@ class CHandler:
 {
   CMyComPtr<IInStream> _inStream;
   CInArchive _archive;
-  UInt64 _lastSolidPos;
+  
+  UInt64 _solidStreamPos;
+  UInt64 _solidBufItemStartPos;
+  CByteBuffer _solidItemBuf;
 
   DECL_EXTERNAL_CODECS_VARS
 

@@ -8,8 +8,8 @@ Changes history:
 - VALVE: Fixed possible crash on some VBSP files.
 - MSI: File {msi_info.txt} have creation/modification date from package info.
 - NSIS: Fixed issue with empty directory names.
-- MPQ: Fixed support of encrypted files.
 - NSIS: Improved extraction speed of archives with solid compression.
+- MPQ: Fixed support of encrypted files.
 
 1.7.3
 - Fixed error when overwriting read-only files.
