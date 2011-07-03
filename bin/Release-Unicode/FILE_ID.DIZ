@@ -1,4 +1,4 @@
-Observer 1.7.3
+Observer 1.8.0
 Plugin for FAR 1.7x / 2.x
 ---------------------------
 
@@ -16,6 +16,10 @@ Supported file formats:
 - Containers from games made by Relic (Homeworld 1/2, CoH, WH40k DOW 1/2)
 - MS Outlook databases
 - WISE Installer packages
+- Virtual disk images (VMDK, VDI, VHD, XVA)
+- Steam containers (GCF, WAD, XZP, PAK, BSP, VBSP)
+- MoPaQ containers
+- Mail containers in MBox format
 
 (c) 2009-2011, Ariman
 -----------------------------------------

@@ -34,6 +34,7 @@ Observer
 - MIME
   - MIME контейнеры (.eml, .mht, etc.)
   - Базы MS Outlook (*.pst)
+  - Контейнеры MBox
 
 - Архивы-контейнеры, применяемые в различных играх
   - CAT, PCK, PBD, PBB - используются Egosoft для игр серии X
