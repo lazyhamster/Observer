@@ -210,12 +210,12 @@ size_t ContentTreeNode::GetSubDirectoriesNum( bool recursive )
 
 void ContentTreeNode::AddFile( ContentTreeNode* child )
 {
-	wchar_t nameBuf[MAX_PATH] = {0};
-	wcscpy_s(nameBuf, MAX_PATH, child->Name());
-
 	// If file with same name already exists in the directory then append number to name
-	if (files.find(nameBuf) != files.end())
+	if (files.find(child->Name()) != files.end())
 	{
+		wchar_t nameBuf[MAX_PATH] = {0};
+		wcscpy_s(nameBuf, ARRAY_SIZE(nameBuf), child->Name());
+				
 		int nDupCounter = 1;
 		wchar_t tmpBuf[MAX_PATH];
 		wchar_t* extPtr = wcsrchr(nameBuf, '.');
@@ -226,11 +226,11 @@ void ContentTreeNode::AddFile( ContentTreeNode* child )
 			if (extPtr)
 			{
 				*extPtr = 0;
-				swprintf_s(tmpBuf, MAX_PATH, L"%s,%d.%s", nameBuf, nDupCounter, extPtr+1);
+				swprintf_s(tmpBuf, ARRAY_SIZE(tmpBuf), L"%s,%d.%s", nameBuf, nDupCounter, extPtr+1);
 			}
 			else
 			{
-				swprintf_s(tmpBuf, MAX_PATH, L"%s,%d", nameBuf, nDupCounter);
+				swprintf_s(tmpBuf, ARRAY_SIZE(tmpBuf), L"%s,%d", nameBuf, nDupCounter);
 			}
 		} while (files.find(tmpBuf) != files.end());
 
