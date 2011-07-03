@@ -46,7 +46,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	if (mbi.Subject.length() > 0)
-		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"%04d - %s.eml", item_index, mbi.Subject.c_str());
+		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"%04d - %.240s.eml", item_index, mbi.Subject.c_str());
 	else
 		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"%04d.eml", item_index);
 	RenameInvalidPathChars(item_info->Path);
