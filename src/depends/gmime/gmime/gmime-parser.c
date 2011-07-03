@@ -1060,13 +1060,15 @@ parser_step_headers (GMimeParser *parser)
 					    && !strncmp (start, "From ", 5))
 						goto next_message;
 					
-					if (priv->headers != NULL || *inptr == ':') {
+					// NOTE: More strict exit conditions (Ariman)
+					//if (priv->headers != NULL || *inptr == ':') {
 						/* probably the start of the content,
 						 * a broken mailer didn't terminate the
 						 * headers with an empty line. *sigh* */
-						goto content_start;
-					}
+						//goto content_start;
+					//}
 
+					// NOTE: More strict exit conditions (Ariman)
 					priv->state = GMIME_PARSER_STATE_ERROR;
 					return 0;
 				}
