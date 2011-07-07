@@ -24,7 +24,7 @@ bool IMailReader::Open( const wchar_t* filepath )
 {
 	Close();
 	
-	FILE* fp;
+	FILE* fp = NULL;
 	errno_t err = _wfopen_s(&fp, filepath, L"r");
 
 	if ((err == 0) && IsValidFile(fp))
@@ -34,7 +34,7 @@ bool IMailReader::Open( const wchar_t* filepath )
 	}
 	else
 	{
-		fclose(fp);
+		if (fp) fclose(fp);
 		return false;
 	}
 }

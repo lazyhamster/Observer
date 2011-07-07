@@ -1151,7 +1151,8 @@ parser_step_headers (GMimeParser *parser)
 	
 	return 0;
 	
- content_start:
+// See notes above.
+// content_start:
 	
 	priv->headers_end = parser_offset (priv, start);
 	priv->state = GMIME_PARSER_STATE_CONTENT;
