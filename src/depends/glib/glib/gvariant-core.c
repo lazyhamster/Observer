@@ -830,7 +830,7 @@ g_variant_n_children (GVariant *value)
  * g_variant_get_child_value:
  * @value: a container #GVariant
  * @index_: the index of the child to fetch
- * @returns: the child at the specified index
+ * @returns: (transfer full): the child at the specified index
  *
  * Reads a child item out of a container #GVariant instance.  This
  * includes variants, maybes, arrays, tuples and dictionary
@@ -848,6 +848,8 @@ GVariant *
 g_variant_get_child_value (GVariant *value,
                            gsize     index_)
 {
+  g_return_val_if_fail (index_ < g_variant_n_children (value), NULL);
+
   if (~g_atomic_int_get (&value->state) & STATE_SERIALISED)
     {
       g_variant_lock (value);
