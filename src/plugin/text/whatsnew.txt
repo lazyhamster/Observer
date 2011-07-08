@@ -1,5 +1,8 @@
 Changes history:
 
+1.8.1
+- MBOX: Fixed crash when trying to open inaccessible file.
+
 1.8.0
 - Added support for files in Mbox format.
 - Replaced MIME module. It should be faster and more standard compliant.
