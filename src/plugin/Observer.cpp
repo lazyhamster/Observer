@@ -188,15 +188,33 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 	return FarSInfo.InputBox(GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_PASS_REQUIRED), NULL, NULL, buffer, bufferSize-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY) == TRUE;
 }
 
+static int SelectModuleToOpenFileAs()
+{
+	size_t nNumModules = g_pController.NumModules();
+
+	FarMenuItem* MenuItems = new FarMenuItem[nNumModules];
+	memset(MenuItems, 0, nNumModules * sizeof(FarMenuItem));
+	for (size_t i = 0; i < nNumModules; i++)
+	{
+		const ExternalModule& modInfo = g_pController.GetModule(i);
+		WideCharToMultiByte(CP_FAR_INTERNAL, 0, modInfo.Name(), -1, MenuItems[i].Text, ARRAY_SIZE(MenuItems[i].Text), NULL, NULL);
+	}
+
+	int nMSel = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_OPEN_SELECT_MODULE), NULL, NULL, NULL, NULL, MenuItems, (int) nNumModules);
+
+	delete [] MenuItems;
+	return nMSel;
+}
+
 //-----------------------------------  Content functions ----------------------------------------
 
-static HANDLE OpenStorage(const char* Name, bool applyExtFilters)
+static HANDLE OpenStorage(const char* Name, bool applyExtFilters, int moduleIndex)
 {
 	wchar_t wszWideName[MAX_PATH] = {0};
 	MultiByteToWideChar(CP_FAR_INTERNAL, 0, Name, strlen(Name), wszWideName, MAX_PATH);
 
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
-	if (storage->Open(wszWideName, applyExtFilters, -1) != SOR_SUCCESS)
+	if (storage->Open(wszWideName, applyExtFilters, moduleIndex) != SOR_SUCCESS)
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;
@@ -228,6 +246,28 @@ static void CloseStorage(HANDLE hStorage)
 	StorageObject *sobj = (StorageObject*) hStorage;
 	sobj->Close();
 	delete sobj;
+}
+
+static bool GetSelectedPanelFilePath(string& nameStr)
+{
+	nameStr.clear();
+
+	PanelInfo pi;
+	memset(&pi, 0, sizeof(pi));
+	if (FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi))
+		if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL)
+			&& ((pi.SelectedItems[0].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0))
+		{
+			char szPathBuf[MAX_PATH] = {0};
+
+			strcpy_s(szPathBuf, MAX_PATH, pi.CurDir);
+			IncludeTrailingPathDelim(szPathBuf, MAX_PATH);
+			strcat_s(szPathBuf, MAX_PATH, pi.SelectedItems[0].FindData.cFileName);
+
+			nameStr = szPathBuf;
+		}
+
+	return (nameStr.size() > 0);
 }
 
 //-----------------------------------  Callback functions ----------------------------------------
@@ -633,6 +673,7 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 	
 	string strFullSourcePath;
 	string strSubPath;
+	int nOpenModuleIndex = -1;
 	
 	if ((OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
 	{
@@ -653,23 +694,28 @@ HANDLE WINAPI OpenPlugin(int OpenFrom, INT_PTR Item)
 	}
 	else if (OpenFrom == OPEN_PLUGINSMENU)
 	{
-		PanelInfo pi;
-		memset(&pi, 0, sizeof(pi));
-		if (FarSInfo.Control(INVALID_HANDLE_VALUE, FCTL_GETPANELINFO, &pi))
-			if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL)
-				&& ((pi.SelectedItems[0].FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0))
-			{
-				char szPathBuf[MAX_PATH] = {0};
-				
-				strcpy_s(szPathBuf, MAX_PATH, pi.CurDir);
-				IncludeTrailingPathDelim(szPathBuf, MAX_PATH);
-				strcat_s(szPathBuf, MAX_PATH, pi.SelectedItems[0].FindData.cFileName);
+		if (GetSelectedPanelFilePath(strFullSourcePath))
+		{
+			FarMenuItem MenuItems[2] = {0};
+			strcpy_s(MenuItems[0].Text, ARRAY_SIZE(MenuItems[0].Text), GetLocMsg(MSG_OPEN_FILE));
+			strcpy_s(MenuItems[1].Text, ARRAY_SIZE(MenuItems[1].Text), GetLocMsg(MSG_OPEN_FILE_AS));
 
-				strFullSourcePath = szPathBuf;
+			int nMItem = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_PLUGIN_NAME), NULL, NULL, NULL, NULL, MenuItems, ARRAY_SIZE(MenuItems));
+
+			if (nMItem == -1)
+				return INVALID_HANDLE_VALUE;
+			else if (nMItem == 1) // Show modules selection dialog
+			{
+				int nSelectedModItem = SelectModuleToOpenFileAs();
+				if (nSelectedModItem >= 0)
+					nOpenModuleIndex = nSelectedModItem;
+				else
+					return INVALID_HANDLE_VALUE;
 			}
+		}
 	}
 
-	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false) : INVALID_HANDLE_VALUE;
+	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
 
 	if ( (hOpenResult != INVALID_HANDLE_VALUE) && (strSubPath.size() > 0) )
 		SetDirectory(hOpenResult, strSubPath.c_str(), 0);
@@ -682,7 +728,7 @@ HANDLE WINAPI OpenFilePlugin(char *Name, const unsigned char *Data, int DataSize
 	if (!Name || !optEnabled)
 		return INVALID_HANDLE_VALUE;
 
-	HANDLE hOpenResult = OpenStorage(Name, true);
+	HANDLE hOpenResult = OpenStorage(Name, optUseExtensionFilters != 0, -1);
 	return hOpenResult;
 }
 

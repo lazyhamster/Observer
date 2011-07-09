@@ -2,6 +2,7 @@ Changes history:
 
 1.8.1
 - MBOX: Fixed crash when trying to open inaccessible file.
+- MIME: Fixed detection of empty files as MIME messages.
 
 1.8.0
 - Added support for files in Mbox format.
