@@ -1001,6 +1001,7 @@ parser_step_headers (GMimeParser *parser)
 	
 	inptr = priv->inptr;
 	inend = priv->inend;
+	start = NULL;
 	
 	do {
 	refill:

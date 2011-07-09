@@ -50,6 +50,10 @@ static void message_foreach_callback(GMimeObject *parent, GMimeObject *part, gpo
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
+	__int64 nSize = GetFileSize(params.FilePath);
+	if (nSize < 10 || nSize > 100 * 1024 * 1024)
+		return SOR_INVALID_FILE;
+	
 	int fh;
 	if (_wsopen_s(&fh, params.FilePath, _O_RDONLY, _SH_DENYWR, _S_IREAD) != 0)
 		return SOR_INVALID_FILE;

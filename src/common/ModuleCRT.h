@@ -26,4 +26,17 @@ static inline void RenameInvalidPathChars(wchar_t* input)
 	}
 }
 
+static __int64 GetFileSize(const wchar_t* path)
+{
+	WIN32_FIND_DATA fd = {0};
+	HANDLE hFind = FindFirstFile(path, &fd);
+	if (hFind != INVALID_HANDLE_VALUE)
+	{
+		FindClose(hFind);
+		return ((__int64) fd.nFileSizeHigh << 32) | (__int64) fd.nFileSizeLow;
+	}
+
+	return 0;
+}
+
 #endif // ModuleCRT_h__
