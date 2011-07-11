@@ -1113,7 +1113,23 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug-Unicode|x64"
+					>
+					<Tool
+						Name="M4 Macro"
+						DestDir="$(ProjectDir)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release-Unicode|Win32"
+					>
+					<Tool
+						Name="M4 Macro"
+						DestDir="$(ProjectDir)"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release-Unicode|x64"
 					>
 					<Tool
 						Name="M4 Macro"
