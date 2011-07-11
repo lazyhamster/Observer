@@ -471,7 +471,7 @@
 		<Configuration
 			Name="Debug-Unicode|x64"
 			OutputDirectory="$(FAR2_DBG)\Observer"
-			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)\$(ProjectName)"
+			IntermediateDirectory="$(SolutionDir)..\obj\$(ConfigurationName)-$(PlatformName)\$(ProjectName)"
 			ConfigurationType="2"
 			InheritedPropertySheets=".\ObserverProps.vsprops"
 			CharacterSet="1"
