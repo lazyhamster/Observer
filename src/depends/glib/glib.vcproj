@@ -53,6 +53,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				CompileAs="1"
 				ForcedIncludeFiles="msvc_recommended_pragmas.h"
 			/>
 			<Tool
@@ -133,6 +134,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="1"
 				ForcedIncludeFiles="msvc_recommended_pragmas.h"
 			/>
 			<Tool
@@ -213,6 +215,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="1"
 				ForcedIncludeFiles="msvc_recommended_pragmas.h"
 			/>
 			<Tool
@@ -296,6 +299,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="1"
 				ForcedIncludeFiles="msvc_recommended_pragmas.h"
 			/>
 			<Tool
@@ -377,6 +381,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				CompileAs="1"
 				ForcedIncludeFiles="msvc_recommended_pragmas.h"
 			/>
 			<Tool
@@ -457,6 +462,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="1"
 				ForcedIncludeFiles="msvc_recommended_pragmas.h"
 			/>
 			<Tool
@@ -528,8 +534,6 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories=".;.\glib;..\iconv;.\libintl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN=\&quot;Glib\&quot;;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED"
 				RuntimeLibrary="2"
@@ -537,6 +541,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="1"
 				ForcedIncludeFiles="msvc_recommended_pragmas.h"
 			/>
 			<Tool
@@ -611,15 +616,13 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
-				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories=".;.\glib;..\iconv;.\libintl"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN=\&quot;Glib\&quot;;PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="1"
 				ForcedIncludeFiles="msvc_recommended_pragmas.h"
 			/>
 			<Tool
