@@ -4,6 +4,7 @@ Changes history:
 - MBOX: Fixed crash when trying to open inaccessible file.
 - MIME: Fixed detection of empty files as MIME messages.
 - VDISK: Fixed directories with empty name on some disks.
+- Various minor changes.
 
 1.8.0
 - Added support for files in Mbox format.

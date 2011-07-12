@@ -25,7 +25,7 @@
 		<CustomBuildRule
 			Name="LNG"
 			DisplayName="Language File"
-			CommandLine="copy /y [Inputs] $(OutDir)\$(InputFileName) &gt; nul"
+			CommandLine="copy /y [Inputs] &quot;$(OutDir)\$(InputFileName)&quot; &gt; nul"
 			Outputs="$(OutDir)\$(InputFileName)"
 			FileExtensions="*.lng"
 			ExecutionDescription="Copying language file ($(InputFileName)) ..."
@@ -36,7 +36,7 @@
 		<CustomBuildRule
 			Name="DText"
 			DisplayName="Deployable Text Documents"
-			CommandLine="copy /y [Inputs] $(OutDir)\$(InputFileName) &gt; nul"
+			CommandLine="copy /y [Inputs] &quot;$(OutDir)\$(InputFileName)&quot; &gt; nul"
 			Outputs="$(OutDir)\$(InputFileName)"
 			FileExtensions="*.txt;*.ini"
 			ExecutionDescription="Copying text file ($(InputFileName)) ..."
