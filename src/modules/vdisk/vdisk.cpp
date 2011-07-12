@@ -209,7 +209,8 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	String^ filePath = String::Format("[{0}]\\{1}", volLabels[fileInfo->VolumeIndex], fileInfo->Ref->FullName);
 	
 	// Remove trailing backslash if present
-	if (filePath->EndsWith("\\")) filePath->Remove(filePath->Length - 1);
+	if (filePath->EndsWith("\\"))
+		filePath = filePath->Remove(filePath->Length - 1);
 
 	// Helper class for String^ to wchar_t* conversion
 	msclr::interop::marshal_context ctx;
