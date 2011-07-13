@@ -106,7 +106,7 @@ It is distributed under term of GNU LGPL version 3 or any higher
 Used third-party code:
 
 - 7-zip (http://www.7-zip.org)
-Plug-in uses code for UDF and NSIS support.
+Plug-in uses code for UDF and NSIS support. Distributed under GNU LGPL.
 
 - Total Commander ISO plugin by Sergey Oblomov (http://wincmd.ru/plugring/iso.html)
 Modified for wchar_t support in file names. Based on version 1.7.6.
@@ -126,9 +126,6 @@ Homeworld 1 container decompression code is ripped from publicly available sourc
 Cross platform header only C++ library for reading PST files (from MS Outlook).
 Distributed under Apache License 2.0.
 
-- mimetic (http://codesink.org/mimetic_mime_library.html)
-MIME parsing library. Distributed under MIT license.
-
 - Wise UNpacker by J.Markus/Icebird
 Used as a reference, minor portions of code directly ported from Delphi to C++.
 
@@ -142,6 +139,17 @@ Distributed under MIT license.
 
 - StormLib (http://www.zezula.net/en/mpq/stormlib.html)
 The StormLib library is a pack of modules, written in C++, which are able to read and also to write files from/to the MPQ archives.
+
+- GMime (http://spruce.sourceforge.net/gmime/)
+GMime is a C/C++ library which may be used for the creation and parsing of messages using the Multipurpose Internet Mail Extension (MIME).
+Library is distributed under GNU LGPL.
+
+- zlib (http://www.zlib.net)
+zlib is lossless data-compression library. Distributed under zlib license.
+
+- libbzip2 (http://bzip.org)
+bzip2 is a freely available, patent free (see below), high-quality data compressor.
+Distributed under BSD-style license.
 
 3. System requirements.
 OS: WinXP or higher.
