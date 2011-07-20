@@ -33,11 +33,12 @@ int CMboxReader::Scan()
 		const char* strSubj = g_mime_message_get_subject(message);
 		const char* strDate = g_mime_message_get_date_as_string(message);
 
-		MBoxItem item = {0};
+		MBoxItem item;
 		item.StartPos = g_mime_parser_get_headers_begin(parser);
 		item.EndPos = g_mime_parser_tell(parser);
 		item.Sender = ConvertString(strFrom);
 		item.Subject = ConvertString(strSubj);
+		item.IsDeleted = false;
 		g_mime_message_get_date(message, &item.Date, &item.TimeZone);
 		
 		m_vItems.push_back(item);

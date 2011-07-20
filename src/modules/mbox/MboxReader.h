@@ -10,6 +10,7 @@ protected:
 
 public:
 	virtual int Scan();
+	virtual const wchar_t* GetFormatName() const { return L"Unix MBox"; }
 };
 
 #endif // MboxReader_h__

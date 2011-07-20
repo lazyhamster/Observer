@@ -10,9 +10,14 @@ struct MBoxItem
 
 	std::wstring Subject;
 	std::wstring Sender;
+	bool IsDeleted;
 
 	time_t Date;
 	int TimeZone;
+
+	MBoxItem() : StartPos(0), EndPos(0), IsDeleted(false),
+		Date(0), TimeZone(0), Subject(L""), Sender(L"")
+	{}
 
 	__int64 Size() const { return EndPos - StartPos; }
 };
@@ -33,8 +38,9 @@ public:
 	void Close();
 
 	virtual int Scan() = 0;
+	virtual const wchar_t* GetFormatName() const { return L"Mail Container"; }
 
-	int GetItemsCount() { return (int) m_vItems.size(); }
+	int GetItemsCount() const { return (int) m_vItems.size(); }
 	const MBoxItem& GetItem(int index) { return m_vItems[index]; }
 
 	int Extract(int itemindex, const wchar_t* destpath);
