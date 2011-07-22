@@ -48,10 +48,6 @@ int CBatReader::Scan()
 	GMimeStream* stream = g_mime_stream_file_new(m_pSrcFile);
 	g_mime_stream_file_set_owner((GMimeStreamFile*)stream, FALSE);
 
-	GMimeParser* parser = g_mime_parser_new_with_stream(stream);
-	g_mime_parser_set_persist_stream(parser, TRUE);
-	g_mime_parser_set_scan_from(parser, FALSE);
-
 	_fseeki64(m_pSrcFile, m_nDataStartPos, SEEK_SET);
 	int nFoundItems = 0;
 
@@ -69,6 +65,10 @@ int CBatReader::Scan()
 		__int64 msgStart = _ftelli64(m_pSrcFile);
 		__int64 msgEnd = msgStart + msgHeader.dataSize;
 
+		GMimeParser* parser = g_mime_parser_new_with_stream(stream);
+		g_mime_parser_set_persist_stream(parser, TRUE);
+		g_mime_parser_set_scan_from(parser, FALSE);
+		
 		g_mime_stream_set_bounds(stream, msgStart, msgEnd);
 		GMimeMessage* message = g_mime_parser_construct_message(parser);
 
@@ -87,14 +87,14 @@ int CBatReader::Scan()
 		nFoundItems++;
 		
 		if (message) g_object_unref(message);
+		g_object_unref(parser);
 
 		// Move to next message
-		if (_fseeki64(m_pSrcFile, msgHeader.dataSize, SEEK_CUR) != 0)
+		if (_fseeki64(m_pSrcFile, msgEnd, SEEK_SET) != 0)
 			break;
 	}
 
 	g_object_unref(stream);
-	g_object_unref(parser);
-	
+
 	return nFoundItems;
 }

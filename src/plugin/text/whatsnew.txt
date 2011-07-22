@@ -2,6 +2,7 @@ Changes history:
 
 1.8.2
 - Added support for mail bases from The Bat (.tbb).
+- Fixed settings wasn't loaded after restart on ANSI version.
 - PST: Fixed file descriptor leak on some files.
 
 1.8.1
