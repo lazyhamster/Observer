@@ -89,7 +89,7 @@ bool RegistrySettings::GetValue( const char* ValueName, char *Output, size_t Out
 	if (!m_hkRegKey) return false;
 
 	DWORD dwValueSize = (DWORD) OutputMaxSize;
-	LSTATUS retVal = RegQueryValueExA(m_hkRegKey, ValueName, NULL, NULL, (LPBYTE) &Output, &dwValueSize);
+	LSTATUS retVal = RegQueryValueExA(m_hkRegKey, ValueName, NULL, NULL, (LPBYTE) Output, &dwValueSize);
 	return (retVal == ERROR_SUCCESS);
 }
 
