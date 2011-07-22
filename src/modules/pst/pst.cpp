@@ -87,7 +87,10 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 		delete objInfo;
 	}
-	catch(...) {}
+	catch(...)
+	{
+		if (storeObj) delete storeObj;
+	}
 	
 	return SOR_INVALID_FILE;
 }
