@@ -2,6 +2,7 @@ General:
 - add extract progress where it is possible
 - change console title on extraction like FAR copy operation
 - make file name comparison case insensitive
+- keep original order of elements coming from nodule (useful for Unsorted  mode in panels)
 
 MSI:
 - extract progress
