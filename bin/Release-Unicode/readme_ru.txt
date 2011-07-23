@@ -104,7 +104,7 @@ Observer
 Используемый сторонний код:
 
 - 7-zip (http://www.7-zip.org)
-Взята поддержка UDF + NSIS. От него отнаследована лицензия LGPL.
+Взята поддержка UDF + NSIS. Распространяется по лицензии GNU LGPL.
 
 - Total Commander ISO plugin by Sergey Oblomov (http://wincmd.ru/plugring/iso.html)
 Передалан на поддержку wchar_t в именах. Базируется на версии 1.7.6.
@@ -124,15 +124,12 @@ archivers and dearchivers for Microsoft compression formats.
 Кроссплатформенная C++ библиотека для чтения файлов формата PST (от MS Outlook).
 Распространяется под лицензией Apache License 2.0.
 
-- mimetic (http://codesink.org/mimetic_mime_library.html)
-Библиотека парсинга MIME файлов. Распространяется под лицензией MIT.
-
 - Wise UNpacker by J.Markus/Icebird
 Код использовался в качестве ориентира. Небольшая часть кода является прямым портом из Delphi в C++.
 
 - HLLib (http://nemesis.thewavelength.net/index.php?p=35)
 Бибилотека для Half-Life которая абстрагирует несколько пакетных форматов и предоставляет простой интерфейс для доступа к ним.
-Распространяется по лицензии LGPL.
+Распространяется по лицензии GNU LGPL.
 
 - DiscUtils (http://discutils.codeplex.com/)
 Библиотека для чтения и записи файлов ISO и образов жестких дисков для виртуальных машин (VHD, VDI, XVA, VMDK, etc).
@@ -140,6 +137,16 @@ archivers and dearchivers for Microsoft compression formats.
 
 - StormLib (http://www.zezula.net/en/mpq/stormlib.html)
 Библиотека для чтения/записи MPQ архивов.
+
+- GMime (http://spruce.sourceforge.net/gmime/)
+GMime is a C/C++ library which may be used for the creation and parsing of messages using the Multipurpose Internet Mail Extension (MIME).
+Распространяется по лицензии GNU LGPL.
+
+- zlib (http://www.zlib.net)
+zlib это библиотека для сжатия данных без потерь.
+
+- libbzip2 (http://bzip.org)
+bzip2 это свободная библиотека для сжатия данных.
 
 3. Системные требования.
 OS: WinXP или новее.

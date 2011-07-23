@@ -2,7 +2,7 @@
 .PluginContents=Observer
 
 @Contents
-$^#Observer 1.8.1#
+$^#Observer 1.8.2#
 
  This plugins allows to browse several types of file containers.
  All formats support files listing and extraction.
