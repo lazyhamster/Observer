@@ -195,30 +195,35 @@ bool WINAPI SFileOpenArchive(
 		// If we didn't find signature before this limit then stop the search.
 		const ULONGLONG SearchPosMax = 10 * 1024 * 1024;
 
+		// Buffer for search operation
+		const ULONGLONG SearchChunkSize = 512 * 1024;  // Should be multiple of 512
+		BYTE* SearchBuf = ALLOCMEM(BYTE, SearchChunkSize);
+		int dwBytesAvailable = 0;
+
         while(SearchPos < FileSize && SearchPos < SearchPosMax)
         {
-            DWORD dwBytesAvailable = MPQ_HEADER_SIZE_V4;
-
-            // Cut the bytes available, if needed
-            if((FileSize - SearchPos) < MPQ_HEADER_SIZE_V4)
-                dwBytesAvailable = (DWORD)(FileSize - SearchPos);
-
-            // Read the eventual MPQ header
-            if(!FileStream_Read(ha->pStream, &SearchPos, ha->HeaderData, dwBytesAvailable))
-            {
-                nError = GetLastError();
-                break;
-            }
-
+            // Fill search buffer if empty
+			if (dwBytesAvailable <= 0)
+			{
+				dwBytesAvailable = (int) MIN(FileSize - SearchPos, SearchChunkSize);
+				if(!FileStream_Read(ha->pStream, &SearchPos, SearchBuf, dwBytesAvailable))
+				{
+					nError = GetLastError();
+					break;
+				}
+			}
+			
             // There are AVI files from Warcraft III with 'MPQ' extension.
-            if(SearchPos == 0 && IsAviFile(ha->HeaderData))
+            if(SearchPos == 0 && IsAviFile(SearchBuf))
             {
                 nError = ERROR_AVI_FILE;
                 break;
             }
 
+			BYTE* dataPtr = SearchBuf + SearchChunkSize - dwBytesAvailable;
+
             // If there is the MPQ user data signature, process it
-            dwHeaderID = BSWAP_INT32_UNSIGNED(*(LPDWORD)ha->HeaderData);
+            dwHeaderID = BSWAP_INT32_UNSIGNED(*(LPDWORD)dataPtr);
             if(dwHeaderID == ID_MPQ_USERDATA && ha->pUserData == NULL)
             {
                 // Ignore the MPQ user data completely if the caller wants to open the MPQ as V1.0
@@ -226,12 +231,13 @@ bool WINAPI SFileOpenArchive(
                 {
                     // Fill the user data header
                     ha->pUserData = &ha->UserData;
-                    memcpy(ha->pUserData, ha->HeaderData, sizeof(TMPQUserData));
+                    memcpy(ha->pUserData, dataPtr, sizeof(TMPQUserData));
                     BSWAP_TMPQUSERDATA(ha->pUserData);
 
                     // Remember the position of the user data and continue search
                     ha->UserDataPos = SearchPos;
                     SearchPos += ha->pUserData->dwHeaderOffs;
+					dwBytesAvailable -= ha->pUserData->dwHeaderOffs;
                     continue;
                 }
             }
@@ -239,7 +245,9 @@ bool WINAPI SFileOpenArchive(
             // There must be MPQ header signature
             if(dwHeaderID == ID_MPQ)
             {
-                // Save the position where the MPQ header has been found
+                memcpy(ha->HeaderData, dataPtr, MPQ_HEADER_SIZE_V4);
+				
+				// Save the position where the MPQ header has been found
                 if(ha->pUserData == NULL)
                     ha->UserDataPos = SearchPos;
                 ha->pHeader = (TMPQHeader *)ha->HeaderData;
@@ -253,7 +261,10 @@ bool WINAPI SFileOpenArchive(
 
             // Move to the next possible offset
             SearchPos += 0x200;
+			dwBytesAvailable -= 0x200;
         }
+
+		FREEMEM(SearchBuf);
 
         // If we haven't found MPQ header in the file, it's an error
         if(ha->pHeader == NULL)
