@@ -377,7 +377,7 @@ private:
 public:
 	void SetVar(const UString& name, const UString& value);
 	void ResetVar(const UString& name);
-	UString ResolvePath(const UString& path);
+	UString ResolvePath(const UString& path, int deep);
 };
 
 void ScriptVarCache::SetVar(const UString& name, const UString& value)
@@ -385,16 +385,16 @@ void ScriptVarCache::SetVar(const UString& name, const UString& value)
 	if (name.Length() == 0 || name[0] != '$') return;
 	
 	if (name.Length() == 2) return; // Ditch registers
-	if ((name == L"$INSTDIR") || (name == value)) return;
+	if ((name == L"$INSTDIR") || (name == value) || (name == value + L"\\")) return;
 	
 	int vIndex = GetVarIndex(name);
 	if (vIndex >= 0)
 	{
-		m_varValues[vIndex] = ResolvePath(value);
+		m_varValues[vIndex] = ResolvePath(value, 0);
 	}
 	else
 	{
-		UString resolvedValue = ResolvePath(value);
+		UString resolvedValue = ResolvePath(value, 0);
 		m_varNames.Add(name);
 		m_varValues.Add(resolvedValue);
 	}
@@ -405,9 +405,9 @@ int ScriptVarCache::GetVarIndex(const UString& name)
 	return m_varNames.Find(name);
 }
 
-UString ScriptVarCache::ResolvePath(const UString& path)
+UString ScriptVarCache::ResolvePath(const UString& path, int deep)
 {
-	if (path.Length() == 0 || path[0] != '$')
+	if (path.Length() == 0 || path[0] != '$' || deep > 10)
 		return path;
 
 	// Get var name
@@ -425,7 +425,7 @@ UString ScriptVarCache::ResolvePath(const UString& path)
 				resVar += path.Mid(slashIndex);
 			}
 
-			return ResolvePath(resVar);
+			return ResolvePath(resVar, deep+1);
 		}
 	}
 
@@ -499,7 +499,7 @@ HRESULT CInArchive::ReadEntries(const CBlockHeader &bh)
 				}
 				if ( (prefixU.Length() > 0) && (item.Name.Length() > 0) && (item.Name[0] != '$' || item.Name.Find('\\') <= 0) )
 				{
-					item.Prefix = varCache.ResolvePath(prefixU);
+					item.Prefix = varCache.ResolvePath(prefixU, 0);
 				}
 
 				/* UInt32 overwriteFlag = e.Params[0]; */
