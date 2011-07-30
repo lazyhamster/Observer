@@ -171,7 +171,10 @@ CDirectoryFolder *CPackage::GetRoot()
 	if(this->pRoot == 0)
 	{
 		this->pRoot = this->CreateRoot();
-		this->pRoot->Sort();
+		if (this->pRoot)
+		{
+			this->pRoot->Sort();
+		}
 	}
 
 	return this->pRoot;

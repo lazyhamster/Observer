@@ -19,6 +19,8 @@ struct ValvePackage
 
 void EnumFiles(ValvePackage* package, CDirectoryFolder* folder)
 {
+	if (folder == NULL) return;
+	
 	for (hlUInt i = 0; i < folder->GetCount(); i++)
 	{
 		CDirectoryItem* child = folder->GetItem(i);
@@ -41,7 +43,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		return SOR_INVALID_FILE;
 	
 	CPackage* pkg = CreatePackage(ePackageType);
-	if (pkg->Open(params.FilePath, HL_MODE_READ))
+	if (pkg->Open(params.FilePath, HL_MODE_READ) && pkg->GetRoot())
 	{
 		ValvePackage* vp = new ValvePackage();
 		vp->ePackageType = HL_PACKAGE_GCF;

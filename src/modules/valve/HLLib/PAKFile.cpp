@@ -89,6 +89,14 @@ CDirectoryFolder *CPAKFile::CreateRoot()
 	for(hlUInt i = 0; i < uiItemCount; i++)
 	{
 		hlChar lpFileName[56];
+
+		// To prevent buffer overrun
+		if (strlen(this->lpDirectoryItems[i].lpItemName) >= sizeof(lpFileName))
+		{
+			delete pRoot;
+			return NULL;
+		}
+
 		strcpy(lpFileName, this->lpDirectoryItems[i].lpItemName);
 
 		// Check if we have just a file, or if the file has directories we need to create.
