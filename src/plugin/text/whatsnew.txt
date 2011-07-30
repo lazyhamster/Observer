@@ -1,5 +1,8 @@
 Changes history:
 
+1.8.3
+- Various stability fixes.
+
 1.8.2
 - Added support for mail bases from The Bat (.tbb).
 - Fixed settings wasn't loaded after restart on ANSI version.
