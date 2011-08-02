@@ -56,39 +56,45 @@ static void DecodeStr(const char* src, wchar_t* dest, size_t destSize)
 	}
 }
 
+static void RemoveUrlComponent(wchar_t* filename)
+{
+	// Remote query part
+	wchar_t* qPos = wcschr(filename, '?');
+	if (qPos) *qPos = 0;
+
+	// Remote domain and path
+	wchar_t* sPos = wcsrchr(filename, '/');
+	if (sPos) wmemmove(filename, sPos + 1, wcslen(sPos + 1) + 1);
+
+	// Remote system path (for file:// URL)
+	wchar_t* bPos = wcsrchr(filename, '\\');
+	if (bPos) wmemmove(filename, bPos + 1, wcslen(bPos + 1) + 1);
+}
+
 void GetEntityName(GMimePart* entity, wchar_t* dest, size_t destSize)
 {
 	const char* contentDesp = g_mime_object_get_content_disposition_parameter((GMimeObject*) entity, "filename");
 	if (contentDesp)
 	{
 		DecodeStr(contentDesp, dest, destSize);
-		return;
+		RemoveUrlComponent(dest);
+		if (wcslen(dest) > 1) return;
 	}
 
 	const char* contentType = g_mime_object_get_content_type_parameter((GMimeObject*) entity, "name");
 	if (contentType)
 	{
 		DecodeStr(contentType, dest, destSize);
-		return;
+		RemoveUrlComponent(dest);
+		if (wcslen(dest) > 1) return;
 	}
 
 	const char* contetLocation = g_mime_part_get_content_location(entity);
 	if (contetLocation)
 	{
 		DecodeStr(contetLocation, dest, destSize);
-		
-		// Remote query part
-		wchar_t* qPos = wcschr(dest, '?');
-		if (qPos) *qPos = 0;
 
-		// Remote domain and path
-		wchar_t* sPos = wcsrchr(dest, '/');
-		if (sPos) wmemmove(dest, sPos + 1, wcslen(sPos + 1) + 1);
-
-		// Remote system path (for file:// URL)
-		wchar_t* bPos = wcsrchr(dest, '\\');
-		if (bPos) wmemmove(dest, bPos + 1, wcslen(bPos + 1) + 1);
-
+		RemoveUrlComponent(dest);
 		if (wcslen(dest) > 1) return;
 	}
 

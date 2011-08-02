@@ -141,7 +141,6 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		{
 			MultiByteToWideChar(CP_UTF8, 0, subj, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
 			wcscat_s(item_info->Path, STRBUF_SIZE(item_info->Path), L".eml");
-			RenameInvalidPathChars(item_info->Path);
 		}
 		else
 		{
@@ -180,6 +179,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		return GET_ITEM_ERROR;
 	}
 
+	RenameInvalidPathChars(item_info->Path);
 	return GET_ITEM_OK;
 }
 
