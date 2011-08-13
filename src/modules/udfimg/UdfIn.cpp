@@ -357,6 +357,7 @@ struct CFileId
   CLongAllocDesc Icb;
 
   bool IsItLinkParent() const { return (FileCharacteristics & FILEID_CHARACS_Parent) != 0; }
+  bool IsHidden() const { return (FileCharacteristics & FILEID_CHARACS_Hidden) != 0; }
   HRESULT Parse(const Byte *p, size_t size, size_t &processed);
 };
 
@@ -465,6 +466,7 @@ HRESULT CUdfArchive::ReadItem(int volIndex, const CLongAllocDesc &lad, int numRe
         // file.FileCharacteristics = fileId.FileCharacteristics;
         // file.ImplUse = fileId.ImplUse;
         file.Id = fileId.Id;
+		file.IsHidden = fileId.IsHidden();
         
         _fileNameLengthTotal += file.Id.Data.GetCapacity();
         if (_fileNameLengthTotal > kFileNameLengthTotalMax)

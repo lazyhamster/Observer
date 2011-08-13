@@ -248,6 +248,7 @@ struct CIcbTag
 
 // const Byte FILEID_CHARACS_Existance = (1 << 0);
 const Byte FILEID_CHARACS_Parent = (1 << 3);
+const Byte FILEID_CHARACS_Hidden = 1;
 
 struct CFile
 {
@@ -258,6 +259,7 @@ struct CFile
 
   CFile(): /* FileVersion(0), FileCharacteristics(0), */ ItemIndex(-1) {}
   int ItemIndex;
+  bool IsHidden;
   UString GetName() const { return Id.GetString(); }
 };
 

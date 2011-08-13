@@ -100,7 +100,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	UString fname = file.GetName();
 
 	memset(item_info, 0, sizeof(StorageItemInfo));
-	item_info->Attributes = item.IsDir() ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
+	if (item.IsDir())
+		item_info->Attributes = FILE_ATTRIBUTE_DIRECTORY;
+	else
+		item_info->Attributes = file.IsHidden ? FILE_ATTRIBUTE_HIDDEN : FILE_ATTRIBUTE_ARCHIVE;
 	item_info->Size = item.Size;
 	item.MTime.GetFileTime(item_info->ModificationTime);
 	item.CreateTime.GetFileTime(item_info->CreationTime);

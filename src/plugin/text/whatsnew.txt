@@ -2,6 +2,7 @@ Changes history:
 
 1.8.3
 - MIME: Improved filename parsing for malformed source files.
+- UDF: Hidden files now have proper attribute set.
 - Various stability fixes.
 
 1.8.2
