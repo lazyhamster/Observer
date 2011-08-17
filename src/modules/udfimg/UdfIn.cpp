@@ -1061,8 +1061,10 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 
 	int result = SER_SUCCESS;
 	const CItem &itemObj = Items[itemIndex];
+	const CFile &fileObj = Files[fileIndex];
 
-	HANDLE hFile = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	DWORD nOutFileAttr = fileObj.IsHidden ? FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_ARCHIVE : FILE_ATTRIBUTE_NORMAL;
+	HANDLE hFile = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, nOutFileAttr, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 	{
 		result = SER_ERROR_WRITE;
