@@ -41,14 +41,14 @@
  *
  * GMime's micro version.
  **/
-#define GMIME_MICRO_VERSION (7)
+#define GMIME_MICRO_VERSION (10)
 
 /**
  * GMIME_BINARY_AGE:
  *
  * GMime's binary age.
  **/
-#define GMIME_BINARY_AGE    (507)
+#define GMIME_BINARY_AGE    (510)
 
 /**
  * GMIME_INTERFACE_AGE:

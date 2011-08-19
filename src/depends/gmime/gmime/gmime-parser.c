@@ -113,6 +113,7 @@ enum {
 	GMIME_PARSER_STATE_ERROR = -1,
 	GMIME_PARSER_STATE_INIT,
 	GMIME_PARSER_STATE_FROM,
+	GMIME_PARSER_STATE_MESSAGE_HEADERS,
 	GMIME_PARSER_STATE_HEADERS,
 	GMIME_PARSER_STATE_HEADERS_END,
 	GMIME_PARSER_STATE_CONTENT,
@@ -824,7 +825,7 @@ parser_step_from (GMimeParser *parser)
 	
  got_from:
 	
-	priv->state = GMIME_PARSER_STATE_HEADERS;
+	priv->state = GMIME_PARSER_STATE_MESSAGE_HEADERS;
 	
 	priv->inptr = inptr;
 	
@@ -1001,7 +1002,6 @@ parser_step_headers (GMimeParser *parser)
 	
 	inptr = priv->inptr;
 	inend = priv->inend;
-	start = NULL;
 	
 	do {
 	refill:
@@ -1052,7 +1052,7 @@ parser_step_headers (GMimeParser *parser)
 					
 					/* Note: see optimization comment [1] */
 					*inend = '\n';
-				} else if (*inptr == ':') {
+				} else {
 					valid = FALSE;
 				}
 				
@@ -1061,17 +1061,18 @@ parser_step_headers (GMimeParser *parser)
 					    && !strncmp (start, "From ", 5))
 						goto next_message;
 					
-					// NOTE: More strict exit conditions (Ariman)
-					//if (priv->headers != NULL || *inptr == ':') {
+					if (priv->headers != NULL) {
 						/* probably the start of the content,
 						 * a broken mailer didn't terminate the
 						 * headers with an empty line. *sigh* */
-						//goto content_start;
-					//}
-
-					// NOTE: More strict exit conditions (Ariman)
-					priv->state = GMIME_PARSER_STATE_ERROR;
-					return 0;
+						goto content_start;
+					}
+					
+					if (priv->state == GMIME_PARSER_STATE_MESSAGE_HEADERS) {
+						/* Be a little more strict when scanning toplevel message headers. */
+						priv->state = GMIME_PARSER_STATE_ERROR;
+						return -1;
+					}
 				}
 			}
 			
@@ -1152,8 +1153,7 @@ parser_step_headers (GMimeParser *parser)
 	
 	return 0;
 	
-// See notes above.
-// content_start:
+ content_start:
 	
 	priv->headers_end = parser_offset (priv, start);
 	priv->state = GMIME_PARSER_STATE_CONTENT;
@@ -1258,13 +1258,14 @@ parser_step (GMimeParser *parser)
 		if (priv->scan_from)
 			priv->state = GMIME_PARSER_STATE_FROM;
 		else
-			priv->state = GMIME_PARSER_STATE_HEADERS;
+			priv->state = GMIME_PARSER_STATE_MESSAGE_HEADERS;
 		break;
 	case GMIME_PARSER_STATE_FROM:
 		priv->message_headers_begin = -1;
 		priv->message_headers_end = -1;
 		parser_step_from (parser);
 		break;
+	case GMIME_PARSER_STATE_MESSAGE_HEADERS:
 	case GMIME_PARSER_STATE_HEADERS:
 		parser_step_headers (parser);
 		
@@ -1787,6 +1788,7 @@ parser_construct_part (GMimeParser *parser)
 	int found;
 	
 	/* get the headers */
+	priv->state = GMIME_PARSER_STATE_HEADERS;
 	while (priv->state < GMIME_PARSER_STATE_HEADERS_END) {
 		if (parser_step (parser) == GMIME_PARSER_STATE_ERROR)
 			return NULL;
@@ -1835,7 +1837,7 @@ parser_construct_message (GMimeParser *parser)
 	int found;
 	
 	/* scan the from-line if we are parsing an mbox */
-	while (priv->state != GMIME_PARSER_STATE_HEADERS) {
+	while (priv->state != GMIME_PARSER_STATE_MESSAGE_HEADERS) {
 		if (parser_step (parser) == GMIME_PARSER_STATE_ERROR)
 			return NULL;
 	}

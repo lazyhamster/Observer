@@ -688,6 +688,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\gmime\gmime-part-iter.c"
+					>
+				</File>
+				<File
 					RelativePath=".\gmime\gmime-part.c"
 					>
 				</File>
@@ -939,6 +943,10 @@
 				</File>
 				<File
 					RelativePath=".\gmime\gmime-parser.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gmime\gmime-part-iter.h"
 					>
 				</File>
 				<File
