@@ -1061,7 +1061,8 @@ parser_step_headers (GMimeParser *parser)
 					    && !strncmp (start, "From ", 5))
 						goto next_message;
 					
-					if (priv->headers != NULL) {
+					// NOTE: Second condition is a hack to allow MBox parser be more liberal then individual messages parser (Ariman)
+					if (priv->headers != NULL && parser->priv->scan_from) {
 						/* probably the start of the content,
 						 * a broken mailer didn't terminate the
 						 * headers with an empty line. *sigh* */
