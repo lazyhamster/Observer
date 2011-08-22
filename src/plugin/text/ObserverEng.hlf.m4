@@ -21,6 +21,7 @@ m4_include(`version.m4i')m4_dnl
  - Virtual disk images (VMDK, VDI, VHD, XVA).
  - Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
  - #MoPaQ# containers
+ - #MBox# mail storage containers
 
  For additional information look in supplied readme.txt
 
