@@ -13,6 +13,8 @@
 
 #include "NameDecode.h"
 
+static int g_MandatoryHeaders = 1;
+
 struct MimeFileInfo
 {
 	GMimeParser* parserRef;
@@ -84,6 +86,19 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	GMimeContentType* ctype = g_mime_object_get_content_type(mime_part);
 	const char* szType = ctype ? g_mime_content_type_get_media_type(ctype) : NULL;
 	const char* szSubType = ctype ? g_mime_content_type_get_media_subtype(ctype) : NULL;
+
+	if (g_MandatoryHeaders)
+	{
+		// File should have at least one of the checked headers to be considered a MIME file
+		const char* hdr_ctype_str = g_mime_object_get_header((GMimeObject*) message, "Content-Type");
+		const char* hdr_from_str = g_mime_object_get_header((GMimeObject*) message, "From");
+		if (!hdr_ctype_str && !hdr_from_str)
+		{
+			g_object_unref(parser);
+			g_object_unref(message);
+			return SOR_INVALID_FILE;
+		}
+	}
 
 	time_t tMsgTime = 0;
 	int nTimeZone = 0;
