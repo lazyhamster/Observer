@@ -1,5 +1,8 @@
 Changes history:
 
+1.8.4
+- MIME: Reduced number of false positives.
+
 1.8.3
 - MIME: Improved filename parsing for malformed source files.
 - MIME: Updated parsing library with latest bugfixes.
