@@ -906,6 +906,8 @@ int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 			wchar_t* wszStoragePath = _wcsdup(info->StoragePath());
 			CutFileNameFromPath(wszStoragePath, false);
 
+			wchar_t* wszStorageFileName = _wcsdup(ExtractFileName(info->StoragePath()));
+
 			FarSInfo.Control(hPlugin, FCTL_CLOSEPLUGIN, 0, (LONG_PTR) wszStoragePath);
 			FarSInfo.Control(PANEL_ACTIVE, FCTL_SETPANELDIR, 0, (LONG_PTR) wszStoragePath);
 
@@ -919,7 +921,7 @@ int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 					if (!PPI) break;
 
 					FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELITEM, i, (LONG_PTR)PPI);
-					bool fIsArchItem = wcscmp(ExtractFileName(info->StoragePath()), PPI->FindData.lpwszFileName) == 0;
+					bool fIsArchItem = wcscmp(wszStorageFileName, PPI->FindData.lpwszFileName) == 0;
 					free(PPI);
 
 					if (fIsArchItem)
@@ -932,6 +934,7 @@ int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 				} // for
 			}
 
+			free(wszStorageFileName);
 			free(wszStoragePath);
 			return TRUE;
 		}
