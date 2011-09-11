@@ -1,7 +1,9 @@
 Changes history:
 
 1.8.4
+- Fixed crash when exiting container if ExtCurDir=1
 - MIME: Reduced number of false positives.
+- MSI: Fixed issue with cyrillic letters in path when searching for Cab files (regression bug).
 
 1.8.3
 - MIME: Improved filename parsing for malformed source files.

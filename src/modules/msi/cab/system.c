@@ -110,23 +110,42 @@ struct mspack_file_p {
   const char *name;
 };
 
+// Local definition to avoid including <windows.h>
+#define CP_UTF8                   65001       // UTF-8 translation
+int __stdcall MultiByteToWideChar(unsigned int CodePage, unsigned int dwFlags, const char* lpMultiByteStr, int cbMultiByte, wchar_t* lpWideCharStr, int cchWideChar);
+// End of <windows.h> rip
+
 static struct mspack_file *msp_open(struct mspack_system *self,
 				    const char *filename, int mode)
 {
   struct mspack_file_p *fh;
-  const char *fmode;
+  wchar_t *fmode;
+  int slen;
+  wchar_t *wname;
 
   switch (mode) {
-  case MSPACK_SYS_OPEN_READ:   fmode = "rb";  break;
-  case MSPACK_SYS_OPEN_WRITE:  fmode = "wb";  break;
-  case MSPACK_SYS_OPEN_UPDATE: fmode = "r+b"; break;
-  case MSPACK_SYS_OPEN_APPEND: fmode = "ab";  break;
+  case MSPACK_SYS_OPEN_READ:   fmode = L"rb";  break;
+  case MSPACK_SYS_OPEN_WRITE:  fmode = L"wb";  break;
+  case MSPACK_SYS_OPEN_UPDATE: fmode = L"r+b"; break;
+  case MSPACK_SYS_OPEN_APPEND: fmode = L"ab";  break;
   default: return NULL;
   }
 
   if ((fh = (struct mspack_file_p *) malloc(sizeof(struct mspack_file_p)))) {
     fh->name = filename;
-    if ((fh->fh = fopen(filename, fmode))) return (struct mspack_file *) fh;
+
+	// To avoid changing char* to wchar_t* in all function signatures
+	// it is easier to pass file name here in UTF-8 and decode before open
+
+	slen = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
+	wname  = (wchar_t*) malloc((slen + 1) * sizeof(wchar_t));
+	memset(wname, 0, (slen + 1) * sizeof(wchar_t));
+	MultiByteToWideChar(CP_UTF8, 0, filename, -1, wname, slen + 1);
+
+	fh->fh = _wfopen(wname, fmode);
+	free(wname);
+
+    if (fh->fh) return (struct mspack_file *) fh;
     free(fh);
   }
   return NULL;
