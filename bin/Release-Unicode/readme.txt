@@ -35,6 +35,7 @@ Add/Delete/Change operations are not planned.
   - MIME containers (.eml, .mht, etc.)
   - MS Outlook databases (*.pst)
   - MBox containers
+  - The Bat! databases (*.tbb)
 
 - Containers used in various games
   - CAT, PCK, PBD, PBB - used by Egosoft for X-series games

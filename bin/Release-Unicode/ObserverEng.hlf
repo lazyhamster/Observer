@@ -2,7 +2,7 @@
 .PluginContents=Observer
 
 @Contents
-$^#Observer 1.8.3#
+$^#Observer 1.8.4#
 
  This plugins allows to browse several types of file containers.
  All formats support files listing and extraction.
@@ -20,6 +20,7 @@ $^#Observer 1.8.3#
  - Virtual disk images (VMDK, VDI, VHD, XVA).
  - Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
  - #MoPaQ# containers
+ - #MBox# mail storage containers
 
  For additional information look in supplied readme.txt
 
