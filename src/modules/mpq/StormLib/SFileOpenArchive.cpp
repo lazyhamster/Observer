@@ -199,13 +199,15 @@ bool WINAPI SFileOpenArchive(
 		const ULONGLONG SearchChunkSize = 512 * 1024;  // Should be multiple of 512
 		BYTE* SearchBuf = ALLOCMEM(BYTE, SearchChunkSize);
 		int dwBytesAvailable = 0;
+		int dwSearchBufDataSize= 0;
 
         while(SearchPos < FileSize && SearchPos < SearchPosMax)
         {
             // Fill search buffer if empty
 			if (dwBytesAvailable <= 0)
 			{
-				dwBytesAvailable = (int) MIN(FileSize - SearchPos, SearchChunkSize);
+				dwSearchBufDataSize = (int) MIN(FileSize - SearchPos, SearchChunkSize);
+				dwBytesAvailable = dwSearchBufDataSize;
 				if(!FileStream_Read(ha->pStream, &SearchPos, SearchBuf, dwBytesAvailable))
 				{
 					nError = GetLastError();
@@ -220,7 +222,7 @@ bool WINAPI SFileOpenArchive(
                 break;
             }
 
-			BYTE* dataPtr = SearchBuf + SearchChunkSize - dwBytesAvailable;
+			BYTE* dataPtr = SearchBuf + dwSearchBufDataSize - dwBytesAvailable;
 
             // If there is the MPQ user data signature, process it
             dwHeaderID = BSWAP_INT32_UNSIGNED(*(LPDWORD)dataPtr);

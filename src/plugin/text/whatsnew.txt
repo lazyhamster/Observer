@@ -1,5 +1,8 @@
 Changes history:
 
+1.8.5
+- MPQ: Fixed issue with some small files.
+
 1.8.4
 - Fixed crash when exiting container if ExtCurDir=1
 - MIME: Reduced number of false positives.
