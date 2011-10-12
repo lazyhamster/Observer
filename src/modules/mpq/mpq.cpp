@@ -15,21 +15,22 @@ struct MoPaQ_File
 	std::vector<SFILE_FIND_DATA> vFiles;
 };
 
-bool ShouldOpenAsEncrypted(const wchar_t* path)
-{
-	const wchar_t* ext = wcsrchr(path, '.');
-	return ext && !_wcsicmp(ext, L".mpqe");
-}
-
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	char szNameBuf[MAX_PATH] = {0};
 	WideCharToMultiByte(CP_ACP, 0, params.FilePath, -1, szNameBuf, MAX_PATH, NULL, NULL);
-	
-	bool fTryEncrypted = ShouldOpenAsEncrypted(params.FilePath);
+
 	HANDLE hMpq = NULL;
-	if (!SFileOpenArchive(szNameBuf, 0, fTryEncrypted ? MPQ_OPEN_ENCRYPTED : MPQ_OPEN_READ_ONLY, &hMpq))
-		return SOR_INVALID_FILE;
+	bool fEncrypted = false;
+
+	// First try to open file as plain MPQ
+	if (!SFileOpenArchive(szNameBuf, 0, MPQ_OPEN_READ_ONLY, &hMpq))
+	{
+		// Additionally try to open file as encrypted MPQ
+		fEncrypted = true;
+		if (!SFileOpenArchive(szNameBuf, 0, MPQ_OPEN_ENCRYPTED | MPQ_OPEN_READ_ONLY, &hMpq))
+			return SOR_INVALID_FILE;
+	}
 
 	SFILE_FIND_DATA ffd;
 	HANDLE hSearch = SFileFindFirstFile(hMpq, "*", &ffd, NULL);
@@ -41,7 +42,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 	MoPaQ_File* file = new MoPaQ_File();
 	file->hMpq = hMpq;
-	file->isEncrypted = fTryEncrypted;
+	file->isEncrypted = fEncrypted;
 
 	// Enumerate content
 	do 
@@ -150,7 +151,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
-	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
+	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 1);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
 	LoadParams->OpenStorage = OpenStorage;
 	LoadParams->CloseStorage = CloseStorage;
