@@ -1,0 +1,658 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug-Unicode|Win32">
+      <Configuration>Debug-Unicode</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-Unicode|x64">
+      <Configuration>Debug-Unicode</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-Unicode|Win32">
+      <Configuration>Release-Unicode</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-Unicode|x64">
+      <Configuration>Release-Unicode</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{AB8168E2-2568-4046-BC2B-1001AF4AF78F}</ProjectGuid>
+    <RootNamespace>mpq</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\plugin\ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\plugin\ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\plugin\ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\plugin\ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\plugin\ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\plugin\ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\plugin\ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\plugin\ObserverProps.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(FAR_DBG)\Observer\modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\bin\$(Configuration)\modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(FAR2_DBG)\Observer\modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(FAR2_DBG)\Observer\modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(SolutionDir)..\bin\$(Configuration)\modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">false</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(SolutionDir)..\bin\$(Configuration)-$(Platform)\modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">false</LinkIncremental>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
+      <ModuleDefinitionFile>mpq.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
+      <ModuleDefinitionFile>mpq.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
+      <ModuleDefinitionFile>mpq.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
+      <ModuleDefinitionFile>mpq.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
+      <ModuleDefinitionFile>mpq.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
+      <ModuleDefinitionFile>mpq.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
+      <ModuleDefinitionFile>mpq.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;MPQ_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
+      <ModuleDefinitionFile>mpq.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+      </PrecompiledHeader>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
+    </ClCompile>
+    <ClCompile Include="mpq.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="StormLib\FileStream.cpp" />
+    <ClCompile Include="StormLib\SBaseCommon.cpp" />
+    <ClCompile Include="StormLib\SBaseDumpData.cpp" />
+    <ClCompile Include="StormLib\SBaseFileTable.cpp" />
+    <ClCompile Include="StormLib\SCompression.cpp" />
+    <ClCompile Include="StormLib\SFileAddFile.cpp" />
+    <ClCompile Include="StormLib\SFileAttributes.cpp" />
+    <ClCompile Include="StormLib\SFileCompactArchive.cpp" />
+    <ClCompile Include="StormLib\SFileCreateArchive.cpp" />
+    <ClCompile Include="StormLib\SFileExtractFile.cpp" />
+    <ClCompile Include="StormLib\SFileFindFile.cpp" />
+    <ClCompile Include="StormLib\SFileListFile.cpp" />
+    <ClCompile Include="StormLib\SFileOpenArchive.cpp" />
+    <ClCompile Include="StormLib\SFileOpenFileEx.cpp" />
+    <ClCompile Include="StormLib\SFilePatchArchives.cpp" />
+    <ClCompile Include="StormLib\SFileReadFile.cpp" />
+    <ClCompile Include="StormLib\SFileVerify.cpp" />
+    <ClCompile Include="StormLib\adpcm\adpcm.cpp" />
+    <ClCompile Include="StormLib\huffman\huff.cpp" />
+    <ClCompile Include="StormLib\jenkins\lookup3.c" />
+    <ClCompile Include="StormLib\pklib\crc32.c" />
+    <ClCompile Include="StormLib\pklib\explode.c" />
+    <ClCompile Include="StormLib\pklib\implode.c" />
+    <ClCompile Include="StormLib\sparse\sparse.cpp" />
+    <ClCompile Include="StormLib\lzma\C\LzFind.c" />
+    <ClCompile Include="StormLib\lzma\C\LzFindMt.c" />
+    <ClCompile Include="StormLib\lzma\C\LzmaDec.c" />
+    <ClCompile Include="StormLib\lzma\C\LzmaEnc.c" />
+    <ClCompile Include="StormLib\lzma\C\Threads.c" />
+    <ClCompile Include="StormLib\libtommath\bn_fast_mp_invmod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_fast_mp_montgomery_reduce.c" />
+    <ClCompile Include="StormLib\libtommath\bn_fast_s_mp_mul_digs.c" />
+    <ClCompile Include="StormLib\libtommath\bn_fast_s_mp_mul_high_digs.c" />
+    <ClCompile Include="StormLib\libtommath\bn_fast_s_mp_sqr.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_2expt.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_abs.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_add.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_add_d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_addmod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_and.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_clamp.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_clear.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_clear_multi.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_cmp.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_cmp_d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_cmp_mag.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_cnt_lsb.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_copy.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_count_bits.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_div.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_div_2.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_div_2d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_div_3.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_div_d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_dr_is_modulus.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_dr_reduce.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_dr_setup.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_exch.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_expt_d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_exptmod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_exptmod_fast.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_exteuclid.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_fread.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_fwrite.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_gcd.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_get_int.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_grow.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_init.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_init_copy.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_init_multi.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_init_set.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_init_set_int.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_init_size.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_invmod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_invmod_slow.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_is_square.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_jacobi.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_karatsuba_mul.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_karatsuba_sqr.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_lcm.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_lshd.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_mod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_mod_2d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_mod_d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_montgomery_calc_normalization.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_montgomery_reduce.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_montgomery_setup.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_mul.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_mul_2.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_mul_2d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_mul_d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_mulmod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_n_root.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_neg.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_or.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_prime_fermat.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_prime_is_divisible.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_prime_is_prime.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_prime_miller_rabin.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_prime_next_prime.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_prime_rabin_miller_trials.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_prime_random_ex.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_radix_size.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_radix_smap.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_rand.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_read_radix.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_read_signed_bin.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_read_unsigned_bin.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_reduce.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_reduce_2k.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_reduce_2k_l.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_reduce_2k_setup.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_reduce_2k_setup_l.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_reduce_is_2k.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_reduce_is_2k_l.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_reduce_setup.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_rshd.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_set.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_set_int.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_shrink.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_signed_bin_size.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_sqr.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_sqrmod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_sqrt.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_sub.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_sub_d.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_submod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_to_signed_bin.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_to_signed_bin_n.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_to_unsigned_bin.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_to_unsigned_bin_n.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_toom_mul.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_toom_sqr.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_toradix.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_toradix_n.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_unsigned_bin_size.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_xor.c" />
+    <ClCompile Include="StormLib\libtommath\bn_mp_zero.c" />
+    <ClCompile Include="StormLib\libtommath\bn_prime_tab.c" />
+    <ClCompile Include="StormLib\libtommath\bn_reverse.c" />
+    <ClCompile Include="StormLib\libtommath\bn_s_mp_add.c" />
+    <ClCompile Include="StormLib\libtommath\bn_s_mp_exptmod.c" />
+    <ClCompile Include="StormLib\libtommath\bn_s_mp_mul_digs.c" />
+    <ClCompile Include="StormLib\libtommath\bn_s_mp_mul_high_digs.c" />
+    <ClCompile Include="StormLib\libtommath\bn_s_mp_sqr.c" />
+    <ClCompile Include="StormLib\libtommath\bn_s_mp_sub.c" />
+    <ClCompile Include="StormLib\libtommath\bncore.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\hashes\hash_memory.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\hashes\md5.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\hashes\sha1.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\math\ltm_desc.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\math\multi.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\math\rand_prime.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\base64_decode.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_argchk.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_find_hash.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_find_prng.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_hash_descriptor.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_hash_is_valid.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_libc.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_ltc_mp_descriptor.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_prng_descriptor.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_prng_is_valid.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_register_hash.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\crypt_register_prng.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\misc\zeromem.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\rsa\rsa_exptmod.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\rsa\rsa_free.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\rsa\rsa_import.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\rsa\rsa_make_key.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\rsa\rsa_verify_hash.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\rsa\rsa_verify_simple.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\ecc\ltc_ecc_map.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\ecc\ltc_ecc_mul2add.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\ecc\ltc_ecc_mulmod.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\ecc\ltc_ecc_points.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\ecc\ltc_ecc_projective_add_point.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\ecc\ltc_ecc_projective_dbl_point.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\pkcs1\pkcs_1_mgf1.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\pkcs1\pkcs_1_oaep_decode.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\pkcs1\pkcs_1_pss_decode.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\pkcs1\pkcs_1_v1_5_decode.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_bit_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_boolean.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_choice.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_ia5_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_integer.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_object_identifier.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_octet_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_printable_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_sequence_ex.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_sequence_flexi.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_sequence_multi.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_short_integer.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_utctime.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_decode_utf8_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_bit_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_boolean.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_ia5_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_integer.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_object_identifier.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_octet_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_printable_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_sequence.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_short_integer.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_utctime.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_length_utf8_string.c" />
+    <ClCompile Include="StormLib\libtomcrypt\src\pk\asn1\der_sequence_free.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mpq.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="StormLib\StormCommon.h" />
+    <ClInclude Include="StormLib\StormLib.h" />
+    <ClInclude Include="StormLib\StormPort.h" />
+    <ClInclude Include="StormLib\adpcm\adpcm.h" />
+    <ClInclude Include="StormLib\huffman\huff.h" />
+    <ClInclude Include="StormLib\jenkins\lookup.h" />
+    <ClInclude Include="StormLib\pklib\pklib.h" />
+    <ClInclude Include="StormLib\sparse\sparse.h" />
+    <ClInclude Include="StormLib\lzma\C\LzFind.h" />
+    <ClInclude Include="StormLib\lzma\C\LzFindMt.h" />
+    <ClInclude Include="StormLib\lzma\C\LzHash.h" />
+    <ClInclude Include="StormLib\lzma\C\LzmaDec.h" />
+    <ClInclude Include="StormLib\lzma\C\LzmaEnc.h" />
+    <ClInclude Include="StormLib\lzma\C\Threads.h" />
+    <ClInclude Include="StormLib\lzma\C\Types.h" />
+    <ClInclude Include="StormLib\libtommath\tommath.h" />
+    <ClInclude Include="StormLib\libtommath\tommath_class.h" />
+    <ClInclude Include="StormLib\libtommath\tommath_superclass.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_argchk.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_cfg.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_cipher.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_custom.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_hash.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_mac.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_macros.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_math.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_misc.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_pk.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_pkcs.h" />
+    <ClInclude Include="StormLib\libtomcrypt\src\headers\tomcrypt_prng.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\depends\bzip2\libbz2.vcxproj">
+      <Project>{d4d55d0b-1cc0-4838-a68f-39b486f1122c}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
+      <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

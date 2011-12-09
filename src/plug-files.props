@@ -1,0 +1,53 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup
+    Condition="'$(M4_MacroBeforeTargets)' == '' and '$(M4_MacroAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <M4_MacroBeforeTargets>Midl</M4_MacroBeforeTargets>
+    <M4_MacroAfterTargets>CustomBuild</M4_MacroAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <M4_MacroDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(M4_MacroDependsOn)</M4_MacroDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <M4_Macro>
+      <DestDir>$(OutDir)</DestDir>
+      <CommandLineTemplate>m4 -P [AllOptions] [AdditionalOptions] [inputs] &gt; %(DestDir)\%(Filename)</CommandLineTemplate>
+      <Outputs>%(DestDir)\%(Filename)</Outputs>
+      <ExecutionDescription>Processing m4 script (%(Filename)%(Extension)) ...</ExecutionDescription>
+      <AdditionalDependencies>version.m4i</AdditionalDependencies>
+    </M4_Macro>
+  </ItemDefinitionGroup>
+  <PropertyGroup
+    Condition="'$(LNGBeforeTargets)' == '' and '$(LNGAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <LNGBeforeTargets>Midl</LNGBeforeTargets>
+    <LNGAfterTargets>CustomBuild</LNGAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LNGDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(LNGDependsOn)</LNGDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <LNG>
+      <CommandLineTemplate>copy /y [Inputs] "$(OutDir)%(Filename)%(Extension)" &gt; nul</CommandLineTemplate>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
+      <ExecutionDescription>Copying language file (%(Filename)%(Extension)) ...</ExecutionDescription>
+    </LNG>
+  </ItemDefinitionGroup>
+  <PropertyGroup
+    Condition="'$(DTextBeforeTargets)' == '' and '$(DTextAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <DTextBeforeTargets>Midl</DTextBeforeTargets>
+    <DTextAfterTargets>CustomBuild</DTextAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DTextDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(DTextDependsOn)</DTextDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <DText>
+      <CommandLineTemplate>copy /y [Inputs] "$(OutDir)%(Filename)%(Extension)" &gt; nul</CommandLineTemplate>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
+      <ExecutionDescription>Copying text file (%(Filename)%(Extension)) ...</ExecutionDescription>
+    </DText>
+  </ItemDefinitionGroup>
+</Project>

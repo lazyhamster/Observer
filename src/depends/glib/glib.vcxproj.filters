@@ -1,0 +1,599 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files\gnulib">
+      <UniqueIdentifier>{5304eb26-9ee6-4f00-a3a9-897aa9e92acc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\pcre">
+      <UniqueIdentifier>{b770ba1e-547a-4ee2-8bfb-2ad0ebf7322d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\libcharset">
+      <UniqueIdentifier>{022b598f-2afa-4ff6-b63a-1175bfeae903}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files\gnulib">
+      <UniqueIdentifier>{772c0a15-9269-49b5-bfc1-95a64f9c4a54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\libcharset">
+      <UniqueIdentifier>{406ca1e5-afe2-4275-a743-a7e920dd8198}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="glib\garray.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gasyncqueue.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gatomic.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gbacktrace.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gbase64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gbitlock.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gbookmarkfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gbuffer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gcache.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gchecksum.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gcompletion.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gconvert.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gdataset.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gdate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gdatetime.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gdir.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gerror.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gfileutils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\ghash.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\ghook.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\ghostutils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\giochannel.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\giowin32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gkeyfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\glist.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gmain.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gmappedfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gmarkup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gmem.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gmessages.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gnode.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\goption.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gpattern.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gpoll.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gprimes.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gprintf.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gqsort.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gqueue.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\grand.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gregex.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\grel.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gscanner.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gsequence.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gshell.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gslice.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gslist.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gspawn-win32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gstdio.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gstrfuncs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gstring.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gtestutils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gthread.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gthreadpool.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gtimer.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gtimezone.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gtree.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gunibreak.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gunicollate.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gunidecomp.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\guniprop.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gurifuncs.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gutf8.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gutils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gvariant-core.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gvariant-parser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gvariant-serialiser.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gvariant.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gvarianttype.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gvarianttypeinfo.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gwin32.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="libintl\libintl.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gnulib\asnprintf.c">
+      <Filter>Source Files\gnulib</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gnulib\printf-args.c">
+      <Filter>Source Files\gnulib</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gnulib\printf-parse.c">
+      <Filter>Source Files\gnulib</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gnulib\printf.c">
+      <Filter>Source Files\gnulib</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\gnulib\vasnprintf.c">
+      <Filter>Source Files\gnulib</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_chartables.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_compile.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_config.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_dfa_exec.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_exec.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_fullinfo.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_get.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_globals.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_newline.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_ord2utf8.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_study.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_tables.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_try_flipped.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_ucp_searchfuncs.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\pcre\pcre_xclass.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="glib\libcharset\localcharset.c">
+      <Filter>Source Files\libcharset</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="glib\glib.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="glib\galloca.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\garray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gasyncqueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gatomic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gbacktrace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gbase64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gbitlock.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gbookmarkfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gbsearcharray.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gbuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gcache.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gchecksum.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gcompletion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gconvert.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gdataset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gdatasetprivate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gdate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gdatetime.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gdebug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gdir.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gerror.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gfileutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\ghash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\ghook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\ghostutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gi18n-lib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gi18n.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\giochannel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gkeyfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\glib-object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\glib.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\glib_trace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\glibintl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\glist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gmacros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gmain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gmappedfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gmarkup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gmem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gmessages.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gmirroringtable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gnode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\goption.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gpattern.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gpoll.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gprimes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gprintf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gprintfint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gqsort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gquark.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gqueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\grand.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gregex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\grel.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gscanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gscripttable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gsequence.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gshell.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gslice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gslist.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gspawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gstdio.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gstrfuncs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gstring.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gtestutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gthread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gthreadpool.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gthreadprivate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gtimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gtimezone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gtree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gtypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gunibreak.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gunichartables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gunicode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gunicodeprivate.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gunicomp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gunidecomp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gurifuncs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gvariant-core.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gvariant-internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gvariant-serialiser.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gvariant.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gvarianttype.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gvarianttypeinfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gwin32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gnulib\g-gnulib.h">
+      <Filter>Header Files\gnulib</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gnulib\printf-args.h">
+      <Filter>Header Files\gnulib</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gnulib\printf-parse.h">
+      <Filter>Header Files\gnulib</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gnulib\printf.h">
+      <Filter>Header Files\gnulib</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\gnulib\vasnprintf.h">
+      <Filter>Header Files\gnulib</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\libcharset\libcharset.h">
+      <Filter>Header Files\libcharset</Filter>
+    </ClInclude>
+    <ClInclude Include="glib\libcharset\localcharset.h">
+      <Filter>Header Files\libcharset</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

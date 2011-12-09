@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="pstsdk">
+      <UniqueIdentifier>{2db7efbf-23bb-4462-9854-b22abe375989}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pstsdk\disk">
+      <UniqueIdentifier>{f44f2dee-d825-44cd-b6ac-9f39d2f7d277}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pstsdk\ltp">
+      <UniqueIdentifier>{787a5dce-9edf-483e-b75f-8ed60ad4969f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pstsdk\ndb">
+      <UniqueIdentifier>{55e7634d-4805-4ba9-8d63-9849b84fb277}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pstsdk\pst">
+      <UniqueIdentifier>{0656c4dd-3132-4828-92c3-24bf27edb535}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="pstsdk\util">
+      <UniqueIdentifier>{aac753a2-60f8-4f90-9d5b-bebfeaa2ae3e}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pst.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PstProcessing.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="pst.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="PstProcessing.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\disk.h">
+      <Filter>pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ltp.h">
+      <Filter>pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ndb.h">
+      <Filter>pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\pst.h">
+      <Filter>pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\util.h">
+      <Filter>pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\disk\disk.h">
+      <Filter>pstsdk\disk</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ltp\heap.h">
+      <Filter>pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ltp\nameid.h">
+      <Filter>pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ltp\object.h">
+      <Filter>pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ltp\propbag.h">
+      <Filter>pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ltp\table.h">
+      <Filter>pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ndb\database.h">
+      <Filter>pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ndb\database_iface.h">
+      <Filter>pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ndb\node.h">
+      <Filter>pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\ndb\page.h">
+      <Filter>pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\pst\folder.h">
+      <Filter>pstsdk\pst</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\pst\message.h">
+      <Filter>pstsdk\pst</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\pst\pst.h">
+      <Filter>pstsdk\pst</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\util\btree.h">
+      <Filter>pstsdk\util</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\util\errors.h">
+      <Filter>pstsdk\util</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\util\primitives.h">
+      <Filter>pstsdk\util</Filter>
+    </ClInclude>
+    <ClInclude Include="pstsdk\util\util.h">
+      <Filter>pstsdk\util</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

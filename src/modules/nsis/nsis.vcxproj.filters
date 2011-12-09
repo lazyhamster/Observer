@@ -1,0 +1,188 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="7zip">
+      <UniqueIdentifier>{39f284a6-dd0e-46a5-80a7-f5d04844870a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nsis.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NsisArchive.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NsisHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NsisIn.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NsisInLegacy.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\C\Alloc.c">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BcjCoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BcjRegister.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BitlDecoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\C\Bra.c">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\C\Bra86.c">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\C\BraIA64.c">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BranchCoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BranchMisc.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BranchRegister.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BZip2Crc.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BZip2Decoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\BZip2Register.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\CodecExports.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\CopyCoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\CopyRegister.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Common\CreateCoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\DeflateDecoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Windows\FileDir.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Windows\FileFind.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Windows\FileIO.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Windows\FileName.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Common\FileStreams.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Common\FilterCoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Common\InBuffer.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Common\IntToString.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\UI\Common\LoadCodecs.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\C\LzmaDec.c">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\LzmaDecoder.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\LzmaRegister.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Compress\LzOutWindow.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Common\MyString.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Common\MyVector.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\NsisDecode.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Archive\Nsis\NsisRegister.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Common\OutBuffer.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Windows\PropVariant.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\7zip\Common\StreamUtils.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\CPP\Common\StringConvert.cpp">
+      <Filter>7zip</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="nsis.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="NsisArchive.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NsisHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NsisIn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NsisInDef.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NsisInLegacy.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
