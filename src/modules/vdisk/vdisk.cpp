@@ -142,7 +142,10 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 			array<DiscUtils::FileSystemInfo^> ^fsinfo = FileSystemManager::DetectDefaultFileSystems(vi);
 			if (fsinfo == nullptr || fsinfo->Length == 0) continue;
 
-			DiscFileSystem^ dfs = fsinfo[0]->Open(vi);
+			FileSystemParameters^ fsParams = gcnew FileSystemParameters();
+			fsParams->FileNameEncoding = System::Text::Encoding::GetEncoding(GetOEMCP());
+
+			DiscFileSystem^ dfs = fsinfo[0]->Open(vi, fsParams);
 			if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
 			{
 				Ntfs::NtfsFileSystem^ ntfsFS = (Ntfs::NtfsFileSystem^)dfs;
@@ -150,12 +153,23 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 				ntfsFS->NtfsOptions->HideSystemFiles = false;
 				//ntfsFS->NtfsOptions->HideMetafiles = false;
 			}
-			EnumFilesInVolume(vdObj, dfs->Root, vi, i);
 
-			String^ volLabel = dfs->VolumeLabel->Trim();
-			if (String::IsNullOrEmpty(volLabel)) volLabel = "Volume_#" + i;
-			vdObj->vVolLabels->Add(volLabel);
-		}
+			try
+			{
+				EnumFilesInVolume(vdObj, dfs->Root, vi, i);
+
+				String^ volLabel = dfs->VolumeLabel->Trim();
+				if (String::IsNullOrEmpty(volLabel)) volLabel = "Volume_#" + i;
+				vdObj->vVolLabels->Add(volLabel);
+			}
+			catch (Exception^ ex)
+			{
+				String^ errText = String::Format("Volume listing error : {0}", ex);
+
+				msclr::interop::marshal_context ctx;
+				MessageBox(0, ctx.marshal_as<const wchar_t*>(errText), L"Error", MB_OK | MB_ICONERROR);
+			}
+		} // for
 
 		*storage = vdObj;
 
