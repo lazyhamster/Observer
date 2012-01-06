@@ -363,12 +363,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Reference Include="System">
-      <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
-      <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
-    </Reference>
-    <Reference Include="DiscUtils, Version=0.9.0.0, Culture=neutral, PublicKeyToken=60a04f11f1df810d">
+    <Reference Include="DiscUtils, Version=0.10.0.0, Culture=neutral, PublicKeyToken=60a04f11f1df810d">
       <HintPath>Lib\DiscUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="System">
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
       <ReferenceOutputAssembly>true</ReferenceOutputAssembly>
     </Reference>
