@@ -13,6 +13,7 @@
 #include "OptionsFile.h"
 #include "RegistrySettings.h"
 
+#include <InitGuid.h>
 #include "Guids.h"
 
 extern HMODULE g_hDllHandle;
@@ -23,7 +24,6 @@ static wchar_t wszPluginLocation[MAX_PATH];
 static wchar_t wszConfigFileLocation[MAX_PATH];
 static ModulesController g_pController;
 
-#define CP_FAR_INTERNAL CP_OEMCP
 #define CONFIG_FILE L"observer.ini"
 
 // Settings
@@ -155,45 +155,6 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 	if (isInteractive) flags |= FMSG_MB_OK;
 	
 	FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_MESSAGE_BOX, flags, NULL, MsgLines, linesNum, 0);
-}
-
-static int DlgHlp_GetCheckBoxState(HANDLE hDlg, int ctrlIndex)
-{
-	FarDialogItem *dlgItem;
-	int retVal;
-
-	dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, NULL));
-	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, dlgItem);
-	retVal = dlgItem->Selected;
-	free(dlgItem);
-
-	return retVal;
-}
-
-static void DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wstring &buf)
-{
-	FarDialogItem *dlgItem;
-
-	dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, NULL));
-	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, dlgItem);
-
-	buf = (const wchar_t*) dlgItem->UserData;
-
-	free(dlgItem);
-}
-
-static bool DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size_t bufSize)
-{
-	wstring tmpStr;
-	DlgHlp_GetEditBoxText(hDlg, ctrlIndex, tmpStr);
-	
-	if (tmpStr.size() < bufSize)
-	{
-		wcscpy_s(buf, bufSize, tmpStr.c_str());
-		return true;
-	}
-
-	return false;
 }
 
 static int SelectModuleToOpenFileAs()
@@ -646,16 +607,39 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	static wchar_t szDialogLine1[120] = {0};
 	swprintf_s(szDialogLine1, ARRAY_SIZE(szDialogLine1), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
 
+	wchar_t wszExtractPathBuf[MAX_PATH] = {0};
+	wcscpy_s(wszExtractPathBuf, MAX_PATH, params.strDestPath.c_str());
+
+	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, GetLocMsg(MSG_EXTRACT_TITLE), L"ObserverExtract");
+
+	Builder.AddText(szDialogLine1);
+	Builder.AddEditField(wszExtractPathBuf, MAX_PATH, 48);
+	Builder.AddSeparator();
+	Builder.AddCheckbox(MSG_EXTRACT_DEFOVERWRITE, &params.nOverwriteExistingFiles, 0, true);
+	Builder.AddCheckbox(MSG_EXTRACT_KEEPPATHS, &params.nPathProcessing, 0, true);
+	
+	Builder.AddOKCancel(MSG_BTN_EXTRACT, MSG_BTN_CANCEL, true);
+
+	if (Builder.ShowDialog())
+	{
+		params.strDestPath = ResolveFullPath(wszExtractPathBuf);
+
+		return true;
+	}
+
+	//TODO: verify
+
+/*
 	FarDialogItem DialogItems []={
-		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, GetLocMsg(MSG_EXTRACT_TITLE)},
-		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1, 0},
-		/*2*/{DI_EDIT,	    5, 3, 53, 3, 1, 0, DIF_EDITEXPAND|DIF_EDITPATH,0, params.strDestPath.c_str(), 0},
-		/*3*/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
-		/*4*/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
-		/*5*/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
-		/*6*/{DI_TEXT,	    3, 7,  0, 7, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
-		/*7*/{DI_BUTTON,	0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_EXTRACT), 0},
-		/*8*/{DI_BUTTON,    0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
+		/*0/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, GetLocMsg(MSG_EXTRACT_TITLE)},
+		/*1/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1, 0},
+		/*2/{DI_EDIT,	    5, 3, 53, 3, 1, 0, DIF_EDITEXPAND|DIF_EDITPATH,0, params.strDestPath.c_str(), 0},
+		/*3/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
+		/*4/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
+		/*5/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
+		/*6/{DI_TEXT,	    3, 7,  0, 7, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
+		/*7/{DI_BUTTON,	0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_EXTRACT), 0},
+		/*8/{DI_BUTTON,    0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
 	};
 
 	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 60, 11, L"ObserverExtract",
@@ -679,6 +663,9 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	}
 
 	return retVal;
+*/
+
+	return false;
 }
 
 //-----------------------------------  Export functions ----------------------------------------
@@ -725,10 +712,10 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	static const wchar_t *ConfigMenuStrings[1];
 	ConfigMenuStrings[0] = GetLocMsg(MSG_PLUGIN_CONFIG_NAME);
 
-	Info->PluginMenu.Guids = &GUID_OBS_MENU;
+	Info->PluginMenu.Guids = &GUID_OBS_INFO_MENU;
 	Info->PluginMenu.Strings = PluginMenuStrings;
 	Info->PluginMenu.Count = sizeof(PluginMenuStrings) / sizeof(PluginMenuStrings[0]);
-	Info->PluginConfig.Guids = &GUID_OBS_CONFIG;
+	Info->PluginConfig.Guids = &GUID_OBS_INFO_CONFIG;
 	Info->PluginConfig.Strings = ConfigMenuStrings;
 	Info->PluginConfig.Count = sizeof(ConfigMenuStrings) / sizeof(ConfigMenuStrings[0]);
 	Info->CommandPrefix = optPrefix;
@@ -741,34 +728,22 @@ void WINAPI ExitFARW(const ExitInfo* Info)
 
 int WINAPI ConfigureW(const ConfigureInfo* Info)
 {
-	FarDialogItem DialogItems []={
-	/*00*/ {DI_DOUBLEBOX, 3,1, 40, 8, 0, 0, 0,0, GetLocMsg(MSG_CONFIG_TITLE), 0},
-	/*01*/ {DI_CHECKBOX,  5,2,  0, 2, 1, optEnabled, 0,0, GetLocMsg(MSG_CONFIG_ENABLE), 0},
-	/*02*/ {DI_CHECKBOX,  5,3,  0, 3, 0, optUsePrefix, 0,0, GetLocMsg(MSG_CONFIG_PREFIX), 0},
-	/*03*/ {DI_FIXEDIT,   8,4, 24, 4, 0, 0, 0,0, optPrefix, 0},
-	/*04*/ {DI_CHECKBOX,  5,5,  0, 5, 0, optUseExtensionFilters, 0,0, GetLocMsg(MSG_CONFIG_USEEXTFILTERS), 0},
-	/*05*/ {DI_TEXT,	  3,6,  0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
-	/*06*/ {DI_BUTTON,	  0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 1, L"OK", 0},
-	/*07*/ {DI_BUTTON,    0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
-	};
+	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_CONFIG_DIALOG, GetLocMsg(MSG_CONFIG_TITLE), L"ObserverConfig");
 
-	HANDLE hDlg = FarSInfo.DialogInit(&OBSERVER_GUID, &GUID_OBS_CONFIG_DIALOG, -1, -1, 44, 10, L"ObserverConfig",
-		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, 0, FarSInfo.DefDlgProc, 0);
+	Builder.AddCheckbox(MSG_CONFIG_ENABLE, &optEnabled);
+	Builder.AddCheckbox(MSG_CONFIG_PREFIX, &optUsePrefix);
+	
+	FarDialogItem* edtField = Builder.AddFixEditField(optPrefix, ARRAY_SIZE(optPrefix), 16);
+	edtField->X1 += 3;
 
-	if (hDlg != INVALID_HANDLE_VALUE)
+	Builder.AddCheckbox(MSG_CONFIG_USEEXTFILTERS, &optUseExtensionFilters);
+	Builder.AddOKCancel(MSG_BTN_OK, MSG_BTN_CANCEL, true);
+
+	if (Builder.ShowDialog())
 	{
-		int ExitCode = FarSInfo.DialogRun(hDlg);
-		if (ExitCode == 6) // OK was pressed
-		{
-			optEnabled = DlgHlp_GetCheckBoxState(hDlg, 1);
-			optUsePrefix = DlgHlp_GetCheckBoxState(hDlg, 2);
-			DlgHlp_GetEditBoxText(hDlg, 3, optPrefix, ARRAY_SIZE(optPrefix));
-			
-			SaveSettings();
-		}
-		FarSInfo.DialogFree(hDlg);
+		SaveSettings();
 		
-		if (ExitCode == 6) return TRUE;
+		return TRUE;
 	}
 
 	return FALSE;
@@ -842,6 +817,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	else if (OInfo->OpenFrom == OPEN_FILEPANEL)
 	{
 		//TODO: implement
+		return INVALID_HANDLE_VALUE;
 	}
 
 	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
@@ -951,7 +927,7 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 			PanelInfo pi = {0};
 			if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
 			{
-				for (int i = 0; i < pi.ItemsNumber; i++)
+				for (int i = 0; i < (int) pi.ItemsNumber; i++)
 				{
 					PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL));
 					if (!PPI) break;
@@ -1078,10 +1054,11 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 	opInfo->InfoLinesNumber = ARRAY_SIZE(pInfoLinesData);
 	opInfo->InfoLines = pInfoLinesData;
 
-	memset(&KeyBar, 0, sizeof(KeyBar));
-	KeyBar.ShiftTitles[0] = L"";
-	KeyBar.AltTitles[6-1] = (wchar_t*) GetLocMsg(MSG_ALTF6);
-	opInfo->KeyBar = &KeyBar;
+	//TODO: port this
+	//memset(&KeyBar, 0, sizeof(KeyBar));
+	//KeyBar.ShiftTitles[0] = L"";
+	//KeyBar.AltTitles[6-1] = (wchar_t*) GetLocMsg(MSG_ALTF6);
+	//opInfo->KeyBar = &KeyBar;
 }
 
 int WINAPI GetFilesW(GetFilesInfo *gfInfo)
@@ -1101,7 +1078,7 @@ int WINAPI GetFilesW(GetFilesInfo *gfInfo)
 	int nExtNumFiles = 0, nExtNumDirs = 0;
 
 	// Collect all indices of items to extract
-	for (int i = 0; i < gfInfo->ItemsNumber; i++)
+	for (size_t i = 0; i < gfInfo->ItemsNumber; i++)
 	{
 		PluginPanelItem pItem = gfInfo->PanelItem[i];
 		if (wcscmp(pItem.FileName, L"..") == 0) continue;
@@ -1145,18 +1122,18 @@ int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 		if (!info) return FALSE;
 		
 		PanelInfo pi = {0};
-		if (!FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR) &pi)) return FALSE;
+		if (!FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi)) return FALSE;
 		if (pi.SelectedItemsNumber == 0) return FALSE;
 
 		ContentNodeList vcExtractItems;
 		__int64 nTotalExtractSize = 0;
 
 		// Collect all indices of items to extract
-		for (int i = 0; i < pi.SelectedItemsNumber; i++)
+		for (int i = 0; i < (int) pi.SelectedItemsNumber; i++)
 		{
-			PluginPanelItem* pItem = (PluginPanelItem*) malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, NULL));
+			PluginPanelItem* pItem = (PluginPanelItem*) malloc(FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, NULL));
 			
-			FarSInfo.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, (LONG_PTR) pItem);
+			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, pItem);
 			if (wcscmp(pItem->FileName, L"..") != 0)
 			{
 				ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem->FileName);

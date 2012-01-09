@@ -4,4 +4,8 @@
     <LocalDebuggerCommand>$(FAR2_DBG)\..\..\Far.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
+    <LocalDebuggerCommand>$(FAR3_DBG)\..\..\Far.exe</LocalDebuggerCommand>
+    <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+  </PropertyGroup>
 </Project>

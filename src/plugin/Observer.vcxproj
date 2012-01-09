@@ -409,7 +409,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>ObserverUni3.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -467,7 +467,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>ObserverUni3.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -521,7 +521,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>ObserverUni3.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -583,7 +583,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>ObserverUni3.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
