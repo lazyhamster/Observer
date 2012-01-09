@@ -1,6 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug-Unicode-3|Win32">
+      <Configuration>Debug-Unicode-3</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug-Unicode-3|x64">
+      <Configuration>Debug-Unicode-3</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug-Unicode|Win32">
       <Configuration>Debug-Unicode</Configuration>
       <Platform>Win32</Platform>
@@ -15,6 +23,14 @@
     </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|x64">
       <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-Unicode-3|Win32">
+      <Configuration>Release-Unicode-3</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release-Unicode-3|x64">
+      <Configuration>Release-Unicode-3</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release-Unicode|Win32">
@@ -45,7 +61,16 @@
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -63,7 +88,16 @@
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -84,7 +118,15 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="ObserverProps.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="ObserverProps.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="ObserverProps.props" />
   </ImportGroup>
@@ -100,7 +142,15 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="ObserverProps.props" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="ObserverProps.props" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="ObserverProps.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="ObserverProps.props" />
   </ImportGroup>
@@ -130,25 +180,45 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(FAR2_DBG)\Observer\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(FAR3_DBG)\Observer\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">false</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">false</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(FAR2_DBG)\Observer\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(FAR2_DBG)\Observer\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">false</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">false</GenerateManifest>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(SolutionDir)..\bin\$(Configuration)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(SolutionDir)..\bin\$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">false</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(SolutionDir)..\bin\$(Configuration)-$(Platform)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(SolutionDir)..\bin\$(Configuration)-$(Platform)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">false</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">false</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
@@ -156,11 +226,17 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'" />
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
@@ -168,12 +244,16 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">4Observer</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">4Observer</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">4Observer</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">4Observer</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">4Observer</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">4Observer</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">4Observer</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">4Observer</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">4Observer</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">4Observer</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">4Observer</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">4Observer</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -314,6 +394,32 @@
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common\;..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSERVER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)4Observer.dll</OutputFile>
+      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">
     <Midl>
       <TargetEnvironment>X64</TargetEnvironment>
@@ -339,10 +445,68 @@
       <TargetMachine>MachineX64</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>echo N | xcopy .\text\observer.ini "$(OutDir)"</Command>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\common\;..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;OBSERVER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)4Observer.dll</OutputFile>
+      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\common\;..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSERVER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)4Observer.dll</OutputFile>
+      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
@@ -401,16 +565,53 @@
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">
+    <Midl>
+      <TargetEnvironment>X64</TargetEnvironment>
+    </Midl>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\common\;..\depends\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;OBSERVER_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <OutputFile>$(OutDir)4Observer.dll</OutputFile>
+      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <SubSystem>Windows</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
+      <TargetMachine>MachineX64</TargetMachine>
+    </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CommonFunc.cpp" />
     <ClCompile Include="ContentStructures.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
       </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
+      </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">
       </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">
+      </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
@@ -419,10 +620,16 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">
       </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">
+      </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">
       </PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">
+      </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">false</CompileAsManaged>
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">false</CompileAsManaged>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
@@ -434,26 +641,48 @@
     <ClCompile Include="ModulesController.cpp" />
     <ClCompile Include="Observer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="ObserverUni.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">true</ExcludedFromBuild>
+    </ClCompile>
+    <ClCompile Include="ObserverUni3.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="OptionsFile.cpp" />
     <ClCompile Include="..\common\OptionsParser.cpp" />
     <ClCompile Include="RegistrySettings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
@@ -485,10 +714,14 @@
     <M4_Macro Include="text\FILE_ID.DIZ.m4" />
     <M4_Macro Include="Observer.rc.m4">
       <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(ProjectDir)</DestDir>
       <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(ProjectDir)</DestDir>
       <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)</DestDir>
       <DestDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(ProjectDir)</DestDir>
       <DestDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(ProjectDir)</DestDir>
       <DestDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)</DestDir>
     </M4_Macro>
     <M4_Macro Include="text\ObserverEng.hlf.m4" />
@@ -501,9 +734,12 @@
     <DText Include="text\readme_ru.txt" />
     <DText Include="..\common\todo.txt">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </DText>
     <DText Include="text\whatsnew.txt" />
