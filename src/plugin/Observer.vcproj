@@ -196,7 +196,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="echo N | xcopy .\text\observer.ini &quot;$(OutDir)\&quot;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -377,7 +377,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="xcopy .\text\*.* &quot;$(OutDir)\&quot; /Y"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
@@ -554,7 +554,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="echo N | xcopy .\text\observer.ini &quot;$(OutDir)\&quot;"
+				CommandLine=""
 			/>
 		</Configuration>
 		<Configuration
