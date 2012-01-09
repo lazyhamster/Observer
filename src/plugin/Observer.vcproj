@@ -1173,6 +1173,14 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Debug|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Release|Win32"
 					ExcludedFromBuild="true"
 					>
@@ -1181,7 +1189,23 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
+					Name="Release|x64"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
 					Name="Debug-Unicode|Win32"
+					ExcludedFromBuild="true"
+					>
+					<Tool
+						Name="DText"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug-Unicode|x64"
 					ExcludedFromBuild="true"
 					>
 					<Tool

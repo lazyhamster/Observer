@@ -1,6 +1,6 @@
 Observer
-Plug-in for FAR Manager 1.75+ / 2.0+
-Copyright: 2009-2011, Ariman
+Plug-in for FAR Manager 1.75+ / 2.0+ / 3.0+
+Copyright: 2009-2012, Ariman
 
 -------------------------------------------------------------------
 

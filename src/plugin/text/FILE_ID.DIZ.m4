@@ -1,6 +1,6 @@
 m4_include(`version.m4i')m4_dnl
 Observer OBSERVER_VERSION
-Plugin for FAR 1.7x / 2.x
+Plugin for FAR 1.75 / 2.0 / 3.0
 ---------------------------
 
 This plugins allows to browse several types of file containers.
@@ -22,7 +22,7 @@ Supported file formats:
 - MoPaQ containers
 - Mail containers in MBox format
 
-(c) 2009-2011, Ariman
+(c) 2009-2012, Ariman
 -----------------------------------------
 Web-site: http://ariman.creiac.com
 E-mail for suggestions, bug reports, etc: ariman@inbox.ru

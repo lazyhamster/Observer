@@ -20,7 +20,6 @@ static wchar_t wszPluginLocation[MAX_PATH];
 static wchar_t wszConfigFileLocation[MAX_PATH];
 static ModulesController g_pController;
 
-#define CP_FAR_INTERNAL CP_OEMCP
 #define CONFIG_FILE L"observer.ini"
 
 // Settings
