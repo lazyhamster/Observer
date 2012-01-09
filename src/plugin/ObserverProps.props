@@ -3,6 +3,7 @@
   <PropertyGroup Label="UserMacros">
     <FAR_DBG>C:\Tools\FarDBG\Plugins\Personal</FAR_DBG>
     <FAR2_DBG>C:\Tools\Far2DBG\Plugins\!Personal</FAR2_DBG>
+    <FAR3_DBG>C:\Tools\Far3DBG\Plugins\!Personal</FAR3_DBG>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
@@ -13,6 +14,9 @@
     </BuildMacro>
     <BuildMacro Include="FAR2_DBG">
       <Value>$(FAR2_DBG)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAR3_DBG">
+      <Value>$(FAR3_DBG)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
