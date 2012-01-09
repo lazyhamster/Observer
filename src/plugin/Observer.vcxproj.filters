@@ -67,6 +67,9 @@
     <None Include="version.m4i">
       <Filter>Support Files</Filter>
     </None>
+    <None Include="ObserverUni3.def">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunc.h">
@@ -106,6 +109,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Guids.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

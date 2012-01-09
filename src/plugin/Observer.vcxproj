@@ -690,6 +690,7 @@
   <ItemGroup>
     <None Include="Observer.def" />
     <None Include="ObserverUni.def" />
+    <None Include="ObserverUni3.def" />
     <None Include="version.m4i" />
   </ItemGroup>
   <ItemGroup>
@@ -698,6 +699,7 @@
     <ClInclude Include="FarStorage.h" />
     <ClInclude Include="..\common\ModuleCRT.h" />
     <ClInclude Include="..\common\ModuleDef.h" />
+    <ClInclude Include="Guids.h" />
     <ClInclude Include="ModulesController.h" />
     <ClInclude Include="OptionsFile.h" />
     <ClInclude Include="..\common\OptionsParser.h" />

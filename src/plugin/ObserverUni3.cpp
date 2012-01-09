@@ -3,6 +3,7 @@
 
 #include "StdAfx.h"
 #include <far3/plugin.hpp>
+#include <far3/DlgBuilder.hpp>
 
 #include "ModulesController.h"
 #include "PlugLang.h"
@@ -11,6 +12,8 @@
 
 #include "OptionsFile.h"
 #include "RegistrySettings.h"
+
+#include "Guids.h"
 
 extern HMODULE g_hDllHandle;
 static PluginStartupInfo FarSInfo;
@@ -80,7 +83,7 @@ struct ExtractSelectedParams
 
 static const wchar_t* GetLocMsg(int MsgID)
 {
-	return FarSInfo.GetMsg(FarSInfo.ModuleNumber, MsgID);
+	return FarSInfo.GetMsg(&OBSERVER_GUID, MsgID);
 }
 
 static void LoadSettings()
@@ -97,6 +100,8 @@ static void LoadSettings()
 	}
 
 	// Load dynamic settings from registry (they will overwrite static ones)
+	//TODO: rewrite db settings management
+	/*
 	RegistrySettings regOpts(FarSInfo.RootKey);
 	if (regOpts.Open())
 	{
@@ -108,10 +113,13 @@ static void LoadSettings()
 		regOpts.GetValue(L"ExtendedCurDir", optExtendedCurDir);
 		regOpts.GetValue(L"UseExtensionFilters", optUseExtensionFilters);
 	}
+	*/
 }
 
 static void SaveSettings()
 {
+	//TODO: rewrite db settings management
+	/*
 	RegistrySettings regOpts(FarSInfo.RootKey);
 	if (regOpts.Open(true))
 	{
@@ -120,6 +128,7 @@ static void SaveSettings()
 		regOpts.SetValue(L"Prefix", optPrefix);
 		regOpts.SetValue(L"UseExtensionFilters", optUseExtensionFilters);
 	}
+	*/
 }
 
 static void InsertCommas(wchar_t *Dest)
@@ -145,7 +154,7 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 	if (isError) flags |= FMSG_WARNING;
 	if (isInteractive) flags |= FMSG_MB_OK;
 	
-	FarSInfo.Message(FarSInfo.ModuleNumber, flags, NULL, MsgLines, linesNum, 0);
+	FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_MESSAGE_BOX, flags, NULL, MsgLines, linesNum, 0);
 }
 
 static int DlgHlp_GetCheckBoxState(HANDLE hDlg, int ctrlIndex)
@@ -154,7 +163,7 @@ static int DlgHlp_GetCheckBoxState(HANDLE hDlg, int ctrlIndex)
 	int retVal;
 
 	dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, NULL));
-	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, (LONG_PTR) dlgItem);
+	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, dlgItem);
 	retVal = dlgItem->Selected;
 	free(dlgItem);
 
@@ -166,9 +175,9 @@ static void DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wstring &buf)
 	FarDialogItem *dlgItem;
 
 	dlgItem = (FarDialogItem*) malloc(FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, NULL));
-	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, (LONG_PTR) dlgItem);
+	FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEM, ctrlIndex, dlgItem);
 
-	buf = dlgItem->PtrData;
+	buf = (const wchar_t*) dlgItem->UserData;
 
 	free(dlgItem);
 }
@@ -199,7 +208,7 @@ static int SelectModuleToOpenFileAs()
 		MenuItems[i].Text = modInfo.Name();
 	}
 
-	int nMSel = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_OPEN_SELECT_MODULE), NULL, NULL, NULL, NULL, MenuItems, (int) nNumModules);
+	int nMSel = FarSInfo.Menu(&OBSERVER_GUID, &GUID_OBS_MENU, -1, -1, 0, 0, GetLocMsg(MSG_OPEN_SELECT_MODULE), NULL, NULL, NULL, NULL, MenuItems, (int) nNumModules);
 
 	delete [] MenuItems;
 	return nMSel;
@@ -209,7 +218,7 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 {
 	wchar_t passBuf[100] = {0};
 
-	bool fRet = FarSInfo.InputBox(GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_PASS_REQUIRED), NULL, NULL, passBuf, ARRAY_SIZE(passBuf)-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY) == TRUE;
+	bool fRet = FarSInfo.InputBox(&OBSERVER_GUID, &GUID_OBS_INPUTBOX, GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_PASS_REQUIRED), NULL, NULL, passBuf, ARRAY_SIZE(passBuf)-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY) == TRUE;
 	if (fRet)
 	{
 		memset(buffer, 0, bufferSize);
@@ -262,20 +271,20 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 	nameStr.clear();
 	
 	PanelInfo pi = {0};
-	if (FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR)&pi))
+	if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
 		if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 		{
 			wchar_t szNameBuffer[PATH_BUFFER_SIZE] = {0};
-			FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELDIR, ARRAY_SIZE(szNameBuffer), (LONG_PTR) szNameBuffer);
+			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, ARRAY_SIZE(szNameBuffer), szNameBuffer);
 			IncludeTrailingPathDelim(szNameBuffer, ARRAY_SIZE(szNameBuffer));
 
-			PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL));
+			PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL));
 			if (PPI)
 			{
-				FarSInfo.Control(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, (LONG_PTR)PPI);
-				if ((PPI->FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+				FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, PPI);
+				if ((PPI->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 				{
-					wcscat_s(szNameBuffer, ARRAY_SIZE(szNameBuffer), PPI->FindData.lpwszFileName);
+					wcscat_s(szNameBuffer, ARRAY_SIZE(szNameBuffer), PPI->FileName);
 					nameStr = szNameBuffer;
 				}
 				free(PPI);
@@ -312,15 +321,15 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 		InfoLines[2] = szFileProgressLine;
 		InfoLines[3] = pc->wszFilePath;
 
-		FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
+		FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_ERROR_MESSAGE, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
 
 		// Win7 only feature
 		if (pc->nTotalSize > 0)
 		{
-			PROGRESSVALUE pv;
+			ProgressValue pv;
 			pv.Completed = pc->nTotalProcessedBytes + pc->nProcessedFileBytes;
 			pv.Total = pc->nTotalSize;
-			FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSVALUE, &pv);
+			FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSVALUE, 0, &pv);
 		}
 	}
 
@@ -377,7 +386,7 @@ static int ExtractError(int errorReason, HANDLE context)
 	InfoLines[5] = GetLocMsg(MSG_BTN_SKIP_ALL);
 	InfoLines[6] = GetLocMsg(MSG_BTN_ABORT);
 
-	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 4);
+	int nMsg = FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_ERROR_MESSAGE, FMSG_WARNING, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 4);
 
 	switch (nMsg)
 	{
@@ -437,7 +446,7 @@ static bool AskExtractOverwrite(int &overwrite, const WIN32_FIND_DATAW* existing
 	DlgLines[8] = GetLocMsg(MSG_BTN_SKIP_ALL);
 	DlgLines[9] = GetLocMsg(MSG_BTN_CANCEL);
 
-	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
+	int nMsg = FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_ERROR_MESSAGE, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
 	
 	if ((nMsg == 4) // Cancel is pressed
 		|| (nMsg == -1)) //Escape is pressed
@@ -593,7 +602,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	pctx.nTotalSize = totalExtractSize;
 
 	// Win7 only feature
-	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? (void*) PS_NORMAL : (void*) PS_INDETERMINATE);
+	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? PS_NORMAL : PS_INDETERMINATE, NULL);
 
 	wchar_t wszSaveTitle[512], wszCurTitle[128];
 	GetConsoleTitle(wszSaveTitle, ARRAY_SIZE(wszSaveTitle));
@@ -621,8 +630,8 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	}
 
 	SetConsoleTitle(wszSaveTitle);
-	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_NOPROGRESS);
-	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_PROGRESSNOTIFY, 0);
+	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, PS_NOPROGRESS, NULL);
+	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_PROGRESSNOTIFY, 0, NULL);
 
 	if (nExtractResult == SER_USERABORT)
 		return -1;
@@ -636,7 +645,7 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 {
 	static wchar_t szDialogLine1[120] = {0};
 	swprintf_s(szDialogLine1, ARRAY_SIZE(szDialogLine1), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
-		
+
 	FarDialogItem DialogItems []={
 		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, GetLocMsg(MSG_EXTRACT_TITLE)},
 		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1, 0},
@@ -674,9 +683,15 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 
 //-----------------------------------  Export functions ----------------------------------------
 
-int WINAPI GetMinFarVersionW(void)
+void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
-	return FARMANAGERVERSION;
+	Info->StructSize=sizeof(GlobalInfo);
+	Info->MinFarVersion = FARMANAGERVERSION;
+	Info->Version = MAKEFARVERSION(1, 0, 0, 0, VS_RELEASE); //TODO: apply real version
+	Info->Guid = OBSERVER_GUID;
+	Info->Title = L"Observer";
+	Info->Description = L"Container Extractor";
+	Info->Author = L"Ariman";
 }
 
 void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
@@ -710,19 +725,21 @@ void WINAPI GetPluginInfoW(struct PluginInfo *Info)
 	static const wchar_t *ConfigMenuStrings[1];
 	ConfigMenuStrings[0] = GetLocMsg(MSG_PLUGIN_CONFIG_NAME);
 
-	Info->PluginMenuStrings = PluginMenuStrings;
-	Info->PluginMenuStringsNumber = sizeof(PluginMenuStrings) / sizeof(PluginMenuStrings[0]);
-	Info->PluginConfigStrings = ConfigMenuStrings;
-	Info->PluginConfigStringsNumber = sizeof(ConfigMenuStrings) / sizeof(ConfigMenuStrings[0]);
+	Info->PluginMenu.Guids = &GUID_OBS_MENU;
+	Info->PluginMenu.Strings = PluginMenuStrings;
+	Info->PluginMenu.Count = sizeof(PluginMenuStrings) / sizeof(PluginMenuStrings[0]);
+	Info->PluginConfig.Guids = &GUID_OBS_CONFIG;
+	Info->PluginConfig.Strings = ConfigMenuStrings;
+	Info->PluginConfig.Count = sizeof(ConfigMenuStrings) / sizeof(ConfigMenuStrings[0]);
 	Info->CommandPrefix = optPrefix;
 }
 
-void WINAPI ExitFARW(void)
+void WINAPI ExitFARW(const ExitInfo* Info)
 {
 	g_pController.Cleanup();
 }
 
-int WINAPI ConfigureW(int ItemNumber)
+int WINAPI ConfigureW(const ConfigureInfo* Info)
 {
 	FarDialogItem DialogItems []={
 	/*00*/ {DI_DOUBLEBOX, 3,1, 40, 8, 0, 0, 0,0, GetLocMsg(MSG_CONFIG_TITLE), 0},
@@ -735,7 +752,7 @@ int WINAPI ConfigureW(int ItemNumber)
 	/*07*/ {DI_BUTTON,    0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
 	};
 
-	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 44, 10, L"ObserverConfig",
+	HANDLE hDlg = FarSInfo.DialogInit(&OBSERVER_GUID, &GUID_OBS_CONFIG_DIALOG, -1, -1, 44, 10, L"ObserverConfig",
 		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, 0, FarSInfo.DefDlgProc, 0);
 
 	if (hDlg != INVALID_HANDLE_VALUE)
@@ -757,13 +774,19 @@ int WINAPI ConfigureW(int ItemNumber)
 	return FALSE;
 }
 
-void WINAPI ClosePluginW(HANDLE hPlugin)
+void WINAPI ClosePanelW(const struct ClosePanelInfo* info)
 {
-	if (hPlugin != NULL)
-		CloseStorage(hPlugin);
+	if (info->hPanel != NULL)
+		CloseStorage(info->hPanel);
 }
 
-HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
+int WINAPI AnalyseW(const AnalyseInfo* info)
+{
+	//TODO: implement
+	return FALSE;
+}
+
+HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 {
 	// Unload plug-in if no submodules loaded
 	if (g_pController.NumModules() == 0)
@@ -773,9 +796,9 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 	wstring strSubPath;
 	int nOpenModuleIndex = -1;
 	
-	if ((OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
+	if ((OInfo->OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
 	{
-		wchar_t* szLocalNameBuffer = _wcsdup((wchar_t *) Item);
+		wchar_t* szLocalNameBuffer = _wcsdup((wchar_t *) OInfo->Data);
 		FSF.Unquote(szLocalNameBuffer);
 
 		// Find starting subdirectory if specified
@@ -790,7 +813,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 
 		free(szLocalNameBuffer);
 	}
-	else if (OpenFrom == OPEN_PLUGINSMENU)
+	else if (OInfo->OpenFrom == OPEN_PLUGINSMENU)
 	{
 		if (GetSelectedPanelFilePath(strFullSourcePath))
 		{
@@ -798,7 +821,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 			MenuItems[0].Text = GetLocMsg(MSG_OPEN_FILE);
 			MenuItems[1].Text = GetLocMsg(MSG_OPEN_FILE_AS);
 
-			int nMItem = FarSInfo.Menu(FarSInfo.ModuleNumber, -1, -1, 0, 0, GetLocMsg(MSG_PLUGIN_NAME), NULL, NULL, NULL, NULL, MenuItems, ARRAY_SIZE(MenuItems));
+			int nMItem = FarSInfo.Menu(&OBSERVER_GUID, &GUID_OBS_MENU, -1, -1, 0, 0, GetLocMsg(MSG_PLUGIN_NAME), NULL, NULL, NULL, NULL, MenuItems, ARRAY_SIZE(MenuItems));
 			
 			if (nMItem == -1)
 				return INVALID_HANDLE_VALUE;
@@ -816,15 +839,28 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 			//Display massage about incompatible object
 		}
 	}
+	else if (OInfo->OpenFrom == OPEN_FILEPANEL)
+	{
+		//TODO: implement
+	}
 
 	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
 
 	if ( (hOpenResult != INVALID_HANDLE_VALUE) && (strSubPath.size() > 0) )
-		SetDirectoryW(hOpenResult, strSubPath.c_str(), 0);
+	{
+		SetDirectoryInfo sdi = {0};
+		sdi.StructSize = sizeof(SetDirectoryInfo);
+		sdi.hPanel = hOpenResult;
+		sdi.Dir = strSubPath.c_str();
+		sdi.OpMode = OPM_SILENT;
+
+		SetDirectoryW(&sdi);
+	}
 
 	return hOpenResult;
 }
 
+//TODO: remake
 HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode)
 {
 	if (!Name || !optEnabled)
@@ -834,19 +870,19 @@ HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, in
 	return hOpenResult;
 }
 
-int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode)
+int WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 {
-	StorageObject* info = (StorageObject *) hPlugin;
+	StorageObject* info = (StorageObject *) fdInfo->hPanel;
 	if (!info || !info->CurrentDir()) return FALSE;
 
 	size_t nTotalItems = info->CurrentDir()->GetChildCount();
-	*pItemsNumber = (int) nTotalItems;
+	fdInfo->ItemsNumber = nTotalItems;
 
 	// Zero items - exit now
 	if (nTotalItems == 0) return TRUE;
 
-	*pPanelItem = (PluginPanelItem *) malloc(nTotalItems * sizeof(PluginPanelItem));
-	PluginPanelItem *panelItem = *pPanelItem;
+	fdInfo->PanelItem = (PluginPanelItem *) malloc(nTotalItems * sizeof(PluginPanelItem));
+	PluginPanelItem *panelItem = fdInfo->PanelItem;
 
 	// Display all directories
 	for (SubNodesMap::const_iterator cit = info->CurrentDir()->subdirs.begin(); cit != info->CurrentDir()->subdirs.end(); cit++)
@@ -855,11 +891,11 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 
 		ContentTreeNode* node = (cit->second);
 
-		panelItem->FindData.lpwszFileName = node->Name();
-		panelItem->FindData.dwFileAttributes = node->Attributes;
-		panelItem->FindData.ftCreationTime = node->CreationTime;
-		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
-		panelItem->FindData.nFileSize = node->Size();
+		panelItem->FileName = node->Name();
+		panelItem->FileAttributes = node->Attributes;
+		panelItem->CreationTime = node->CreationTime;
+		panelItem->LastWriteTime = node->LastModificationTime;
+		panelItem->FileSize = node->Size();
 
 		panelItem++;
 	}
@@ -871,11 +907,11 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 
 		ContentTreeNode* node = (cit->second);
 
-		panelItem->FindData.lpwszFileName = node->Name();
-		panelItem->FindData.dwFileAttributes = node->Attributes;
-		panelItem->FindData.ftCreationTime = node->CreationTime;
-		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
-		panelItem->FindData.nFileSize = node->Size();
+		panelItem->FileName = node->Name();
+		panelItem->FileAttributes = node->Attributes;
+		panelItem->CreationTime = node->CreationTime;
+		panelItem->LastWriteTime = node->LastModificationTime;
+		panelItem->FileSize = node->Size();
 
 		panelItem++;
 	}
@@ -883,52 +919,52 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 	return TRUE;
 }
 
-void WINAPI FreeFindDataW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int ItemsNumber)
+void WINAPI FreeFindDataW(const FreeFindDataInfo* info)
 {
-	free(PanelItem);
+	free(info->PanelItem);
 }
 
-int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
+int WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 {
-	if (hPlugin == NULL || hPlugin == INVALID_HANDLE_VALUE)
+	if (sdInfo->hPanel == NULL || sdInfo->hPanel == INVALID_HANDLE_VALUE)
 		return FALSE;
 
-	StorageObject* info = (StorageObject *) hPlugin;
+	StorageObject* info = (StorageObject *) sdInfo->hPanel;
 	if (!info) return FALSE;
 
-	if (!Dir || !*Dir) return TRUE;
+	if (!sdInfo->Dir || !sdInfo->Dir[0]) return TRUE;
 
 	if (optExtendedCurDir)
 	{
 		// If we are in root directory and wanna go upwards then we should close plugin panel
-		if (wcscmp(Dir, L"..") == 0 && info->CurrentDir()->parent == NULL)
+		if (wcscmp(sdInfo->Dir, L"..") == 0 && info->CurrentDir()->parent == NULL)
 		{
 			wchar_t* wszStoragePath = _wcsdup(info->StoragePath());
 			CutFileNameFromPath(wszStoragePath, false);
 
 			wchar_t* wszStorageFileName = _wcsdup(ExtractFileName(info->StoragePath()));
 
-			FarSInfo.Control(hPlugin, FCTL_CLOSEPLUGIN, 0, (LONG_PTR) wszStoragePath);
-			FarSInfo.Control(PANEL_ACTIVE, FCTL_SETPANELDIR, 0, (LONG_PTR) wszStoragePath);
+			FarSInfo.PanelControl(sdInfo->hPanel, FCTL_CLOSEPANEL, 0, wszStoragePath);
+			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, wszStoragePath);
 
 			// Find position of our container on panel and position cursor there
 			PanelInfo pi = {0};
-			if (FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, (LONG_PTR)&pi))
+			if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
 			{
 				for (int i = 0; i < pi.ItemsNumber; i++)
 				{
-					PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL));
+					PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL));
 					if (!PPI) break;
 
-					FarSInfo.Control(PANEL_ACTIVE, FCTL_GETPANELITEM, i, (LONG_PTR)PPI);
-					bool fIsArchItem = wcscmp(wszStorageFileName, PPI->FindData.lpwszFileName) == 0;
+					FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, PPI);
+					bool fIsArchItem = wcscmp(wszStorageFileName, PPI->FileName) == 0;
 					free(PPI);
 
 					if (fIsArchItem)
 					{
 						PanelRedrawInfo pri = {0};
 						pri.CurrentItem = i;
-						FarSInfo.Control(PANEL_ACTIVE, FCTL_REDRAWPANEL, 0, (LONG_PTR) &pri);
+						FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_REDRAWPANEL, 0, &pri);
 						break;
 					}
 				} // for
@@ -940,13 +976,13 @@ int WINAPI SetDirectoryW(HANDLE hPlugin, const wchar_t *Dir, int OpMode)
 		}
 		else
 		{
-			const wchar_t* wszInsideDirPart = wcsrchr(Dir, ':');
-			if (wszInsideDirPart && (wszInsideDirPart - Dir) > 2)
+			const wchar_t* wszInsideDirPart = wcsrchr(sdInfo->Dir, ':');
+			if (wszInsideDirPart && (wszInsideDirPart - sdInfo->Dir) > 2)
 				return info->ChangeCurrentDir(wszInsideDirPart+1);
 		}
 	}
 
-	return info->ChangeCurrentDir(Dir);
+	return info->ChangeCurrentDir(sdInfo->Dir);
 }
 
 enum InfoLines
@@ -960,11 +996,12 @@ enum InfoLines
 	IL_CREATED = 7
 };
 
-void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
+//TODO: remake
+void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 {
-	Info->StructSize = sizeof(OpenPluginInfo);
+	opInfo->StructSize = sizeof(OpenPanelInfo);
 	
-	StorageObject* info = (StorageObject *) hPlugin;
+	StorageObject* info = (StorageObject *) opInfo->hPanel;
 	if (!info) return;
 	
 	static wchar_t wszCurrentDir[PATH_BUFFER_SIZE];
@@ -1034,29 +1071,29 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	pInfoLinesData[IL_CREATED].Data = wszStorageCreatedInfo;
 		
 	// Fill report structure
-	Info->Flags = OPIF_USEFILTER | OPIF_USESORTGROUPS | OPIF_USEHIGHLIGHTING | OPIF_ADDDOTS;
-	Info->CurDir = wszCurrentDir;
-	Info->PanelTitle = wszTitle;
-	Info->HostFile = info->StoragePath();
-	Info->InfoLinesNumber = ARRAY_SIZE(pInfoLinesData);
-	Info->InfoLines = pInfoLinesData;
+	opInfo->Flags = OPIF_ADDDOTS;
+	opInfo->CurDir = wszCurrentDir;
+	opInfo->PanelTitle = wszTitle;
+	opInfo->HostFile = info->StoragePath();
+	opInfo->InfoLinesNumber = ARRAY_SIZE(pInfoLinesData);
+	opInfo->InfoLines = pInfoLinesData;
 
 	memset(&KeyBar, 0, sizeof(KeyBar));
 	KeyBar.ShiftTitles[0] = L"";
 	KeyBar.AltTitles[6-1] = (wchar_t*) GetLocMsg(MSG_ALTF6);
-	Info->KeyBar = &KeyBar;
+	opInfo->KeyBar = &KeyBar;
 }
 
-int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int ItemsNumber, int Move, const wchar_t **DestPath, int OpMode)
+int WINAPI GetFilesW(GetFilesInfo *gfInfo)
 {
-	if (Move || !DestPath || (OpMode & OPM_FIND) || !ItemsNumber)
+	if (gfInfo->Move || !gfInfo->DestPath || (gfInfo->OpMode & OPM_FIND) || (gfInfo->ItemsNumber == 0))
 		return 0;
 
 	// Check for single '..' item, do not show confirm dialog
-	if ((ItemsNumber == 1) && (wcscmp(PanelItem[0].FindData.lpwszFileName, L"..") == 0))
+	if ((gfInfo->ItemsNumber == 1) && (wcscmp(gfInfo->PanelItem[0].FileName, L"..") == 0))
 		return 0;
 
-	StorageObject* info = (StorageObject *) hPlugin;
+	StorageObject* info = (StorageObject *) gfInfo->hPanel;
 	if (!info) return 0;
 
 	ContentNodeList vcExtractItems;
@@ -1064,17 +1101,17 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 	int nExtNumFiles = 0, nExtNumDirs = 0;
 
 	// Collect all indices of items to extract
-	for (int i = 0; i < ItemsNumber; i++)
+	for (int i = 0; i < gfInfo->ItemsNumber; i++)
 	{
-		PluginPanelItem pItem = PanelItem[i];
-		if (wcscmp(pItem.FindData.lpwszFileName, L"..") == 0) continue;
+		PluginPanelItem pItem = gfInfo->PanelItem[i];
+		if (wcscmp(pItem.FileName, L"..") == 0) continue;
 
-		ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem.FindData.lpwszFileName);
+		ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem.FileName);
 		if (child)
 		{
 			CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
 
-			if (pItem.FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
+			if (pItem.FileAttributes & FILE_ATTRIBUTE_DIRECTORY)
 				nExtNumDirs++;
 			else
 				nExtNumFiles++;
@@ -1085,23 +1122,26 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 	if (vcExtractItems.size() == 0)
 		return 0;
 
-	ExtractSelectedParams extParams(*DestPath);
+	ExtractSelectedParams extParams(gfInfo->DestPath);
 
 	// Confirm extraction
-	if ((OpMode & OPM_SILENT) == 0)
+	if ((gfInfo->OpMode & OPM_SILENT) == 0)
 	{
 		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extParams))
 			return -1;
 	}
 
-	return BatchExtract(info, vcExtractItems, nTotalExtractSize, (OpMode & OPM_SILENT) > 0, extParams);
+	return BatchExtract(info, vcExtractItems, nTotalExtractSize, (gfInfo->OpMode & OPM_SILENT) > 0, extParams);
 }
 
-int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
+int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 {
-	if (Key == VK_F6 && ControlState == PKF_ALT)
+	if (piInfo->Rec.EventType != KEY_EVENT) return FALSE;
+	
+	KEY_EVENT_RECORD evtRec = piInfo->Rec.Event.KeyEvent;
+	if (evtRec.bKeyDown && evtRec.wVirtualKeyCode == VK_F6 && ((evtRec.dwControlKeyState & LEFT_ALT_PRESSED) || (evtRec.dwControlKeyState & RIGHT_ALT_PRESSED)))
 	{
-		StorageObject* info = (StorageObject *) hPlugin;
+		StorageObject* info = (StorageObject *) piInfo->hPanel;
 		if (!info) return FALSE;
 		
 		PanelInfo pi = {0};
@@ -1117,9 +1157,9 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
 			PluginPanelItem* pItem = (PluginPanelItem*) malloc(FarSInfo.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, NULL));
 			
 			FarSInfo.Control(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, (LONG_PTR) pItem);
-			if (wcscmp(pItem->FindData.lpwszFileName, L"..") != 0)
+			if (wcscmp(pItem->FileName, L"..") != 0)
 			{
-				ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem->FindData.lpwszFileName);
+				ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem->FileName);
 				if (child) CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
 			}
 			

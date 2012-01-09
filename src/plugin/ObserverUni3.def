@@ -1,0 +1,16 @@
+LIBRARY	"4Observer"
+
+EXPORTS
+	GetGlobalInfoW
+	SetStartupInfoW
+	GetPluginInfoW
+	ExitFARW
+	ConfigureW
+	ClosePanelW
+	OpenW
+	GetFindDataW
+	FreeFindDataW
+	SetDirectoryW
+	GetFilesW
+	GetOpenPanelInfoW
+	ProcessPanelInputW
