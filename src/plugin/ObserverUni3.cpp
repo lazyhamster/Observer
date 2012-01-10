@@ -4,6 +4,7 @@
 #include "StdAfx.h"
 #include <far3/plugin.hpp>
 #include <far3/DlgBuilder.hpp>
+#include <far3/PluginSettings.hpp>
 
 #include "ModulesController.h"
 #include "PlugLang.h"
@@ -100,35 +101,25 @@ static void LoadSettings()
 	}
 
 	// Load dynamic settings from registry (they will overwrite static ones)
-	//TODO: rewrite db settings management
-	/*
-	RegistrySettings regOpts(FarSInfo.RootKey);
-	if (regOpts.Open())
-	{
-		regOpts.GetValue(L"Enabled", optEnabled);
-		regOpts.GetValue(L"UsePrefix", optUsePrefix);
-		regOpts.GetValue(L"Prefix", optPrefix, MAX_PREFIX_SIZE);
+	PluginSettings ps(OBSERVER_GUID, FarSInfo.SettingsControl);
 
-		regOpts.GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
-		regOpts.GetValue(L"ExtendedCurDir", optExtendedCurDir);
-		regOpts.GetValue(L"UseExtensionFilters", optUseExtensionFilters);
-	}
-	*/
+	optEnabled = ps.Get(0, L"Enabled", optEnabled);
+	optUsePrefix = ps.Get(0, L"UsePrefix", optUsePrefix);
+	ps.Get(0, L"Prefix", optPrefix, MAX_PREFIX_SIZE, optPrefix);
+
+	ps.Get(0, L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE, optPanelHeaderPrefix);
+	optExtendedCurDir = ps.Get(0, L"ExtendedCurDir", optExtendedCurDir);
+	optUseExtensionFilters = ps.Get(0, L"UseExtensionFilters", optUseExtensionFilters);
 }
 
 static void SaveSettings()
 {
-	//TODO: rewrite db settings management
-	/*
-	RegistrySettings regOpts(FarSInfo.RootKey);
-	if (regOpts.Open(true))
-	{
-		regOpts.SetValue(L"Enabled", optEnabled);
-		regOpts.SetValue(L"UsePrefix", optUsePrefix);
-		regOpts.SetValue(L"Prefix", optPrefix);
-		regOpts.SetValue(L"UseExtensionFilters", optUseExtensionFilters);
-	}
-	*/
+	PluginSettings ps(OBSERVER_GUID, FarSInfo.SettingsControl);
+	
+	ps.Set(0, L"Enabled", optEnabled);
+	ps.Set(0, L"UsePrefix", optUsePrefix);
+	ps.Set(0, L"Prefix", optPrefix);
+	ps.Set(0, L"UseExtensionFilters", optUseExtensionFilters);
 }
 
 static void InsertCommas(wchar_t *Dest)
@@ -235,14 +226,20 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 	if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
 		if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 		{
+			int dirBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, NULL);
+			FarPanelDirectory *panelDir = (FarPanelDirectory*) malloc(dirBufSize);
+			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, dirBufSize, panelDir);
+
 			wchar_t szNameBuffer[PATH_BUFFER_SIZE] = {0};
-			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, ARRAY_SIZE(szNameBuffer), szNameBuffer);
+			wcscpy_s(szNameBuffer, ARRAY_SIZE(szNameBuffer), panelDir->Name);
 			IncludeTrailingPathDelim(szNameBuffer, ARRAY_SIZE(szNameBuffer));
 
-			PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL));
+			int itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL);
+			PluginPanelItem *PPI = (PluginPanelItem*)malloc(itemBufSize);
 			if (PPI)
 			{
-				FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, PPI);
+				FarGetPluginPanelItem FGPPI={itemBufSize,PPI};
+				FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, &FGPPI);
 				if ((PPI->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 				{
 					wcscat_s(szNameBuffer, ARRAY_SIZE(szNameBuffer), PPI->FileName);
@@ -627,44 +624,6 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 		return true;
 	}
 
-	//TODO: verify
-
-/*
-	FarDialogItem DialogItems []={
-		/*0/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, GetLocMsg(MSG_EXTRACT_TITLE)},
-		/*1/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1, 0},
-		/*2/{DI_EDIT,	    5, 3, 53, 3, 1, 0, DIF_EDITEXPAND|DIF_EDITPATH,0, params.strDestPath.c_str(), 0},
-		/*3/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
-		/*4/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
-		/*5/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
-		/*6/{DI_TEXT,	    3, 7,  0, 7, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
-		/*7/{DI_BUTTON,	0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_EXTRACT), 0},
-		/*8/{DI_BUTTON,    0, 8,  0, 8, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
-	};
-
-	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 60, 11, L"ObserverExtract",
-		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, 0, FarSInfo.DefDlgProc, 0);
-
-	bool retVal = false;
-	if (hDlg != INVALID_HANDLE_VALUE)
-	{
-		int ExitCode = FarSInfo.DialogRun(hDlg);
-		if (ExitCode == 7) // OK was pressed
-		{
-			params.nOverwriteExistingFiles = DlgHlp_GetCheckBoxState(hDlg, 4);
-			params.nPathProcessing = DlgHlp_GetCheckBoxState(hDlg, 5);
-			DlgHlp_GetEditBoxText(hDlg, 2, params.strDestPath);
-
-			params.strDestPath = ResolveFullPath(params.strDestPath.c_str());
-
-			retVal = true;
-		}
-		FarSInfo.DialogFree(hDlg);
-	}
-
-	return retVal;
-*/
-
 	return false;
 }
 
@@ -811,10 +770,10 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		}
 		else
 		{
-			//Display massage about incompatible object
+			//Display message about incompatible object
 		}
 	}
-	else if (OInfo->OpenFrom == OPEN_FILEPANEL)
+	else if (OInfo->OpenFrom == OPEN_ANALYSE)
 	{
 		//TODO: implement
 		return INVALID_HANDLE_VALUE;
@@ -972,7 +931,6 @@ enum InfoLines
 	IL_CREATED = 7
 };
 
-//TODO: remake
 void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 {
 	opInfo->StructSize = sizeof(OpenPanelInfo);
@@ -1045,6 +1003,11 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 
 	pInfoLinesData[IL_CREATED].Text = GetLocMsg(MSG_INFOL_CREATED);
 	pInfoLinesData[IL_CREATED].Data = wszStorageCreatedInfo;
+
+	// Key bar customization
+	static FarKey key_altF6 = {VK_F6, LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED};
+	static KeyBarLabel lb_altF6 = {key_altF6, GetLocMsg(MSG_ALTF6), GetLocMsg(MSG_ALTF6)};
+	static KeyBarTitles kbTitles = {1, &lb_altF6};
 		
 	// Fill report structure
 	opInfo->Flags = OPIF_ADDDOTS;
@@ -1053,12 +1016,7 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 	opInfo->HostFile = info->StoragePath();
 	opInfo->InfoLinesNumber = ARRAY_SIZE(pInfoLinesData);
 	opInfo->InfoLines = pInfoLinesData;
-
-	//TODO: port this
-	//memset(&KeyBar, 0, sizeof(KeyBar));
-	//KeyBar.ShiftTitles[0] = L"";
-	//KeyBar.AltTitles[6-1] = (wchar_t*) GetLocMsg(MSG_ALTF6);
-	//opInfo->KeyBar = &KeyBar;
+	opInfo->KeyBar = &kbTitles;
 }
 
 int WINAPI GetFilesW(GetFilesInfo *gfInfo)

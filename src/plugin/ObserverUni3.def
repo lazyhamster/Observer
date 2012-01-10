@@ -14,3 +14,4 @@ EXPORTS
 	GetFilesW
 	GetOpenPanelInfoW
 	ProcessPanelInputW
+	AnalyseW
