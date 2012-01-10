@@ -188,7 +188,8 @@ void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim)
 	wchar_t* lastSlashPos = wcsrchr(fullPath, '\\');
 	if (lastSlashPos)
 	{
-		if (includeTrailingDelim)
+		// Always keep trailing delimiter if file is in root folder
+		if (includeTrailingDelim || (*(lastSlashPos-1) == ':'))
 			*(lastSlashPos + 1) = 0;
 		else
 			*lastSlashPos = 0;
