@@ -713,6 +713,28 @@
     <ResourceCompile Include="Observer.rc" />
   </ItemGroup>
   <ItemGroup>
+    <M4_Macro Include="plug_version.h.m4">
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(ProjectDir)</DestDir>
+      <DestDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)</DestDir>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
+    </M4_Macro>
     <M4_Macro Include="text\FILE_ID.DIZ.m4" />
     <M4_Macro Include="Observer.rc.m4">
       <DestDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(ProjectDir)</DestDir>

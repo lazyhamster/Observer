@@ -133,6 +133,9 @@
     <M4_Macro Include="text\ObserverRus.hlf.m4">
       <Filter>Support Files</Filter>
     </M4_Macro>
+    <M4_Macro Include="plug_version.h.m4">
+      <Filter>Support Files</Filter>
+    </M4_Macro>
   </ItemGroup>
   <ItemGroup>
     <DText Include="text\license.txt">
