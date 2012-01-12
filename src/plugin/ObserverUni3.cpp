@@ -17,6 +17,8 @@
 #include <InitGuid.h>
 #include "Guids.h"
 
+#include "plug_version.h"
+
 extern HMODULE g_hDllHandle;
 static PluginStartupInfo FarSInfo;
 static FarStandardFunctions FSF;
@@ -633,7 +635,7 @@ void WINAPI GetGlobalInfoW(struct GlobalInfo *Info)
 {
 	Info->StructSize=sizeof(GlobalInfo);
 	Info->MinFarVersion = FARMANAGERVERSION;
-	Info->Version = MAKEFARVERSION(1, 0, 0, 0, VS_RELEASE); //TODO: apply real version
+	Info->Version = MAKEFARVERSION(OBSERVER_VERSION_MAJOR, OBSERVER_VERSION_MINOR, OBSERVER_VERSION_REVISION, 0, VS_RELEASE);
 	Info->Guid = OBSERVER_GUID;
 	Info->Title = L"Observer";
 	Info->Description = L"Container Extractor";
@@ -880,7 +882,9 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 			wchar_t* wszStorageFileName = _wcsdup(ExtractFileName(info->StoragePath()));
 
 			FarSInfo.PanelControl(sdInfo->hPanel, FCTL_CLOSEPANEL, 0, wszStoragePath);
-			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, wszStoragePath);
+
+			FarPanelDirectory fpd = {sizeof(FarPanelDirectory), wszStoragePath, NULL, OBSERVER_GUID, NULL};
+			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &fpd);
 
 			// Find position of our container on panel and position cursor there
 			PanelInfo pi = {0};
@@ -888,10 +892,12 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 			{
 				for (int i = 0; i < (int) pi.ItemsNumber; i++)
 				{
-					PluginPanelItem *PPI = (PluginPanelItem*)malloc(FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL));
+					int itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL);
+					PluginPanelItem *PPI = (PluginPanelItem*)malloc(itemBufSize);
 					if (!PPI) break;
 
-					FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, PPI);
+					FarGetPluginPanelItem FGPPI={itemBufSize,PPI};
+					FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, &FGPPI);
 					bool fIsArchItem = wcscmp(wszStorageFileName, PPI->FileName) == 0;
 					free(PPI);
 
