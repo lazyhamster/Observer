@@ -224,7 +224,7 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 {
 	nameStr.clear();
 	
-	PanelInfo pi = {0};
+	PanelInfo pi = {sizeof(PanelInfo)};
 	if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
 		if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 		{
@@ -881,14 +881,15 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 
 			wchar_t* wszStorageFileName = _wcsdup(ExtractFileName(info->StoragePath()));
 
+			//TODO: fix this
 			FarSInfo.PanelControl(sdInfo->hPanel, FCTL_CLOSEPANEL, 0, wszStoragePath);
 
 			FarPanelDirectory fpd = {sizeof(FarPanelDirectory), wszStoragePath, NULL, OBSERVER_GUID, NULL};
 			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &fpd);
 
 			// Find position of our container on panel and position cursor there
-			PanelInfo pi = {0};
-			if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
+			PanelInfo pi = {sizeof(PanelInfo)};
+			if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi) && (pi.PanelType == PTYPE_FILEPANEL))
 			{
 				for (int i = 0; i < (int) pi.ItemsNumber; i++)
 				{
@@ -1085,7 +1086,7 @@ int WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 		StorageObject* info = (StorageObject *) piInfo->hPanel;
 		if (!info) return FALSE;
 		
-		PanelInfo pi = {0};
+		PanelInfo pi = {sizeof(PanelInfo)};
 		if (!FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi)) return FALSE;
 		if (pi.SelectedItemsNumber == 0) return FALSE;
 
