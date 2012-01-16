@@ -13,7 +13,7 @@
     <M4_Macro>
       <DestDir>$(OutDir)</DestDir>
       <CommandLineTemplate>m4 -P [AdditionalOptions] [Inputs] &gt; [DestDir]%(Filename)</CommandLineTemplate>
-      <Outputs>[DestDir]%(Filename)</Outputs>
+      <Outputs>%(DestDir)%(Filename)</Outputs>
       <ExecutionDescription>Processing m4 script (%(Filename)%(Extension)) ...</ExecutionDescription>
       <AdditionalDependencies>version.m4i</AdditionalDependencies>
     </M4_Macro>

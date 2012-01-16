@@ -881,10 +881,9 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 
 			wchar_t* wszStorageFileName = _wcsdup(ExtractFileName(info->StoragePath()));
 
-			//TODO: fix this
 			FarSInfo.PanelControl(sdInfo->hPanel, FCTL_CLOSEPANEL, 0, wszStoragePath);
 
-			FarPanelDirectory fpd = {sizeof(FarPanelDirectory), wszStoragePath, NULL, OBSERVER_GUID, NULL};
+			FarPanelDirectory fpd = {sizeof(FarPanelDirectory), wszStoragePath};
 			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &fpd);
 
 			// Find position of our container on panel and position cursor there
