@@ -7,7 +7,7 @@
 		<CustomBuildRule
 			Name="M4 Macro"
 			DisplayName="M4 Macro Processor"
-			CommandLine="m4 -P [AllOptions] [AdditionalOptions] [inputs] &gt; [$DestDir]\$(InputName)"
+			CommandLine="m4 -P [Inputs] &gt; [$DestDir]\$(InputName)"
 			Outputs="[$DestDir]\$(InputName)"
 			AdditionalDependencies="version.m4i"
 			FileExtensions="*.m4"
