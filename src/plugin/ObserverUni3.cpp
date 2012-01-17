@@ -183,6 +183,15 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 
 //-----------------------------------  Content functions ----------------------------------------
 
+static bool AnalizeStorage(const wchar_t* Name, bool applyExtFilters)
+{
+	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
+	int openVal = storage->Open(Name, applyExtFilters, -1);
+	delete storage;
+
+	return (openVal == SOR_SUCCESS);
+}
+
 static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleIndex)
 {
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
@@ -716,10 +725,13 @@ void WINAPI ClosePanelW(const struct ClosePanelInfo* info)
 		CloseStorage(info->hPanel);
 }
 
-int WINAPI AnalyseW(const AnalyseInfo* info)
+int WINAPI AnalyseW(const AnalyseInfo* AInfo)
 {
-	//TODO: implement
-	return FALSE;
+	if (!AInfo || !optEnabled || !AInfo->FileName)
+		return FALSE;
+
+	bool fAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0);
+	return fAnalizeResult ? TRUE : FALSE;
 }
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
@@ -777,8 +789,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else if (OInfo->OpenFrom == OPEN_ANALYSE)
 	{
-		//TODO: implement
-		return INVALID_HANDLE_VALUE;
+		const AnalyseInfo* AInfo = (const AnalyseInfo*) OInfo->Data;
+		strFullSourcePath = AInfo->FileName;
 	}
 
 	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
@@ -794,16 +806,6 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		SetDirectoryW(&sdi);
 	}
 
-	return hOpenResult;
-}
-
-//TODO: remake
-HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, int DataSize, int OpMode)
-{
-	if (!Name || !optEnabled)
-		return INVALID_HANDLE_VALUE;
-
-	HANDLE hOpenResult = OpenStorage(Name, optUseExtensionFilters != 0, -1);
 	return hOpenResult;
 }
 
