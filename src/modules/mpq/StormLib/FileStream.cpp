@@ -1369,8 +1369,10 @@ TFileStream * FileStream_OpenEncrypted(const TCHAR * szFileName)
             if(!DetectFileKey(pEncryptedStream))
             {
                 SetLastError(ERROR_UNKNOWN_FILE_KEY);
+                FileStream_Close(pStream);
                 STORM_FREE(pEncryptedStream);
                 pEncryptedStream = NULL;
+                pStream = NULL;
             }
         }
 

@@ -1,7 +1,12 @@
 Changes history:
 
 1.8.5
+- Added support for FAR 3.0
 - MPQ: Fixed issue with some small files.
+- MPQ: Fixed locking of file after failed attempt to decrypt it.
+- MPQ: Updated StormLib library up to version 8.04.
+- VDISK: Fixed crash upon reading FAT32 volumes with cyrillic file names.
+- VDISK: Updated DiscUtils library up to version 0.10 (update 1).
 
 1.8.4
 - Fixed crash when exiting container if ExtCurDir=1

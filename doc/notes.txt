@@ -1,0 +1,6 @@
+Patches for external libraries (not to forget during lib update).
+
+1. StormLib
+
+- Patched function SFileOpenArchive in file SFileOpenArchive.cpp.
+Added batch file reading during format detection to improve speed.
