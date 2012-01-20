@@ -237,7 +237,7 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 	if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
 		if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 		{
-			int dirBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, NULL);
+			int dirBufSize = (int) FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, NULL);
 			FarPanelDirectory *panelDir = (FarPanelDirectory*) malloc(dirBufSize);
 			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, dirBufSize, panelDir);
 
@@ -245,7 +245,7 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 			wcscpy_s(szNameBuffer, ARRAY_SIZE(szNameBuffer), panelDir->Name);
 			IncludeTrailingPathDelim(szNameBuffer, ARRAY_SIZE(szNameBuffer));
 
-			int itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL);
+			size_t itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL);
 			PluginPanelItem *PPI = (PluginPanelItem*)malloc(itemBufSize);
 			if (PPI)
 			{
@@ -894,7 +894,7 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 			{
 				for (int i = 0; i < (int) pi.ItemsNumber; i++)
 				{
-					int itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL);
+					size_t itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL);
 					PluginPanelItem *PPI = (PluginPanelItem*)malloc(itemBufSize);
 					if (!PPI) break;
 
