@@ -9,8 +9,6 @@
 /*****************************************************************************/
 
 #define __STORMLIB_SELF__
-#define __INCLUDE_COMPRESSION__
-#define __INCLUDE_CRYPTOGRAPHY__
 #include "StormLib.h"
 #include "StormCommon.h"
 
@@ -93,7 +91,7 @@ static int WriteDataToMpqFile(
                 // for case if the compression method performs a buffer overrun
                 if((pFileEntry->dwFlags & MPQ_FILE_COMPRESSED) && pbCompressed == NULL)
                 {
-                    pbToWrite = pbCompressed = ALLOCMEM(BYTE, hf->dwSectorSize + 0x100);
+                    pbToWrite = pbCompressed = STORM_ALLOC(BYTE, hf->dwSectorSize + 0x100);
                     if(pbCompressed == NULL)
                         nError = ERROR_NOT_ENOUGH_MEMORY;
                 }
@@ -173,7 +171,7 @@ static int WriteDataToMpqFile(
 
     // Cleanup
     if(pbCompressed != NULL)
-        FREEMEM(pbCompressed);
+        STORM_FREE(pbCompressed);
     return nError;
 }
 
@@ -197,8 +195,8 @@ static int RecryptFileData(
     assert(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED);
 
     // File decryption key is calculated from the plain name
-    szNewFileName = GetPlainFileName(szNewFileName);
-    szFileName = GetPlainFileName(szFileName);
+    szNewFileName = GetPlainFileNameA(szNewFileName);
+    szFileName = GetPlainFileNameA(szFileName);
 
     // Calculate both file keys
     dwOldKey = DecryptFileKey(szFileName,    pFileEntry->ByteOffset, pFileEntry->dwFileSize, pFileEntry->dwFlags);
@@ -228,7 +226,7 @@ static int RecryptFileData(
     if(hf->SectorOffsets != NULL)
     {
         // Allocate secondary buffer for sectors copy
-        DWORD * SectorOffsetsCopy = (DWORD *)ALLOCMEM(BYTE, hf->SectorOffsets[0]);
+        DWORD * SectorOffsetsCopy = (DWORD *)STORM_ALLOC(BYTE, hf->SectorOffsets[0]);
         DWORD dwSectorOffsLen = hf->SectorOffsets[0];
 
         if(SectorOffsetsCopy == NULL)
@@ -242,7 +240,7 @@ static int RecryptFileData(
         // Write the recrypted array back
         if(!FileStream_Write(ha->pStream, &hf->RawFilePos, SectorOffsetsCopy, dwSectorOffsLen))
             nError = GetLastError();
-        FREEMEM(SectorOffsetsCopy);
+        STORM_FREE(SectorOffsetsCopy);
     }
 
     // Now we have to recrypt all file sectors. We do it without
@@ -345,6 +343,9 @@ int SFileAddFile_Init(
         hf->RawFilePos = ha->MpqPos + hf->MpqFilePos;
         hf->bIsWriteHandle = true;
 
+        // Sanity check: The MPQ must be marked as changed at this point
+        assert((ha->dwFlags & MPQ_FLAG_CHANGED) != 0);
+
         // When format V1, the size of the archive cannot exceed 4 GB
         if(ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
         {
@@ -370,8 +371,19 @@ int SFileAddFile_Init(
         }
         else
         {
-            if((dwFlags & MPQ_FILE_REPLACEEXISTING) == 0)
-                nError = ERROR_ALREADY_EXISTS;
+            // If the file is marked as deleted, it's OK
+            if(!(pFileEntry->dwFlags & MPQ_FILE_DELETE_MARKER))
+            {
+                if((dwFlags & MPQ_FILE_REPLACEEXISTING) == 0)
+                    nError = ERROR_ALREADY_EXISTS;
+            }
+
+            // If the file entry already contains a file
+            // and it is a pseudo-name, replace it
+            if(nError == ERROR_SUCCESS)
+            {
+                AllocateFileName(pFileEntry, szFileName);
+            }
         }
     }
 
@@ -406,9 +418,6 @@ int SFileAddFile_Init(
 
         // If the caller gave us a file time, use it.
         pFileEntry->FileTime = FileTime;
-
-        // Remember that the MPQ has been modified
-        ha->dwFlags |= MPQ_FLAG_CHANGED;
 
         // Call the callback, if needed
         if(AddFileCB != NULL)
@@ -617,9 +626,6 @@ int SFileAddFile_Finish(TMPQFile * hf)
             FreeFileEntry(ha, pFileEntry);
     }
 
-    // Schedule to saving MPQ tables regardless of success or error
-    ha->dwFlags |= MPQ_FLAG_CHANGED;
-
     // Clear the add file callback
     FreeMPQFile(hf);
     pvUserData = NULL;
@@ -653,7 +659,11 @@ bool WINAPI SFileCreateFile(
     // Don't allow to add file if the MPQ is open for read only
     if(ha->dwFlags & MPQ_FLAG_READ_ONLY)
         nError = ERROR_ACCESS_DENIED;
-    
+
+    // Don't allow to add a file under pseudo-file name
+    if(IsPseudoFileName(szArchivedName, NULL))
+        nError = ERROR_INVALID_PARAMETER;
+
     // Don't allow to add any of the internal files
     if(IsInternalMpqFileName(szArchivedName))
         nError = ERROR_INTERNAL_FILE;
@@ -671,7 +681,14 @@ bool WINAPI SFileCreateFile(
 
     // Create the file in MPQ
     if(nError == ERROR_SUCCESS)
+    {
+        // Invalidate the entries for (listfile) and (attributes)
+        // After we are done with MPQ changes, we need to re-create them anyway
+        InvalidateInternalFiles(ha);
+
+        // Initiate the add file operation
         nError = SFileAddFile_Init(ha, szArchivedName, FileTime, dwFileSize, lcLocale, dwFlags, (TMPQFile **)phFile);
+    }
 
     // Deal with the errors
     if(nError != ERROR_SUCCESS)
@@ -751,7 +768,7 @@ bool WINAPI SFileFinishFile(HANDLE hFile)
 
 bool WINAPI SFileAddFileEx(
     HANDLE hMpq,
-    const char * szFileName,
+    const TCHAR * szFileName,
     const char * szArchivedName,
     DWORD dwFlags,
     DWORD dwCompression,            // Compression of the first sector
@@ -794,7 +811,7 @@ bool WINAPI SFileAddFileEx(
     if(nError == ERROR_SUCCESS)
     {
         dwBytesRemaining = (DWORD)FileSize;
-        pbFileData = ALLOCMEM(BYTE, dwSectorSize);
+        pbFileData = STORM_ALLOC(BYTE, dwSectorSize);
         if(pbFileData == NULL)
             nError = ERROR_NOT_ENOUGH_MEMORY;
     }
@@ -857,7 +874,7 @@ bool WINAPI SFileAddFileEx(
 
     // Cleanup and exit
     if(pbFileData != NULL)
-        FREEMEM(pbFileData);
+        STORM_FREE(pbFileData);
     if(pStream != NULL)
         FileStream_Close(pStream);
     if(nError != ERROR_SUCCESS)
@@ -866,7 +883,7 @@ bool WINAPI SFileAddFileEx(
 }
                                                                                                                                  
 // Adds a data file into the archive
-bool WINAPI SFileAddFile(HANDLE hMpq, const char * szFileName, const char * szArchivedName, DWORD dwFlags)
+bool WINAPI SFileAddFile(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags)
 {
     return SFileAddFileEx(hMpq,
                           szFileName,
@@ -877,7 +894,7 @@ bool WINAPI SFileAddFile(HANDLE hMpq, const char * szFileName, const char * szAr
 }
 
 // Adds a WAVE file into the archive
-bool WINAPI SFileAddWave(HANDLE hMpq, const char * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwQuality)
+bool WINAPI SFileAddWave(HANDLE hMpq, const TCHAR * szFileName, const char * szArchivedName, DWORD dwFlags, DWORD dwQuality)
 {
     DWORD dwCompression = 0;
 
@@ -931,15 +948,21 @@ bool WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 {
     TMPQArchive * ha = (TMPQArchive *)hMpq;
     TFileEntry * pFileEntry = NULL; // File entry of the file to be deleted
+    DWORD dwFileIndex = 0;
     int nError = ERROR_SUCCESS;
+
+    // Keep compiler happy
+    dwSearchScope = dwSearchScope;
 
     // Check the parameters
     if(nError == ERROR_SUCCESS)
     {
         if(!IsValidMpqHandle(ha))
             nError = ERROR_INVALID_HANDLE;
-        if(dwSearchScope != SFILE_OPEN_BY_INDEX && *szFileName == 0)
+        if(szFileName == NULL || *szFileName == 0)
             nError = ERROR_INVALID_PARAMETER;
+        if(IsInternalMpqFileName(szFileName))
+            nError = ERROR_INTERNAL_FILE;
     }
 
     if(nError == ERROR_SUCCESS)
@@ -947,26 +970,19 @@ bool WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearch
         // Do not allow to remove files from MPQ open for read only
         if(ha->dwFlags & MPQ_FLAG_READ_ONLY)
             nError = ERROR_ACCESS_DENIED;
-
-        // Do not allow to remove internal files
-        if(dwSearchScope != SFILE_OPEN_BY_INDEX)
-        {
-            if(IsInternalMpqFileName(szFileName))
-                nError = ERROR_INTERNAL_FILE;
-        }
     }
 
     // Get hash entry belonging to this file
     if(nError == ERROR_SUCCESS)
     {
-        if(dwSearchScope == SFILE_OPEN_FROM_MPQ)
+        if(!IsPseudoFileName(szFileName, &dwFileIndex))
         {
             if((pFileEntry = GetFileEntryExact(ha, (char *)szFileName, lcFileLocale)) == NULL)
                 nError = ERROR_FILE_NOT_FOUND;
         }
         else
         {
-            if((pFileEntry = GetFileEntryByIndex(ha, (DWORD)(DWORD_PTR)szFileName)) == NULL)
+            if((pFileEntry = GetFileEntryByIndex(ha, dwFileIndex)) == NULL)
                 nError = ERROR_FILE_NOT_FOUND;
         }
     }
@@ -974,17 +990,18 @@ bool WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearch
     // Test if the file is not already deleted
     if(nError == ERROR_SUCCESS)
     {
-        if((pFileEntry->dwFlags & MPQ_FILE_EXISTS) == 0)
+        if(!(pFileEntry->dwFlags & MPQ_FILE_EXISTS))
             nError = ERROR_FILE_NOT_FOUND;
     }
 
     if(nError == ERROR_SUCCESS)
     {
-        // Mark the file entry as free
-        FreeFileEntry(ha, pFileEntry);
+        // Invalidate the entries for (listfile) and (attributes)
+        // After we are done with MPQ changes, we need to re-create them anyway
+        InvalidateInternalFiles(ha);
 
-        // Update MPQ archive
-        ha->dwFlags |= MPQ_FLAG_CHANGED;
+        // Mark the file entry as free
+        nError = FreeFileEntry(ha, pFileEntry);
     }
 
     // Resolve error and exit
@@ -997,9 +1014,7 @@ bool WINAPI SFileRemoveFile(HANDLE hMpq, const char * szFileName, DWORD dwSearch
 bool WINAPI SFileRenameFile(HANDLE hMpq, const char * szFileName, const char * szNewFileName)
 {
     TMPQArchive * ha = (TMPQArchive *)hMpq;
-    TFileEntry * pOldFileEntry = NULL;
-    TFileEntry * pNewFileEntry = NULL;
-    TFileEntry TempEntry = {0};
+    TFileEntry * pFileEntry = NULL;
     ULONGLONG RawDataOffs;
     TMPQFile * hf;
     int nError = ERROR_SUCCESS;
@@ -1019,6 +1034,10 @@ bool WINAPI SFileRenameFile(HANDLE hMpq, const char * szFileName, const char * s
         if(ha->dwFlags & MPQ_FLAG_READ_ONLY)
             nError = ERROR_ACCESS_DENIED;
 
+        // Do not allow renaming anything to a pseudo-file name
+        if(IsPseudoFileName(szFileName, NULL) || IsPseudoFileName(szNewFileName, NULL))
+            nError = ERROR_INVALID_PARAMETER;
+
         // Do not allow to rename any of the internal files
         // Also do not allow to rename any of files to an internal file
         if(IsInternalMpqFileName(szFileName) || IsInternalMpqFileName(szNewFileName))
@@ -1028,8 +1047,9 @@ bool WINAPI SFileRenameFile(HANDLE hMpq, const char * szFileName, const char * s
     // Find the current file entry.
     if(nError == ERROR_SUCCESS)
     {
-        pOldFileEntry = GetFileEntryLocale(ha, szFileName, lcFileLocale);
-        if(pOldFileEntry == NULL)
+        // Get the file entry
+        pFileEntry = GetFileEntryLocale(ha, szFileName, lcFileLocale);
+        if(pFileEntry == NULL)
             nError = ERROR_FILE_NOT_FOUND;
     }
         
@@ -1038,60 +1058,39 @@ bool WINAPI SFileRenameFile(HANDLE hMpq, const char * szFileName, const char * s
     // (whose name we perhaps don't know)
     if(nError == ERROR_SUCCESS)
     {
-        pNewFileEntry = GetFileEntryLocale(ha, szNewFileName, pOldFileEntry->lcLocale);
-        if(pNewFileEntry != NULL)
+        if(GetFileEntryLocale(ha, szNewFileName, pFileEntry->lcLocale) != NULL)
             nError = ERROR_ALREADY_EXISTS;
     }
 
-    // Now we free the existing file entry and allocate new one.
-    // Before we do that, we save the content of the existing file entry
-    // in order to preserve it
+    // Now we rename the existing file entry.
     if(nError == ERROR_SUCCESS)
     {
-        // Save the file entry and free it
-        memcpy(&TempEntry, pOldFileEntry, sizeof(TFileEntry));
-        TempEntry.szFileName = NULL;
-        FreeFileEntry(ha, pOldFileEntry);
-
-        // Note: if this step fails, we leave the MPQ in a corrupt state.
-        pNewFileEntry = AllocateFileEntry(ha, szNewFileName, TempEntry.lcLocale);
-        if(pNewFileEntry == NULL)
-            nError = ERROR_FILE_CORRUPT;
+        // Rename the file entry
+        nError = RenameFileEntry(ha, pFileEntry, szNewFileName);
     }
 
     // Now we copy the existing file entry to the new one
     if(nError == ERROR_SUCCESS)
     {
-        // Copy all members that are not related to hash tables
-        assert(pNewFileEntry->lcLocale == TempEntry.lcLocale);
-        pNewFileEntry->ByteOffset = TempEntry.ByteOffset;
-        pNewFileEntry->FileTime   = TempEntry.FileTime;
-        pNewFileEntry->dwFileSize = TempEntry.dwFileSize;
-        pNewFileEntry->dwCmpSize  = TempEntry.dwCmpSize;
-        pNewFileEntry->dwFlags    = TempEntry.dwFlags;
-        pNewFileEntry->wPlatform  = TempEntry.wPlatform;
-        pNewFileEntry->dwCrc32    = TempEntry.dwCrc32;
-        memcpy(pNewFileEntry->md5, TempEntry.md5, MD5_DIGEST_SIZE);
-
         // If the file is encrypted, we have to re-crypt the file content
         // with the new decryption key
-        if(pNewFileEntry->dwFlags & MPQ_FILE_ENCRYPTED)
+        if(pFileEntry->dwFlags & MPQ_FILE_ENCRYPTED)
         {
             hf = CreateMpqFile(ha);
             if(hf != NULL)
             {
                 // Recrypt the file data in the MPQ
-                hf->pFileEntry = pNewFileEntry;
-                hf->dwDataSize = pNewFileEntry->dwFileSize;
+                hf->pFileEntry = pFileEntry;
+                hf->dwDataSize = pFileEntry->dwFileSize;
                 nError = RecryptFileData(ha, hf, szFileName, szNewFileName);
                 
                 // Update the MD5
                 if(ha->pHeader->dwRawChunkSize != 0)
                 {
-                    RawDataOffs = ha->MpqPos + pNewFileEntry->ByteOffset;
+                    RawDataOffs = ha->MpqPos + pFileEntry->ByteOffset;
                     WriteMpqDataMD5(ha->pStream,
                                     RawDataOffs,
-                                    pNewFileEntry->dwCmpSize,
+                                    pFileEntry->dwCmpSize,
                                     ha->pHeader->dwRawChunkSize);
                 }
                 
@@ -1104,9 +1103,9 @@ bool WINAPI SFileRenameFile(HANDLE hMpq, const char * szFileName, const char * s
         }
     }
 
-    // Now we mark the MPQ as changed, because MPQ tables need to be saved
-    if(nError == ERROR_SUCCESS)
-        ha->dwFlags |= MPQ_FLAG_CHANGED;
+    //
+    // Note: MPQ_FLAG_CHANGED is set by RenameFileEntry
+    //
 
     // Resolve error and return
     if(nError != ERROR_SUCCESS)

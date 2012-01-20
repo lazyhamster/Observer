@@ -335,7 +335,7 @@ uint32_t hashlittle( const void *key, size_t length, uint32_t initval)
 
 #else /* make valgrind happy */
 
-    const uint8_t *k8 = (const uint8_t *)k;
+    k8 = (const uint8_t *)k;
     switch(length)
     {
     case 12: c+=k[2]; b+=k[1]; a+=k[0]; break;
@@ -496,7 +496,7 @@ void hashlittle2(
      * rest of the string.  Every machine with memory protection I've seen
      * does it on word boundaries, so is OK with this.  But VALGRIND will
      * still catch it and complain.  The masking trick does make the hash
-     * noticeably faster for short strings (like English words).
+     * noticably faster for short strings (like English words).
      */
 #ifndef VALGRIND
 
@@ -519,7 +519,7 @@ void hashlittle2(
 
 #else /* make valgrind happy */
 
-    const uint8_t *k8 = (const uint8_t *)k;
+    k8 = (const uint8_t *)k;
     switch(length)
     {
     case 12: c+=k[2]; b+=k[1]; a+=k[0]; break;
@@ -695,7 +695,7 @@ uint32_t hashbig( const void *key, size_t length, uint32_t initval)
 
 #else  /* make valgrind happy */
 
-    const uint8_t *k8 = (const uint8_t *)k;
+    k8 = (const uint8_t *)k;
     switch(length)                   /* all the case statements fall through */
     {
     case 12: c+=k[2]; b+=k[1]; a+=k[0]; break;

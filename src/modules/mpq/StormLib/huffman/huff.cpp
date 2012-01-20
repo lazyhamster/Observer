@@ -48,7 +48,7 @@ THTreeItem * THTreeItem::GetPrevItem(LONG_PTR value)
         return PTR_NOT(prev);
  
     if(value == -1 || PTR_INVALID(value))
-        value = (long)(this - next->prev);
+        value = (LONG_PTR)(this - next->prev);
     return prev + value;
  
 // OLD VERSION
@@ -217,7 +217,7 @@ void TInputStream::SkipBits(unsigned int dwBitsToSkip)
 // Functions for huffmann tree items
  
 // Inserts item into the tree (?)
-static void InsertItem(THTreeItem ** itemPtr, THTreeItem * item, unsigned long where, THTreeItem * item2)
+static void InsertItem(THTreeItem ** itemPtr, THTreeItem * item, unsigned long nWhere, THTreeItem * item2)
 {
     THTreeItem * next = item->next;     // EDI - next to the first item
     THTreeItem * prev = item->prev;     // ESI - prev to the first item
@@ -245,7 +245,7 @@ static void InsertItem(THTreeItem ** itemPtr, THTreeItem * item, unsigned long w
     if(item2 == NULL)                   // EDX - If the second item is not entered,
         item2 = PTR_PTR(&itemPtr[1]);   // take the first tree item
  
-    switch(where)
+    switch(nWhere)
     {
         case SWITCH_ITEMS :             // Switch the two items
             item->next  = item2->next;  // item2->next (Pointer to pointer to first)
@@ -271,7 +271,7 @@ static void InsertItem(THTreeItem ** itemPtr, THTreeItem * item, unsigned long w
             }
  
             if(PTR_INVALID(next2))
-                next2 = (long)(item2 - item2->next->prev);
+                next2 = (LONG_PTR)(item2 - item2->next->prev);
 //              next2 = (THTreeItem *)(unsigned long)((unsigned char *)item2 - (unsigned char *)(item2->next->prev));
  
 //          prev2 = (THTreeItem *)((char *)prev2 + (unsigned long)next2);// ???

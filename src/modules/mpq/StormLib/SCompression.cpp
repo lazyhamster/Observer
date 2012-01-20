@@ -13,7 +13,6 @@
 /*****************************************************************************/
 
 #define __STORMLIB_SELF__
-#define __INCLUDE_COMPRESSION__
 #include "StormLib.h"
 #include "StormCommon.h"
 
@@ -281,10 +280,10 @@ static void Compress_PKLIB(
     int * /* pCmpType */,
     int /* nCmpLevel */)
 {
-    TDataInfo Info;                                     // Data information
-    char * work_buf = ALLOCMEM(char, CMP_BUFFER_SIZE);  // Pklib's work buffer
-    unsigned int dict_size;                             // Dictionary size
-    unsigned int ctype = CMP_BINARY;                    // Compression type
+    TDataInfo Info;                                      // Data information
+    char * work_buf = STORM_ALLOC(char, CMP_BUFFER_SIZE);// Pklib's work buffer
+    unsigned int dict_size;                              // Dictionary size
+    unsigned int ctype = CMP_BINARY;                     // Compression type
 
     // Fill data information structure
     memset(work_buf, 0, CMP_BUFFER_SIZE);
@@ -305,13 +304,13 @@ static void Compress_PKLIB(
     if(implode(ReadInputData, WriteOutputData, work_buf, &Info, &ctype, &dict_size) == CMP_NO_ERROR)
         *pcbOutBuffer = (int)(Info.pbOutBuff - pbOutBuffer);
 
-    FREEMEM(work_buf);
+    STORM_FREE(work_buf);
 }
 
 static int Decompress_PKLIB(char * pbOutBuffer, int * pcbOutBuffer, char * pbInBuffer, int cbInBuffer)
 {
     TDataInfo Info;                             // Data information
-    char * work_buf = ALLOCMEM(char, EXP_BUFFER_SIZE);// Pklib's work buffer
+    char * work_buf = STORM_ALLOC(char, EXP_BUFFER_SIZE);// Pklib's work buffer
 
     // Fill data information structure
     memset(work_buf, 0, EXP_BUFFER_SIZE);
@@ -329,7 +328,7 @@ static int Decompress_PKLIB(char * pbOutBuffer, int * pcbOutBuffer, char * pbInB
 
     // Give away the number of decompressed bytes
     *pcbOutBuffer = (int)(Info.pbOutBuff - pbOutBuffer);
-    FREEMEM(work_buf);
+    STORM_FREE(work_buf);
     return 1;
 }
 
@@ -438,7 +437,7 @@ static SRes LZMA_Callback_Progress(void * /* p */, UInt64 /* inSize */, UInt64 /
 static void * LZMA_Callback_Alloc(void *p, size_t size)
 {
     p = p;
-    return ALLOCMEM(BYTE, size);
+    return STORM_ALLOC(BYTE, size);
 }
 
 /* address can be 0 */
@@ -446,7 +445,7 @@ static void LZMA_Callback_Free(void *p, void *address)
 {
     p = p;
     if(address != NULL)
-        FREEMEM(address);
+        STORM_FREE(address);
 }
 
 //
@@ -833,7 +832,7 @@ int WINAPI SCompCompress(
         // If we need to do more than 1 compression, allocate intermediate buffer
         if(nCompressCount > 1)
         {
-            pbWorkBuffer = ALLOCMEM(char, *pcbOutBuffer);
+            pbWorkBuffer = STORM_ALLOC(char, *pcbOutBuffer);
             if(pbWorkBuffer == NULL)
             {
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
@@ -890,7 +889,7 @@ int WINAPI SCompCompress(
 
     // Cleanup and return
     if(pbWorkBuffer != NULL)
-        FREEMEM(pbWorkBuffer);
+        STORM_FREE(pbWorkBuffer);
     return nResult;
 }
 
@@ -1002,7 +1001,7 @@ int WINAPI SCompDecompress(
         // If there is more than one compression, we have to allocate extra buffer
         if(nCompressCount > 1)
         {
-            pbWorkBuffer = ALLOCMEM(char, *pcbOutBuffer);
+            pbWorkBuffer = STORM_ALLOC(char, *pcbOutBuffer);
             if(pbWorkBuffer == NULL)
             {
                 SetLastError(ERROR_NOT_ENOUGH_MEMORY);
@@ -1046,6 +1045,6 @@ int WINAPI SCompDecompress(
 
     // Cleanup and return
     if(pbWorkBuffer != NULL)
-        FREEMEM(pbWorkBuffer);
+        STORM_FREE(pbWorkBuffer);
     return nResult;
 }
