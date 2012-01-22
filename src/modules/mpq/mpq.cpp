@@ -17,18 +17,15 @@ struct MoPaQ_File
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	char szNameBuf[MAX_PATH] = {0};
-	WideCharToMultiByte(CP_ACP, 0, params.FilePath, -1, szNameBuf, MAX_PATH, NULL, NULL);
-
 	HANDLE hMpq = NULL;
 	bool fEncrypted = false;
 
 	// First try to open file as plain MPQ
-	if (!SFileOpenArchive(szNameBuf, 0, MPQ_OPEN_READ_ONLY, &hMpq))
+	if (!SFileOpenArchive(params.FilePath, 0, MPQ_OPEN_READ_ONLY, &hMpq))
 	{
 		// Additionally try to open file as encrypted MPQ
 		fEncrypted = true;
-		if (!SFileOpenArchive(szNameBuf, 0, MPQ_OPEN_ENCRYPTED | MPQ_OPEN_READ_ONLY, &hMpq))
+		if (!SFileOpenArchive(params.FilePath, 0, MPQ_OPEN_ENCRYPTED | MPQ_OPEN_READ_ONLY, &hMpq))
 			return SOR_INVALID_FILE;
 	}
 
