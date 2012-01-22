@@ -13,6 +13,7 @@ struct MoPaQ_File
 	HANDLE hMpq;
 	bool isEncrypted;
 	std::vector<SFILE_FIND_DATA> vFiles;
+	bool fFilesPrepared;
 };
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
@@ -29,6 +30,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 			return SOR_INVALID_FILE;
 	}
 
+	// Try to enum file, if failed then don't claim archive
 	SFILE_FIND_DATA ffd;
 	HANDLE hSearch = SFileFindFirstFile(hMpq, "*", &ffd, NULL);
 	if (hSearch == NULL)
@@ -36,17 +38,12 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		SFileCloseArchive(hMpq);
 		return SOR_INVALID_FILE;
 	}
+	SFileFindClose(hSearch);
 
 	MoPaQ_File* file = new MoPaQ_File();
 	file->hMpq = hMpq;
 	file->isEncrypted = fEncrypted;
-
-	// Enumerate content
-	do 
-	{
-		file->vFiles.push_back(ffd);
-	} while (SFileFindNextFile(hSearch, &ffd) != 0);
-	SFileFindClose(hSearch);
+	file->fFilesPrepared = false;
 
 	*storage = file;
 
@@ -73,6 +70,22 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 {
 	MoPaQ_File* fileObj = (MoPaQ_File*) storage;
 	if (fileObj == NULL || item_index < 0) return GET_ITEM_ERROR;
+
+	// Enumerate content, if needed
+	if (!fileObj->fFilesPrepared)
+	{
+		SFILE_FIND_DATA ffd = {0};
+		HANDLE hSearch = SFileFindFirstFile(fileObj->hMpq, "*", &ffd, NULL);
+		if (hSearch == NULL) return GET_ITEM_ERROR;
+
+		do 
+		{
+			fileObj->vFiles.push_back(ffd);
+		} while (SFileFindNextFile(hSearch, &ffd) != 0);
+
+		SFileFindClose(hSearch);
+		fileObj->fFilesPrepared = true;
+	}
 
 	if (item_index >= (int) fileObj->vFiles.size())
 		return GET_ITEM_NOMOREITEMS;
