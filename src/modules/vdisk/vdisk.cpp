@@ -56,6 +56,7 @@ struct VDisk
 	gcroot<VirtualDisk^> pVdiskObj;
 	gcroot< List<VDFileInfo^>^ > vItems;
 	gcroot< List<String^>^ > vVolLabels; // Cache for volume labels
+	bool filesEnumComplete;
 };
 
 static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex)
@@ -85,6 +86,50 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 		VDFileInfo^ fileInfo = gcnew VDFileInfo(fileList[i], volIndex);
 		vdObj->vItems->Add(fileInfo);
 	}
+}
+
+static void PrepareFileList(VDisk* vdisk)
+{
+	VolumeManager^ volm = gcnew VolumeManager(vdisk->pVdiskObj);
+
+	array<LogicalVolumeInfo^> ^logvol = volm->GetLogicalVolumes();
+	for (int i = 0; i < logvol->Length; i++)
+	{
+		LogicalVolumeInfo^ volInfo = logvol[i];
+		
+		if (volInfo->Status != LogicalVolumeStatus::Healthy) continue;
+
+		array<DiscUtils::FileSystemInfo^> ^fsinfo = FileSystemManager::DetectDefaultFileSystems(volInfo);
+		if (fsinfo == nullptr || fsinfo->Length == 0) continue;
+
+		FileSystemParameters^ fsParams = gcnew FileSystemParameters();
+		fsParams->FileNameEncoding = System::Text::Encoding::GetEncoding(GetOEMCP());
+
+		DiscFileSystem^ dfs = fsinfo[0]->Open(volInfo, fsParams);
+		if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
+		{
+			Ntfs::NtfsFileSystem^ ntfsFS = (Ntfs::NtfsFileSystem^)dfs;
+			ntfsFS->NtfsOptions->HideHiddenFiles = false;
+			ntfsFS->NtfsOptions->HideSystemFiles = false;
+			//ntfsFS->NtfsOptions->HideMetafiles = false;
+		}
+
+		try
+		{
+			EnumFilesInVolume(vdisk, dfs->Root, volInfo, i);
+
+			String^ volLabel = dfs->VolumeLabel->Trim();
+			if (String::IsNullOrEmpty(volLabel)) volLabel = "Volume_#" + i;
+			vdisk->vVolLabels->Add(volLabel);
+		}
+		catch (Exception^ ex)
+		{
+			String^ errText = String::Format("Volume listing error : {0}", ex);
+
+			msclr::interop::marshal_context ctx;
+			MessageBox(0, ctx.marshal_as<const wchar_t*>(errText), L"Error", MB_OK | MB_ICONERROR);
+		}
+	} // for
 }
 
 static ::FILETIME DateTimeToFileTime(DateTime dt)
@@ -128,57 +173,41 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 	if (vdisk != nullptr && vdisk->IsPartitioned)
 	{
-		VDisk* vdObj = new VDisk();
-		vdObj->pVdiskObj = vdisk;
-		vdObj->vItems = gcnew List<VDFileInfo^>();
-		vdObj->vVolLabels = gcnew List<String^>();
-		
-		VolumeManager^ volm = gcnew VolumeManager(vdisk);
+		bool fHaveValidVolumes = false;
 
+		// Verify that we have any recognizable volumes
+		VolumeManager^ volm = gcnew VolumeManager(vdisk);
 		array<LogicalVolumeInfo^> ^logvol = volm->GetLogicalVolumes();
 		for (int i = 0; i < logvol->Length; i++)
 		{
-			LogicalVolumeInfo^ vi = logvol[i];
-			array<DiscUtils::FileSystemInfo^> ^fsinfo = FileSystemManager::DetectDefaultFileSystems(vi);
-			if (fsinfo == nullptr || fsinfo->Length == 0) continue;
-
-			FileSystemParameters^ fsParams = gcnew FileSystemParameters();
-			fsParams->FileNameEncoding = System::Text::Encoding::GetEncoding(GetOEMCP());
-
-			DiscFileSystem^ dfs = fsinfo[0]->Open(vi, fsParams);
-			if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
+			// Skip failed volumes
+			if (logvol[i]->Status != LogicalVolumeStatus::Healthy) continue;
+			
+			array<DiscUtils::FileSystemInfo^> ^fsinfo = FileSystemManager::DetectDefaultFileSystems(logvol[i]);
+			if (fsinfo != nullptr && fsinfo->Length > 0)
 			{
-				Ntfs::NtfsFileSystem^ ntfsFS = (Ntfs::NtfsFileSystem^)dfs;
-				ntfsFS->NtfsOptions->HideHiddenFiles = false;
-				ntfsFS->NtfsOptions->HideSystemFiles = false;
-				//ntfsFS->NtfsOptions->HideMetafiles = false;
+				fHaveValidVolumes = true;
+				break;
 			}
+		}
 
-			try
-			{
-				EnumFilesInVolume(vdObj, dfs->Root, vi, i);
+		if (fHaveValidVolumes)
+		{
+			VDisk* vdObj = new VDisk();
+			vdObj->pVdiskObj = vdisk;
+			vdObj->vItems = gcnew List<VDFileInfo^>();
+			vdObj->vVolLabels = gcnew List<String^>();
+			vdObj->filesEnumComplete = false;
 
-				String^ volLabel = dfs->VolumeLabel->Trim();
-				if (String::IsNullOrEmpty(volLabel)) volLabel = "Volume_#" + i;
-				vdObj->vVolLabels->Add(volLabel);
-			}
-			catch (Exception^ ex)
-			{
-				String^ errText = String::Format("Volume listing error : {0}", ex);
+			*storage = vdObj;
 
-				msclr::interop::marshal_context ctx;
-				MessageBox(0, ctx.marshal_as<const wchar_t*>(errText), L"Error", MB_OK | MB_ICONERROR);
-			}
-		} // for
+			memset(info, 0, sizeof(StorageGeneralInfo));
+			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, GetDiskType(vdisk));
+			wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
+			wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
 
-		*storage = vdObj;
-
-		memset(info, 0, sizeof(StorageGeneralInfo));
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, GetDiskType(vdisk));
-		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
-		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
-
-		return SOR_SUCCESS;
+			return SOR_SUCCESS;
+		}
 	}
 
 	if (vdisk != nullptr)
@@ -212,6 +241,12 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 {
 	VDisk* vdObj = (VDisk*) storage;
 	if (vdObj == NULL || item_index < 0) return GET_ITEM_ERROR;
+
+	if (!vdObj->filesEnumComplete)
+	{
+		PrepareFileList(vdObj);
+		vdObj->filesEnumComplete = true;
+	}
 
 	if (item_index >= vdObj->vItems->Count)
 		return GET_ITEM_NOMOREITEMS;
