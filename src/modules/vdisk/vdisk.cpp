@@ -105,17 +105,17 @@ static void PrepareFileList(VDisk* vdisk)
 		FileSystemParameters^ fsParams = gcnew FileSystemParameters();
 		fsParams->FileNameEncoding = System::Text::Encoding::GetEncoding(GetOEMCP());
 
-		DiscFileSystem^ dfs = fsinfo[0]->Open(volInfo, fsParams);
-		if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
-		{
-			Ntfs::NtfsFileSystem^ ntfsFS = (Ntfs::NtfsFileSystem^)dfs;
-			ntfsFS->NtfsOptions->HideHiddenFiles = false;
-			ntfsFS->NtfsOptions->HideSystemFiles = false;
-			//ntfsFS->NtfsOptions->HideMetafiles = false;
-		}
-
 		try
 		{
+			DiscFileSystem^ dfs = fsinfo[0]->Open(volInfo, fsParams);
+			if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
+			{
+				Ntfs::NtfsFileSystem^ ntfsFS = (Ntfs::NtfsFileSystem^)dfs;
+				ntfsFS->NtfsOptions->HideHiddenFiles = false;
+				ntfsFS->NtfsOptions->HideSystemFiles = false;
+				//ntfsFS->NtfsOptions->HideMetafiles = false;
+			}
+			
 			EnumFilesInVolume(vdisk, dfs->Root, volInfo, i);
 
 			String^ volLabel = dfs->VolumeLabel->Trim();
@@ -171,7 +171,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		vdisk = nullptr;
 	}
 
-	if (vdisk != nullptr && vdisk->IsPartitioned)
+	if (vdisk != nullptr)
 	{
 		bool fHaveValidVolumes = false;
 
