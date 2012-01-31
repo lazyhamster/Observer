@@ -1,0 +1,5 @@
+LIBRARY	"pdb.so"
+
+EXPORTS
+	LoadSubModule
+	UnloadSubModule
