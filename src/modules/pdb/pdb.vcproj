@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="pdb"
-	ProjectGUID="{FBD3F0D6-F516-436C-990A-9125D49D71C5}"
+	ProjectGUID="{037E0442-1C32-4AE1-A586-4C4190E2B83E}"
 	RootNamespace="pdb"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
@@ -729,6 +729,14 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\pdb.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\pdb.def"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -795,14 +803,6 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\pdb.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\pdb.def"
-				>
 			</File>
 		</Filter>
 		<Filter
