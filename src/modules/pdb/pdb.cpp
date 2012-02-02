@@ -23,6 +23,16 @@ static void RenameDiskNameColons(wchar_t* path)
 	}
 }
 
+size_t GenerateInfoFileContent(const PdbFileInfo* pdbInfo, std::string &buf)
+{
+	return 0;
+}
+
+size_t GenerateModuleFileContent(const IPdbModule* module, std::string &buf)
+{
+	return 0;
+}
+
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	IPdbFile* pdbFile = g_ParserPtr->OpenFile(params.FilePath);
@@ -60,12 +70,13 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	PdbFileInfo* pdbInfo = (PdbFileInfo*)storage;
 	if (pdbInfo == NULL || item_index < 0) return GET_ITEM_ERROR;
 	
+	std::string buf;
 	if (item_index == 0)
 	{
 		// Info file
 		memset(item_info, 0, sizeof(StorageItemInfo));
 		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"info.txt");
-		item_info->Size = 10;
+		item_info->Size = GenerateInfoFileContent(pdbInfo, buf);
 
 		return GET_ITEM_OK;
 	}
@@ -77,7 +88,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		memset(item_info, 0, sizeof(StorageItemInfo));
 		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{modules}\\%s", pdbModule->GetName().c_str());
 		RenameDiskNameColons(item_info->Path);
-		item_info->Size = 20;
+		item_info->Size = GenerateModuleFileContent(pdbModule, buf);
 
 		return GET_ITEM_OK;
 	}
@@ -90,16 +101,31 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	PdbFileInfo* pdbInfo = (PdbFileInfo*)storage;
 	if (pdbInfo == NULL || params.item < 0) return GET_ITEM_ERROR;
 
+	std::string buf;
 	if (params.item == 0)
 	{
 		// Info file
+		GenerateInfoFileContent(pdbInfo, buf);
 	}
 	else if (params.item-1 < (int) pdbInfo->pdbModules.size())
 	{
 		// Module file
+		const IPdbModule* pdbModule = pdbInfo->pdbModules[params.item - 1];
+		GenerateModuleFileContent(pdbModule, buf);
 	}
-	
-	return SER_ERROR_SYSTEM;
+	else
+	{
+		return SER_ERROR_SYSTEM;
+	}
+
+	HANDLE hOut = CreateFile(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	if (hOut == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
+
+	DWORD nWritten;
+	WriteFile(hOut, buf.c_str(), buf.length(), &nWritten, NULL);
+	CloseHandle(hOut);
+
+	return SER_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
