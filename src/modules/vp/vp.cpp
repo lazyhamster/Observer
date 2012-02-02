@@ -46,7 +46,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	if (!file->GetItem(item_index, frec))
 		return GET_ITEM_ERROR;
 
-	memset(item_info, 0, sizeof(WIN32_FIND_DATAW));
+	memset(item_info, 0, sizeof(StorageItemInfo));
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), frec.full_path);
 	item_info->Attributes = (frec.IsDir()) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
 	item_info->Size = frec.size;
