@@ -737,6 +737,30 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PdbParser\PdbFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbModule.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbModuleDetails.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbParser.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbSourceFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbTranslationMaps.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -810,6 +834,34 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\PdbParser\PdbFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbModule.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbModuleDetails.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbParser.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbParserInternal.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbSourceFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PdbParser\PdbTranslationMaps.h"
+				>
+			</File>
 			<File
 				RelativePath=".\stdafx.h"
 				>

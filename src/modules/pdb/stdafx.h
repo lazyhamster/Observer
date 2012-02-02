@@ -13,3 +13,11 @@
 
 
 // Additional headers
+#include <string>
+#include <vector>
+#include <map>
+
+#include <dia2.h>
+
+#include "PdbParser/PdbParser.h"
+using namespace PdbParser;
