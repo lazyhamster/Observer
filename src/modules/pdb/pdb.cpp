@@ -5,13 +5,10 @@
 #include "ModuleDef.h"
 #include "ModuleCRT.h"
 
-struct PdbFileInfo 
-{
-	IPdbFile* pdb;
-	std::vector<IPdbModule*> pdbModules;
-};
-
 static IPdbParser* g_ParserPtr = NULL;
+
+size_t GenerateInfoFileContent(const PdbFileInfo* pdbInfo, std::string &buf);
+size_t GenerateModuleFileContent(IPdbModule* module, std::string &buf);
 
 static void RenameDiskNameColons(wchar_t* path)
 {
@@ -21,16 +18,6 @@ static void RenameDiskNameColons(wchar_t* path)
 		if (*ptr == ':') *ptr = '_';
 		ptr++;
 	}
-}
-
-size_t GenerateInfoFileContent(const PdbFileInfo* pdbInfo, std::string &buf)
-{
-	return 0;
-}
-
-size_t GenerateModuleFileContent(const IPdbModule* module, std::string &buf)
-{
-	return 0;
 }
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
@@ -83,10 +70,15 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	else if (item_index-1 < (int) pdbInfo->pdbModules.size())
 	{
 		// Module file
-		const IPdbModule* pdbModule = pdbInfo->pdbModules[item_index - 1];
+		IPdbModule* pdbModule = pdbInfo->pdbModules[item_index - 1];
+		std::wstring moduleName = pdbModule->GetName();
+		
+		// Convert disk name to uppercase
+		if (moduleName[1] == ':')
+			moduleName[0] = toupper(moduleName[0]);
 
 		memset(item_info, 0, sizeof(StorageItemInfo));
-		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{modules}\\%s", pdbModule->GetName().c_str());
+		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{modules}\\%s", moduleName.c_str());
 		RenameDiskNameColons(item_info->Path);
 		item_info->Size = GenerateModuleFileContent(pdbModule, buf);
 
@@ -110,7 +102,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	else if (params.item-1 < (int) pdbInfo->pdbModules.size())
 	{
 		// Module file
-		const IPdbModule* pdbModule = pdbInfo->pdbModules[params.item - 1];
+		IPdbModule* pdbModule = pdbInfo->pdbModules[params.item - 1];
 		GenerateModuleFileContent(pdbModule, buf);
 	}
 	else

@@ -16,8 +16,15 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <sstream>
 
 #include <dia2.h>
 
 #include "PdbParser/PdbParser.h"
 using namespace PdbParser;
+
+struct PdbFileInfo 
+{
+	IPdbFile* pdb;
+	std::vector<IPdbModule*> pdbModules;
+};
