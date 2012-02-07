@@ -98,6 +98,23 @@ static std::wstring GetTargetCPUName(PdbTargetCPU cpu)
 	return L"Unknown";
 }
 
+static std::wstring GetChecksumTypeNameStr(CheckSumType type)
+{
+	switch (type)
+	{
+		case CheckSumType_None:
+			return L"None";
+		case CheckSumType_MD5:
+			return L"MD5";
+		case CheckSumType_SHA1:
+			return L"SHA1";
+		case CheckSumType_Unknown:
+			return L"Unknown";
+	}
+	
+	return L"-";
+}
+
 static int ConvertAndAppend(std::wstring &input, std::string &output)
 {
 	int bufLen = 0;
@@ -145,7 +162,14 @@ size_t GenerateModuleFileContent(IPdbModule* module, std::string &buf)
 	for (size_t i = 0; i < srcList.size(); i++)
 	{
 		IPdbSourceFile* src = srcList[i];
-		sstr << src->GetUniqueId() << L": " << src->GetSourceFileName() << std::endl;
+		CheckSumType sumType = src->GetCheckSumType();
+		
+		sstr << src->GetUniqueId();
+		if (sumType != CheckSumType_Unknown && sumType != CheckSumType_None)
+		{
+			sstr << L"\t" << GetChecksumTypeNameStr(sumType) << L"\t" << src->GetCheckSum();
+		}
+		sstr << L"\t" << src->GetSourceFileName() << std::endl;
 	}
 
 	std::wstring strData = sstr.str();
