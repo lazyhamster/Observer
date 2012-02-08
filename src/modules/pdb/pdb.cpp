@@ -114,7 +114,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	if (hOut == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
 
 	DWORD nWritten;
-	WriteFile(hOut, buf.c_str(), buf.length(), &nWritten, NULL);
+	WriteFile(hOut, buf.c_str(), (DWORD) buf.length(), &nWritten, NULL);
 	CloseHandle(hOut);
 
 	return SER_SUCCESS;
