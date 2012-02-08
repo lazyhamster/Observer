@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 2378
+  Dynamic construction of dialogs for FAR Manager 3.0 build 2442
 */
 
 /*
@@ -59,6 +59,10 @@ struct DialogItemBinding
 		: BeforeLabelID(-1), AfterLabelID(-1)
 	{
 	}
+
+	virtual ~DialogItemBinding()
+	{
+	};
 
 	virtual void SaveValue(T *Item, int RadioGroupIndex)
 	{

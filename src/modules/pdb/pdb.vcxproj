@@ -248,6 +248,18 @@
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">.so</TargetExt>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">.so</TargetExt>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.so</TargetExt>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
+    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(VSInstallDir)DIA SDK\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -532,6 +544,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="DataGen.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
       </PrecompiledHeader>
@@ -570,6 +583,12 @@
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="PdbParser\PdbFile.cpp" />
+    <ClCompile Include="PdbParser\PdbModule.cpp" />
+    <ClCompile Include="PdbParser\PdbModuleDetails.cpp" />
+    <ClCompile Include="PdbParser\PdbParser.cpp" />
+    <ClCompile Include="PdbParser\PdbSourceFile.cpp" />
+    <ClCompile Include="PdbParser\PdbTranslationMaps.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
@@ -590,6 +609,13 @@
     <None Include="pdb.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PdbParser\PdbFile.h" />
+    <ClInclude Include="PdbParser\PdbModule.h" />
+    <ClInclude Include="PdbParser\PdbModuleDetails.h" />
+    <ClInclude Include="PdbParser\PdbParser.h" />
+    <ClInclude Include="PdbParser\PdbParserInternal.h" />
+    <ClInclude Include="PdbParser\PdbSourceFile.h" />
+    <ClInclude Include="PdbParser\PdbTranslationMaps.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
