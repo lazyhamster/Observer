@@ -1,6 +1,6 @@
 Observer
-Plug-in for FAR Manager 1.75+ / 2.0+
-Copyright: 2009-2011, Ariman
+Plug-in for FAR Manager 1.75+ / 2.0+ / 3.0+
+Copyright: 2009-2012, Ariman
 
 -------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ by semicolon and have dot in front. They are case-insensitive.
 If any module don't have filters set or extentions list is empty, then it is considered
 that module accepts all files.
 
-1.2.3 Настройки для модулей.
+1.2.3 Module-specific configuration.
 
 [ISO] -> Charset
 Default code page for non-Unicode file names.
@@ -97,6 +97,17 @@ or you can set special system code page values:
 
 [ISO] -> RockRidge
 Enables (1) / disables (0) support for RockRidge extension. It's enabled by default.
+
+1.3 Plugin configuration dialog.
+
+As opposed to setttings, described in 1.2, which applied only on program start,
+some parameters can be changed from configuration dialog (F9 -> Options -> Plugins Configuration).
+These values are applied right after dialog is closed (unless you hit 'Cancel' or Esc).
+Here you can set the following parameters:
+
+- Enable/disable reaction on Ctrl-PgDn (plugin is always available from F11 menu).
+- Configure plugin prefix (default value is 'observe').
+- Enable/disable using of extesion filters (see 1.2.2 above).
 
 2. License and copyright.
 
