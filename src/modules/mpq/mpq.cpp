@@ -115,7 +115,8 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	HANDLE hInFile = NULL;
 	HANDLE hOutFile;
 
-	if (!SFileOpenFileEx(fileObj->hMpq, ffd.cFileName, 0, &hInFile))
+	bool fIsListfile = strcmp(ffd.cFileName, LISTFILE_NAME) == 0;
+	if (!SFileOpenFileEx(fileObj->hMpq, ffd.cFileName, fIsListfile ? SFILE_OPEN_ANY_LOCALE : SFILE_OPEN_FROM_MPQ, &hInFile))
 		return SER_ERROR_READ;
 	
 	hOutFile = CreateFileW(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
