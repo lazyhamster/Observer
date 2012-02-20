@@ -725,13 +725,18 @@ void WINAPI ClosePanelW(const struct ClosePanelInfo* info)
 		CloseStorage(info->hPanel);
 }
 
-int WINAPI AnalyseW(const AnalyseInfo* AInfo)
+HANDLE WINAPI AnalyseW(const AnalyseInfo* AInfo)
 {
 	if (!AInfo || !optEnabled || !AInfo->FileName)
-		return FALSE;
+		return INVALID_HANDLE_VALUE;
 
 	bool fAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0);
-	return fAnalizeResult ? TRUE : FALSE;
+	return fAnalizeResult ? (HANDLE)1 : INVALID_HANDLE_VALUE;
+}
+
+void WINAPI CloseAnalyseW(const CloseAnalyseInfo* info)
+{
+	// Nothing here
 }
 
 HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
@@ -789,8 +794,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	}
 	else if (OInfo->OpenFrom == OPEN_ANALYSE)
 	{
-		const AnalyseInfo* AInfo = (const AnalyseInfo*) OInfo->Data;
-		strFullSourcePath = AInfo->FileName;
+		const OpenAnalyseInfo* AInfo = (const OpenAnalyseInfo*) OInfo->Data;
+		strFullSourcePath = AInfo->Info->FileName;
 	}
 
 	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;

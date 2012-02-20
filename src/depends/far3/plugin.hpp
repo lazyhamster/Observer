@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 2442
+  Plugin API for Far Manager 3.0 build 2462
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 2442
+#define FARMANAGERVERSION_BUILD 2462
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -2301,6 +2301,20 @@ struct AnalyseInfo
 	OPERATION_MODES OpMode;
 };
 
+struct OpenAnalyseInfo
+{
+	size_t StructSize;
+	struct AnalyseInfo* Info;
+	HANDLE Handle;
+};
+
+struct OpenMacroInfo
+{
+	size_t StructSize;
+	size_t Count;
+	struct FarMacroValue *Values;
+};
+
 enum OPENFROM
 {
 	OPEN_FROM_MASK          = 0x000000FF,
@@ -2316,11 +2330,7 @@ enum OPENFROM
 	OPEN_DIALOG             = 8,
 	OPEN_ANALYSE            = 9,
 	OPEN_RIGHTDISKMENU      = 10,
-
-	OPEN_FROMMACRO_MASK     = 0x000F0000,
-
-	OPEN_FROMMACRO          = 0x00010000,
-	OPEN_FROMMACROSTRING    = 0x00020000,
+	OPEN_FROMMACRO          = 11,
 };
 
 
@@ -2508,6 +2518,12 @@ struct ClosePanelInfo
 	HANDLE hPanel;
 };
 
+struct CloseAnalyseInfo
+{
+	size_t StructSize;
+	HANDLE Handle;
+};
+
 struct ConfigureInfo
 {
 	size_t StructSize;
@@ -2520,7 +2536,8 @@ extern "C"
 #endif
 // Exported Functions
 
-	int    WINAPI AnalyseW(const struct AnalyseInfo *Info);
+	HANDLE WINAPI AnalyseW(const struct AnalyseInfo *Info);
+	void   WINAPI CloseAnalyseW(const struct CloseAnalyseInfo *Info);
 	void   WINAPI ClosePanelW(const struct ClosePanelInfo *Info);
 	int    WINAPI CompareW(const struct CompareInfo *Info);
 	int    WINAPI ConfigureW(const struct ConfigureInfo *Info);
