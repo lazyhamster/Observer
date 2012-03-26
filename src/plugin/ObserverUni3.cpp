@@ -38,7 +38,6 @@ static wchar_t optPrefix[MAX_PREFIX_SIZE] = L"observe";
 
 // Extended settings
 static wchar_t optPanelHeaderPrefix[MAX_PREFIX_SIZE] = L"";
-static int optExtendedCurDir = FALSE;
 
 struct ProgressContext
 {
@@ -97,7 +96,6 @@ static void LoadSettings()
 	if (opList != NULL)
 	{
 		opList->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
-		opList->GetValue(L"ExtendedCurDir", optExtendedCurDir);
 		opList->GetValue(L"UseExtensionFilters", optUseExtensionFilters);
 		delete opList;
 	}
@@ -110,7 +108,6 @@ static void LoadSettings()
 	ps.Get(0, L"Prefix", optPrefix, MAX_PREFIX_SIZE, optPrefix);
 
 	ps.Get(0, L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE, optPanelHeaderPrefix);
-	optExtendedCurDir = ps.Get(0, L"ExtendedCurDir", optExtendedCurDir);
 	optUseExtensionFilters = ps.Get(0, L"UseExtensionFilters", optUseExtensionFilters);
 }
 
@@ -571,7 +568,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	pctx.nTotalSize = totalExtractSize;
 
 	// Win7 only feature
-	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? PS_NORMAL : PS_INDETERMINATE, NULL);
+	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? TBPS_NORMAL : TBPS_INDETERMINATE, NULL);
 
 	wchar_t wszSaveTitle[512], wszCurTitle[128];
 	GetConsoleTitle(wszSaveTitle, ARRAY_SIZE(wszSaveTitle));
@@ -599,7 +596,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	}
 
 	SetConsoleTitle(wszSaveTitle);
-	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, PS_NOPROGRESS, NULL);
+	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, TBPS_NOPROGRESS, NULL);
 	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_PROGRESSNOTIFY, 0, NULL);
 
 	if (nExtractResult == SER_USERABORT)
@@ -728,10 +725,10 @@ void WINAPI ClosePanelW(const struct ClosePanelInfo* info)
 HANDLE WINAPI AnalyseW(const AnalyseInfo* AInfo)
 {
 	if (!AInfo || !optEnabled || !AInfo->FileName)
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 
 	bool fAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0);
-	return fAnalizeResult ? (HANDLE)1 : INVALID_HANDLE_VALUE;
+	return fAnalizeResult ? (HANDLE)1 : nullptr;
 }
 
 void WINAPI CloseAnalyseW(const CloseAnalyseInfo* info)
@@ -777,14 +774,14 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			int nMItem = FarSInfo.Menu(&OBSERVER_GUID, &GUID_OBS_MENU, -1, -1, 0, 0, GetLocMsg(MSG_PLUGIN_NAME), NULL, NULL, NULL, NULL, MenuItems, ARRAY_SIZE(MenuItems));
 			
 			if (nMItem == -1)
-				return INVALID_HANDLE_VALUE;
+				return nullptr;
 			else if (nMItem == 1) // Show modules selection dialog
 			{
 				int nSelectedModItem = SelectModuleToOpenFileAs();
 				if (nSelectedModItem >= 0)
 					nOpenModuleIndex = nSelectedModItem;
 				else
-					return INVALID_HANDLE_VALUE;
+					return nullptr;
 			}
 		}
 		else
@@ -796,6 +793,11 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	{
 		const OpenAnalyseInfo* AInfo = (const OpenAnalyseInfo*) OInfo->Data;
 		strFullSourcePath = AInfo->Info->FileName;
+	}
+	else if (OInfo->OpenFrom == OPEN_SHORTCUT)
+	{
+		const OpenShortcutInfo* ShCutInfo = (const OpenShortcutInfo*) OInfo->Data;
+		strFullSourcePath = ResolveFullPath(ShCutInfo->HostFile);
 	}
 
 	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
@@ -811,7 +813,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		SetDirectoryW(&sdi);
 	}
 
-	return hOpenResult;
+	return hOpenResult != INVALID_HANDLE_VALUE ? hOpenResult : nullptr;
 }
 
 int WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
@@ -878,58 +880,6 @@ int WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 
 	if (!sdInfo->Dir || !sdInfo->Dir[0]) return TRUE;
 
-	if (optExtendedCurDir)
-	{
-		// If we are in root directory and wanna go upwards then we should close plugin panel
-		if (wcscmp(sdInfo->Dir, L"..") == 0 && info->CurrentDir()->parent == NULL)
-		{
-			wchar_t* wszStoragePath = _wcsdup(info->StoragePath());
-			CutFileNameFromPath(wszStoragePath, false);
-
-			wchar_t* wszStorageFileName = _wcsdup(ExtractFileName(info->StoragePath()));
-
-			FarSInfo.PanelControl(sdInfo->hPanel, FCTL_CLOSEPANEL, 0, wszStoragePath);
-
-			FarPanelDirectory fpd = {sizeof(FarPanelDirectory), wszStoragePath};
-			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_SETPANELDIRECTORY, 0, &fpd);
-
-			// Find position of our container on panel and position cursor there
-			PanelInfo pi = {sizeof(PanelInfo)};
-			if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi) && (pi.PanelType == PTYPE_FILEPANEL))
-			{
-				for (int i = 0; i < (int) pi.ItemsNumber; i++)
-				{
-					size_t itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, NULL);
-					PluginPanelItem *PPI = (PluginPanelItem*)malloc(itemBufSize);
-					if (!PPI) break;
-
-					FarGetPluginPanelItem FGPPI={itemBufSize,PPI};
-					FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELITEM, i, &FGPPI);
-					bool fIsArchItem = wcscmp(wszStorageFileName, PPI->FileName) == 0;
-					free(PPI);
-
-					if (fIsArchItem)
-					{
-						PanelRedrawInfo pri = {0};
-						pri.CurrentItem = i;
-						FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_REDRAWPANEL, 0, &pri);
-						break;
-					}
-				} // for
-			}
-
-			free(wszStorageFileName);
-			free(wszStoragePath);
-			return TRUE;
-		}
-		else
-		{
-			const wchar_t* wszInsideDirPart = wcsrchr(sdInfo->Dir, ':');
-			if (wszInsideDirPart && (wszInsideDirPart - sdInfo->Dir) > 2)
-				return info->ChangeCurrentDir(wszInsideDirPart+1);
-		}
-	}
-
 	return info->ChangeCurrentDir(sdInfo->Dir);
 }
 
@@ -963,10 +913,7 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 	memset(wszCurrentDir, 0, sizeof(wszCurrentDir));
 	memset(wszTitle, 0, sizeof(wszTitle));
 
-	if (optExtendedCurDir && optUsePrefix && optPrefix[0])
-		swprintf_s(wszCurrentDir, ARRAY_SIZE(wszCurrentDir), L"%s:%s:\\", optPrefix, info->StoragePath());
-	else
-		wszCurrentDir[0] = '\\';
+	wszCurrentDir[0] = '\\';
 
 	size_t nDirPrefixSize = wcslen(wszCurrentDir);
 	info->CurrentDir()->GetPath(wszCurrentDir + nDirPrefixSize, PATH_BUFFER_SIZE - nDirPrefixSize);
@@ -1023,7 +970,7 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 	static KeyBarTitles kbTitles = {1, &lb_altF6};
 		
 	// Fill report structure
-	opInfo->Flags = OPIF_ADDDOTS;
+	opInfo->Flags = OPIF_ADDDOTS | OPIF_SHORTCUT;
 	opInfo->CurDir = wszCurrentDir;
 	opInfo->PanelTitle = wszTitle;
 	opInfo->HostFile = info->StoragePath();
