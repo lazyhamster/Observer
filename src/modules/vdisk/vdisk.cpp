@@ -29,16 +29,15 @@ ref class AssemblyLoaderEx
 public:
 	static Assembly^ AssemblyResolveEventHandler( Object^ sender, ResolveEventArgs^ args )
 	{
-		String^ dllName = args->Name->Substring(0, args->Name->IndexOf(','));
-		if (dllName->Length > 0)
-		{
-			String ^strOwnPath = Assembly::GetAssembly(AssemblyLoaderEx::typeid)->Location;
-			String ^strTargetPath = IO::Path::GetDirectoryName(strOwnPath) + "\\" + dllName + ".dll";
+		AssemblyName^ aName = gcnew AssemblyName(args->Name);
+		String ^strOwnPath = Assembly::GetAssembly(AssemblyLoaderEx::typeid)->Location;
+		String ^strTargetPath = IO::Path::GetDirectoryName(strOwnPath) + "\\" + aName->Name + ".dll";
 
-			if (IO::File::Exists(strTargetPath))
-				return Assembly::LoadFile(strTargetPath);
-		}
-		
+		if (IO::File::Exists(strTargetPath))
+			return Assembly::LoadFile(strTargetPath);
+
+		MessageBox(0, L"Dependency library not found", L"Loading Error", MB_OK | MB_ICONERROR);
+
 		return nullptr;
 	}
 
