@@ -353,10 +353,20 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->GetItem = GetStorageItem;
 	LoadParams->ExtractItem = ExtractItem;
 
-	AppDomain::CurrentDomain->AssemblyResolve += gcnew ResolveEventHandler(AssemblyLoaderEx::AssemblyResolveEventHandler);
-	AppDomain::CurrentDomain->UnhandledException += gcnew UnhandledExceptionEventHandler(AssemblyLoaderEx::UnhandledExceptionHandler);
+	try
+	{
+		AppDomain::CurrentDomain->AssemblyResolve += gcnew ResolveEventHandler(AssemblyLoaderEx::AssemblyResolveEventHandler);
+		AppDomain::CurrentDomain->UnhandledException += gcnew UnhandledExceptionEventHandler(AssemblyLoaderEx::UnhandledExceptionHandler);
 
-	return TRUE;
+		return TRUE;
+	}
+	catch (System::Security::SecurityException^ sEx)
+	{
+		msclr::interop::marshal_context ctx;
+		MessageBox(0, ctx.marshal_as<const wchar_t*>(sEx->Message), L"Module Loading Error", MB_OK | MB_ICONERROR);
+
+		return FALSE;
+	}
 }
 
 void MODULE_EXPORT UnloadSubModule()
