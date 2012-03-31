@@ -1134,33 +1134,41 @@ std::wstring CMsiViewer::getStoragePath()
 	return strResult;
 }
 
+bool CMsiViewer::AcquireStreamCachePath()
+{
+	if (m_strStreamCacheLocation.length() > 0)
+		return true;
+
+	wchar_t wszTmpDir[MAX_PATH];
+	GetTempPathW(MAX_PATH, wszTmpDir);
+
+	m_strStreamCacheLocation.append(wszTmpDir);
+	if (m_strStreamCacheLocation.at(m_strStreamCacheLocation.length() - 1) != '\\')
+		m_strStreamCacheLocation.append(L"\\");
+
+	FILETIME currentTime;
+	wchar_t tmpFolderName[30] = {0};
+	GetSystemTimeAsFileTime(&currentTime);
+	wsprintfW(tmpFolderName, L"ob%x%x.TMP\\", currentTime.dwHighDateTime, currentTime.dwLowDateTime);
+	m_strStreamCacheLocation.append(tmpFolderName);
+
+	if (!CreateDirectory(m_strStreamCacheLocation.c_str(), NULL))
+	{
+		m_strStreamCacheLocation.clear();
+		return false;
+	}
+
+	return true;
+}
+
 int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 {
 	wstring strCabPath = m_mStreamCache[streamName];
 	if (strCabPath.length() > 0)
 		return TRUE;
 	
-	if (m_strStreamCacheLocation.length() == 0)
-	{
-		wchar_t wszTmpDir[MAX_PATH];
-		GetTempPathW(MAX_PATH, wszTmpDir);
-		
-		m_strStreamCacheLocation.append(wszTmpDir);
-		if (m_strStreamCacheLocation.at(m_strStreamCacheLocation.length() - 1) != '\\')
-			m_strStreamCacheLocation.append(L"\\");
-
-		FILETIME currentTime;
-		wchar_t tmpFolderName[30] = {0};
-		GetSystemTimeAsFileTime(&currentTime);
-		wsprintfW(tmpFolderName, L"ob%x%x.TMP\\", currentTime.dwHighDateTime, currentTime.dwLowDateTime);
-		m_strStreamCacheLocation.append(tmpFolderName);
-
-		if (!CreateDirectoryW(m_strStreamCacheLocation.c_str(), NULL))
-		{
-			m_strStreamCacheLocation.clear();
-			return FALSE;
-		}
-	}
+	if (!AcquireStreamCachePath())
+		return FALSE;
 
 	int nResult = FALSE;
 

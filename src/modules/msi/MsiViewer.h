@@ -61,6 +61,7 @@ private:
 	int dumpServices(wstringstream &sstr);
 
 	wstring getStoragePath();
+	bool AcquireStreamCachePath();
 	int cacheInternalStream(const wchar_t* streamName);
 
 	void buildFlatIndex(DirectoryNode* root);

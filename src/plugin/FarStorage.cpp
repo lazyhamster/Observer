@@ -61,8 +61,6 @@ int StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWith
 		
 		m_pRootDir = new ContentTreeNode();
 		m_pCurrentDir = NULL;
-
-		return retVal;
 	}
 
 	return retVal;
