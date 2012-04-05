@@ -359,10 +359,10 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 
 		return TRUE;
 	}
-	catch (System::Security::SecurityException^ sEx)
+	catch (Exception^ ex)
 	{
 		msclr::interop::marshal_context ctx;
-		MessageBox(0, ctx.marshal_as<const wchar_t*>(sEx->Message), L"Module Loading Error", MB_OK | MB_ICONERROR);
+		MessageBox(0, ctx.marshal_as<const wchar_t*>(ex->Message), L"Module Loading Error", MB_OK | MB_ICONERROR);
 
 		return FALSE;
 	}
