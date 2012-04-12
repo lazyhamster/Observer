@@ -4,6 +4,8 @@ Changes history:
 - Support for latest API changes in Far 3.
 - MPQ: Fixed issues with extraction of service file '(listfile)'.
 - VDISK: Improved handling on module loading errors.
+- VDISK: Fixed crash if one of the volumes have unsupported file system.
+- VDISK: Added support for NTFS volumes from Win2k and WinNT4 (updated DiscUtils library).
 
 1.8.5
 - Added support for FAR 3.0
