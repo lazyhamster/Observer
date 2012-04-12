@@ -201,6 +201,8 @@ static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleI
 	HANDLE hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
 	DisplayMessage(false, false, MSG_PLUGIN_NAME, MSG_OPEN_LIST, NULL);
 
+	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_INDETERMINATE);
+
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 	bool listAborted;
 	if (storage->ReadFileList(listAborted))
@@ -214,6 +216,7 @@ static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleI
 		delete storage;
 	}
 
+	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_NOPROGRESS);
 	FarSInfo.RestoreScreen(hScreen);
 
 	return hResult;
