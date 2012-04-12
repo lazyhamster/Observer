@@ -95,6 +95,7 @@ static void PrepareFileList(VDisk* vdisk)
 	for (int i = 0; i < logvol->Length; i++)
 	{
 		LogicalVolumeInfo^ volInfo = logvol[i];
+		vdisk->vVolLabels->Add("Volume_#" + i); // default volume name
 		
 		if (volInfo->Status != LogicalVolumeStatus::Healthy) continue;
 
@@ -117,9 +118,13 @@ static void PrepareFileList(VDisk* vdisk)
 			
 			EnumFilesInVolume(vdisk, dfs->Root, volInfo, i);
 
+			// Replace volume name with label if present
 			String^ volLabel = dfs->VolumeLabel->Trim();
-			if (String::IsNullOrEmpty(volLabel)) volLabel = "Volume_#" + i;
-			vdisk->vVolLabels->Add(volLabel);
+			if (!String::IsNullOrEmpty(volLabel))
+			{
+				List<String^>^ labels = vdisk->vVolLabels;
+				labels[i] = volLabel;
+			}
 		}
 		catch (Exception^ ex)
 		{
