@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include <sstream>
 #include "ModuleDef.h"
+#include "OptionsParser.h"
 #include "PstProcessing.h"
 
 using namespace std;
@@ -219,6 +220,9 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->CloseStorage = CloseStorage;
 	LoadParams->GetItem = GetStorageItem;
 	LoadParams->ExtractItem = ExtractItem;
+
+	OptionsList opts(LoadParams->Settings);
+	opts.GetValue(L"HideEmptyFolders", optHideEmptyFolders);
 
 	return TRUE;
 }

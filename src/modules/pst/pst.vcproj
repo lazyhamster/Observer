@@ -729,6 +729,10 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\..\common\OptionsParser.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\pst.cpp"
 				>
 			</File>
