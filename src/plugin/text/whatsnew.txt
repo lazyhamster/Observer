@@ -6,6 +6,8 @@ Changes history:
 - VDISK: Improved handling on module loading errors.
 - VDISK: Fixed crash if one of the volumes have unsupported file system.
 - VDISK: Added support for NTFS volumes from Win2k and WinNT4 (updated DiscUtils library).
+- VDISK: Added option for default file names encoding (in .ini file).
+- PST: Added option to hide empty folders (in .ini file).
 
 1.8.5
 - Added support for FAR 3.0

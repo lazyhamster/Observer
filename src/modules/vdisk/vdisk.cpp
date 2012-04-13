@@ -5,11 +5,15 @@
 #include <vcclr.h>
 #include <msclr/marshal.h>
 #include "ModuleDef.h"
+#include "OptionsParser.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
 using namespace System::Reflection;
+using namespace System::Text;
 using namespace DiscUtils;
+
+static int optDefaultCodepage = CP_OEMCP;
 
 ref class VDFileInfo
 {
@@ -87,6 +91,33 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 	}
 }
 
+static Encoding^ GetFileNameEncoding()
+{
+	try
+	{
+		int codePage;
+
+		switch (optDefaultCodepage)
+		{
+		case CP_OEMCP:
+			codePage = GetOEMCP();
+			break;
+		case CP_ACP:
+			codePage = GetACP();
+			break;
+		default:
+			codePage = optDefaultCodepage;
+			break;
+		}
+
+		return Encoding::GetEncoding(codePage);
+	}
+	catch (NotSupportedException^)
+	{
+		return Encoding::Default;
+	}
+};
+
 static void PrepareFileList(VDisk* vdisk)
 {
 	VolumeManager^ volm = gcnew VolumeManager(vdisk->pVdiskObj);
@@ -103,7 +134,7 @@ static void PrepareFileList(VDisk* vdisk)
 		if (fsinfo == nullptr || fsinfo->Length == 0) continue;
 
 		FileSystemParameters^ fsParams = gcnew FileSystemParameters();
-		fsParams->FileNameEncoding = System::Text::Encoding::GetEncoding(GetOEMCP());
+		fsParams->FileNameEncoding = GetFileNameEncoding();
 
 		try
 		{
@@ -356,6 +387,9 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->CloseStorage = CloseStorage;
 	LoadParams->GetItem = GetStorageItem;
 	LoadParams->ExtractItem = ExtractItem;
+
+	OptionsList opts(LoadParams->Settings);
+	opts.GetValue(L"DefaultCodepage", optDefaultCodepage);
 
 	try
 	{

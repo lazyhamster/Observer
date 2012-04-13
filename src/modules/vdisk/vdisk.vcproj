@@ -655,7 +655,7 @@
 		/>
 		<AssemblyReference
 			RelativePath=".\Lib\DiscUtils.dll"
-			AssemblyName="DiscUtils, Version=0.9.0.0, PublicKeyToken=60a04f11f1df810d, processorArchitecture=MSIL"
+			AssemblyName="DiscUtils, Version=0.11.0.0, processorArchitecture=MSIL"
 			MinFrameworkVersion="131072"
 		/>
 	</References>
@@ -744,6 +744,10 @@
 						CompileAsManaged="0"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\common\OptionsParser.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\stdafx.cpp"
