@@ -301,12 +301,20 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), ctx.marshal_as<const wchar_t*>(filePath));
-	item_info->Attributes = (DWORD) fileInfo->Ref->Attributes;
-	item_info->Size = (fileInfo->Ref->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fileInfo->Ref)->Length : 0;;
-	item_info->CreationTime = DateTimeToFileTime(fileInfo->Ref->CreationTimeUtc);
-	item_info->ModificationTime = DateTimeToFileTime(fileInfo->Ref->LastWriteTimeUtc);
+
+	try
+	{
+		item_info->Attributes = (DWORD) fileInfo->Ref->Attributes;
+		item_info->Size = (fileInfo->Ref->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fileInfo->Ref)->Length : 0;;
+		item_info->CreationTime = DateTimeToFileTime(fileInfo->Ref->CreationTimeUtc);
+		item_info->ModificationTime = DateTimeToFileTime(fileInfo->Ref->LastWriteTimeUtc);
 	
-	return GET_ITEM_OK;
+		return GET_ITEM_OK;
+	}
+	catch (Exception^)
+	{
+		return GET_ITEM_ERROR;
+	}
 }
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
