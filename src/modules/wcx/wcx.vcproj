@@ -3,7 +3,7 @@
 	ProjectType="Visual C++"
 	Version="9,00"
 	Name="wcx"
-	ProjectGUID="{FBD3F0D6-F516-436C-990A-9125D49D71C5}"
+	ProjectGUID="{102FEDF9-D631-4E6C-9363-E64D133EB305}"
 	RootNamespace="wcx"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
