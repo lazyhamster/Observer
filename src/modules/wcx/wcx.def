@@ -1,0 +1,5 @@
+LIBRARY	"wcx.so"
+
+EXPORTS
+	LoadSubModule
+	UnloadSubModule
