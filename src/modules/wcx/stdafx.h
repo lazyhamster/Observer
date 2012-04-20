@@ -13,3 +13,5 @@
 
 
 // Additional headers
+#include <vector>
+#include <string>

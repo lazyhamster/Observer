@@ -18,10 +18,23 @@ typedef BOOL (__stdcall *CanYouHandleThisFileWFunc) (wchar_t *FileName);
 
 typedef int (__stdcall *CloseArchiveFunc) (HANDLE hArcData);
 
-struct WcxModule
+enum WcxModuleType
 {
-	HMODULE ModuleHandle;
+	WCMT_INVALID,
+	WCMT_UNICODE,
+	WCMT_ANSI,
+	WCMT_ANSIEX
+};
 
+class WcxLoader;
+
+class WcxModule
+{
+	friend class WcxLoader;
+
+private:	
+	HMODULE ModuleHandle;
+	
 	// Unicode functions
 	CanYouHandleThisFileWFunc CanYouHandleThisFileW;
 	OpenArchiveWFunc OpenArchiveW;
@@ -39,6 +52,30 @@ struct WcxModule
 
 	// Common functions
 	CloseArchiveFunc CloseArchive;
+
+	WcxModuleType Type;
+
+public:
+	WcxModule() : ModuleHandle(NULL), Type(WCMT_INVALID) {}
+
+	bool WcxIsArchive(const wchar_t* wszFilePath);
+
+	HANDLE WcxOpenArchive(const wchar_t* wszFilePath);
+	int WcxReadHeader(HANDLE hArchive);
+	int WcxProcessFile(HANDLE hArchive);
+	void WcsCloseArchive(HANDLE hArchive);
+};
+
+class WcxLoader
+{
+private:
+	WcxModule* LoadSingleModule(const wchar_t* path);
+
+public:
+	std::vector<WcxModule*> Modules;
+
+	int LoadModules(const wchar_t* basePath);
+	void UnloadModules();
 };
 
 #endif // wcx_loader_h__
