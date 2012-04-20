@@ -804,6 +804,10 @@
 				RelativePath=".\wcx.def"
 				>
 			</File>
+			<File
+				RelativePath=".\wcx_loader.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -816,6 +820,14 @@
 			</File>
 			<File
 				RelativePath=".\targetver.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wcx_loader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\wcxhead.h"
 				>
 			</File>
 		</Filter>
