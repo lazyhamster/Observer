@@ -733,7 +733,7 @@ int WINAPI ConfigureW(int ItemNumber)
 	/*03*/ {DI_FIXEDIT,   8,4, 24, 4, 0, 0, 0,0, optPrefix, 0},
 	/*04*/ {DI_CHECKBOX,  5,5,  0, 5, 0, optUseExtensionFilters, 0,0, GetLocMsg(MSG_CONFIG_USEEXTFILTERS), 0},
 	/*05*/ {DI_TEXT,	  3,6,  0, 6, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
-	/*06*/ {DI_BUTTON,	  0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 1, L"OK", 0},
+	/*06*/ {DI_BUTTON,	  0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_OK), 0},
 	/*07*/ {DI_BUTTON,    0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
 	};
 
