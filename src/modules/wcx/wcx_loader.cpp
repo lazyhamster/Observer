@@ -3,6 +3,12 @@
 
 using namespace std;
 
+static const wchar_t* GetFileName(const wchar_t* filePath)
+{
+	const wchar_t* ext = wcsrchr(filePath, '\\');
+	return (ext != NULL) ? ext : filePath;
+};
+
 int WcxLoader::LoadModules( const wchar_t* basePath )
 {
 	UnloadModules();
@@ -41,7 +47,7 @@ void WcxLoader::UnloadModules()
 	for (it = Modules.begin(); it != Modules.end(); it++)
 	{
 		WcxModule* module = *it;
-		FreeLibrary(module->ModuleHandle);
+		FreeLibrary(module->m_ModuleHandle);
 	}
 
 	Modules.clear();
@@ -72,13 +78,11 @@ WcxModule* WcxLoader::LoadSingleModule( const wchar_t* path )
 	// Calculate module type
 	WcxModuleType type = WCMT_INVALID;
 	
-	if ((mod->CanYouHandleThisFileW != NULL) && (mod->OpenArchiveW != NULL) && (mod->ReadHeaderExW != NULL)
-		&& (mod->ProcessFileW != NULL) && (mod->SetProcessDataProcW != NULL) && (mod->CloseArchive != NULL))
+	if ((mod->OpenArchiveW != NULL) && (mod->ReadHeaderExW != NULL)	&& (mod->ProcessFileW != NULL) && (mod->SetProcessDataProcW != NULL) && (mod->CloseArchive != NULL))
 	{
 		type = WCMT_UNICODE;
 	}
-	else if ((mod->CanYouHandleThisFile != NULL) && (mod->OpenArchive != NULL) && (mod->ProcessFile != NULL)
-		&& (mod->SetProcessDataProc != NULL) && (mod->CloseArchive != NULL))
+	else if ((mod->OpenArchive != NULL) && (mod->ProcessFile != NULL) && (mod->SetProcessDataProc != NULL) && (mod->CloseArchive != NULL))
 	{
 		if (mod->ReadHeaderEx != NULL)
 			type = WCMT_ANSIEX;
@@ -88,7 +92,8 @@ WcxModule* WcxLoader::LoadSingleModule( const wchar_t* path )
 
 	if (type != WCMT_INVALID)
 	{
-		mod->ModuleHandle = hMod;
+		mod->m_ModuleHandle = hMod;
+		mod->m_ModuleName = GetFileName(path);
 		mod->Type = type;
 
 		return mod;
@@ -98,4 +103,21 @@ WcxModule* WcxLoader::LoadSingleModule( const wchar_t* path )
 	delete mod;
 
 	return NULL;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+bool WcxModule::WcxIsArchive( const wchar_t* wszFilePath )
+{
+	return true;
+}
+
+HANDLE WcxModule::WcxOpenArchive( const wchar_t* wszFilePath )
+{
+	return NULL;
+}
+
+void WcxModule::WcsCloseArchive( HANDLE hArchive )
+{
+	//
 }

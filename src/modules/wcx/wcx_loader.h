@@ -33,7 +33,8 @@ class WcxModule
 	friend class WcxLoader;
 
 private:	
-	HMODULE ModuleHandle;
+	HMODULE m_ModuleHandle;
+	std::wstring m_ModuleName;
 	
 	// Unicode functions
 	CanYouHandleThisFileWFunc CanYouHandleThisFileW;
@@ -56,7 +57,7 @@ private:
 	WcxModuleType Type;
 
 public:
-	WcxModule() : ModuleHandle(NULL), Type(WCMT_INVALID) {}
+	WcxModule() : m_ModuleHandle(NULL), Type(WCMT_INVALID) {}
 
 	bool WcxIsArchive(const wchar_t* wszFilePath);
 
