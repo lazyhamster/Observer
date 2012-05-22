@@ -107,7 +107,7 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 	DWORD block = xbox ? dir->XBOXRecord.LocationOfExtent : (DWORD)dir->Record.LocationOfExtent;
 	DWORD sector = xbox ? 0x800 : (WORD)dir->VolumeDescriptor->VolumeDescriptor.LogicalBlockSize;
 	DWORD block_increment = 1;
-	bool fAllowPartialFile = xbox ? false : (dir->Record.FileFlags & FATTR_ALLOWPARTIAL) != 0;
+	bool fAllowPartialFile = !xbox && ((dir->Record.FileFlags & FATTR_ALLOWPARTIAL) != 0);
 
 	if( sector == image->RealBlockSize ) // if logical block size == real block size then read/write by 10 blocks
 	{

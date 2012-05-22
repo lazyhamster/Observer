@@ -8,12 +8,13 @@
 #include "OptionsParser.h"
 
 static int g_DefaultCharser = CP_ACP;
-static BOOL g_UseRockRidge = TRUE;
+static bool g_UseRockRidge = true;
+static bool g_ProcessUDF = false;
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	bool needPasswd = false;
-	IsoImage* image = GetImage(params.FilePath, params.Password, needPasswd);
+	IsoImage* image = GetImage(params.FilePath, params.Password, needPasswd, g_ProcessUDF);
 	if (!image) return needPasswd ? SOR_PASSWORD_REQUIRED : SOR_INVALID_FILE;
 
 	image->DefaultCharset = g_DefaultCharser;
@@ -149,6 +150,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	OptionsList opts(LoadParams->Settings);
 	opts.GetValue(L"Charset", g_DefaultCharser);
 	opts.GetValue(L"RockRidge", g_UseRockRidge);
+	opts.GetValue(L"ProcessUDF", g_ProcessUDF);
 
 	return TRUE;
 }

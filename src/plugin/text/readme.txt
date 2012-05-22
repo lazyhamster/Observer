@@ -125,7 +125,7 @@ Used third-party code:
 Plug-in uses code for UDF and NSIS support. Distributed under GNU LGPL.
 
 - Total Commander ISO plugin by Sergey Oblomov (http://wincmd.ru/plugring/iso.html)
-Modified for wchar_t support in file names. Based on version 1.7.6.
+Modified for wchar_t support in file names.
 Didn't found license for this one, so it goes by LGPL too.
 
 - libmspack (http://www.cabextract.org.uk/libmspack/)

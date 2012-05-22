@@ -123,7 +123,7 @@ Observer
 Взята поддержка UDF + NSIS. Распространяется по лицензии GNU LGPL.
 
 - Total Commander ISO plugin by Sergey Oblomov (http://wincmd.ru/plugring/iso.html)
-Передалан на поддержку wchar_t в именах. Базируется на версии 1.7.6.
+Передалан на поддержку wchar_t в именах.
 Лицензии на код не нашел, поэтому тоже пойдет по LGPL.
 
 - libmspack (http://www.cabextract.org.uk/libmspack/)
