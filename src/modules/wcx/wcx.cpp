@@ -11,35 +11,108 @@ static WcxLoader* Loader = NULL;
 
 struct WcxStorage
 {
-	HANDLE ArcHandle;
+	std::wstring FilePath;
 	WcxModule* Module;
+
+	HANDLE ArcHandle;
+	int AtItem;
+	
+	bool ListingComplete;
+	std::vector<StorageItemInfo> Items;
+	
+	WcxStorage() : ArcHandle(NULL), Module(NULL), ListingComplete(false), AtItem(0) {}
+
+	bool Reopen(int opMode)
+	{
+		if (ArcHandle != NULL)
+		{
+			Module->WcsCloseArchive(ArcHandle);
+			ArcHandle = NULL;
+		}
+
+		ArcHandle = Module->WcxOpenArchive(FilePath.c_str(), opMode);
+		AtItem = 0;
+
+		return (ArcHandle != NULL);
+	}
 };
+
+//////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	/*
-	*storage = vdObj;
+	WcxModule* procModule = NULL;
+	HANDLE hArchive = NULL;
 
-	memset(info, 0, sizeof(StorageGeneralInfo));
-	wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, GetDiskType(vdisk));
-	wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
-	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
-	*/
+	for (size_t i = 0; i < Loader->Modules.size(); i++)
+	{
+		WcxModule* nextModule = Loader->Modules[i];
+		if (nextModule->WcxIsArchive(params.FilePath))
+		{
+			hArchive = nextModule->WcxOpenArchive(params.FilePath, PK_OM_EXTRACT);
+			if (hArchive != NULL)
+			{
+				procModule = nextModule;
+				break;
+			}
+		}
+	} // for
+
+	if (procModule != NULL && hArchive != NULL)
+	{
+		WcxStorage* storeObj = new WcxStorage();
+		storeObj->Module = procModule;
+		storeObj->ArcHandle = hArchive;
+		storeObj->AtItem = 0;
+		storeObj->ListingComplete = false;
+
+		*storage = storeObj;
+
+		memset(info, 0, sizeof(StorageGeneralInfo));
+		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"-");
+		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
+		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
+	}
 
 	return SOR_INVALID_FILE;
 }
 
 void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
+	WcxStorage* storeObj = (WcxStorage*) storage;
+	if (storeObj == NULL) return;
+
+	storeObj->Items.clear();
+	if (storeObj->ArcHandle != NULL)
+	{
+		storeObj->Module->WcsCloseArchive(storeObj->ArcHandle);
+	}
+	delete storeObj;
 }
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
+	WcxStorage* storeObj = (WcxStorage*) storage;
+	if (storeObj == NULL) return GET_ITEM_ERROR;
+
+	if (!storeObj->ListingComplete)
+	{
+		// We are not on first item - reopen archive 
+		if (storeObj->ArcHandle != NULL && storeObj->AtItem != 0)
+		{
+			storeObj->Module->WcsCloseArchive(storeObj->ArcHandle);
+			storeObj->ArcHandle = NULL;
+		}
+	}
+	
 	return GET_ITEM_NOMOREITEMS;
 }
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
+	WcxStorage* storeObj = (WcxStorage*) storage;
+	if (storeObj == NULL) return SER_ERROR_SYSTEM;
+	
 	return SER_ERROR_SYSTEM;
 }
 

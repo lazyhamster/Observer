@@ -109,15 +109,63 @@ WcxModule* WcxLoader::LoadSingleModule( const wchar_t* path )
 
 bool WcxModule::WcxIsArchive( const wchar_t* wszFilePath )
 {
+	if (CanYouHandleThisFileW != NULL)
+	{
+		return CanYouHandleThisFileW(wszFilePath) != FALSE;
+	}
+
+	if (CanYouHandleThisFile != NULL)
+	{
+		char fileName[MAX_PATH] = {0};
+		WideCharToMultiByte(CP_ACP, 0, wszFilePath, -1, fileName, MAX_PATH, NULL, NULL);
+		return CanYouHandleThisFile(fileName) != FALSE;
+	}
+	
 	return true;
 }
 
-HANDLE WcxModule::WcxOpenArchive( const wchar_t* wszFilePath )
+HANDLE WcxModule::WcxOpenArchive( const wchar_t* wszFilePath, int nOpMode )
 {
-	return NULL;
+	switch (Type)
+	{
+		case WCMT_UNICODE:
+			{
+				tOpenArchiveDataW oad = {0};
+				oad.ArcName = const_cast<wchar_t*>(wszFilePath);
+				oad.OpenMode = nOpMode;
+
+				return OpenArchiveW(&oad);
+			}
+		case WCMT_ANSI:
+		case WCMT_ANSIEX:
+			{
+				char fileNameBuf[MAX_PATH] = {0};
+				WideCharToMultiByte(CP_ACP, 0, wszFilePath, -1, fileNameBuf, MAX_PATH, NULL, NULL);
+				
+				tOpenArchiveData oad = {0};
+				oad.ArcName = fileNameBuf;
+				oad.OpenMode = nOpMode;
+				return OpenArchive(&oad);
+			}
+		default:
+			return NULL;
+	}
 }
 
 void WcxModule::WcsCloseArchive( HANDLE hArchive )
 {
-	//
+	if (hArchive != NULL)
+	{
+		CloseArchive(hArchive);
+	}
+}
+
+int WcxModule::WcxReadHeader( HANDLE hArchive )
+{
+	return 0;
+}
+
+int WcxModule::WcxProcessFile( HANDLE hArchive )
+{
+	return 0;
 }
