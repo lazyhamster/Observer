@@ -7,6 +7,7 @@ Changes history:
 - VDISK: Fixed crash if one of the volumes have unsupported file system.
 - VDISK: Added support for NTFS volumes from Win2k and WinNT4 (updated DiscUtils library).
 - VDISK: Added option for default file names encoding (in .ini file).
+- VDISK: Fixed problem with opening some ext3 volumes.
 - PST: Added option to hide empty folders (in .ini file).
 
 1.8.5
