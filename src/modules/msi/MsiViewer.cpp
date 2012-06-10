@@ -798,8 +798,8 @@ int CMsiViewer::dumpProperties(wstringstream &sstr)
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Property", &hQueryProps) );
 	OK( MsiViewExecute(hQueryProps, 0) );
 
-	wchar_t wszPropertyName[256];
-	wchar_t wszPropertyData[4096];
+	wchar_t wszPropertyName[512];
+	vector<wchar_t> vPropertyData(1024);
 
 	// Retrieve all feature entries
 	PMSIHANDLE hPropRec;
@@ -809,10 +809,12 @@ int CMsiViewer::dumpProperties(wstringstream &sstr)
 		OK(res);
 
 		READ_STR(hPropRec, 1, wszPropertyName);
-		READ_STR(hPropRec, 2, wszPropertyData);
+		
+		while (MsiRecordGetString(hPropRec, 2, &vPropertyData[0], &(nCellSize = (DWORD) vPropertyData.size())) == ERROR_MORE_DATA)
+			vPropertyData.resize(nCellSize + 1);
 
-		if (wszPropertyName[0])
-			sstr << wszPropertyName << L" = " << wszPropertyData << endl;
+		if (wszPropertyName[0] && (res == ERROR_SUCCESS))
+			sstr << wszPropertyName << L" = " << &vPropertyData[0] << endl;
 	}
 
 	return ERROR_SUCCESS;

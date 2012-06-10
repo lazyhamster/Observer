@@ -9,6 +9,7 @@ Changes history:
 - VDISK: Added option for default file names encoding (in .ini file).
 - VDISK: Fixed problem with opening some ext3 volumes.
 - PST: Added option to hide empty folders (in .ini file).
+- MSI: Fixed inabilty to open some files with very long property values.
 
 1.8.5
 - Added support for FAR 3.0
