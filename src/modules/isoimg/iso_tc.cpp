@@ -2,23 +2,13 @@
 #include "iso_tc.h"
 #include "isz/iszsdk.h"
 
+#define sizeofa(x) (sizeof(x) / sizeof(*x))
+
 const char ZipHeader[] = {'p', 'k'};
 const char RarHeader[] = {'r', 'a', 'r'};
 const char ExeHeader[] = {'M', 'Z'};
 
 const DWORD SearchSize = 0x100000;
-
-// NOTE: rewritten
-static int lstrcmpn( const char* str1, const char* str2, int len, bool casesensitive = true )
-{
-    if( !len )
-        return 0;
-
-	if (casesensitive)
-		return strncmp(str1, str2, len);
-	else
-		return _strnicmp(str1, str2, len);
-}
 
 static int lmemfind( const char* ptr1, int len1, const char* ptr2, int len2 )
 {
@@ -41,15 +31,40 @@ static int lmemfind( const char* ptr1, int len1, const char* ptr2, int len2 )
     return -1;
 }
 
-static wchar_t* litoa( int num, int digits = 1 )
+// NOTE: rewritten
+static int lstrcmpn( const char* str1, const char* str2, int len, bool casesensitive = true )
+{
+    if( !len )
+        return 0;
+
+	if (casesensitive)
+		return strncmp(str1, str2, len);
+	else
+		return _strnicmp(str1, str2, len);
+}
+
+static char* litoa( int num, int digits = 1 )
+{
+    static char buffer[100];
+    int i;
+    for( i = 0; i < sizeofa( buffer ); i++ )
+        buffer[i] = '0';
+    buffer[sizeofa(buffer) - 1] = 0;
+    for( i = 0; num > 0; i++, num /= 10 )
+        buffer[sizeofa( buffer ) - 2 - i] = (char)((num % 10) + '0');
+    return buffer + sizeofa( buffer ) - max( i, digits ) - 1;
+}
+
+static wchar_t* litow( int num, int digits = 1 )
 {
     static wchar_t buffer[100];
     int i;
-    for( i = 0; i < sizeof( buffer ); i++ )
+    for( i = 0; i < sizeofa( buffer ); i++ )
         buffer[i] = '0';
+    buffer[sizeofa(buffer) - 1] = 0;
     for( i = 0; num > 0; i++, num /= 10 )
-        buffer[sizeof( buffer ) - 1 - i] = (wchar_t)((num % 10) + '0');
-    return buffer + sizeof( buffer ) - max( i, digits );
+        buffer[sizeofa( buffer ) - 2 - i] = (wchar_t)((num % 10) + '0');
+    return buffer + sizeofa( buffer ) - max( i, digits ) - 1;
 }
 
 static LONGLONG GetFilePos(const IsoImage* image)
@@ -1437,7 +1452,7 @@ bool LoadAllTrees( IsoImage* image, Directory** dirs, DWORD* count, bool boot )
             if(!image->VolumeDescriptors[i].XBOX)
             {
                 lstrcpy(session, L"session");
-                lstrcat( session, litoa( i + 1, digs ) );
+                lstrcat( session, litow( i + 1, digs ) );
             }
             //else
             //    lstrcpy(session, "XBOX");
