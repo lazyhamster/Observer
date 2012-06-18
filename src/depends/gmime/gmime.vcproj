@@ -894,6 +894,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\gmime\gmime-gpg-context.h"
+					>
+				</File>
+				<File
 					RelativePath=".\gmime\gmime-header.h"
 					>
 				</File>
@@ -951,6 +955,10 @@
 				</File>
 				<File
 					RelativePath=".\gmime\gmime-part.h"
+					>
+				</File>
+				<File
+					RelativePath=".\gmime\gmime-pkcs7-context.h"
 					>
 				</File>
 				<File
