@@ -949,8 +949,6 @@ g_io_win32_check (GSource *source)
       g_assert_not_reached ();
       abort ();
     }
-	
-	return FALSE;
 }
 
 static gboolean

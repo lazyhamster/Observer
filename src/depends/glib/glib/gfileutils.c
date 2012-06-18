@@ -1012,9 +1012,7 @@ write_to_temp_file (const gchar  *contents,
       }
   }
 #endif
-#ifdef BTRFS_SUPER_MAGIC
  no_fsync:
-#endif
   
   errno = 0;
   if (fclose (file) == EOF)

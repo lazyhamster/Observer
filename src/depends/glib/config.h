@@ -35,13 +35,13 @@
 #define GETTEXT_PACKAGE "glib20"
 
 /* Define to the GLIB binary age */
-#define GLIB_BINARY_AGE 2807
+#define GLIB_BINARY_AGE 2808
 
 /* Byte contents of gmutex */
 /* #undef GLIB_BYTE_CONTENTS_GMUTEX */
 
 /* Define to the GLIB interface age */
-#define GLIB_INTERFACE_AGE 7
+#define GLIB_INTERFACE_AGE 8
 
 /* Define the location where the catalogs will be installed */
 #define GLIB_LOCALE_DIR "NONE/share/locale"
@@ -50,7 +50,7 @@
 #define GLIB_MAJOR_VERSION 2
 
 /* Define to the GLIB micro version */
-#define GLIB_MICRO_VERSION 7
+#define GLIB_MICRO_VERSION 8
 
 /* Define to the GLIB minor version */
 #define GLIB_MINOR_VERSION 28
@@ -720,13 +720,13 @@
 #define PACKAGE_NAME "glib"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "glib 2.28.7"
+#define PACKAGE_STRING "glib 2.28.8"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "glib"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.28.7"
+#define PACKAGE_VERSION "2.28.8"
 
 /* Maximum POSIX RT priority */
 /* #undef POSIX_MAX_PRIORITY */

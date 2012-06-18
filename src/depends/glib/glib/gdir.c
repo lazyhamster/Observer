@@ -44,8 +44,8 @@
 
 
 #if defined (_MSC_VER) && !defined (HAVE_DIRENT_H)
-#include "../dirent/dirent.h"
-#include "../dirent/wdirent.c"
+#include "../build/win32/dirent/dirent.h"
+#include "../build/win32/dirent/wdirent.c"
 #endif
 
 struct _GDir
