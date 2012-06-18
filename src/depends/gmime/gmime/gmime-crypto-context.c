@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -134,8 +134,6 @@ g_mime_crypto_context_init (GMimeCryptoContext *ctx, GMimeCryptoContextClass *kl
 static void
 g_mime_crypto_context_finalize (GObject *object)
 {
-	GMimeCryptoContext *ctx = (GMimeCryptoContext *) object;
-	
 	G_OBJECT_CLASS (parent_class)->finalize (object);
 }
 
@@ -360,7 +358,7 @@ crypto_verify (GMimeCryptoContext *ctx, GMimeDigestAlgo digest, GMimeStream *ist
  * verify the integirity of the @istream.
  *
  * Returns: a #GMimeSignatureList object containing the status of each
- * signature.
+ * signature or %NULL on error.
  **/
 GMimeSignatureList *
 g_mime_crypto_context_verify (GMimeCryptoContext *ctx, GMimeDigestAlgo digest, GMimeStream *istream,

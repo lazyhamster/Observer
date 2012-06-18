@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -29,6 +29,7 @@
 
 #include "gmime-part.h"
 #include "gmime-utils.h"
+#include "gmime-common.h"
 #include "gmime-stream-mem.h"
 #include "gmime-stream-null.h"
 #include "gmime-stream-filter.h"
@@ -36,6 +37,7 @@
 #include "gmime-filter-best.h"
 #include "gmime-filter-crlf.h"
 #include "gmime-filter-md5.h"
+#include "gmime-table-private.h"
 
 #define d(x)
 
@@ -59,9 +61,7 @@ static void g_mime_part_finalize (GObject *object);
 static void mime_part_prepend_header (GMimeObject *object, const char *header, const char *value);
 static void mime_part_append_header (GMimeObject *object, const char *header, const char *value);
 static void mime_part_set_header (GMimeObject *object, const char *header, const char *value);
-static const char *mime_part_get_header (GMimeObject *object, const char *header);
 static gboolean mime_part_remove_header (GMimeObject *object, const char *header);
-static char *mime_part_get_headers (GMimeObject *object);
 static ssize_t mime_part_write_to_stream (GMimeObject *object, GMimeStream *stream);
 static void mime_part_encode (GMimeObject *object, GMimeEncodingConstraint constraint);
 
@@ -111,8 +111,6 @@ g_mime_part_class_init (GMimePartClass *klass)
 	object_class->append_header = mime_part_append_header;
 	object_class->remove_header = mime_part_remove_header;
 	object_class->set_header = mime_part_set_header;
-	object_class->get_header = mime_part_get_header;
-	object_class->get_headers = mime_part_get_headers;
 	object_class->write_to_stream = mime_part_write_to_stream;
 	object_class->encode = mime_part_encode;
 	
@@ -161,41 +159,57 @@ static const char *content_headers[] = {
 };
 
 
+static void
+copy_atom (const char *src, char *dest, size_t n)
+{
+	register const char *inptr = src;
+	register char *outptr = dest;
+	char *outend = dest + n;
+	
+	while (is_lwsp (*inptr))
+		inptr++;
+	
+	while (is_atom (*inptr) && outptr < outend)
+		*outptr++ = *inptr++;
+	
+	*outptr = '\0';
+}
+
 static gboolean
 process_header (GMimeObject *object, const char *header, const char *value)
 {
 	GMimePart *mime_part = (GMimePart *) object;
-	char *text;
+	char encoding[32];
 	guint i;
 	
+	if (g_ascii_strncasecmp (header, "Content-", 8) != 0)
+		return FALSE;
+	
 	for (i = 0; i < G_N_ELEMENTS (content_headers); i++) {
-		if (!g_ascii_strcasecmp (content_headers[i], header))
+		if (!g_ascii_strcasecmp (content_headers[i] + 8, header + 8))
 			break;
 	}
 	
 	switch (i) {
 	case HEADER_CONTENT_TRANSFER_ENCODING:
-		text = g_alloca (strlen (value) + 1);
-		strcpy (text, value);
-		g_strstrip (text);
-		mime_part->encoding = g_mime_content_encoding_from_string (text);
+		copy_atom (value, encoding, sizeof (encoding) - 1);
+		mime_part->encoding = g_mime_content_encoding_from_string (encoding);
 		break;
 	case HEADER_CONTENT_DESCRIPTION:
 		/* FIXME: we should decode this */
 		g_free (mime_part->content_description);
-		mime_part->content_description = g_strstrip (g_strdup (value));
+		mime_part->content_description = g_mime_strdup_trim (value);
 		break;
 	case HEADER_CONTENT_LOCATION:
 		g_free (mime_part->content_location);
-		mime_part->content_location = g_strstrip (g_strdup (value));
+		mime_part->content_location = g_mime_strdup_trim (value);
 		break;
 	case HEADER_CONTENT_MD5:
 		g_free (mime_part->content_md5);
-		mime_part->content_md5 = g_strstrip (g_strdup (value));
+		mime_part->content_md5 = g_mime_strdup_trim (value);
 		break;
 	default:
 		return FALSE;
-		break;
 	}
 	
 	return TRUE;
@@ -204,11 +218,6 @@ process_header (GMimeObject *object, const char *header, const char *value)
 static void
 mime_part_prepend_header (GMimeObject *object, const char *header, const char *value)
 {
-	/* Make sure that the header is a Content-* header, else it
-           doesn't belong on a mime part */
-	if (g_ascii_strncasecmp ("Content-", header, 8) != 0)
-		return;
-	
 	if (!process_header (object, header, value))
 		GMIME_OBJECT_CLASS (parent_class)->prepend_header (object, header, value);
 	else
@@ -218,11 +227,6 @@ mime_part_prepend_header (GMimeObject *object, const char *header, const char *v
 static void
 mime_part_append_header (GMimeObject *object, const char *header, const char *value)
 {
-	/* Make sure that the header is a Content-* header, else it
-           doesn't belong on a mime part */
-	if (g_ascii_strncasecmp ("Content-", header, 8) != 0)
-		return;
-	
 	if (!process_header (object, header, value))
 		GMIME_OBJECT_CLASS (parent_class)->append_header (object, header, value);
 	else
@@ -232,26 +236,10 @@ mime_part_append_header (GMimeObject *object, const char *header, const char *va
 static void
 mime_part_set_header (GMimeObject *object, const char *header, const char *value)
 {
-	/* Make sure that the header is a Content-* header, else it
-           doesn't belong on a mime part */
-	if (g_ascii_strncasecmp ("Content-", header, 8) != 0)
-		return;
-	
 	if (!process_header (object, header, value))
 		GMIME_OBJECT_CLASS (parent_class)->set_header (object, header, value);
 	else
 		g_mime_header_list_set (object->headers, header, value);
-}
-
-static const char *
-mime_part_get_header (GMimeObject *object, const char *header)
-{
-	/* Make sure that the header is a Content-* header, else it
-           doesn't belong on a mime part */
-	if (!g_ascii_strncasecmp ("Content-", header, 8))
-		return GMIME_OBJECT_CLASS (parent_class)->get_header (object, header);
-	else
-		return NULL;
 }
 
 static gboolean
@@ -260,39 +248,34 @@ mime_part_remove_header (GMimeObject *object, const char *header)
 	GMimePart *mime_part = (GMimePart *) object;
 	guint i;
 	
-	for (i = 0; i < G_N_ELEMENTS (content_headers); i++) {
-		if (!g_ascii_strcasecmp (content_headers[i], header))
+	if (!g_ascii_strncasecmp (header, "Content-", 8)) {
+		for (i = 0; i < G_N_ELEMENTS (content_headers); i++) {
+			if (!g_ascii_strcasecmp (content_headers[i] + 8, header + 8))
+				break;
+		}
+		
+		switch (i) {
+		case HEADER_CONTENT_TRANSFER_ENCODING:
+			mime_part->encoding = GMIME_CONTENT_ENCODING_DEFAULT;
 			break;
-	}
-	
-	switch (i) {
-	case HEADER_CONTENT_TRANSFER_ENCODING:
-		mime_part->encoding = GMIME_CONTENT_ENCODING_DEFAULT;
-		break;
-	case HEADER_CONTENT_DESCRIPTION:
-		/* FIXME: we should decode this */
-		g_free (mime_part->content_description);
-		mime_part->content_description = NULL;
-		break;
-	case HEADER_CONTENT_LOCATION:
-		g_free (mime_part->content_location);
-		mime_part->content_location = NULL;
-		break;
-	case HEADER_CONTENT_MD5:
-		g_free (mime_part->content_md5);
-		mime_part->content_md5 = NULL;
-		break;
-	default:
-		break;
+		case HEADER_CONTENT_DESCRIPTION:
+			g_free (mime_part->content_description);
+			mime_part->content_description = NULL;
+			break;
+		case HEADER_CONTENT_LOCATION:
+			g_free (mime_part->content_location);
+			mime_part->content_location = NULL;
+			break;
+		case HEADER_CONTENT_MD5:
+			g_free (mime_part->content_md5);
+			mime_part->content_md5 = NULL;
+			break;
+		default:
+			break;
+		}
 	}
 	
 	return GMIME_OBJECT_CLASS (parent_class)->remove_header (object, header);
-}
-
-static char *
-mime_part_get_headers (GMimeObject *object)
-{
-	return GMIME_OBJECT_CLASS (parent_class)->get_headers (object);
 }
 
 static ssize_t

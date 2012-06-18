@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -112,6 +112,8 @@ void g_mime_header_list_destroy (GMimeHeaderList *headers);
 void g_mime_header_list_set_stream (GMimeHeaderList *headers, GMimeStream *stream);
 GMimeStream *g_mime_header_list_get_stream (GMimeHeaderList *headers);
 
+void g_mime_header_list_clear (GMimeHeaderList *headers);
+gboolean g_mime_header_list_contains (const GMimeHeaderList *headers, const char *name);
 void g_mime_header_list_prepend (GMimeHeaderList *headers, const char *name, const char *value);
 void g_mime_header_list_append (GMimeHeaderList *headers, const char *name, const char *value);
 void g_mime_header_list_set (GMimeHeaderList *headers, const char *name, const char *value);

@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -728,8 +728,11 @@ process_header (GMimeObject *object, const char *header, const char *value)
 	GMimeContentType *content_type;
 	guint i;
 	
+	if (g_ascii_strncasecmp (header, "Content-", 8) != 0)
+		return FALSE;
+	
 	for (i = 0; i < G_N_ELEMENTS (content_headers); i++) {
-		if (!g_ascii_strcasecmp (content_headers[i], header))
+		if (!g_ascii_strcasecmp (content_headers[i] + 8, header + 8))
 			break;
 	}
 	
@@ -771,7 +774,7 @@ object_prepend_header (GMimeObject *object, const char *header, const char *valu
  * @header: header name
  * @value: header value
  *
- * Prepends a header to the MIME object.
+ * Prepends a raw, unprocessed header to the MIME object.
  **/
 void
 g_mime_object_prepend_header (GMimeObject *object, const char *header, const char *value)
@@ -797,7 +800,7 @@ object_append_header (GMimeObject *object, const char *header, const char *value
  * @header: header name
  * @value: header value
  *
- * Appends a header to the MIME object.
+ * Appends a raw, unprocessed header to the MIME object.
  **/
 void
 g_mime_object_append_header (GMimeObject *object, const char *header, const char *value)
@@ -824,7 +827,7 @@ object_set_header (GMimeObject *object, const char *header, const char *value)
  * @header: header name
  * @value: header value
  *
- * Sets an arbitrary header on the MIME object.
+ * Sets an arbitrary raw, unprocessed header on the MIME object.
  **/
 void
 g_mime_object_set_header (GMimeObject *object, const char *header, const char *value)
@@ -849,11 +852,10 @@ object_get_header (GMimeObject *object, const char *header)
  * @object: a #GMimeObject
  * @header: header name
  *
- * Gets the value of the requested header if it exists or %NULL
- * otherwise.
+ * Gets the raw, unprocessed value of the requested header.
  *
- * Returns: the value of the header @header if it exists or %NULL
- * otherwise.
+ * Returns: the raw, unprocessed value of the requested header if it
+ * exists or %NULL otherwise.
  **/
 const char *
 g_mime_object_get_header (GMimeObject *object, const char *header)

@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -51,6 +51,7 @@
 #include <gmime/gmime-stream-file.h>
 #include <gmime/gmime-stream-filter.h>
 #include <gmime/gmime-stream-fs.h>
+#include <gmime/gmime-stream-gio.h>
 #include <gmime/gmime-stream-mem.h>
 #include <gmime/gmime-stream-mmap.h>
 #include <gmime/gmime-stream-null.h>
@@ -69,6 +70,8 @@
 #include <gmime/gmime-filter-windows.h>
 #include <gmime/gmime-filter-yenc.h>
 #include <gmime/gmime-crypto-context.h>
+#include <gmime/gmime-pkcs7-context.h>
+#include <gmime/gmime-gpg-context.h>
 
 G_BEGIN_DECLS
 

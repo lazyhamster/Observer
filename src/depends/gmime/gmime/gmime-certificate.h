@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -80,7 +80,7 @@ typedef enum {
 	GMIME_DIGEST_ALGO_SHA384      = 9,
 	GMIME_DIGEST_ALGO_SHA512      = 10,
 	GMIME_DIGEST_ALGO_SHA224      = 11,
-	GMIME_DIGEST_ALGO_MD4         = 301,
+	GMIME_DIGEST_ALGO_MD4         = 301
 } GMimeDigestAlgo;
 
 /**

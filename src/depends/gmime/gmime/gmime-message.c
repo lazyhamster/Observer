@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -33,6 +33,7 @@
 #include "gmime-multipart-encrypted.h"
 #include "gmime-part.h"
 #include "gmime-utils.h"
+#include "gmime-common.h"
 #include "gmime-stream-mem.h"
 #include "gmime-table-private.h"
 #include "gmime-parse-utils.h"
@@ -790,10 +791,12 @@ message_prepend_header (GMimeObject *object, const char *header, const char *val
 {
 	GMimeMessage *message = (GMimeMessage *) object;
 	
-	/* Make sure that the header is not a Content-* header, else it
-           doesn't belong on a message */
-	if (!g_ascii_strncasecmp ("Content-", header, 8))
+	/* Content-* headers don't belong on the message, they belong on the part. */
+	if (!g_ascii_strncasecmp ("Content-", header, 8)) {
+		if (message->mime_part)
+			g_mime_object_prepend_header (message->mime_part, header, value);
 		return;
+	}
 	
 	if (!process_header (object, PREPEND, header, value))
 		GMIME_OBJECT_CLASS (parent_class)->prepend_header (object, header, value);
@@ -809,10 +812,12 @@ message_append_header (GMimeObject *object, const char *header, const char *valu
 {
 	GMimeMessage *message = (GMimeMessage *) object;
 	
-	/* Make sure that the header is not a Content-* header, else it
-           doesn't belong on a message */
-	if (!g_ascii_strncasecmp ("Content-", header, 8))
+	/* Content-* headers don't belong on the message, they belong on the part. */
+	if (!g_ascii_strncasecmp ("Content-", header, 8)) {
+		if (message->mime_part)
+			g_mime_object_append_header (message->mime_part, header, value);
 		return;
+	}
 	
 	if (!process_header (object, APPEND, header, value))
 		GMIME_OBJECT_CLASS (parent_class)->append_header (object, header, value);
@@ -828,10 +833,12 @@ message_set_header (GMimeObject *object, const char *header, const char *value)
 {
 	GMimeMessage *message = (GMimeMessage *) object;
 	
-	/* Make sure that the header is not a Content-* header, else it
-           doesn't belong on a message */
-	if (!g_ascii_strncasecmp ("Content-", header, 8))
+	/* Content-* headers don't belong on the message, they belong on the part. */
+	if (!g_ascii_strncasecmp ("Content-", header, 8)) {
+		if (message->mime_part)
+			g_mime_object_set_header (message->mime_part, header, value);
 		return;
+	}
 	
 	if (!process_header (object, SET, header, value))
 		GMIME_OBJECT_CLASS (parent_class)->set_header (object, header, value);
@@ -848,8 +855,7 @@ message_get_header (GMimeObject *object, const char *header)
 	GMimeMessage *message = (GMimeMessage *) object;
 	const char *value;
 	
-	/* Make sure that the header is not a Content-* header, else it
-           doesn't belong on a message */
+	/* Content-* headers don't belong on the message, they belong on the part. */
 	if (g_ascii_strncasecmp ("Content-", header, 8) != 0) {
 		if ((value = GMIME_OBJECT_CLASS (parent_class)->get_header (object, header)))
 			return value;
@@ -871,8 +877,7 @@ message_remove_header (GMimeObject *object, const char *header)
 	GMimeRecipientType type;
 	guint i;
 	
-	/* Make sure that the header is not a Content-* header, else it
-           doesn't belong on a message */
+	/* Content-* headers don't belong on the message, they belong on the part. */
 	if (!g_ascii_strncasecmp ("Content-", header, 8)) {
 		if (message->mime_part)
 			return g_mime_object_remove_header (message->mime_part, header);
@@ -1080,6 +1085,9 @@ g_mime_message_set_sender (GMimeMessage *message, const char *sender)
 		g_mime_header_list_set (GMIME_OBJECT (message)->headers, "From", "");
 		message->from = NULL;
 	}
+	
+	if (message->mime_part)
+		g_mime_header_list_set_stream (message->mime_part->headers, NULL);
 }
 
 
@@ -1114,9 +1122,12 @@ g_mime_message_set_reply_to (GMimeMessage *message, const char *reply_to)
 	g_return_if_fail (reply_to != NULL);
 	
 	g_free (message->reply_to);
-	message->reply_to = g_strstrip (g_strdup (reply_to));
+	message->reply_to = g_mime_strdup_trim (reply_to);
 	
 	g_mime_header_list_set (GMIME_OBJECT (message)->headers, "Reply-To", message->reply_to);
+	
+	if (message->mime_part)
+		g_mime_header_list_set_stream (message->mime_part->headers, NULL);
 }
 
 
@@ -1154,6 +1165,9 @@ sync_recipient_header (GMimeMessage *message, GMimeRecipientType type)
 		/* list should never be NULL... */
 		g_mime_header_list_set (object->headers, name, NULL);
 	}
+	
+	if (message->mime_part)
+		g_mime_header_list_set_stream (message->mime_part->headers, NULL);
 }
 
 static void
@@ -1198,6 +1212,11 @@ g_mime_message_add_recipient (GMimeMessage *message, GMimeRecipientType type, co
 	ia = internet_address_mailbox_new (name, addr);
 	internet_address_list_add (recipients, ia);
 	g_object_unref (ia);
+	
+	if (message->mime_part)
+		g_mime_header_list_set_stream (message->mime_part->headers, NULL);
+	
+	g_mime_header_list_set_stream (((GMimeObject *) message)->headers, NULL);
 }
 
 
@@ -1270,11 +1289,14 @@ g_mime_message_set_subject (GMimeMessage *message, const char *subject)
 	g_return_if_fail (subject != NULL);
 	
 	g_free (message->subject);
-	message->subject = g_strstrip (g_strdup (subject));
+	message->subject = g_mime_strdup_trim (subject);
 	
 	encoded = g_mime_utils_header_encode_text (message->subject);
 	g_mime_object_set_header (GMIME_OBJECT (message), "Subject", encoded);
 	g_free (encoded);
+	
+	if (message->mime_part)
+		g_mime_header_list_set_stream (message->mime_part->headers, NULL);
 }
 
 
@@ -1316,6 +1338,9 @@ g_mime_message_set_date (GMimeMessage *message, time_t date, int tz_offset)
 	str = g_mime_utils_header_format_date (date, tz_offset);
 	g_mime_object_set_header (GMIME_OBJECT (message), "Date", str);
 	g_free (str);
+	
+	if (message->mime_part)
+		g_mime_header_list_set_stream (message->mime_part->headers, NULL);
 }
 
 
@@ -1382,6 +1407,9 @@ g_mime_message_set_date_as_string (GMimeMessage *message, const char *str)
 	buf = g_mime_utils_header_format_date (date, tz_offset);
 	g_mime_object_set_header (GMIME_OBJECT (message), "Date", buf);
 	g_free (buf);
+	
+	if (message->mime_part)
+		g_mime_header_list_set_stream (message->mime_part->headers, NULL);
 }
 
 
@@ -1401,11 +1429,14 @@ g_mime_message_set_message_id (GMimeMessage *message, const char *message_id)
 	g_return_if_fail (message_id != NULL);
 	
 	g_free (message->message_id);
-	message->message_id = g_strstrip (g_strdup (message_id));
+	message->message_id = g_mime_strdup_trim (message_id);
 	
 	msgid = g_strdup_printf ("<%s>", message_id);
 	g_mime_object_set_header (GMIME_OBJECT (message), "Message-Id", msgid);
 	g_free (msgid);
+	
+	if (message->mime_part)
+		g_mime_header_list_set_stream (message->mime_part->headers, NULL);
 }
 
 
@@ -1519,7 +1550,7 @@ static GMimeObject *
 multipart_guess_body (GMimeMultipart *multipart)
 {
 	GMimeContentType *type;
-	GMimeObject *mime_part = NULL;
+	GMimeObject *mime_part;
 	int count, i;
 	
 	if (GMIME_IS_MULTIPART_ENCRYPTED (multipart)) {
@@ -1537,7 +1568,7 @@ multipart_guess_body (GMimeMultipart *multipart)
 	
 	count = g_mime_multipart_get_count (multipart);
 	
-	if (!GMIME_IS_MULTIPART_SIGNED (mime_part)) {
+	if (count >= 1 && GMIME_IS_MULTIPART_SIGNED (multipart)) {
 		/* if the body is in here, it has to be the first part */
 		count = 1;
 	}

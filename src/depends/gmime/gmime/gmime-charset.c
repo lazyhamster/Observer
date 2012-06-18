@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -252,7 +252,7 @@ locale_parse_lang (const char *locale)
 void
 g_mime_charset_map_init (void)
 {
-	char *charset, *iconv_name;
+	char *charset, *iconv_name, *locale;
 	int i;
 	
 	if (iconv_charsets)
@@ -267,8 +267,6 @@ g_mime_charset_map_init (void)
 	}
 	
 #ifndef WIN32
-	char *locale;
-
 #ifdef HAVE_CODESET
 	if ((locale_charset = nl_langinfo (CODESET)) && locale_charset[0]) {
 #ifdef __CYGWIN__

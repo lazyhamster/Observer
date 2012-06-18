@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2009 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -34,7 +34,7 @@
  *
  * GMime's minor version.
  **/
-#define GMIME_MINOR_VERSION (5)
+#define GMIME_MINOR_VERSION (6)
 
 /**
  * GMIME_MICRO_VERSION:
@@ -48,14 +48,14 @@
  *
  * GMime's binary age.
  **/
-#define GMIME_BINARY_AGE    (510)
+#define GMIME_BINARY_AGE    (610)
 
 /**
  * GMIME_INTERFACE_AGE:
  *
  * GMime's interface age.
  **/
-#define GMIME_INTERFACE_AGE (0)
+#define GMIME_INTERFACE_AGE (10)
 
 
 /**

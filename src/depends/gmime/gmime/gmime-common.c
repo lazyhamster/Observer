@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -25,6 +25,7 @@
 
 #include <string.h>
 
+#include "gmime-table-private.h"
 #include "gmime-common.h"
 
 #ifndef g_tolower
@@ -50,4 +51,36 @@ g_mime_strcase_hash (gconstpointer key)
 	}
 	
 	return h;
+}
+
+
+/**
+ * g_mime_strdup_trim:
+ * @str: The string to duplicate and trim
+ *
+ * Duplicates the given input string while also trimming leading and
+ * trailing whitespace.
+ *
+ * Returns a duplicate string, minus any leading and trailing
+ * whitespace that the original string may have contained.
+ **/
+char *
+g_mime_strdup_trim (const char *str)
+{
+	register const char *inptr = str;
+	register const char *end;
+	const char *start;
+	
+	while (is_lwsp (*inptr))
+		inptr++;
+	
+	start = inptr;
+	end = inptr;
+	
+	while (*inptr) {
+		if (!is_lwsp (*inptr++))
+			end = inptr;
+	}
+	
+	return g_strndup (start, (size_t) (end - start));
 }

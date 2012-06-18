@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -49,6 +49,7 @@ typedef struct _GMimeObjectStack GMimeObjectStack;
 struct _GMimeObjectStack {
 	GMimeObjectStack *parent;
 	GMimeObject *object;
+	gboolean indexed;
 };
 
 struct _GMimePartIter {
@@ -68,6 +69,7 @@ g_mime_part_iter_push (GMimePartIter *iter, GMimeObject *object, int index)
 		g_array_append_val (iter->path, index);
 	
 	node = g_slice_new (GMimeObjectStack);
+	node->indexed = index != -1;
 	node->parent = iter->parent;
 	node->object = object;
 	iter->parent = node;
@@ -81,8 +83,10 @@ g_mime_part_iter_pop (GMimePartIter *iter)
 	if (!iter->parent || !iter->parent->parent)
 		return FALSE;
 	
-	iter->index = g_array_index (iter->path, int, iter->path->len - 1);
-	g_array_set_size (iter->path, iter->path->len - 1);
+	if (iter->parent->indexed) {
+		iter->index = g_array_index (iter->path, int, iter->path->len - 1);
+		g_array_set_size (iter->path, iter->path->len - 1);
+	}
 	
 	iter->current = iter->parent->object;
 	
@@ -213,35 +217,45 @@ g_mime_part_iter_jump_to (GMimePartIter *iter, const char *path)
 		index--;
 		
 		if (GMIME_IS_MESSAGE_PART (parent)) {
-			if (index != 0)
-				return FALSE;
-			
 			message_part = (GMimeMessagePart *) parent;
 			if (!(message = g_mime_message_part_get_message (message_part)))
 				return FALSE;
 			
-			if (!(current = g_mime_message_get_mime_part (message)))
+			if (!(parent = g_mime_message_get_mime_part (message)))
 				return FALSE;
 			
-			iter->index = 0;
+			if (!GMIME_IS_MULTIPART (parent))
+				return FALSE;
+			
+			goto multipart;
 		} else if (GMIME_IS_MULTIPART (parent)) {
+		multipart:
 			multipart = (GMimeMultipart *) parent;
 			if (index >= g_mime_multipart_get_count (multipart))
 				return FALSE;
 			
 			current = g_mime_multipart_get_part (multipart, index);
 			iter->index = index;
+		} else if (GMIME_IS_MESSAGE (parent)) {
+			message = (GMimeMessage *) parent;
+			if (!(current = g_mime_message_get_mime_part (message)))
+				return FALSE;
+			
+			iter->index = -1;
 		} else {
 			return FALSE;
 		}
 		
-		if (*dot != '.')
+		if (*dot == '\0')
 			break;
 		
 		g_mime_part_iter_push (iter, current, iter->index);
 		parent = current;
 		current = NULL;
 		index = -1;
+		
+		if (*dot != '.')
+			break;
 		
 		inptr = dot + 1;
 	}
@@ -298,11 +312,19 @@ g_mime_part_iter_next (GMimePartIter *iter)
 		if (mime_part != NULL) {
 			g_mime_part_iter_push (iter, iter->current, iter->index);
 			iter->current = mime_part;
+			
+			if (GMIME_IS_MULTIPART (mime_part)) {
+				iter->index = -1;
+				goto multipart;
+			}
+			
 			iter->index = 0;
+			
 			return TRUE;
 		}
 	} else if (GMIME_IS_MULTIPART (iter->current)) {
 		/* descend into our children */
+	multipart:
 		multipart = (GMimeMultipart *) iter->current;
 		if (g_mime_multipart_get_count (multipart) > 0) {
 			g_mime_part_iter_push (iter, iter->current, iter->index);
@@ -424,6 +446,9 @@ g_mime_part_iter_get_parent (GMimePartIter *iter)
 {
 	g_return_val_if_fail (iter != NULL, NULL);
 	
+	if (!g_mime_part_iter_is_valid (iter))
+		return NULL;
+	
 	return iter->parent->object;
 }
 
@@ -450,7 +475,7 @@ g_mime_part_iter_get_path (GMimePartIter *iter)
 	/* Note: path components are 1-based instead of 0-based */
 	
 	path = g_string_new ("");
-	for (i = 0; i < (int) iter->path->len; i++) {
+	for (i = 0; i < iter->path->len; i++) {
 		v = g_array_index (iter->path, int, i);
 		g_string_append_printf (path, "%d.", v + 1);
 	}

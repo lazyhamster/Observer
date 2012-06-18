@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2011 Jeffrey Stedfast
+ *  Copyright (C) 2000-2012 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -30,6 +30,11 @@
 #endif
 
 #include "gmime.h"
+
+#ifdef ENABLE_CRYPTOGRAPHY
+#include "gmime-pkcs7-context.h"
+#include "gmime-gpg-context.h"
+#endif
 
 
 /**
@@ -120,7 +125,46 @@ g_mime_init (guint32 flags)
 	gmime_error_quark = g_quark_from_static_string ("gmime");
 	
 	/* register our GObject types with the GType system */
+	g_mime_crypto_context_get_type ();
+	g_mime_decrypt_result_get_type ();
+	g_mime_certificate_list_get_type ();
+	g_mime_signature_list_get_type ();
+	g_mime_certificate_get_type ();
+	g_mime_signature_get_type ();
+#ifdef ENABLE_CRYPTOGRAPHY
+	g_mime_gpg_context_get_type ();
+	g_mime_pkcs7_context_get_type ();
+#endif
+	
+	g_mime_filter_get_type ();
+	g_mime_filter_basic_get_type ();
+	g_mime_filter_best_get_type ();
+	g_mime_filter_charset_get_type ();
+	g_mime_filter_crlf_get_type ();
+	g_mime_filter_enriched_get_type ();
+	g_mime_filter_from_get_type ();
+	g_mime_filter_gzip_get_type ();
+	g_mime_filter_html_get_type ();
+	g_mime_filter_md5_get_type ();
+	g_mime_filter_strip_get_type ();
+	g_mime_filter_windows_get_type ();
+	g_mime_filter_yenc_get_type ();
+	
+	g_mime_stream_get_type ();
+	g_mime_stream_buffer_get_type ();
+	g_mime_stream_cat_get_type ();
+	g_mime_stream_file_get_type ();
+	g_mime_stream_filter_get_type ();
+	g_mime_stream_fs_get_type ();
+	g_mime_stream_gio_get_type ();
+	g_mime_stream_mem_get_type ();
+	g_mime_stream_mmap_get_type ();
+	g_mime_stream_null_get_type ();
+	g_mime_stream_pipe_get_type ();
+	
+	g_mime_parser_get_type ();
 	g_mime_message_get_type ();
+	g_mime_data_wrapper_get_type ();
 	g_mime_content_type_get_type ();
 	g_mime_content_disposition_get_type ();
 	

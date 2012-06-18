@@ -5,7 +5,7 @@
 /* #undef ENABLE_WARNINGS */
 
 /* Define to the GMime version */
-#define GMIME_VERSION "2.5.7"
+#define GMIME_VERSION "2.6.10"
 
 /* Define if libc defines an altzone variable */
 /* #undef HAVE_ALTZONE */
@@ -145,13 +145,13 @@
 #define PACKAGE_NAME "gmime"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "gmime 2.5.7"
+#define PACKAGE_STRING "gmime 2.6.10"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gmime"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.5.7"
+#define PACKAGE_VERSION "2.6.10"
 
 /* The size of `off_t', as computed by sizeof. */
 #define SIZEOF_OFF_T 4
