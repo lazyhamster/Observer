@@ -65,8 +65,8 @@ public:
 	bool WcxIsArchive(const wchar_t* wszFilePath);
 
 	HANDLE WcxOpenArchive(const wchar_t* wszFilePath, int nOpMode);
-	int WcxReadHeader(HANDLE hArchive);
-	int WcxProcessFile(HANDLE hArchive);
+	int WcxReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData);
+	int WcxProcessFile(HANDLE hArchive, int Operation, wchar_t *DestPath);
 	void WcsCloseArchive(HANDLE hArchive);
 };
 

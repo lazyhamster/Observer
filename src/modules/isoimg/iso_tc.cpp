@@ -4,10 +4,6 @@
 
 #define sizeofa(x) (sizeof(x) / sizeof(*x))
 
-const char ZipHeader[] = {'p', 'k'};
-const char RarHeader[] = {'r', 'a', 'r'};
-const char ExeHeader[] = {'M', 'Z'};
-
 const DWORD SearchSize = 0x100000;
 
 static int lmemfind( const char* ptr1, int len1, const char* ptr2, int len2 )
@@ -210,6 +206,10 @@ static int ScanBootSections( const IsoImage* image, LONGLONG offset, SectionHead
     } while( header.HeaderIndicator == 90 );
     return images;
 }
+
+const char ZipHeader[] = {'p', 'k'};
+const char RarHeader[] = {'r', 'a', 'r'};
+const char ExeHeader[] = {'M', 'Z'};
 
 // if sharp == 1 then we should make only 1 iteration in loop
 static DWORD GetVolumeDescriptor( const IsoImage* image, PrimaryVolumeDescriptorEx* descriptor,

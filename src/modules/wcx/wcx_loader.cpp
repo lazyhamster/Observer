@@ -160,12 +160,12 @@ void WcxModule::WcsCloseArchive( HANDLE hArchive )
 	}
 }
 
-int WcxModule::WcxReadHeader( HANDLE hArchive )
+int WcxModule::WcxReadHeader( HANDLE hArchive, tHeaderDataExW *HeaderData )
 {
 	return 0;
 }
 
-int WcxModule::WcxProcessFile( HANDLE hArchive )
+int WcxModule::WcxProcessFile( HANDLE hArchive, int Operation, wchar_t *DestPath )
 {
 	return 0;
 }
