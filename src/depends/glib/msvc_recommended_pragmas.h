@@ -34,3 +34,5 @@
 
 /* work around Microsoft's premature attempt to deprecate the C-Library */
 #pragma warning(disable:4996)   /* This function or variable may be unsafe. */
+
+#pragma warning(disable:4715)  /* not all control paths return a value */
