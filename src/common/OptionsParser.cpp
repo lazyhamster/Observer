@@ -56,7 +56,7 @@ bool OptionsList::GetValue( const wchar_t* Key, bool &Value ) const
 	wchar_t tmpBuf[10] = {0};
 	if ( GetValue(Key, tmpBuf, sizeof(tmpBuf) / sizeof(tmpBuf[0])) )
 	{
-		Value = _wcsicmp(tmpBuf, L"true") || wcscmp(tmpBuf, L"1");
+		Value = (_wcsicmp(tmpBuf, L"true") == 0) || (wcscmp(tmpBuf, L"1") == 0);
 		return true;
 	}
 
