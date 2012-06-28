@@ -117,7 +117,7 @@ bool WcxModule::WcxIsArchive( const wchar_t* wszFilePath )
 	if (CanYouHandleThisFile != NULL)
 	{
 		char fileName[MAX_PATH] = {0};
-		WideCharToMultiByte(CP_ACP, 0, wszFilePath, -1, fileName, MAX_PATH, NULL, NULL);
+		WideCharToMultiByte(m_CodePage, 0, wszFilePath, -1, fileName, MAX_PATH, NULL, NULL);
 		return CanYouHandleThisFile(fileName) != FALSE;
 	}
 	
@@ -140,7 +140,7 @@ HANDLE WcxModule::WcxOpenArchive( const wchar_t* wszFilePath, int nOpMode )
 		case WCMT_ANSIEX:
 			{
 				char fileNameBuf[MAX_PATH] = {0};
-				WideCharToMultiByte(CP_ACP, 0, wszFilePath, -1, fileNameBuf, MAX_PATH, NULL, NULL);
+				WideCharToMultiByte(m_CodePage, 0, wszFilePath, -1, fileNameBuf, MAX_PATH, NULL, NULL);
 				
 				tOpenArchiveData oad = {0};
 				oad.ArcName = fileNameBuf;
@@ -157,15 +157,57 @@ void WcxModule::WcsCloseArchive( HANDLE hArchive )
 	if (hArchive != NULL)
 	{
 		CloseArchive(hArchive);
+		hArchive = NULL;
 	}
 }
 
 int WcxModule::WcxReadHeader( HANDLE hArchive, tHeaderDataExW *HeaderData )
 {
+	switch (Type)
+	{
+	case WCMT_UNICODE:
+		{
+			return ReadHeaderExW(hArchive, HeaderData);
+		}
+	case WCMT_ANSI:
+		{
+			tHeaderData header = {0};
+			int retVal = ReadHeader(hArchive, &header);
+			//TODO: convert data
+			return retVal;
+		}
+	case WCMT_ANSIEX:
+		{
+			tHeaderDataEx headerEx = {0};
+			int retVal = ReadHeaderEx(hArchive, &headerEx);
+			//TODO: convert data
+			return retVal;
+		}
+	}
+
 	return 0;
 }
 
-int WcxModule::WcxProcessFile( HANDLE hArchive, int Operation, wchar_t *DestPath )
+int WcxModule::WcxProcessFile( HANDLE hArchive, int Operation, wchar_t *DestPath, wchar_t *DestName )
 {
+	switch (Type)
+	{
+	case WCMT_UNICODE:
+		{
+			return ProcessFileW(hArchive, Operation, DestPath, DestName);
+		}
+	case WCMT_ANSI:
+	case WCMT_ANSIEX:
+		{
+			char szDestPath[MAX_PATH] = {0};
+			char szDestName[MAX_PATH] = {0};
+
+			WideCharToMultiByte(m_CodePage, 0, DestPath, -1, szDestPath, MAX_PATH, NULL, NULL);
+			WideCharToMultiByte(m_CodePage, 0, DestName, -1, szDestName, MAX_PATH, NULL, NULL);
+			
+			return ProcessFile(hArchive, Operation, szDestPath, szDestName);
+		}
+	}
+
 	return 0;
 }

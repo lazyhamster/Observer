@@ -38,6 +38,7 @@ class WcxModule
 private:	
 	HMODULE m_ModuleHandle;
 	std::wstring m_ModuleName;
+	int m_CodePage;
 	
 	// Unicode functions
 	CanYouHandleThisFileWFunc CanYouHandleThisFileW;
@@ -60,13 +61,14 @@ private:
 	WcxModuleType Type;
 
 public:
-	WcxModule() : m_ModuleHandle(NULL), Type(WCMT_INVALID) {}
+	WcxModule() : m_ModuleHandle(NULL), Type(WCMT_INVALID), m_CodePage(CP_ACP) {}
+	WcxModule(int BaseCodePage) : m_ModuleHandle(NULL), Type(WCMT_INVALID), m_CodePage(BaseCodePage) {}
 
 	bool WcxIsArchive(const wchar_t* wszFilePath);
 
 	HANDLE WcxOpenArchive(const wchar_t* wszFilePath, int nOpMode);
 	int WcxReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData);
-	int WcxProcessFile(HANDLE hArchive, int Operation, wchar_t *DestPath);
+	int WcxProcessFile(HANDLE hArchive, int Operation, wchar_t *DestPath, wchar_t *DestName);
 	void WcsCloseArchive(HANDLE hArchive);
 };
 
