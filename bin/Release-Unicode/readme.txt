@@ -89,6 +89,7 @@ that module accepts all files.
 1.2.3 Module-specific configuration.
 
 [ISO] -> Charset
+[VDISK] -> DefaultCodepage
 Default code page for non-Unicode file names.
 You can set here specific code page (e.g. 866 or 1251),
 or you can set special system code page values:
@@ -97,6 +98,9 @@ or you can set special system code page values:
 
 [ISO] -> RockRidge
 Enables (1) / disables (0) support for RockRidge extension. It's enabled by default.
+
+[PST] -> HideEmptyFolder
+Enables (1) / disables (0) hiding of empty folders. Off by default.
 
 1.3 Plugin configuration dialog.
 
@@ -121,7 +125,7 @@ Used third-party code:
 Plug-in uses code for UDF and NSIS support. Distributed under GNU LGPL.
 
 - Total Commander ISO plugin by Sergey Oblomov (http://wincmd.ru/plugring/iso.html)
-Modified for wchar_t support in file names. Based on version 1.7.6.
+Modified for wchar_t support in file names.
 Didn't found license for this one, so it goes by LGPL too.
 
 - libmspack (http://www.cabextract.org.uk/libmspack/)
