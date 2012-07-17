@@ -36,3 +36,4 @@
 #pragma warning(disable:4996)   /* This function or variable may be unsafe. */
 
 #pragma warning(disable:4715)  /* not all control paths return a value */
+#pragma warning(disable:4102)  /* unreferenced label */
