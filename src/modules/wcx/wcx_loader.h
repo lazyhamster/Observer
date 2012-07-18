@@ -7,11 +7,12 @@ class WcxLoader
 {
 private:
 	IWcxModule* LoadSingleModule(const wchar_t* path);
+	int LoadModulesInDirectory(const wchar_t* basePath, bool recursive);
 
 public:
 	std::vector<IWcxModule*> Modules;
 
-	int LoadModules(const wchar_t* basePath);
+	int LoadModules(const wchar_t* basePath, bool recursive);
 	void UnloadModules();
 };
 

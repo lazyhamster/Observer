@@ -13,5 +13,7 @@
 
 
 // Additional headers
+#include <shlwapi.h>
+
 #include <vector>
 #include <string>

@@ -6,7 +6,7 @@ bool IWcxModule::Load( HMODULE module, const wchar_t* moduleName, int codePage )
 	modCloseArchive = (CloseArchiveFunc) GetProcAddress(module, "CloseArchive");
 	if (modCloseArchive == NULL) return false;
 	
-	if (InternalInit(m_Module))
+	if (InternalInit(module))
 	{
 		m_Module = module;
 		m_ModuleName = moduleName;

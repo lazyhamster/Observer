@@ -4,13 +4,14 @@
 #include "stdafx.h"
 #include "ModuleDef.h"
 #include "wcx_loader.h"
+#include "OptionsParser.h"
+#include "ModuleCRT.h"
 
-const wchar_t* cntDefaultWcxPath = L".\\wcx";
-
-static wchar_t optWcxLocation[MAX_PATH];
+static wchar_t optWcxLocation[MAX_PATH] = {0};
 static bool optRecursiveLoad = true;
 
-static WcxLoader* Loader = NULL;
+static WcxLoader* g_Loader = NULL;
+extern HMODULE g_hDllHandle;
 
 struct WcxStorage
 {
@@ -26,6 +27,16 @@ struct WcxStorage
 	WcxStorage() : ArcHandle(NULL), Module(NULL), ListingComplete(false), AtItem(0) {}
 };
 
+static void GetDefaultWcxLocation()
+{
+	memset(optWcxLocation, 0, sizeof(optWcxLocation));
+	
+	GetModuleFileName(g_hDllHandle, optWcxLocation, MAX_PATH);
+	wchar_t* lastDelim = wcsrchr(optWcxLocation, '\\');
+	*(lastDelim + 1) = 0;
+	wcscat_s(optWcxLocation, MAX_PATH, L"wcx\\");
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
@@ -33,9 +44,9 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	IWcxModule* procModule = NULL;
 	HANDLE hArchive = NULL;
 
-	for (size_t i = 0; i < Loader->Modules.size(); i++)
+	for (size_t i = 0; i < g_Loader->Modules.size(); i++)
 	{
-		IWcxModule* nextModule = Loader->Modules[i];
+		IWcxModule* nextModule = g_Loader->Modules[i];
 		if (nextModule->IsArchive(params.FilePath))
 		{
 			hArchive = nextModule->OpenArchive(params.FilePath, PK_OM_EXTRACT);
@@ -120,14 +131,23 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->GetItem = GetStorageItem;
 	LoadParams->ExtractItem = ExtractItem;
 
-	Loader = new WcxLoader();
-	Loader->LoadModules(cntDefaultWcxPath);
+	OptionsList opts(LoadParams->Settings);
+	opts.GetValue(L"WcxLocation", optWcxLocation, sizeof(optWcxLocation) / sizeof(optWcxLocation[0]));
+	opts.GetValue(L"RecursiveLoad", optRecursiveLoad);
 
-	return TRUE;
+	if (!optWcxLocation[0])
+	{
+		GetDefaultWcxLocation();
+	}
+
+	g_Loader = new WcxLoader();
+	int numModules = g_Loader->LoadModules(optWcxLocation, optRecursiveLoad);
+
+	return (numModules > 0) ? TRUE : FALSE;
 }
 
 void MODULE_EXPORT UnloadSubModule()
 {
-	Loader->UnloadModules();
-	delete Loader;
+	g_Loader->UnloadModules();
+	delete g_Loader;
 }
