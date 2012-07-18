@@ -39,4 +39,11 @@ static __int64 GetFileSize(const wchar_t* path)
 	return 0;
 }
 
+static void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize)
+{
+	size_t nPathLen = wcslen(pathBuf);
+	if (pathBuf[nPathLen - 1] != '\\')
+		wcscat_s(pathBuf, bufMaxSize, L"\\");
+}
+
 #endif // ModuleCRT_h__
