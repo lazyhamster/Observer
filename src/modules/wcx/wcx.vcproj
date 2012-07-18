@@ -808,6 +808,10 @@
 				RelativePath=".\wcx_loader.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\WcxModule.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -828,6 +832,10 @@
 			</File>
 			<File
 				RelativePath=".\wcxhead.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WcxModule.h"
 				>
 			</File>
 		</Filter>

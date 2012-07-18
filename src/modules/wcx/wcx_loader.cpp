@@ -27,7 +27,7 @@ int WcxLoader::LoadModules( const wchar_t* basePath )
 			wstring modPath(strSearchPath);
 			modPath += fd.cFileName;
 
-			WcxModule* nextModule = LoadSingleModule(modPath.c_str());
+			IWcxModule* nextModule = LoadSingleModule(modPath.c_str());
 			if (nextModule != NULL)
 			{
 				Modules.push_back(nextModule);
@@ -43,171 +43,33 @@ int WcxLoader::LoadModules( const wchar_t* basePath )
 
 void WcxLoader::UnloadModules()
 {
-	vector<WcxModule*>::iterator it;
+	vector<IWcxModule*>::iterator it;
 	for (it = Modules.begin(); it != Modules.end(); it++)
 	{
-		WcxModule* module = *it;
-		FreeLibrary(module->m_ModuleHandle);
+		IWcxModule* module = *it;
+		module->Unload();
+		
+		delete module;
 	}
 
 	Modules.clear();
 }
 
-WcxModule* WcxLoader::LoadSingleModule( const wchar_t* path )
+#define TRY_LOAD(modClass, modHandle, modName, cp) { modClass *modVar = new modClass(); \
+	if (modVar->Load(modHandle, modName, cp)) return modVar; else delete modVar; }
+
+IWcxModule* WcxLoader::LoadSingleModule( const wchar_t* path )
 {
+	int defaultCP = GetACP();
+	const wchar_t* moduleName = GetFileName(path);
+	
 	HMODULE hMod = LoadLibrary(path);
 	if (hMod == NULL) return NULL;
 
-	WcxModule* mod = new WcxModule();
-
-	mod->CanYouHandleThisFileW = (CanYouHandleThisFileWFunc) GetProcAddress(hMod, "CanYouHandleThisFileW");
-	mod->OpenArchiveW = (OpenArchiveWFunc) GetProcAddress(hMod, "OpenArchiveW");
-	mod->ProcessFileW = (ProcessFileWFunc) GetProcAddress(hMod, "ProcessFileW");
-	mod->ReadHeaderExW = (ReadHeaderExWFunc) GetProcAddress(hMod, "ReadHeaderExW");
-	mod->SetProcessDataProcW = (SetProcessDataProcWFunc) GetProcAddress(hMod, "SetProcessDataProcW");
-
-	mod->CanYouHandleThisFile = (CanYouHandleThisFileFunc) GetProcAddress(hMod, "CanYouHandleThisFile");
-	mod->OpenArchive = (OpenArchiveFunc) GetProcAddress(hMod, "OpenArchive");
-	mod->ProcessFile = (ProcessFileFunc) GetProcAddress(hMod, "ProcessFile");
-	mod->ReadHeader = (ReadHeaderFunc) GetProcAddress(hMod, "ReadHeader");
-	mod->ReadHeaderEx = (ReadHeaderExFunc) GetProcAddress(hMod, "ReadHeaderEx");
-	mod->SetProcessDataProc = (SetProcessDataProcFunc) GetProcAddress(hMod, "SetProcessDataProc");
-
-	mod->CloseArchive = (CloseArchiveFunc) GetProcAddress(hMod, "CloseArchive");
-
-	// Calculate module type
-	WcxModuleType type = WCMT_INVALID;
-	
-	if ((mod->OpenArchiveW != NULL) && (mod->ReadHeaderExW != NULL)	&& (mod->ProcessFileW != NULL) && (mod->SetProcessDataProcW != NULL) && (mod->CloseArchive != NULL))
-	{
-		type = WCMT_UNICODE;
-	}
-	else if ((mod->OpenArchive != NULL) && (mod->ProcessFile != NULL) && (mod->SetProcessDataProc != NULL) && (mod->CloseArchive != NULL))
-	{
-		if (mod->ReadHeaderEx != NULL)
-			type = WCMT_ANSIEX;
-		else if (mod->ReadHeader != NULL)
-			type = WCMT_ANSI;
-	}
-
-	if (type != WCMT_INVALID)
-	{
-		mod->m_ModuleHandle = hMod;
-		mod->m_ModuleName = GetFileName(path);
-		mod->Type = type;
-
-		return mod;
-	}
-	
+	TRY_LOAD(WcxUnicodeModule, hMod, moduleName, defaultCP);
+	TRY_LOAD(WcxAnsiExtModule, hMod, moduleName, defaultCP);
+	TRY_LOAD(WcxAnsiModule, hMod, moduleName, defaultCP);
+		
 	FreeLibrary(hMod);
-	delete mod;
-
 	return NULL;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
-bool WcxModule::WcxIsArchive( const wchar_t* wszFilePath )
-{
-	if (CanYouHandleThisFileW != NULL)
-	{
-		return CanYouHandleThisFileW(wszFilePath) != FALSE;
-	}
-
-	if (CanYouHandleThisFile != NULL)
-	{
-		char fileName[MAX_PATH] = {0};
-		WideCharToMultiByte(m_CodePage, 0, wszFilePath, -1, fileName, MAX_PATH, NULL, NULL);
-		return CanYouHandleThisFile(fileName) != FALSE;
-	}
-	
-	return true;
-}
-
-HANDLE WcxModule::WcxOpenArchive( const wchar_t* wszFilePath, int nOpMode )
-{
-	switch (Type)
-	{
-		case WCMT_UNICODE:
-			{
-				tOpenArchiveDataW oad = {0};
-				oad.ArcName = const_cast<wchar_t*>(wszFilePath);
-				oad.OpenMode = nOpMode;
-
-				return OpenArchiveW(&oad);
-			}
-		case WCMT_ANSI:
-		case WCMT_ANSIEX:
-			{
-				char fileNameBuf[MAX_PATH] = {0};
-				WideCharToMultiByte(m_CodePage, 0, wszFilePath, -1, fileNameBuf, MAX_PATH, NULL, NULL);
-				
-				tOpenArchiveData oad = {0};
-				oad.ArcName = fileNameBuf;
-				oad.OpenMode = nOpMode;
-				return OpenArchive(&oad);
-			}
-		default:
-			return NULL;
-	}
-}
-
-void WcxModule::WcsCloseArchive( HANDLE hArchive )
-{
-	if (hArchive != NULL)
-	{
-		CloseArchive(hArchive);
-		hArchive = NULL;
-	}
-}
-
-int WcxModule::WcxReadHeader( HANDLE hArchive, tHeaderDataExW *HeaderData )
-{
-	switch (Type)
-	{
-	case WCMT_UNICODE:
-		{
-			return ReadHeaderExW(hArchive, HeaderData);
-		}
-	case WCMT_ANSI:
-		{
-			tHeaderData header = {0};
-			int retVal = ReadHeader(hArchive, &header);
-			//TODO: convert data
-			return retVal;
-		}
-	case WCMT_ANSIEX:
-		{
-			tHeaderDataEx headerEx = {0};
-			int retVal = ReadHeaderEx(hArchive, &headerEx);
-			//TODO: convert data
-			return retVal;
-		}
-	}
-
-	return 0;
-}
-
-int WcxModule::WcxProcessFile( HANDLE hArchive, int Operation, wchar_t *DestPath, wchar_t *DestName )
-{
-	switch (Type)
-	{
-	case WCMT_UNICODE:
-		{
-			return ProcessFileW(hArchive, Operation, DestPath, DestName);
-		}
-	case WCMT_ANSI:
-	case WCMT_ANSIEX:
-		{
-			char szDestPath[MAX_PATH] = {0};
-			char szDestName[MAX_PATH] = {0};
-
-			WideCharToMultiByte(m_CodePage, 0, DestPath, -1, szDestPath, MAX_PATH, NULL, NULL);
-			WideCharToMultiByte(m_CodePage, 0, DestName, -1, szDestName, MAX_PATH, NULL, NULL);
-			
-			return ProcessFile(hArchive, Operation, szDestPath, szDestName);
-		}
-	}
-
-	return 0;
 }

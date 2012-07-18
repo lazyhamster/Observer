@@ -7,12 +7,15 @@
 
 const wchar_t* cntDefaultWcxPath = L".\\wcx";
 
+static wchar_t optWcxLocation[MAX_PATH];
+static bool optRecursiveLoad = true;
+
 static WcxLoader* Loader = NULL;
 
 struct WcxStorage
 {
 	std::wstring FilePath;
-	WcxModule* Module;
+	IWcxModule* Module;
 
 	HANDLE ArcHandle;
 	int AtItem;
@@ -21,35 +24,21 @@ struct WcxStorage
 	std::vector<StorageItemInfo> Items;
 	
 	WcxStorage() : ArcHandle(NULL), Module(NULL), ListingComplete(false), AtItem(0) {}
-
-	bool Reopen(int opMode)
-	{
-		if (ArcHandle != NULL)
-		{
-			Module->WcsCloseArchive(ArcHandle);
-			ArcHandle = NULL;
-		}
-
-		ArcHandle = Module->WcxOpenArchive(FilePath.c_str(), opMode);
-		AtItem = 0;
-
-		return (ArcHandle != NULL);
-	}
 };
 
 //////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	WcxModule* procModule = NULL;
+	IWcxModule* procModule = NULL;
 	HANDLE hArchive = NULL;
 
 	for (size_t i = 0; i < Loader->Modules.size(); i++)
 	{
-		WcxModule* nextModule = Loader->Modules[i];
-		if (nextModule->WcxIsArchive(params.FilePath))
+		IWcxModule* nextModule = Loader->Modules[i];
+		if (nextModule->IsArchive(params.FilePath))
 		{
-			hArchive = nextModule->WcxOpenArchive(params.FilePath, PK_OM_EXTRACT);
+			hArchive = nextModule->OpenArchive(params.FilePath, PK_OM_EXTRACT);
 			if (hArchive != NULL)
 			{
 				procModule = nextModule;
@@ -69,7 +58,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		*storage = storeObj;
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"-");
+		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, procModule->GetModuleName());
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
 	}
@@ -85,7 +74,7 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	storeObj->Items.clear();
 	if (storeObj->ArcHandle != NULL)
 	{
-		storeObj->Module->WcsCloseArchive(storeObj->ArcHandle);
+		storeObj->Module->CloseArchive(storeObj->ArcHandle);
 	}
 	delete storeObj;
 }
@@ -95,6 +84,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	WcxStorage* storeObj = (WcxStorage*) storage;
 	if (storeObj == NULL) return GET_ITEM_ERROR;
 
+	/*
 	if (!storeObj->ListingComplete)
 	{
 		// We are not on first item - reopen archive 
@@ -104,6 +94,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 			storeObj->ArcHandle = NULL;
 		}
 	}
+	*/
 	
 	return GET_ITEM_NOMOREITEMS;
 }
