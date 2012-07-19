@@ -97,19 +97,24 @@ int WcxAnsiExtModule::ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData)
 	tHeaderDataEx ansiHeaderData = {0};
 	int retVal = modReadHeader(hArchive, &ansiHeaderData);
 
-	MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.ArcName, -1, HeaderData->ArcName, sizeof(HeaderData->ArcName) / sizeof(HeaderData->ArcName[0]));
-	MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.FileName, -1, HeaderData->FileName, sizeof(HeaderData->FileName) / sizeof(HeaderData->FileName[0]));
-	HeaderData->FileAttr = ansiHeaderData.FileAttr;
-	HeaderData->FileCRC = ansiHeaderData.FileCRC;
-	HeaderData->FileTime = ansiHeaderData.FileTime;
-	HeaderData->Flags = ansiHeaderData.Flags;
-	HeaderData->HostOS = ansiHeaderData.HostOS;
-	HeaderData->Method = ansiHeaderData.Method;
-	HeaderData->PackSize = ansiHeaderData.PackSize;
-	HeaderData->PackSizeHigh = ansiHeaderData.PackSizeHigh;
-	HeaderData->UnpSize = ansiHeaderData.UnpSize;
-	HeaderData->UnpSizeHigh = ansiHeaderData.UnpSizeHigh;
-	HeaderData->UnpVer = ansiHeaderData.UnpVer;
+	if (retVal == 0)
+	{
+		memset(HeaderData, 0, sizeof(*HeaderData));
+		
+		MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.ArcName, -1, HeaderData->ArcName, sizeof(HeaderData->ArcName) / sizeof(HeaderData->ArcName[0]));
+		MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.FileName, -1, HeaderData->FileName, sizeof(HeaderData->FileName) / sizeof(HeaderData->FileName[0]));
+		HeaderData->FileAttr = ansiHeaderData.FileAttr;
+		HeaderData->FileCRC = ansiHeaderData.FileCRC;
+		HeaderData->FileTime = ansiHeaderData.FileTime;
+		HeaderData->Flags = ansiHeaderData.Flags;
+		HeaderData->HostOS = ansiHeaderData.HostOS;
+		HeaderData->Method = ansiHeaderData.Method;
+		HeaderData->PackSize = ansiHeaderData.PackSize;
+		HeaderData->PackSizeHigh = ansiHeaderData.PackSizeHigh;
+		HeaderData->UnpSize = ansiHeaderData.UnpSize;
+		HeaderData->UnpSizeHigh = ansiHeaderData.UnpSizeHigh;
+		HeaderData->UnpVer = ansiHeaderData.UnpVer;
+	}
 	
 	return retVal;
 }
@@ -162,19 +167,24 @@ int WcxAnsiModule::ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData)
 	tHeaderData ansiHeaderData = {0};
 	int retVal = modReadHeader(hArchive, &ansiHeaderData);
 
-	MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.ArcName, -1, HeaderData->ArcName, sizeof(HeaderData->ArcName) / sizeof(HeaderData->ArcName[0]));
-	MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.FileName, -1, HeaderData->FileName, sizeof(HeaderData->FileName) / sizeof(HeaderData->FileName[0]));
-	HeaderData->FileAttr = ansiHeaderData.FileAttr;
-	HeaderData->FileCRC = ansiHeaderData.FileCRC;
-	HeaderData->FileTime = ansiHeaderData.FileTime;
-	HeaderData->Flags = ansiHeaderData.Flags;
-	HeaderData->HostOS = ansiHeaderData.HostOS;
-	HeaderData->Method = ansiHeaderData.Method;
-	HeaderData->PackSize = ansiHeaderData.PackSize;
-	HeaderData->PackSizeHigh = 0;
-	HeaderData->UnpSize = ansiHeaderData.UnpSize;
-	HeaderData->UnpSizeHigh = 0;
-	HeaderData->UnpVer = ansiHeaderData.UnpVer;
+	if (retVal == 0)
+	{
+		memset(HeaderData, 0, sizeof(*HeaderData));
+
+		MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.ArcName, -1, HeaderData->ArcName, sizeof(HeaderData->ArcName) / sizeof(HeaderData->ArcName[0]));
+		MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.FileName, -1, HeaderData->FileName, sizeof(HeaderData->FileName) / sizeof(HeaderData->FileName[0]));
+		HeaderData->FileAttr = ansiHeaderData.FileAttr;
+		HeaderData->FileCRC = ansiHeaderData.FileCRC;
+		HeaderData->FileTime = ansiHeaderData.FileTime;
+		HeaderData->Flags = ansiHeaderData.Flags;
+		HeaderData->HostOS = ansiHeaderData.HostOS;
+		HeaderData->Method = ansiHeaderData.Method;
+		HeaderData->PackSize = ansiHeaderData.PackSize;
+		HeaderData->PackSizeHigh = 0;
+		HeaderData->UnpSize = ansiHeaderData.UnpSize;
+		HeaderData->UnpSizeHigh = 0;
+		HeaderData->UnpVer = ansiHeaderData.UnpVer;
+	}
 
 	return retVal;
 }

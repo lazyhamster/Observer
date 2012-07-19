@@ -72,6 +72,8 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, procModule->GetModuleName());
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
+
+		return SOR_SUCCESS;
 	}
 
 	return SOR_INVALID_FILE;
@@ -95,19 +97,44 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	WcxStorage* storeObj = (WcxStorage*) storage;
 	if (storeObj == NULL) return GET_ITEM_ERROR;
 
-	if (!storeObj->ListingComplete) return GET_ITEM_ERROR;
-
-	/*
+	// Prepare files list
 	if (!storeObj->ListingComplete)
 	{
-		// We are not on first item - reopen archive 
-		if (storeObj->ArcHandle != NULL && storeObj->AtItem != 0)
+		IWcxModule* module = storeObj->Module;
+		tHeaderDataExW header;
+
+		do 
 		{
-			storeObj->Module->WcsCloseArchive(storeObj->ArcHandle);
-			storeObj->ArcHandle = NULL;
-		}
+			int headRet = module->ReadHeader(storeObj->ArcHandle, &header);
+			if (headRet == E_END_ARCHIVE) break;
+			if (headRet != 0) return GET_ITEM_ERROR;
+
+			StorageItemInfo nextItem = {0};
+			wcscpy_s(nextItem.Path, sizeof(nextItem.Path) / sizeof(nextItem.Path[0]), header.FileName);
+			//nextItem.ModificationTime = header.FileTime;
+			nextItem.Attributes = header.FileAttr;
+			nextItem.Size = ((__int64) header.UnpSizeHigh << 32) | (__int64) header.UnpSize;
+
+			FILETIME filetime;
+			DosDateTimeToFileTime ((WORD)((DWORD)header.FileTime >> 16), (WORD)header.FileTime, &filetime);
+			LocalFileTimeToFileTime (&filetime, &nextItem.ModificationTime);
+
+			storeObj->Items.push_back(nextItem);
+
+			int procRet = module->ProcessFile(storeObj->ArcHandle, PK_SKIP, NULL, NULL);
+			if (procRet != 0 && procRet != E_END_ARCHIVE) return GET_ITEM_ERROR;
+
+			storeObj->AtItem++;
+		} while (true);
 	}
-	*/
+
+	if (item_index < (int) storeObj->Items.size())
+	{
+		StorageItemInfo &cachedItem = storeObj->Items.at(item_index);
+		memcpy(item_info, &cachedItem, sizeof(StorageItemInfo));
+
+		return GET_ITEM_OK;
+	}
 	
 	return GET_ITEM_NOMOREITEMS;
 }
@@ -116,6 +143,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	WcxStorage* storeObj = (WcxStorage*) storage;
 	if (storeObj == NULL) return SER_ERROR_SYSTEM;
+	if (!storeObj->ListingComplete) return SER_ERROR_SYSTEM;
 	
 	return SER_ERROR_SYSTEM;
 }

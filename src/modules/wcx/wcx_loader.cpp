@@ -33,6 +33,7 @@ int WcxLoader::LoadModulesInDirectory( const wchar_t* basePath, bool recursive )
 				if (nextModule != NULL)
 				{
 					Modules.push_back(nextModule);
+					nFoundModules++;
 				}
 			}
 		}
