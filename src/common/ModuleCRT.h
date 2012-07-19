@@ -46,4 +46,23 @@ static void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize)
 		wcscat_s(pathBuf, bufMaxSize, L"\\");
 }
 
+static void TrimStr(wchar_t* str)
+{
+	size_t strLen = wcslen(str);
+	
+	// Trim at the end
+	while (strLen > 0 && (str[strLen - 1] == ' ' || str[strLen - 1] == '\n' || str[strLen - 1] == '\r'))
+	{
+		str[strLen - 1] = 0;
+		strLen--;
+	}
+
+	// Trim at the start
+	while (strLen > 0 && (str[0] == ' ' || str[0] == '\n' || str[0] == '\r'))
+	{
+		memmove(str, str + 1, strLen - 1);
+		strLen--;
+	}
+}
+
 #endif // ModuleCRT_h__

@@ -49,7 +49,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		IWcxModule* nextModule = g_Loader->Modules[i];
 		if (nextModule->IsArchive(params.FilePath))
 		{
-			hArchive = nextModule->OpenArchive(params.FilePath, PK_OM_EXTRACT);
+			hArchive = nextModule->OpenArchive(params.FilePath, PK_OM_LIST);
 			if (hArchive != NULL)
 			{
 				procModule = nextModule;
@@ -65,6 +65,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		storeObj->ArcHandle = hArchive;
 		storeObj->AtItem = 0;
 		storeObj->ListingComplete = false;
+		storeObj->FilePath = params.FilePath;
 
 		*storage = storeObj;
 
@@ -124,8 +125,11 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 			int procRet = module->ProcessFile(storeObj->ArcHandle, PK_SKIP, NULL, NULL);
 			if (procRet != 0 && procRet != E_END_ARCHIVE) return GET_ITEM_ERROR;
 
-			storeObj->AtItem++;
 		} while (true);
+
+		// Skip pointer past last item to ensure reopen on extract
+		storeObj->AtItem = storeObj->Items.size();
+		storeObj->ListingComplete = true;
 	}
 
 	if (item_index < (int) storeObj->Items.size())
@@ -142,10 +146,42 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	WcxStorage* storeObj = (WcxStorage*) storage;
-	if (storeObj == NULL) return SER_ERROR_SYSTEM;
-	if (!storeObj->ListingComplete) return SER_ERROR_SYSTEM;
+	if (storeObj == NULL || !storeObj->ListingComplete)
+		return SER_ERROR_SYSTEM;
+
+	if (params.item < 0 || params.item >= (int)storeObj->Items.size())
+		return SER_ERROR_SYSTEM;
+
+	// Reopen archive if arch pointer later then requested file
+	if (params.item < storeObj->AtItem)
+	{
+		storeObj->Module->CloseArchive(storeObj->ArcHandle);
+		storeObj->ArcHandle = storeObj->Module->OpenArchive(storeObj->FilePath.c_str(), PK_OM_EXTRACT);
+		storeObj->AtItem = 0;
+
+		if (storeObj->ArcHandle == NULL) return SER_ERROR_READ;
+	}
+
+	// Skip until required item
+	tHeaderDataExW header = {0};
+	while (storeObj->AtItem < params.item)
+	{
+		storeObj->Module->ReadHeader(storeObj->ArcHandle, &header);
+		storeObj->Module->ProcessFile(storeObj->ArcHandle, PK_SKIP, NULL, NULL);
+		storeObj->AtItem++;
+	}
+
+	// Do extraction
+	storeObj->Module->ReadHeader(storeObj->ArcHandle, &header);
+	int retVal = storeObj->Module->ProcessFile(storeObj->ArcHandle, PK_EXTRACT, NULL, const_cast<wchar_t*>(params.destFilePath));
+	storeObj->AtItem++;
 	
-	return SER_ERROR_SYSTEM;
+	if (retVal == 0)
+		return SER_SUCCESS;
+	else if (retVal == E_EOPEN || retVal == E_EWRITE)
+		return SER_ERROR_WRITE;
+	else
+		return SER_ERROR_READ;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -165,6 +201,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	opts.GetValue(L"WcxLocation", optWcxLocation, sizeof(optWcxLocation) / sizeof(optWcxLocation[0]));
 	opts.GetValue(L"RecursiveLoad", optRecursiveLoad);
 
+	TrimStr(optWcxLocation);
 	if (!optWcxLocation[0])
 	{
 		GetDefaultWcxLocation();
