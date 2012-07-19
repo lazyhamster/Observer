@@ -95,6 +95,8 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	WcxStorage* storeObj = (WcxStorage*) storage;
 	if (storeObj == NULL) return GET_ITEM_ERROR;
 
+	if (!storeObj->ListingComplete) return GET_ITEM_ERROR;
+
 	/*
 	if (!storeObj->ListingComplete)
 	{

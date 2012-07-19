@@ -6,7 +6,7 @@ using namespace std;
 static const wchar_t* GetFileName(const wchar_t* filePath)
 {
 	const wchar_t* ext = wcsrchr(filePath, '\\');
-	return (ext != NULL) ? ext : filePath;
+	return (ext != NULL) ? ext+1 : filePath;
 };
 
 

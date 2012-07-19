@@ -43,8 +43,11 @@ bool WcxUnicodeModule::IsArchive(const wchar_t* wszFilePath)
 
 HANDLE WcxUnicodeModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 {
-	//TODO: implement
-	return 0;
+	tOpenArchiveDataW arcData = {0};
+	arcData.ArcName = const_cast<wchar_t*>(wszFilePath);
+	arcData.OpenMode = nOpMode;
+	
+	return modOpenArchive(&arcData);
 }
 
 int WcxUnicodeModule::ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData)
@@ -80,20 +83,46 @@ bool WcxAnsiExtModule::IsArchive(const wchar_t* wszFilePath)
 
 HANDLE WcxAnsiExtModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 {
-	//TODO: implement
-	return 0;
+	char szAnsiPath[MAX_PATH] = {0};
+	WideCharToMultiByte(m_DefaultCodePage, 0, wszFilePath, -1, szAnsiPath, MAX_PATH, NULL, NULL);
+
+	tOpenArchiveData arcData = {0};
+	arcData.ArcName = szAnsiPath;
+	arcData.OpenMode = nOpMode;
+	return modOpenArchive(&arcData);
 }
 
 int WcxAnsiExtModule::ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData)
 {
-	//TODO: implement
-	return 0;
+	tHeaderDataEx ansiHeaderData = {0};
+	int retVal = modReadHeader(hArchive, &ansiHeaderData);
+
+	MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.ArcName, -1, HeaderData->ArcName, sizeof(HeaderData->ArcName) / sizeof(HeaderData->ArcName[0]));
+	MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.FileName, -1, HeaderData->FileName, sizeof(HeaderData->FileName) / sizeof(HeaderData->FileName[0]));
+	HeaderData->FileAttr = ansiHeaderData.FileAttr;
+	HeaderData->FileCRC = ansiHeaderData.FileCRC;
+	HeaderData->FileTime = ansiHeaderData.FileTime;
+	HeaderData->Flags = ansiHeaderData.Flags;
+	HeaderData->HostOS = ansiHeaderData.HostOS;
+	HeaderData->Method = ansiHeaderData.Method;
+	HeaderData->PackSize = ansiHeaderData.PackSize;
+	HeaderData->PackSizeHigh = ansiHeaderData.PackSizeHigh;
+	HeaderData->UnpSize = ansiHeaderData.UnpSize;
+	HeaderData->UnpSizeHigh = ansiHeaderData.UnpSizeHigh;
+	HeaderData->UnpVer = ansiHeaderData.UnpVer;
+	
+	return retVal;
 }
 
 int WcxAnsiExtModule::ProcessFile(HANDLE hArchive, int Operation, wchar_t *DestPath, wchar_t *DestName)
 {
-	//TODO: implement
-	return 0;
+	char ansiDestPath[MAX_PATH] = {0};
+	char ansiDestName[MAX_PATH] = {0};
+
+	WideCharToMultiByte(m_DefaultCodePage, 0, DestPath, -1, ansiDestPath, sizeof(ansiDestPath), NULL, NULL);
+	WideCharToMultiByte(m_DefaultCodePage, 0, DestName, -1, ansiDestName, sizeof(ansiDestName), NULL, NULL);
+	
+	return modProcessFile(hArchive, Operation, ansiDestPath, ansiDestName);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -119,18 +148,44 @@ bool WcxAnsiModule::IsArchive(const wchar_t* wszFilePath)
 
 HANDLE WcxAnsiModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 {
-	//TODO: implement
-	return 0;
+	char szAnsiPath[MAX_PATH] = {0};
+	WideCharToMultiByte(m_DefaultCodePage, 0, wszFilePath, -1, szAnsiPath, MAX_PATH, NULL, NULL);
+
+	tOpenArchiveData arcData = {0};
+	arcData.ArcName = szAnsiPath;
+	arcData.OpenMode = nOpMode;
+	return modOpenArchive(&arcData);
 }
 
 int WcxAnsiModule::ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData)
 {
-	//TODO: implement
-	return 0;
+	tHeaderData ansiHeaderData = {0};
+	int retVal = modReadHeader(hArchive, &ansiHeaderData);
+
+	MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.ArcName, -1, HeaderData->ArcName, sizeof(HeaderData->ArcName) / sizeof(HeaderData->ArcName[0]));
+	MultiByteToWideChar(m_DefaultCodePage, 0, ansiHeaderData.FileName, -1, HeaderData->FileName, sizeof(HeaderData->FileName) / sizeof(HeaderData->FileName[0]));
+	HeaderData->FileAttr = ansiHeaderData.FileAttr;
+	HeaderData->FileCRC = ansiHeaderData.FileCRC;
+	HeaderData->FileTime = ansiHeaderData.FileTime;
+	HeaderData->Flags = ansiHeaderData.Flags;
+	HeaderData->HostOS = ansiHeaderData.HostOS;
+	HeaderData->Method = ansiHeaderData.Method;
+	HeaderData->PackSize = ansiHeaderData.PackSize;
+	HeaderData->PackSizeHigh = 0;
+	HeaderData->UnpSize = ansiHeaderData.UnpSize;
+	HeaderData->UnpSizeHigh = 0;
+	HeaderData->UnpVer = ansiHeaderData.UnpVer;
+
+	return retVal;
 }
 
 int WcxAnsiModule::ProcessFile(HANDLE hArchive, int Operation, wchar_t *DestPath, wchar_t *DestName)
 {
-	//TODO: implement
-	return 0;
+	char ansiDestPath[MAX_PATH] = {0};
+	char ansiDestName[MAX_PATH] = {0};
+
+	WideCharToMultiByte(m_DefaultCodePage, 0, DestPath, -1, ansiDestPath, sizeof(ansiDestPath), NULL, NULL);
+	WideCharToMultiByte(m_DefaultCodePage, 0, DestName, -1, ansiDestName, sizeof(ansiDestName), NULL, NULL);
+
+	return modProcessFile(hArchive, Operation, ansiDestPath, ansiDestName);
 }
