@@ -84,22 +84,15 @@ public:
 	int ProcessFile(HANDLE hArchive, int Operation, wchar_t *DestPath, wchar_t *DestName);
 };
 
-class WcxAnsiExtModule : public IWcxModule
+class WcxAnsiExtModule : public WcxAnsiModule
 {
 protected:
-	CanYouHandleThisFileFunc modCanYouHandleThisFile;
-	OpenArchiveFunc modOpenArchive;
-	ReadHeaderExFunc modReadHeader;
-	ProcessFileFunc modProcessFile;
-	SetProcessDataProcFunc modSetProcessDataProc;
+	ReadHeaderExFunc modReadHeaderEx;
 	
 	bool InternalInit(HMODULE module);
 
 public:
-	bool IsArchive(const wchar_t* wszFilePath);
-	HANDLE OpenArchive(const wchar_t* wszFilePath, int nOpMode);
 	int ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData);
-	int ProcessFile(HANDLE hArchive, int Operation, wchar_t *DestPath, wchar_t *DestName);
 };
 
 #endif // WcxModule_h__
