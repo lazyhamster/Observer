@@ -50,7 +50,12 @@ HANDLE WcxUnicodeModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 	
 	HANDLE hArcData = modOpenArchive(&arcData);
 
-	if (hArcData != NULL) modSetProcessDataProc(hArcData, WcxUnicodeModule::ProcessDataProcW);
+	if (hArcData != NULL)
+	{
+		modSetProcessDataProc(hArcData, WcxUnicodeModule::ProcessDataProcW);
+		modSetChangeVolProc(hArcData, WcxUnicodeModule::ChangeVolProcW);
+	}
+
 	return hArcData;
 }
 
@@ -97,7 +102,12 @@ HANDLE WcxAnsiModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 	
 	HANDLE hArcData = modOpenArchive(&arcData);
 
-	if (hArcData != NULL) modSetProcessDataProc(hArcData, WcxAnsiModule::ProcessDataProc);
+	if (hArcData != NULL)
+	{
+		modSetProcessDataProc(hArcData, WcxAnsiModule::ProcessDataProc);
+		modSetChangeVolProc(hArcData, WcxAnsiModule::ChangeVolProc);
+	}
+
 	return hArcData;
 }
 
