@@ -23,6 +23,12 @@ void IWcxModule::Unload()
 	FreeModule(m_Module);
 }
 
+static int __stdcall ProcessDataProcW(wchar_t *FileName,int Size) { return 1; }
+static int __stdcall ChangeVolProcW(wchar_t *ArcName,int Mode) { return 1; }
+
+static int __stdcall ProcessDataProc(char *FileName,int Size) { return 1; }
+static int __stdcall ChangeVolProc(char *ArcName,int Mode) { return 1; }
+
 //////////////////////////////////////////////////////////////////////////
 
 bool WcxUnicodeModule::InternalInit(HMODULE module)
@@ -31,10 +37,14 @@ bool WcxUnicodeModule::InternalInit(HMODULE module)
 	modOpenArchive = (OpenArchiveWFunc) GetProcAddress(module, "OpenArchiveW");
 	modProcessFile = (ProcessFileWFunc) GetProcAddress(module, "ProcessFileW");
 	modReadHeader = (ReadHeaderExWFunc) GetProcAddress(module, "ReadHeaderExW");
-	modSetProcessDataProc = (SetProcessDataProcWFunc) GetProcAddress(module, "SetProcessDataProcW");
-	modSetChangeVolProc = (SetChangeVolProcWFunc) GetProcAddress(module, "SetChangeVolProcW");
+	modSetProcessDataProcW = (SetProcessDataProcWFunc) GetProcAddress(module, "SetProcessDataProcW");
+	modSetChangeVolProcW = (SetChangeVolProcWFunc) GetProcAddress(module, "SetChangeVolProcW");
+	modSetProcessDataProc = (SetProcessDataProcFunc) GetProcAddress(module, "SetProcessDataProc");
+	modSetChangeVolProc = (SetChangeVolProcFunc) GetProcAddress(module, "SetChangeVolProc");
 
-	return (modOpenArchive != NULL) && (modProcessFile != NULL) && (modReadHeader != NULL) && (modSetProcessDataProc != NULL) && (modSetChangeVolProc != NULL);
+	return (modOpenArchive != NULL) && (modProcessFile != NULL) && (modReadHeader != NULL)
+		&& (modSetProcessDataProc != NULL || modSetProcessDataProcW != NULL)
+		&& (modSetChangeVolProc != NULL || modSetChangeVolProcW != NULL);
 }
 
 bool WcxUnicodeModule::IsArchive(const wchar_t* wszFilePath)
@@ -52,8 +62,15 @@ HANDLE WcxUnicodeModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 
 	if (hArcData != NULL)
 	{
-		modSetProcessDataProc(hArcData, WcxUnicodeModule::ProcessDataProcW);
-		modSetChangeVolProc(hArcData, WcxUnicodeModule::ChangeVolProcW);
+		if (modSetChangeVolProcW != NULL)
+			modSetProcessDataProcW(hArcData, ProcessDataProcW);
+		else
+			modSetProcessDataProc(hArcData, ProcessDataProc);
+
+		if (modSetChangeVolProcW != NULL)
+			modSetChangeVolProcW(hArcData, ChangeVolProcW);
+		else
+			modSetChangeVolProc(hArcData, ChangeVolProc);
 	}
 
 	return hArcData;
@@ -104,8 +121,8 @@ HANDLE WcxAnsiModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 
 	if (hArcData != NULL)
 	{
-		modSetProcessDataProc(hArcData, WcxAnsiModule::ProcessDataProc);
-		modSetChangeVolProc(hArcData, WcxAnsiModule::ChangeVolProc);
+		modSetProcessDataProc(hArcData, ProcessDataProc);
+		modSetChangeVolProc(hArcData, ChangeVolProc);
 	}
 
 	return hArcData;
@@ -161,7 +178,7 @@ bool WcxAnsiExtModule::InternalInit(HMODULE module)
 	modReadHeaderEx = (ReadHeaderExFunc) GetProcAddress(module, "ReadHeaderEx");
 	modSetProcessDataProc = (SetProcessDataProcFunc) GetProcAddress(module, "SetProcessDataProc");
 
-	return (modOpenArchive != NULL) && (modProcessFile != NULL) && (modReadHeaderEx != NULL) && (modSetProcessDataProc != NULL);
+	return (modOpenArchive != NULL) && (modProcessFile != NULL) && (modReadHeaderEx != NULL) && (modSetProcessDataProc != NULL) && (modSetChangeVolProc != NULL);
 }
 
 int WcxAnsiExtModule::ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData)

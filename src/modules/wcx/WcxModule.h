@@ -58,13 +58,12 @@ protected:
 	OpenArchiveWFunc modOpenArchive;
 	ReadHeaderExWFunc modReadHeader;
 	ProcessFileWFunc modProcessFile;
-	SetProcessDataProcWFunc modSetProcessDataProc;
-	SetChangeVolProcWFunc modSetChangeVolProc;
+	SetProcessDataProcWFunc modSetProcessDataProcW;
+	SetChangeVolProcWFunc modSetChangeVolProcW;
+	SetProcessDataProcFunc modSetProcessDataProc;
+	SetChangeVolProcFunc modSetChangeVolProc;
 	
 	bool InternalInit(HMODULE module);
-
-	static int __stdcall ProcessDataProcW(wchar_t *FileName,int Size) { return 1; }
-	static int __stdcall ChangeVolProcW(wchar_t *ArcName,int Mode) { return 1; }
 
 public:
 	bool IsArchive(const wchar_t* wszFilePath);
@@ -84,9 +83,6 @@ protected:
 	SetChangeVolProcFunc modSetChangeVolProc;
 	
 	bool InternalInit(HMODULE module);
-
-	static int __stdcall ProcessDataProc(char *FileName,int Size) { return 1; }
-	static int __stdcall ChangeVolProc(char *ArcName,int Mode) { return 1; }
 
 public:
 	bool IsArchive(const wchar_t* wszFilePath);
