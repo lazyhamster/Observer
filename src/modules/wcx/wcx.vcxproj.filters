@@ -24,6 +24,15 @@
     <ClCompile Include="wcx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wcx_loader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WcxModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\OptionsParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="wcx.def">
@@ -35,6 +44,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wcx_loader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WcxModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\OptionsParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
