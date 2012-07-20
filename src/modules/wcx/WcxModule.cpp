@@ -32,8 +32,9 @@ bool WcxUnicodeModule::InternalInit(HMODULE module)
 	modProcessFile = (ProcessFileWFunc) GetProcAddress(module, "ProcessFileW");
 	modReadHeader = (ReadHeaderExWFunc) GetProcAddress(module, "ReadHeaderExW");
 	modSetProcessDataProc = (SetProcessDataProcWFunc) GetProcAddress(module, "SetProcessDataProcW");
+	modSetChangeVolProc = (SetChangeVolProcWFunc) GetProcAddress(module, "SetChangeVolProcW");
 
-	return (modOpenArchive != NULL) && (modProcessFile != NULL) && (modReadHeader != NULL) && (modSetProcessDataProc != NULL);
+	return (modOpenArchive != NULL) && (modProcessFile != NULL) && (modReadHeader != NULL) && (modSetProcessDataProc != NULL) && (modSetChangeVolProc != NULL);
 }
 
 bool WcxUnicodeModule::IsArchive(const wchar_t* wszFilePath)
@@ -47,7 +48,10 @@ HANDLE WcxUnicodeModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 	arcData.ArcName = const_cast<wchar_t*>(wszFilePath);
 	arcData.OpenMode = nOpMode;
 	
-	return modOpenArchive(&arcData);
+	HANDLE hArcData = modOpenArchive(&arcData);
+
+	if (hArcData != NULL) modSetProcessDataProc(hArcData, WcxUnicodeModule::ProcessDataProcW);
+	return hArcData;
 }
 
 int WcxUnicodeModule::ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData)
@@ -69,8 +73,9 @@ bool WcxAnsiModule::InternalInit(HMODULE module)
 	modProcessFile = (ProcessFileFunc) GetProcAddress(module, "ProcessFile");
 	modReadHeader = (ReadHeaderFunc) GetProcAddress(module, "ReadHeader");
 	modSetProcessDataProc = (SetProcessDataProcFunc) GetProcAddress(module, "SetProcessDataProc");
+	modSetChangeVolProc = (SetChangeVolProcFunc) GetProcAddress(module, "SetChangeVolProc");
 	
-	return (modOpenArchive != NULL)	&& (modProcessFile != NULL) && (modReadHeader != NULL) && (modSetProcessDataProc != NULL);
+	return (modOpenArchive != NULL)	&& (modProcessFile != NULL) && (modReadHeader != NULL) && (modSetProcessDataProc != NULL) && (modSetChangeVolProc != NULL);
 }
 
 bool WcxAnsiModule::IsArchive(const wchar_t* wszFilePath)
@@ -89,7 +94,11 @@ HANDLE WcxAnsiModule::OpenArchive(const wchar_t* wszFilePath, int nOpMode)
 	tOpenArchiveData arcData = {0};
 	arcData.ArcName = szAnsiPath;
 	arcData.OpenMode = nOpMode;
-	return modOpenArchive(&arcData);
+	
+	HANDLE hArcData = modOpenArchive(&arcData);
+
+	if (hArcData != NULL) modSetProcessDataProc(hArcData, WcxAnsiModule::ProcessDataProc);
+	return hArcData;
 }
 
 int WcxAnsiModule::ReadHeader(HANDLE hArchive, tHeaderDataExW *HeaderData)

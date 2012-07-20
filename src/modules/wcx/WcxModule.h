@@ -18,6 +18,9 @@ typedef int (__stdcall *ProcessFileWFunc) (HANDLE hArcData, int Operation, wchar
 typedef void (__stdcall *SetProcessDataProcFunc) (HANDLE hArcData, tProcessDataProc pProcessDataProc);
 typedef void (__stdcall *SetProcessDataProcWFunc) (HANDLE hArcData, tProcessDataProcW pProcessDataProc);
 
+typedef void (__stdcall *SetChangeVolProcFunc) (HANDLE hArcData, tChangeVolProc pChangeVolProc1);
+typedef void (__stdcall *SetChangeVolProcWFunc) (HANDLE hArcData, tChangeVolProcW pChangeVolProc1);
+
 typedef BOOL (__stdcall *CanYouHandleThisFileFunc) (const char *FileName);
 typedef BOOL (__stdcall *CanYouHandleThisFileWFunc) (const wchar_t *FileName);
 
@@ -56,8 +59,11 @@ protected:
 	ReadHeaderExWFunc modReadHeader;
 	ProcessFileWFunc modProcessFile;
 	SetProcessDataProcWFunc modSetProcessDataProc;
+	SetChangeVolProcWFunc modSetChangeVolProc;
 	
 	bool InternalInit(HMODULE module);
+
+	static int __stdcall ProcessDataProcW(wchar_t *FileName,int Size) { return TRUE; }
 
 public:
 	bool IsArchive(const wchar_t* wszFilePath);
@@ -74,8 +80,11 @@ protected:
 	ReadHeaderFunc modReadHeader;
 	ProcessFileFunc modProcessFile;
 	SetProcessDataProcFunc modSetProcessDataProc;
+	SetChangeVolProcFunc modSetChangeVolProc;
 	
 	bool InternalInit(HMODULE module);
+
+	static int __stdcall ProcessDataProc(char *FileName,int Size) { return TRUE; }
 
 public:
 	bool IsArchive(const wchar_t* wszFilePath);
