@@ -128,7 +128,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		} while (true);
 
 		// Skip pointer past last item to ensure reopen on extract
-		storeObj->AtItem = storeObj->Items.size();
+		storeObj->AtItem = (int) storeObj->Items.size();
 		storeObj->ListingComplete = true;
 	}
 
