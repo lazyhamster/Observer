@@ -146,17 +146,20 @@ static wstring ResolveFullPath(const wchar_t* input)
 		delete [] tmpBuf1;
 	}
 
-	nBufSize = GetFullPathName(strVal.c_str(), 0, NULL, NULL);
-	if (nBufSize > 0)
+	wstring strFull;
+	size_t nLen = FSF.ConvertPath(CPM_FULL, strVal.c_str(), NULL, 0);
+	if (nLen > 0)
 	{
-		wchar_t *tmpBuf2 = new wchar_t[nBufSize+1];
-		GetFullPathName(strVal.c_str(), nBufSize+1, tmpBuf2, NULL);
-
-		strVal = tmpBuf2;
-		delete [] tmpBuf2;
+		wchar_t* pszFull = (wchar_t*) calloc(nLen, sizeof(wchar_t));
+		FSF.ConvertPath(CPM_FULL, strVal.c_str(), pszFull, nLen);
+		strFull = pszFull;
+		free(pszFull);
 	}
-
-	return strVal;
+	else
+	{
+		strFull = strVal;
+	}
+	return strFull;
 }
 
 static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const wchar_t* errorItem)
