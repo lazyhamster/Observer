@@ -30,7 +30,4 @@ void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize);
 void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize);
 void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim);
 
-wstring ResolveFullPath(const wchar_t* input);
-string ResolveFullPath(const char* input);
-
 #endif // CommonFunc_h__

@@ -168,6 +168,29 @@ static void InsertCommas(char *Dest)
     }
 }
 
+static string ResolveFullPath(const char* input)
+{
+	string strVal(input);
+
+	DWORD nBufSize = ExpandEnvironmentStringsA(strVal.c_str(), NULL, 0);
+	if (nBufSize > 0)
+	{
+		char tmpBuf[MAX_PATH] = {0};
+		ExpandEnvironmentStringsA(strVal.c_str(), tmpBuf, MAX_PATH);
+		strVal = tmpBuf;
+	}
+
+	nBufSize = GetFullPathNameA(strVal.c_str(), 0, NULL, NULL);
+	if (nBufSize > 0)
+	{
+		char tmpBuf2[MAX_PATH] = {0};
+		GetFullPathNameA(strVal.c_str(), MAX_PATH, tmpBuf2, NULL);
+		strVal = tmpBuf2;
+	}
+
+	return strVal;
+}
+
 static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const char* errorItem)
 {
 	static const char* MsgLines[3];

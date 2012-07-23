@@ -132,6 +132,24 @@ static void InsertCommas(wchar_t *Dest)
     }
 }
 
+static wstring ResolveFullPath(const wchar_t* input)
+{
+	wstring strFull;
+	size_t nLen = FSF.ConvertPath(CPM_FULL, input, NULL, 0);
+	if (nLen > 0)
+	{
+		wchar_t* pszFull = (wchar_t*) calloc(nLen, sizeof(*input));
+		FSF.ConvertPath(CPM_FULL, input, pszFull, nLen);
+		strFull = pszFull;
+		free(pszFull);
+	}
+	else
+	{
+		strFull = input;
+	}
+	return strFull;
+}
+
 static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const wchar_t* errorItem)
 {
 	static const wchar_t* MsgLines[3];

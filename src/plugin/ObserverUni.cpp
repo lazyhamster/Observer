@@ -132,6 +132,33 @@ static void InsertCommas(wchar_t *Dest)
     }
 }
 
+static wstring ResolveFullPath(const wchar_t* input)
+{
+	wstring strVal(input);
+
+	DWORD nBufSize = ExpandEnvironmentStrings(strVal.c_str(), NULL, 0);
+	if (nBufSize > 0)
+	{
+		wchar_t *tmpBuf1 = new wchar_t[nBufSize+1];
+		ExpandEnvironmentStrings(strVal.c_str(), tmpBuf1, nBufSize+1);
+
+		strVal = tmpBuf1;
+		delete [] tmpBuf1;
+	}
+
+	nBufSize = GetFullPathName(strVal.c_str(), 0, NULL, NULL);
+	if (nBufSize > 0)
+	{
+		wchar_t *tmpBuf2 = new wchar_t[nBufSize+1];
+		GetFullPathName(strVal.c_str(), nBufSize+1, tmpBuf2, NULL);
+
+		strVal = tmpBuf2;
+		delete [] tmpBuf2;
+	}
+
+	return strVal;
+}
+
 static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const wchar_t* errorItem)
 {
 	static const wchar_t* MsgLines[3];
