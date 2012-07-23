@@ -193,7 +193,7 @@
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(FAR2_DBG)\Observer\modules\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(FAR2_DBG)\Observer\modules\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(FAR3_DBG_x64)\Observer\modules\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</LinkIncremental>

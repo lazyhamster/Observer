@@ -4,6 +4,7 @@
     <FAR_DBG>C:\Tools\FarDBG\Plugins\Personal</FAR_DBG>
     <FAR2_DBG>C:\Tools\Far2DBG\Plugins\!Personal</FAR2_DBG>
     <FAR3_DBG>C:\Tools\Far3DBG\Plugins\!Personal</FAR3_DBG>
+    <FAR3_DBG_x64>C:\Tools\Far3DBG-x64\Plugins\!Personal</FAR3_DBG_x64>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
@@ -17,6 +18,9 @@
     </BuildMacro>
     <BuildMacro Include="FAR3_DBG">
       <Value>$(FAR3_DBG)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FAR3_DBG_x64">
+      <Value>$(FAR3_DBG_x64)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
