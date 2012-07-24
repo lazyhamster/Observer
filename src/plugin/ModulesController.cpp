@@ -154,18 +154,25 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 			ModuleLoadParameters loadParams = {0};
 			loadParams.Settings = moduleSettings;
 
-			if (module.LoadModule(&loadParams))
-				if ((loadParams.ApiVersion == ACTUAL_API_VERSION) && (loadParams.OpenStorage != NULL)
-					&& (loadParams.CloseStorage != NULL) && (loadParams.GetItem != NULL) && (loadParams.ExtractItem != NULL))
-				{
-					module.ModuleVersion = loadParams.ModuleVersion;
-					module.OpenStorage = loadParams.OpenStorage;
-					module.CloseStorage = loadParams.CloseStorage;
-					module.GetNextItem = loadParams.GetItem;
-					module.Extract = loadParams.ExtractItem;
+			__try
+			{
+				if (module.LoadModule(&loadParams))
+					if ((loadParams.ApiVersion == ACTUAL_API_VERSION) && (loadParams.OpenStorage != NULL)
+						&& (loadParams.CloseStorage != NULL) && (loadParams.GetItem != NULL) && (loadParams.ExtractItem != NULL))
+					{
+						module.ModuleVersion = loadParams.ModuleVersion;
+						module.OpenStorage = loadParams.OpenStorage;
+						module.CloseStorage = loadParams.CloseStorage;
+						module.GetNextItem = loadParams.GetItem;
+						module.Extract = loadParams.ExtractItem;
 
-					return true;
-				}
+						return true;
+					}
+			}
+			__except (EXCEPTION_EXECUTE_HANDLER)
+			{
+				//Nothing to do here. Module unload code is below.
+			}
 		}
 
 		FreeLibrary(module.ModuleHandle);
