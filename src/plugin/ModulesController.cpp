@@ -172,6 +172,11 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 			__except (EXCEPTION_EXECUTE_HANDLER)
 			{
 				//Nothing to do here. Module unload code is below.
+#ifdef _DEBUG
+				wchar_t msgText[1024] = {0};
+				swprintf_s(msgText, ARRAY_SIZE(msgText), L"Module load exception (Error: %u, Path: %s)", _exception_code(), module.LibraryFile());
+				MessageBox(0, msgText, L"Error", MB_OK);
+#endif
 			}
 		}
 
@@ -183,8 +188,8 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 	{
 		DWORD err = GetLastError();
 		
-		wchar_t msgText[200] = {0};
-		swprintf_s(msgText, ARRAY_SIZE(msgText), L"Can not load modules (Error: %d, Path: %s)", err, module.LibraryFile());
+		wchar_t msgText[1024] = {0};
+		swprintf_s(msgText, ARRAY_SIZE(msgText), L"Can not load modules (Error: %u, Path: %s)", err, module.LibraryFile());
 		MessageBox(0, msgText, L"Error", MB_OK);
 	}
 #endif
