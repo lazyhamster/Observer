@@ -1,5 +1,10 @@
 Changes history:
 
+1.8.7
+- Added WCX module (wrapper for Total Commander packer plugins).
+- Fixed possible issue with source file path resolution when using plugin prefix.
+- Fixed crash if VDISK module unable to load properly.
+
 1.8.6
 - Support for latest API changes in Far 3.
 - MPQ: Fixed issues with extraction of service file '(listfile)'.

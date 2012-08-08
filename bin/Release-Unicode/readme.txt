@@ -88,6 +88,8 @@ that module accepts all files.
 
 1.2.3 Module-specific configuration.
 
+Values marked with * are default values.
+
 [ISO] -> Charset
 [VDISK] -> DefaultCodepage
 Default code page for non-Unicode file names.
@@ -97,10 +99,15 @@ or you can set special system code page values:
 0 - current ANSI code page.
 
 [ISO] -> RockRidge
-Enables (1) / disables (0) support for RockRidge extension. It's enabled by default.
+Enables (1)* / disables (0) support for RockRidge extension.
 
 [PST] -> HideEmptyFolder
-Enables (1) / disables (0) hiding of empty folders. Off by default.
+Enables (1) / disables (0)* hiding of empty folders.
+
+[WCX] -> WcxLocation
+Full path to the location of wcx files. Default value is folder named "wcx" in the same folder as module file.
+[WCX] -> RecursiveLoad
+Enables (1)* / disables (0) recursive scan when searching for wcx.
 
 1.3 Plugin configuration dialog.
 
