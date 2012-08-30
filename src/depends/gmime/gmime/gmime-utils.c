@@ -1921,7 +1921,7 @@ tokenize_rfc2047_phrase (const char *in, size_t *len)
 	register const char *inptr = in;
 	gboolean encoded = FALSE;
 	const char *text, *word;
-	gboolean ascii;
+	gboolean ascii = FALSE;
 	size_t n;
 	
 	tail = (rfc2047_token *) &list;
