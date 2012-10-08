@@ -150,8 +150,7 @@ wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim)
 wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt)
 {
 	wstring strResult(baseDir);
-	if (strResult[strResult.length() - 1] != '\\')
-		strResult.append(L"\\");
+	IncludeTrailingPathDelim(strResult);
 
 	ContentTreeNode* pSubRoot = NULL;
 	if (keepPathOpt == KPV_PARTIAL)
@@ -181,6 +180,22 @@ void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize)
 	size_t nPathLen = strlen(pathBuf);
 	if (pathBuf[nPathLen - 1] != '\\')
 		strcat_s(pathBuf, bufMaxSize, "\\");
+}
+
+void IncludeTrailingPathDelim(string& pathBuf)
+{
+	if (pathBuf.length() == 0) return;
+
+	if (pathBuf.at(pathBuf.length() - 1) != '\\')
+		pathBuf.append("\\");
+}
+
+void IncludeTrailingPathDelim(wstring& pathBuf)
+{
+	if (pathBuf.length() == 0) return;
+
+	if (pathBuf.at(pathBuf.length() - 1) != L'\\')
+		pathBuf.append(L"\\");
 }
 
 void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim)

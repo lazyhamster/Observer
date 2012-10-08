@@ -1122,6 +1122,7 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 	// Confirm extraction
 	if ((OpMode & OPM_SILENT) == 0)
 	{
+		IncludeTrailingPathDelim(extParams.strDestPath);
 		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extParams))
 			return -1;
 	}

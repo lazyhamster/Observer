@@ -1013,6 +1013,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	ExtractSelectedParams extrParams(DestPath);
 	if ((OpMode & OPM_SILENT) == 0)
 	{
+		IncludeTrailingPathDelim(extrParams.strDestPath);
 		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extrParams))
 			return -1;
 	}
