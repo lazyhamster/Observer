@@ -639,12 +639,12 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, GetLocMsg(MSG_EXTRACT_TITLE), L"ObserverExtract");
 
 	Builder.AddText(szDialogLine1);
-	Builder.AddEditField(wszExtractPathBuf, MAX_PATH, 48);
+	Builder.AddEditField(wszExtractPathBuf, MAX_PATH, 56);
 	Builder.AddSeparator();
 	Builder.AddCheckbox(MSG_EXTRACT_DEFOVERWRITE, &params.nOverwriteExistingFiles, 0, true);
 	Builder.AddCheckbox(MSG_EXTRACT_KEEPPATHS, &params.nPathProcessing, 0, true);
 	
-	Builder.AddOKCancel(MSG_BTN_EXTRACT, MSG_BTN_CANCEL, true);
+	Builder.AddOKCancel(MSG_BTN_EXTRACT, MSG_BTN_CANCEL, -1, true);
 
 	if (Builder.ShowDialog())
 	{

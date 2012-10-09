@@ -562,9 +562,9 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	sprintf_s(szDialogLine1, ARRAY_SIZE(szDialogLine1), GetLocMsg(MSG_EXTRACT_CONFIRM), NumFiles, NumDirectories);
 
 	InitDialogItem InitItems []={
-		/*0*/{DI_DOUBLEBOX, 3, 1, 56, 9, 0, 0, 0,0, (char*) GetLocMsg(MSG_EXTRACT_TITLE)},
+		/*0*/{DI_DOUBLEBOX, 3, 1, 60, 9, 0, 0, 0,0, (char*) GetLocMsg(MSG_EXTRACT_TITLE)},
 		/*1*/{DI_TEXT,	    5, 2,  0, 2, 0, 0, 0, 0, szDialogLine1},
-		/*2*/{DI_EDIT,	    5, 3, 53, 3, 1, 0, DIF_EDITEXPAND,0, (char*) params.strDestPath.c_str()},
+		/*2*/{DI_EDIT,	    5, 3, 58, 3, 1, 0, DIF_EDITEXPAND,0, (char*) params.strDestPath.c_str()},
 		/*3*/{DI_TEXT,	    3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, ""},
 		/*4*/{DI_CHECKBOX,  5, 5,  0, 5, 0, params.nOverwriteExistingFiles, DIF_3STATE, 0, (char*) GetLocMsg(MSG_EXTRACT_DEFOVERWRITE)},
 		/*5*/{DI_CHECKBOX,  5, 6,  0, 6, 0, params.nPathProcessing, DIF_3STATE, 0, (char*) GetLocMsg(MSG_EXTRACT_KEEPPATHS)},
@@ -576,7 +576,7 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 
 	InitDialogItems(InitItems, DialogItems, ARRAY_SIZE(InitItems));
 
-	int ExitCode = FarSInfo.Dialog(FarSInfo.ModuleNumber, -1, -1, 60, 11, "ObserverExtract", DialogItems, ARRAY_SIZE(DialogItems));
+	int ExitCode = FarSInfo.Dialog(FarSInfo.ModuleNumber, -1, -1, 64, 11, "ObserverExtract", DialogItems, ARRAY_SIZE(DialogItems));
 
 	if (ExitCode == 7)
 	{
