@@ -255,24 +255,23 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 	if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
 		if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 		{
-			int dirBufSize = (int) FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, NULL);
+			intptr_t dirBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, NULL);
 			FarPanelDirectory *panelDir = (FarPanelDirectory*) malloc(dirBufSize);
 			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, dirBufSize, panelDir);
 
-			wchar_t szNameBuffer[PATH_BUFFER_SIZE] = {0};
-			wcscpy_s(szNameBuffer, ARRAY_SIZE(szNameBuffer), panelDir->Name);
-			IncludeTrailingPathDelim(szNameBuffer, ARRAY_SIZE(szNameBuffer));
-
+			wstring strNameBuffer = panelDir->Name;
+			IncludeTrailingPathDelim(strNameBuffer);
+			
 			size_t itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL);
 			PluginPanelItem *PPI = (PluginPanelItem*)malloc(itemBufSize);
 			if (PPI)
 			{
-				FarGetPluginPanelItem FGPPI={sizeof(FarGetPluginPanelItem), itemBufSize,PPI};
+				FarGetPluginPanelItem FGPPI={sizeof(FarGetPluginPanelItem), itemBufSize, PPI};
 				FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, &FGPPI);
 				if ((PPI->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
 				{
-					wcscat_s(szNameBuffer, ARRAY_SIZE(szNameBuffer), PPI->FileName);
-					nameStr = szNameBuffer;
+					strNameBuffer.append(PPI->FileName);
+					nameStr = strNameBuffer;
 				}
 				free(PPI);
 			}
