@@ -769,7 +769,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	
 	if ((OInfo->OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
 	{
-		wchar_t* szLocalNameBuffer = _wcsdup((wchar_t *) OInfo->Data);
+		OpenCommandLineInfo* cmdInfo = (OpenCommandLineInfo*) OInfo->Data;
+		wchar_t* szLocalNameBuffer = _wcsdup(cmdInfo->CommandLine);
 		FSF.Unquote(szLocalNameBuffer);
 
 		// Find starting subdirectory if specified

@@ -1,6 +1,7 @@
 Changes history:
 
 1.9.0
+- Support for laters Far3 API.
 - Destination path in extract dialog now always have trailing backslash.
 - MIME: Added fake file with decoded headers.
 
