@@ -40,7 +40,9 @@ public:
 		if (IO::File::Exists(strTargetPath))
 			return Assembly::LoadFile(strTargetPath);
 
-		MessageBox(0, L"Dependency library not found", L"Loading Error", MB_OK | MB_ICONERROR);
+		String^ msgText = String::Format("Dependency library not found\n{0}", args->Name);
+		msclr::interop::marshal_context ctx;
+		MessageBox(0, ctx.marshal_as<const wchar_t*>(msgText), L"VDISK Loading Error", MB_OK | MB_ICONERROR);
 
 		return nullptr;
 	}
