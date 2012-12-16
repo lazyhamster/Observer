@@ -257,6 +257,7 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 		{
 			intptr_t dirBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, NULL);
 			FarPanelDirectory *panelDir = (FarPanelDirectory*) malloc(dirBufSize);
+			panelDir->StructSize = sizeof(FarPanelDirectory);
 			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, dirBufSize, panelDir);
 
 			wstring strNameBuffer = panelDir->Name;
