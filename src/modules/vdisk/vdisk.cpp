@@ -33,16 +33,19 @@ ref class AssemblyLoaderEx
 public:
 	static Assembly^ AssemblyResolveEventHandler( Object^ sender, ResolveEventArgs^ args )
 	{
-		AssemblyName^ aName = gcnew AssemblyName(args->Name);
-		String ^strOwnPath = Assembly::GetAssembly(AssemblyLoaderEx::typeid)->Location;
-		String ^strTargetPath = IO::Path::GetDirectoryName(strOwnPath) + "\\" + aName->Name + ".dll";
+		Assembly^ aLibSelf = Assembly::GetExecutingAssembly();
+		if (args->RequestingAssembly == aLibSelf)
+		{
+			AssemblyName^ aName = gcnew AssemblyName(args->Name);
+			String ^strTargetPath = IO::Path::GetDirectoryName(aLibSelf->Location) + "\\" + aName->Name + ".dll";
 
-		if (IO::File::Exists(strTargetPath))
-			return Assembly::LoadFile(strTargetPath);
+			if (IO::File::Exists(strTargetPath))
+				return Assembly::LoadFile(strTargetPath);
 
-		String^ msgText = String::Format("Dependency library not found\n{0}", args->Name);
-		msclr::interop::marshal_context ctx;
-		MessageBox(0, ctx.marshal_as<const wchar_t*>(msgText), L"VDISK Loading Error", MB_OK | MB_ICONERROR);
+			String^ msgText = String::Format("Dependency library not found\n{0}", args->Name);
+			msclr::interop::marshal_context ctx;
+			MessageBox(0, ctx.marshal_as<const wchar_t*>(msgText), L"VDISK Loading Error", MB_OK | MB_ICONERROR);
+		}
 
 		return nullptr;
 	}
