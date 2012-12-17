@@ -5,6 +5,7 @@ Changes history:
 - Destination path in extract dialog now always have trailing backslash.
 - MIME: Added fake file with decoded headers.
 - VDISK: Fixed possible conflict with .NET plugins.
+- MSI: Now packages with no files to install can be opened too.
 
 1.8.7
 - Added WCX module (wrapper for Total Commander packer plugins).

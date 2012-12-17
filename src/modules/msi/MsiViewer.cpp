@@ -85,7 +85,7 @@ int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 	OK ( readDirectories(mDirs) );
 
 	// Get Component entry list
-	OK ( readComponents(mDirs, mComponents) );
+	OK ( readComponents(mComponents) );
 
 	// Get File entry list
 	OK ( readFiles(mDirs, mComponents) );
@@ -140,7 +140,7 @@ int CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
 	m_pRootDir = new DirectoryNode();
 	
 	PMSIHANDLE hQueryDirs;
-	OK( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Directory", &hQueryDirs) );
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Directory", &hQueryDirs) );
 	OK( MsiViewExecute(hQueryDirs, 0) );
 
 	// Retrieve all directory entries and convert to nodes
@@ -168,12 +168,12 @@ int CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::readComponents( DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap )
+int CMsiViewer::readComponents( ComponentEntryMap &componentmap )
 {
 	UINT res;
 	PMSIHANDLE hQueryComp;
 
-	OK( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Component", &hQueryComp) );
+	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Component", &hQueryComp) );
 	OK( MsiViewExecute(hQueryComp, 0) );
 
 	// Retrieve all component entries
@@ -202,6 +202,10 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 {
 	UINT res;
 	PMSIHANDLE hQueryFile;
+
+	// Lets skip files query if no components or directories are found
+	if (nodemap.size() == 0 || componentmap.size() == 0)
+		return ERROR_SUCCESS;
 
 	OK( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM File", &hQueryFile) );
 	OK( MsiViewExecute(hQueryFile, 0) );

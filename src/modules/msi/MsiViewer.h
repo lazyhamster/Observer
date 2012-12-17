@@ -38,7 +38,7 @@ private:
 	map<wstring, wstring> m_mStreamCache;
 
 	int readDirectories(DirectoryNodesMap &nodemap);
-	int readComponents(DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap);
+	int readComponents(ComponentEntryMap &componentmap);
 	int readFiles(DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap);
 	int readMediaSources();
 	int readAppSearch(WStringMap &entries);
