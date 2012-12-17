@@ -14,6 +14,16 @@ using namespace System::Text;
 using namespace DiscUtils;
 
 static int optDefaultCodepage = CP_OEMCP;
+static bool optDisplayErrorPopups = true;
+
+static void DisplayErrorMessage(String^ text, const wchar_t* caption)
+{
+	if (optDisplayErrorPopups)
+	{
+		msclr::interop::marshal_context ctx;
+		MessageBox(0, ctx.marshal_as<const wchar_t*>(text), caption, MB_OK | MB_ICONERROR);
+	}
+}
 
 ref class VDFileInfo
 {
@@ -43,8 +53,7 @@ public:
 				return Assembly::LoadFile(strTargetPath);
 
 			String^ msgText = String::Format("Dependency library not found\n{0}", args->Name);
-			msclr::interop::marshal_context ctx;
-			MessageBox(0, ctx.marshal_as<const wchar_t*>(msgText), L"VDISK Loading Error", MB_OK | MB_ICONERROR);
+			DisplayErrorMessage(msgText, L"VDISK Loading Error");
 		}
 
 		return nullptr;
@@ -53,9 +62,7 @@ public:
 	static void UnhandledExceptionHandler( Object^ sender, UnhandledExceptionEventArgs^ args )
 	{
 		String^ msgText = String::Format("ACHTUNG!!!! DANGER!!!! : {0}", args->ExceptionObject);
-		
-		msclr::interop::marshal_context ctx;
-		MessageBox(0, ctx.marshal_as<const wchar_t*>(msgText), L"Global Error", MB_OK | MB_ICONERROR);
+		DisplayErrorMessage(msgText, L"Global Error");
 	}
 };
 
@@ -165,9 +172,7 @@ static void PrepareFileList(VDisk* vdisk)
 		catch (Exception^ ex)
 		{
 			String^ errText = String::Format("Volume listing error : {0}", ex);
-
-			msclr::interop::marshal_context ctx;
-			MessageBox(0, ctx.marshal_as<const wchar_t*>(errText), L"Error", MB_OK | MB_ICONERROR);
+			DisplayErrorMessage(errText, L"VDISK Error");
 		}
 	} // for
 }
@@ -403,6 +408,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 
 	OptionsList opts(LoadParams->Settings);
 	opts.GetValue(L"DefaultCodepage", optDefaultCodepage);
+	opts.GetValue(L"DisplayErrorPopups", optDisplayErrorPopups);
 
 	try
 	{
@@ -413,8 +419,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	}
 	catch (Exception^ ex)
 	{
-		msclr::interop::marshal_context ctx;
-		MessageBox(0, ctx.marshal_as<const wchar_t*>(ex->Message), L"Module Loading Error", MB_OK | MB_ICONERROR);
+		DisplayErrorMessage(ex->Message, L"Module Loading Error");
 
 		return FALSE;
 	}
