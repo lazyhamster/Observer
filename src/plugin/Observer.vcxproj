@@ -600,6 +600,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CommonFunc.cpp" />
+    <ClCompile Include="Config.cpp" />
     <ClCompile Include="ContentStructures.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
@@ -697,6 +698,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunc.h" />
+    <ClInclude Include="Config.h" />
     <ClInclude Include="ContentStructures.h" />
     <ClInclude Include="FarStorage.h" />
     <ClInclude Include="..\common\ModuleCRT.h" />
