@@ -27,8 +27,6 @@ static wchar_t wszPluginLocation[MAX_PATH];
 static wchar_t wszConfigFileLocation[MAX_PATH];
 static ModulesController g_pController;
 
-#define CONFIG_FILE L"observer.ini"
-
 // Settings
 #define MAX_PREFIX_SIZE 32
 static int optEnabled = TRUE;

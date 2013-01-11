@@ -25,3 +25,6 @@
 using namespace std;
 
 #define ARRAY_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
+
+#define CONFIG_FILE L"observer.ini"
+#define CONFIG_USER_FILE L"observer_user.ini"
