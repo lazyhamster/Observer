@@ -89,11 +89,38 @@ bool ConfigSection::GetValue( const wchar_t* Key, std::wstring &Value ) const
 
 void ConfigSection::AddItem( const wchar_t* Key, const wchar_t* Value )
 {
+	// Try to find and replace existing value
+	for (auto it = m_Items.begin(); it != m_Items.end(); it++)
+	{
+		ConfigItem& item = *it;
+		if (wcscmp(item.Key.c_str(), Key) == 0)
+		{
+			item.Value = Value;
+			return;
+		}
+	}
+
+	// If it is new value - add it
+
 	ConfigItem item;
 	item.Key = Key;
 	item.Value = Value;
 
 	m_Items.push_back(item);
+}
+
+std::wstring ConfigSection::GetAll() const
+{
+	wstring val;
+	for (size_t i = 0; i < m_Items.size(); i++)
+	{
+		const ConfigItem& item = m_Items[i];
+		val += item.ToString();
+		val += L'\0';
+	}
+	val += L'\0';
+
+	return val;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -107,7 +134,8 @@ Config::~Config()
 {
 	for (auto it = m_Sections.begin(); it != m_Sections.end(); it++)
 	{
-		delete (*it).second;
+		ConfigSection* pSection = (*it).second;
+		delete pSection;
 	}
 	m_Sections.clear();
 }
@@ -194,11 +222,6 @@ int Config::ParseSectionValues( ConfigSection* section, const wchar_t* configFil
 			if (wszSeparator)
 			{
 				*wszSeparator = 0;
-				
-				ConfigItem newItem;
-				newItem.Key = wszEntry;
-				newItem.Value = wszSeparator + 1;
-
 				section->AddItem(wszEntry, wszSeparator + 1);
 				nNumOptsFound++;
 			}
