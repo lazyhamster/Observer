@@ -82,6 +82,11 @@ bool ConfigSection::GetValue( const wchar_t* Key, char *Value, size_t MaxValueSi
 	return false;
 }
 
+bool ConfigSection::GetValue( const wchar_t* Key, std::wstring &Value ) const
+{
+	return GetValueByKey(Key, Value);
+}
+
 void ConfigSection::AddItem( const wchar_t* Key, const wchar_t* Value )
 {
 	ConfigItem item;
