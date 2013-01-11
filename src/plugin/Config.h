@@ -54,6 +54,7 @@ public:
 	bool ParseFile(const wstring& path);
 
 	ConfigSection* GetSection(const wchar_t* sectionName);
+	ConfigSection* AddSection(const wchar_t* sectionName);
 	bool IsSectionExists(const wchar_t* sectionName);
 };
 

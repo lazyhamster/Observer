@@ -121,6 +121,19 @@ bool Config::IsSectionExists( const wchar_t* sectionName )
 	return (GetSection(sectionName) != NULL);
 }
 
+ConfigSection* Config::AddSection( const wchar_t* sectionName )
+{
+	ConfigSection* pSection = GetSection(sectionName);
+	
+	if (pSection == NULL)
+	{
+		pSection = new ConfigSection(sectionName);
+		m_Sections[sectionName] = pSection;
+	}
+
+	return pSection;
+}
+
 bool Config::ParseFile(const wstring& path)
 {
 	return ParseFile(path.c_str());
@@ -141,12 +154,10 @@ bool Config::ParseFile( const wchar_t* path )
 	{
 		const wchar_t* pSectionName = wszSectionListBufPtr;
 
-		ConfigSection* pNewSection = new ConfigSection(pSectionName);
-		m_Sections[pSectionName] = pNewSection;
+		ConfigSection* pSection = AddSection(pSectionName);
+		ParseSectionValues(pSection, path);
 
-		ParseSectionValues(pNewSection, path);
-
-		wszSectionListBufPtr += wcslen(pSectionName);
+		wszSectionListBufPtr += wcslen(pSectionName) + 1;
 	}
 	
 	return true;
@@ -189,7 +200,7 @@ int Config::ParseSectionValues( ConfigSection* section, const wchar_t* configFil
 			free(wszEntry);
 		}
 		
-		dataBufferPtr += wcslen(dataBufferPtr);
+		dataBufferPtr += wcslen(dataBufferPtr) + 1;
 	}
 
 	return nNumOptsFound;
