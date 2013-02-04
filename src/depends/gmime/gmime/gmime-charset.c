@@ -252,7 +252,10 @@ locale_parse_lang (const char *locale)
 void
 g_mime_charset_map_init (void)
 {
-	char *charset, *iconv_name, *locale;
+	char *charset, *iconv_name;
+#ifndef WIN32
+	char *locale;
+#endif
 	int i;
 	
 	if (iconv_charsets)

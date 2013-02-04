@@ -475,7 +475,7 @@ g_mime_part_iter_get_path (GMimePartIter *iter)
 	/* Note: path components are 1-based instead of 0-based */
 	
 	path = g_string_new ("");
-	for (i = 0; i < iter->path->len; i++) {
+	for (i = 0; i < (int) iter->path->len; i++) {
 		v = g_array_index (iter->path, int, i);
 		g_string_append_printf (path, "%d.", v + 1);
 	}
