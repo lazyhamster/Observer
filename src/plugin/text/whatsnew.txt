@@ -6,6 +6,7 @@ Changes history:
 - MIME: Added fake file with decoded headers.
 - VDISK: Fixed possible conflict with .NET plugins.
 - MSI: Now packages with no files to install can be opened too.
+- NSIS: Fixed issue with extracting of duplicate files.
 
 1.8.7
 - Added WCX module (wrapper for Total Commander packer plugins).

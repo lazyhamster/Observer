@@ -62,8 +62,6 @@ public:
 
 private:
 	CMyComPtr<IInArchive> _archiveHandler;
-	UString _directoryPath;  // Output directory
-	UString _filePath;       // name inside archive
 	UString _diskFilePath;   // full path to file on disk
 	bool _extractMode;
 	UInt64 _completed, _prevCompleted;
@@ -83,7 +81,7 @@ private:
 	CMyComPtr<ISequentialOutStream> _outFileStream;
 
 public:
-	void Init(IInArchive *archiveHandler, const UString &directoryPath, const ExtractProcessCallbacks *progessCallbacks);
+	void Init(IInArchive *archiveHandler, const UString &destinationPath, const ExtractProcessCallbacks *progessCallbacks);
 	UInt64 GetCompleted() { return _completed; };
 
 	UInt64 NumErrors;
@@ -91,12 +89,11 @@ public:
 	CArchiveExtractCallback() {}
 };
 
-void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const UString &directoryPath, const ExtractProcessCallbacks *progessCallbacks)
+void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const UString &destinationPath, const ExtractProcessCallbacks *progessCallbacks)
 {
 	NumErrors = 0;
 	_archiveHandler = archiveHandler;
-	_directoryPath = directoryPath;
-	NFile::NName::NormalizeDirPathPrefix(_directoryPath);
+	_diskFilePath = destinationPath;
 
 	_totalSize = 0;
 	_completed = 0;
@@ -129,23 +126,6 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
 {
 	*outStream = 0;
 	_outFileStream.Release();
-
-	{
-		// Get Name
-		NCOM::CPropVariant prop;
-		RINOK(_archiveHandler->GetProperty(index, kpidPath, &prop));
-
-		UString fullPath;
-		if (prop.vt == VT_EMPTY)
-			fullPath = kEmptyFileAlias;
-		else
-		{
-			if (prop.vt != VT_BSTR)
-				return E_FAIL;
-			fullPath = prop.bstrVal;
-		}
-		_filePath = fullPath;
-	}
 
 	if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
 		return S_OK;
@@ -199,14 +179,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
 			newFileSize = ConvertPropVariantToUInt64(prop);
 	}
 
-	UString fullProcessedPath = _directoryPath;
-	int slashPos = _filePath.ReverseFind(WCHAR_PATH_SEPARATOR);
-	if (slashPos >= 0)
-		fullProcessedPath += _filePath.Right(_filePath.Length() - slashPos - 1);
-	else
-		fullProcessedPath += _filePath;
-
-	_diskFilePath = fullProcessedPath;
+	UString fullProcessedPath = _diskFilePath;
 
 	if (_processedFileInfo.isDir)
 	{
@@ -366,14 +339,9 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destFilePa
 {	
 	if (itemIndex < 0) return SER_ERROR_READ;
 
-	UString destDir = destFilePath;
-	int nLastSlashPos = destDir.ReverseFind('\\');
-	if (nLastSlashPos >= 0)
-		destDir = destDir.Left(nLastSlashPos + 1);
-
 	CArchiveExtractCallback* callback = new CArchiveExtractCallback();
 	CMyComPtr<IArchiveExtractCallback> extractCallback(callback);
-	callback->Init(m_handler, destDir, epc);
+	callback->Init(m_handler, destFilePath, epc);
 
 	UInt32 nIndex = itemIndex;
 	HRESULT extResult = m_handler->Extract(&nIndex, 1, 0, callback);
