@@ -9,7 +9,7 @@
 #include "FarStorage.h"
 #include "CommonFunc.h"
 
-#include "OptionsFile.h"
+#include "Config.h"
 #include "RegistrySettings.h"
 
 extern HMODULE g_hDllHandle;
@@ -17,7 +17,6 @@ static PluginStartupInfo FarSInfo;
 static FarStandardFunctions FSF;
 
 static wchar_t wszPluginLocation[MAX_PATH];
-static wchar_t wszConfigFileLocation[MAX_PATH];
 static ModulesController g_pController;
 
 // Settings
@@ -80,17 +79,15 @@ static const wchar_t* GetLocMsg(int MsgID)
 	return FarSInfo.GetMsg(FarSInfo.ModuleNumber, MsgID);
 }
 
-static void LoadSettings()
+static void LoadSettings(Config* cfg)
 {
 	// Load static settings from .ini file.
-	OptionsFile opFile(wszConfigFileLocation);
-	OptionsList *opList = opFile.GetSection(L"General");
-	if (opList != NULL)
+	ConfigSection* generalCfg = cfg->GetSection(L"General");
+	if (generalCfg != NULL)
 	{
-		opList->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
-		opList->GetValue(L"ExtendedCurDir", optExtendedCurDir);
-		opList->GetValue(L"UseExtensionFilters", optUseExtensionFilters);
-		delete opList;
+		generalCfg->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
+		generalCfg->GetValue(L"ExtendedCurDir", optExtendedCurDir);
+		generalCfg->GetValue(L"UseExtensionFilters", optUseExtensionFilters);
 	}
 
 	// Load dynamic settings from registry (they will overwrite static ones)
@@ -723,10 +720,15 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	{
 		wmemset(wszPluginLocation, 0, MAX_PATH);
 	}
-	swprintf_s(wszConfigFileLocation, ARRAY_SIZE(wszConfigFileLocation), L"%s%s", wszPluginLocation, CONFIG_FILE);
 
-	LoadSettings();
-	g_pController.Init(wszPluginLocation, wszConfigFileLocation);
+	wstring strConfigLocation(wszPluginLocation);
+
+	Config cfg;
+	cfg.ParseFile(strConfigLocation + CONFIG_FILE);
+	cfg.ParseFile(strConfigLocation + CONFIG_USER_FILE);
+
+	LoadSettings(&cfg);
+	g_pController.Init(wszPluginLocation, &cfg);
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)

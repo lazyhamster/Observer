@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "ModulesController.h"
-#include "OptionsFile.h"
 
 #define SECTION_BUF_SIZE 1024
 
@@ -39,35 +38,30 @@ static void ParseExtensionList(const wchar_t* listval, ExternalModule& module)
 	free(strList);
 }
 
-int ModulesController::Init( const wchar_t* basePath, const wchar_t* configPath )
+int ModulesController::Init( const wchar_t* basePath, Config* cfg )
 {
 	Cleanup();
 
-	OptionsFile optFile(configPath);
-
 	// Get list of modules from config file
-	OptionsList *mModulesList = optFile.GetSection(L"Modules");
+	ConfigSection *mModulesList = cfg->GetSection(L"Modules");
 	if (!mModulesList) return 0;
 
-	OptionsList *mFiltersList = optFile.GetSection(L"Filters");
-	wchar_t wszModuleSection[SECTION_BUF_SIZE] = {0};
+	ConfigSection *mFiltersList = cfg->GetSection(L"Filters");
 
-	for (size_t i = 0; i < mModulesList->NumOptions(); i++)
+	for (size_t i = 0; i < mModulesList->Count(); i++)
 	{
-		OptionsItem nextOpt = mModulesList->GetOption(i);
+		const ConfigItem& nextOpt = mModulesList->GetItem(i);
+		ExternalModule module(nextOpt.Key.c_str(), nextOpt.Value.c_str());
 		
-		ExternalModule module(nextOpt.key, nextOpt.value);
+		ConfigSection* moduleOpts = cfg->GetSection(module.Name());
+		wstring moduleSettingsStr = moduleOpts ? moduleOpts->GetAll() : L"";
 
-		// Get module specific settings section
-		memset(wszModuleSection, 0, sizeof(wszModuleSection));
-		optFile.GetSectionLines(module.Name(), wszModuleSection, SECTION_BUF_SIZE);
-
-		if (LoadModule(basePath, module, wszModuleSection))
+		if (LoadModule(basePath, module, moduleSettingsStr.c_str()))
 		{
 			// Read extensions filter for each module
 			if (mFiltersList != NULL)
 			{
-				wchar_t extList[OPT_VAL_MAXLEN] = {0};
+				wchar_t extList[1024] = {0};
 				mFiltersList->GetValue(module.Name(), extList, ARRAY_SIZE(extList));
 				ParseExtensionList(extList, module);
 			}
@@ -76,9 +70,6 @@ int ModulesController::Init( const wchar_t* basePath, const wchar_t* configPath 
 		}
 	} // for
 	
-	delete mModulesList;
-	if (mFiltersList) delete mFiltersList;
-
 	return (int) modules.size();
 }
 

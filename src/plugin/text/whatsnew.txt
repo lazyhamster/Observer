@@ -2,6 +2,7 @@ Changes history:
 
 1.9.0
 - Support for latest Far3 API.
+- Added support for second cofiguration file - observer_user.ini.
 - Destination path in extract dialog now always have trailing backslash.
 - MIME: Added fake file with decoded headers.
 - VDISK: Fixed possible conflict with .NET plugins.

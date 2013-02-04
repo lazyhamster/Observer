@@ -2,6 +2,7 @@
 #define _ModulesController_h__
 
 #include "ModuleDef.h"
+#include "Config.h"
 
 struct ExternalModule
 {
@@ -55,7 +56,7 @@ public:
 	ModulesController(void) {};
 	~ModulesController(void) { this->Cleanup(); };
 
-	int Init(const wchar_t* basePath, const wchar_t* configPath);
+	int Init(const wchar_t* basePath, Config* cfg);
 	void Cleanup();
 	
 	size_t NumModules() { return modules.size(); }
