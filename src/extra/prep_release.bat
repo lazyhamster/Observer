@@ -26,6 +26,7 @@ if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
 @rar.exe a -y -r -ep1 -apObserver -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
+if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x86
 %DEVENV_EXE_PATH% /Rebuild "Release-Unicode|Win32" "..\Observer.VS2010.sln"
@@ -33,6 +34,7 @@ if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
 @rar.exe a -y -r -ep1 -apObserver -- Observer_Far2_x86_%1.rar "..\..\bin\Release-Unicode\*" > nul
+if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x64
 %DEVENV_EXE_PATH% /Rebuild "Release-Unicode|x64" "..\Observer.VS2010.sln"
@@ -40,6 +42,7 @@ if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
 @rar.exe a -y -r -ep1 -apObserver -- Observer_Far2_x64_%1.rar "..\..\bin\Release-Unicode-x64\*" > nul
+if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x86
 %DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|Win32" "..\Observer.VS2010.sln"
@@ -47,6 +50,7 @@ if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
 @rar.exe a -y -r -ep1 -apObserver -- Observer_Far3_x86_%1.rar "..\..\bin\Release-Unicode-3\*" > nul
+if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x64
 %DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|x64" "..\Observer.VS2010.sln"
@@ -54,6 +58,7 @@ if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
 @rar.exe a -y -r -ep1 -apObserver -- Observer_Far3_x64_%1.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
+if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO [SUCCESS] Global build complete !!!
 EXIT 0
