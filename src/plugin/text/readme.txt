@@ -49,6 +49,12 @@ Add/Delete/Change operations are not planned.
 Some plugin options are not available in configuration dialog.
 They can be configured in file observer.ini which resides in plugin directory.
 
+Also plugin supports user-specific configuration file observer_user.ini.
+This file may be useful in cases where editing of main configuration file, which is present
+in installation package, is unwanted for some reason.
+Structure of the observer_user.ini is the same as for observer.ini. Values from user file
+take precedence over main configutration file.
+
 Mail plugin options are in [General] section.
 Settings for each individual module will reside with section with module name.
 

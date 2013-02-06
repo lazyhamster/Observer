@@ -64,7 +64,7 @@ ECHO [SUCCESS] Global build complete !!!
 EXIT 0
 
 :BUILD_ERROR
-ECHO Unable to build project with Visual Studio. Exit code = %ERRROLEVEL%
+ECHO Unable to build project with Visual Studio. Exit code = %ERRORLEVEL%
 EXIT 2
 
 :PACK_ERROR
