@@ -1,9 +1,18 @@
 Changes history:
 
+1.9.0
+- Support for latest Far3 API.
+- Added support for second cofiguration file - observer_user.ini.
+- Destination path in extract dialog now always have trailing backslash.
+- MIME: Added fake file with decoded headers.
+- VDISK: Fixed possible conflict with .NET plugins.
+- MSI: Now packages with no files to install can be opened too.
+- NSIS: Fixed issue with extracting of duplicate files.
+
 1.8.7
 - Added WCX module (wrapper for Total Commander packer plugins).
 - Fixed possible issue with source file path resolution when using plugin prefix.
-- Fixed crash if VDISK module unable to load properly.
+- Fixed crash if VDISK module is unable to load properly.
 
 1.8.6
 - Support for latest API changes in Far 3.
