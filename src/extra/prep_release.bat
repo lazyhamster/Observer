@@ -24,6 +24,12 @@ ECHO Building version for Far 1 x86
 %DEVENV_EXE_PATH% /Rebuild "Release|Win32" "..\Observer.VS2010.sln"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
+ECHO Recoding lang files
+pushd ..\..\bin\Release
+@iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.hlf > ObserverRus.tmp
+@move /Y ObserverRus.tmp ObserverRus.hlf > nul
+popd
+
 ECHO Packing release
 @rar.exe a -y -r -ep1 -apObserver -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
