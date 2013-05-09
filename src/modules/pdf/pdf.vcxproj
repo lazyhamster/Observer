@@ -51,7 +51,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{582D8EBB-0A8B-41C9-A9D2-F90D7591E2EA}</ProjectGuid>
+    <ProjectGuid>{823E5DCD-8385-48F1-8225-EF9F6BF137FC}</ProjectGuid>
     <RootNamespace>pdf</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
