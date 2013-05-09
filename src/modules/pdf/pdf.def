@@ -1,0 +1,5 @@
+LIBRARY	"pdf.so"
+
+EXPORTS
+	LoadSubModule
+	UnloadSubModule
