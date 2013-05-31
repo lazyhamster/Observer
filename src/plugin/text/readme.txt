@@ -44,6 +44,8 @@ Add/Delete/Change operations are not planned.
   - GCF, WAD, XZP, PAK, BSP, VBSP - used inside Steam
   - MoPaQ packages (used by Blizzard)
 
+- Supports usage of WCX modules from Total Commander (read-only)
+
 1.2. Settings.
 
 Some plugin options are not available in configuration dialog.
@@ -185,7 +187,7 @@ OS: WinXP or higher.
 Minimal FAR versions are 1.75 build 2634 / 2.0 build 1807
 
 Windows Installer 4+
-Microsoft Visual C++ 2008 SP1 Redistributable Package
+Microsoft Visual C++ 2010 SP1 Redistributable Package
 
 VDISK module requires Microsoft .NET Framework 3.5 to be installed.
 If you don't install .NET then this modile will not load.

@@ -44,6 +44,8 @@ Observer
   - GCF, WAD, XZP, PAK, BSP, VBSP - используются в системе Steam
   - MoPaQ архивы (используются Blizzard)
 
+- Поддерживается использование WCX модулей от Total Commander-а в режиме чтения
+
 1.2. Настройки.
 
 Некоторые опции плагина недоступны из диалога настроек.
@@ -182,7 +184,7 @@ OS: WinXP или новее.
 Минимальные версии FAR-а для работы плагина 1.75 build 2634 / 2.0 build 1807
 
 Windows Installer 4+
-Microsoft Visual C++ 2008 SP1 Redistributable Package
+Microsoft Visual C++ 2010 SP1 Redistributable Package
 
 Модуль VDISK дополнительно требует Microsoft .NET Framework 3.5.
 Если .NET не установлен, то этот модуль не будет загружаться.
