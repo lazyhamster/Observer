@@ -1,0 +1,5 @@
+LIBRARY	"ishield.so"
+
+EXPORTS
+	LoadSubModule
+	UnloadSubModule
