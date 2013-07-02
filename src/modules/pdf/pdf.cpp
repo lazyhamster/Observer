@@ -7,7 +7,7 @@
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	return FALSE;
+	return SOR_INVALID_FILE;
 }
 
 void MODULE_EXPORT CloseStorage(HANDLE storage)
