@@ -13,3 +13,9 @@
 
 
 // Additional headers
+#include <malloc.h>
+#include <vector>
+#include <sstream>
+
+#define FREE_NULL(x) if (x) { free(x); x = NULL; }
+#define DELETE_NULL(x) if (x) { delete x; x = NULL; }

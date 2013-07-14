@@ -570,6 +570,9 @@
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="IS5\IS5CabFile.cpp" />
+    <ClCompile Include="IS6\IS6CabFile.cpp" />
+    <ClCompile Include="ISCabFile.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
@@ -585,13 +588,20 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ishield.cpp" />
+    <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="ishield.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IS5\IS5CabFile.h" />
+    <ClInclude Include="IS5\IS5_CabStructs.h" />
+    <ClInclude Include="IS6\IS6CabFile.h" />
+    <ClInclude Include="IS6\IS6_CabStructs.h" />
+    <ClInclude Include="ISCabFile.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
