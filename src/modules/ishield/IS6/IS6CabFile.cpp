@@ -5,17 +5,6 @@
 namespace IS6
 {
 
-static bool CheckVersion(DWORD ver)
-{
-	// This is not the real meaning of the bytes
-	DWORD major = ver >> 24;
-	DWORD minor = (ver >> 16) & 0xFF;
-	DWORD rev = ver & 0xFFFF;
-
-	return ((major == 1) && (minor == 0) && (rev == 0x600C || rev == 0x9500)) // i6comp
-		|| ((major == 2) && (minor == 0) && (rev == 0x0578 || rev == 0x05DC)); // i12comp
-}
-
 #define GetFileDesc(ptr, dft, i) ( ((FILEDESC*) (((BYTE*)dft) + ptr->ofsFilesDFT) ) + i )
 #define GetString(ptr, ofs) ( (LPSTR) (((LPBYTE)ptr) + ((DWORD)ofs)) )
 #define GetFileGroupDesc(ptr, fgt) ( (FILEGROUPDESC*) (((LPBYTE)ptr) + fgt) )
@@ -100,7 +89,8 @@ bool IS6CabFile::Open( HANDLE headerFile )
 
 	if (cabHeader.Signature != CAB_SIG)
 		return false;
-	if (!CheckVersion(cabHeader.Version))
+	DWORD major_version = GetMajorVersion(cabHeader.Version);
+	if (major_version < 6 || major_version > 15)
 		return false;
 	if (cabHeader.ofsCabDesc == 0)
 		return false; // Not a header
