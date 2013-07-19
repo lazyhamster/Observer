@@ -24,6 +24,7 @@ private:
 	std::wstring m_sInfoFile;
 
 	void GenerateInfoFile();
+	bool IsVersionCompatible(DWORD version);
 
 public:	
 	IS5CabFile();

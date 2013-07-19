@@ -26,6 +26,12 @@ IS6CabFile::~IS6CabFile()
 	Close();
 }
 
+bool IS6CabFile::IsVersionCompatible( DWORD version )
+{
+	DWORD major_version = GetMajorVersion(version);
+	return major_version >= 6 && major_version <= 15;
+}
+
 int IS6CabFile::GetTotalFiles() const
 {
 	return (int) m_vValidFiles.size();
@@ -89,8 +95,7 @@ bool IS6CabFile::Open( HANDLE headerFile )
 
 	if (cabHeader.Signature != CAB_SIG)
 		return false;
-	DWORD major_version = GetMajorVersion(cabHeader.Version);
-	if (major_version < 6 || major_version > 15)
+	if (!IsVersionCompatible(cabHeader.Version))
 		return false;
 	if (cabHeader.ofsCabDesc == 0)
 		return false; // Not a header

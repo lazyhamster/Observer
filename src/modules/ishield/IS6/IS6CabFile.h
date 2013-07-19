@@ -10,7 +10,7 @@ namespace IS6
 
 class IS6CabFile : public ISCabFile
 {
-private:
+protected:
 	HANDLE m_hHeaderFile;
 
 	CABHEADER m_Header;
@@ -24,6 +24,7 @@ private:
 	std::wstring m_sInfoFile;
 
 	void GenerateInfoFile();
+	bool IsVersionCompatible(DWORD version);
 
 public:	
 	IS6CabFile();

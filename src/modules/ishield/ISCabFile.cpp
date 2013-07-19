@@ -3,6 +3,7 @@
 
 #include "IS5\IS5CabFile.h"
 #include "IS6\IS6CabFile.h"
+#include "ISU\ISUCabFile.h"
 
 ISCabFile* OpenCab(const wchar_t* filePath)
 {
@@ -25,6 +26,15 @@ ISCabFile* OpenCab(const wchar_t* filePath)
 		return is6;
 	}
 	delete is6;
+
+	SetFilePointer(hFile, 0, NULL, FILE_BEGIN);
+
+	ISU::ISUCabFile* isu = new ISU::ISUCabFile();
+	if (isu->Open(hFile))
+	{
+		return isu;
+	}
+	delete isu;
 
 	CloseHandle(hFile);
 	return NULL;

@@ -573,6 +573,7 @@
     <ClCompile Include="IS5\IS5CabFile.cpp" />
     <ClCompile Include="IS6\IS6CabFile.cpp" />
     <ClCompile Include="ISCabFile.cpp" />
+    <ClCompile Include="ISU\ISUCabFile.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
@@ -599,6 +600,7 @@
     <ClInclude Include="IS6\IS6CabFile.h" />
     <ClInclude Include="IS6\IS6_CabStructs.h" />
     <ClInclude Include="ISCabFile.h" />
+    <ClInclude Include="ISU\ISUCabFile.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utils.h" />

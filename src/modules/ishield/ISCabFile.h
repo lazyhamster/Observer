@@ -5,6 +5,10 @@
 
 class ISCabFile
 {
+protected:
+	virtual bool IsVersionCompatible(DWORD version) = 0;
+	virtual void GenerateInfoFile() = 0;
+
 public:	
 	virtual int GetTotalFiles() const = 0;
 	virtual bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const = 0;

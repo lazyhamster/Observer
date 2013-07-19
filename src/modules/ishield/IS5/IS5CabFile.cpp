@@ -26,6 +26,11 @@ IS5CabFile::~IS5CabFile()
 	Close();
 }
 
+bool IS5CabFile::IsVersionCompatible( DWORD version )
+{
+	return GetMajorVersion(version) == 5;
+}
+
 int IS5CabFile::GetTotalFiles() const
 {
 	return (int) m_vValidFiles.size();
@@ -89,7 +94,7 @@ bool IS5CabFile::Open( HANDLE headerFile )
 	
 	if (cabHeader.Signature != CAB_SIG)
 		return false;
-	if (GetMajorVersion(cabHeader.Version) != 5)
+	if (!IsVersionCompatible(cabHeader.Version))
 		return false;
 	if (cabHeader.NextVol != 0 && cabHeader.NextVol != 2)
 		return false; // Not a first volume

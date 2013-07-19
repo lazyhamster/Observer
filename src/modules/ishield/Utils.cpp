@@ -30,6 +30,24 @@ void CombinePath(char* buffer, size_t bufferSize, int numParts, ...)
 	va_end(argptr);
 }
 
+void CombinePath(wchar_t* buffer, size_t bufferSize, int numParts, ...)
+{
+	va_list argptr;
+	va_start(argptr, numParts);
+	for (int i = 0; i < numParts; i++)
+	{
+		wchar_t* next = va_arg(argptr, wchar_t*);
+		if (next && *next)
+		{
+			if (buffer[0])
+				wcscat_s(buffer, bufferSize, L"\\");
+
+			wcscat_s(buffer, bufferSize, next);
+		}
+	}
+	va_end(argptr);
+}
+
 DWORD GetMajorVersion(DWORD fileVersion)
 {
 	if (fileVersion >> 24 == 1)
