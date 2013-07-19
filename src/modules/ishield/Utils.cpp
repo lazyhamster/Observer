@@ -29,3 +29,19 @@ void CombinePath(char* buffer, size_t bufferSize, int numParts, ...)
 	}
 	va_end(argptr);
 }
+
+DWORD GetMajorVersion(DWORD fileVersion)
+{
+	if (fileVersion >> 24 == 1)
+	{
+		return (fileVersion >> 12) & 0xf;
+	}
+	else if (fileVersion >> 24 == 2 || fileVersion >> 24 == 4)
+	{
+		DWORD major = (fileVersion & 0xffff);
+		if (major != 0) major /= 100;
+		return major;
+	}
+
+	return 0;
+}

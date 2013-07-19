@@ -7,4 +7,6 @@ bool SeekFile(HANDLE file, DWORD position);
 
 void CombinePath(char* buffer, size_t bufferSize, int numParts, ...);
 
+DWORD GetMajorVersion(DWORD fileVersion);
+
 #endif // Utils_h__

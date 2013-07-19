@@ -1,11 +1,12 @@
 #ifndef IS5CabFile_h__
 #define IS5CabFile_h__
 
-#include "..\ISCabFile.h"
-#include "IS5_CabStructs.h"
+#include "ISCabFile.h"
 
 namespace IS5
 {
+
+#include "IS5_CabStructs.h"
 
 class IS5CabFile : public ISCabFile
 {

@@ -1,7 +1,7 @@
 #ifndef IS6CabFile_h__
 #define IS6CabFile_h__
 
-#include "..\ISCabFile.h"
+#include "ISCabFile.h"
 
 namespace IS6
 {
