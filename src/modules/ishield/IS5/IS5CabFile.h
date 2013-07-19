@@ -10,7 +10,7 @@ namespace IS5
 
 class IS5CabFile : public ISCabFile
 {
-private:
+protected:
 	HANDLE m_hHeaderFile;
 	
 	CABHEADER m_Header;

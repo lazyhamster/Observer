@@ -63,3 +63,18 @@ DWORD GetMajorVersion(DWORD fileVersion)
 
 	return 0;
 }
+
+std::wstring ConvertStrings( std::string &input )
+{
+	int numChars = MultiByteToWideChar(CP_ACP, 0, input.c_str(), -1, NULL, 0);
+	
+	size_t bufSize = (numChars + 1) * sizeof(wchar_t);
+	wchar_t* buf = (wchar_t*) malloc(bufSize);
+	memset(buf, 0, bufSize);
+	
+	MultiByteToWideChar(CP_ACP, 0, input.c_str(), -1, buf, numChars + 1);
+	std::wstring output(buf);
+	
+	free(buf);
+	return output;
+}

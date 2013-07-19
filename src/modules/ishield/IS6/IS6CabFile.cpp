@@ -273,13 +273,7 @@ void IS6CabFile::GenerateInfoFile()
 	}
 
 	std::string strData = sstr.str();
-	int numChars = MultiByteToWideChar(CP_ACP, 0, strData.c_str(), -1, NULL, 0);
-	size_t bufSize = (numChars + 1) * sizeof(wchar_t);
-	wchar_t* buf = (wchar_t*) malloc(bufSize);
-	memset(buf, 0, bufSize);
-	MultiByteToWideChar(CP_ACP, 0, strData.c_str(), -1, buf, numChars + 1);
-	m_sInfoFile = buf;
-	free(buf);
+	m_sInfoFile = ConvertStrings(strData);
 }
 
 }// namespace IS6

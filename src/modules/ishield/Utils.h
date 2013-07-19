@@ -10,4 +10,6 @@ void CombinePath(wchar_t* buffer, size_t bufferSize, int numParts, ...);
 
 DWORD GetMajorVersion(DWORD fileVersion);
 
+std::wstring ConvertStrings(std::string &input);
+
 #endif // Utils_h__
