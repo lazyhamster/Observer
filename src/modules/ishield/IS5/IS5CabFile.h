@@ -21,8 +21,6 @@ protected:
 	std::vector<FILEGROUPDESC> m_vFileGroups;
 	std::vector<DWORD> m_vComponents;
 
-	std::wstring m_sInfoFile;
-
 	void GenerateInfoFile();
 	bool IsVersionCompatible(DWORD version);
 
@@ -32,7 +30,6 @@ public:
 	
 	int GetTotalFiles() const;
 	bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const;
-	const std::wstring GetCabInfo() const { return m_sInfoFile; }
 	bool ExtractFile(int itemIndex, HANDLE targetFile) const;
 
 	bool Open(HANDLE headerFile);
