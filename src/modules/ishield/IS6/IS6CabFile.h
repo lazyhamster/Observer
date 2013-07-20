@@ -11,8 +11,6 @@ namespace IS6
 class IS6CabFile : public ISCabFile
 {
 protected:
-	HANDLE m_hHeaderFile;
-
 	CABHEADER m_Header;
 	CABDESC* m_pCabDesc;
 	DWORD* m_pDFT;
@@ -23,6 +21,7 @@ protected:
 
 	void GenerateInfoFile();
 	bool IsVersionCompatible(DWORD version);
+	bool InternalOpen(HANDLE headerFile);
 
 public:	
 	IS6CabFile();
@@ -32,7 +31,6 @@ public:
 	bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const;
 	bool ExtractFile(int itemIndex, HANDLE targetFile) const;
 
-	bool Open(HANDLE headerFile);
 	void Close();
 };
 

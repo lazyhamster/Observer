@@ -78,7 +78,7 @@ bool IS5CabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 	return true;
 }
 
-bool IS5CabFile::Open( HANDLE headerFile )
+bool IS5CabFile::InternalOpen( HANDLE headerFile )
 {
 	if (headerFile == INVALID_HANDLE_VALUE)
 		return false;
@@ -154,13 +154,6 @@ bool IS5CabFile::Open( HANDLE headerFile )
 		return false;
 	}
 
-	// Store information for future use
-	
-	m_hHeaderFile = headerFile;
-	m_pCabDesc = cabDesc;
-	m_pDFT = DFT;
-	memcpy_s(&m_Header, sizeof(m_Header), &cabHeader, sizeof(cabHeader));
-
 	// Calculate some data
 
 	m_vFileGroups.clear();
@@ -189,8 +182,12 @@ bool IS5CabFile::Open( HANDLE headerFile )
 		}
 	}
 
-	GenerateInfoFile();
-	
+	// Store information for future use
+
+	m_pCabDesc = cabDesc;
+	m_pDFT = DFT;
+	memcpy_s(&m_Header, sizeof(m_Header), &cabHeader, sizeof(cabHeader));
+
 	return true;
 }
 

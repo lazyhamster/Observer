@@ -78,3 +78,22 @@ std::wstring ConvertStrings( std::string &input )
 	free(buf);
 	return output;
 }
+
+std::wstring GenerateCabPatern(const wchar_t* headerFileName)
+{
+	wchar_t* nameBuf = _wcsdup(headerFileName);
+	
+	wchar_t* dot = wcsrchr(nameBuf, L'.');
+	size_t pos = dot ? dot - nameBuf : wcslen(nameBuf);
+	for (pos--; isdigit(nameBuf[pos]); pos--)
+	{
+		nameBuf[pos] = L'\0';
+	}
+	nameBuf[pos+1] = L'\0';
+
+	std::wstring result(nameBuf);
+	result.append(L"%s.cab");
+	
+	free(nameBuf);
+	return result;
+}

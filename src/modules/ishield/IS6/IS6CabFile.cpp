@@ -79,7 +79,7 @@ bool IS6CabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 	return true;
 }
 
-bool IS6CabFile::Open( HANDLE headerFile )
+bool IS6CabFile::InternalOpen( HANDLE headerFile )
 {
 	if (headerFile == INVALID_HANDLE_VALUE)
 		return false;
@@ -154,13 +154,6 @@ bool IS6CabFile::Open( HANDLE headerFile )
 		return false;
 	}
 
-	// Store information for future use
-
-	m_hHeaderFile = headerFile;
-	m_pCabDesc = cabDesc;
-	m_pDFT = DFT;
-	memcpy_s(&m_Header, sizeof(m_Header), &cabHeader, sizeof(cabHeader));
-
 	// Calculate some data
 
 	m_vFileGroups.clear();
@@ -189,7 +182,12 @@ bool IS6CabFile::Open( HANDLE headerFile )
 		}
 	}
 
-	GenerateInfoFile();
+	// Store information for future use
+
+	m_pCabDesc = cabDesc;
+	m_pDFT = DFT;
+	memcpy_s(&m_Header, sizeof(m_Header), &cabHeader, sizeof(cabHeader));
+
 	return true;
 }
 
@@ -207,18 +205,6 @@ void IS6CabFile::Close()
 	m_vValidFiles.clear();
 
 	m_sInfoFile.clear();
-}
-
-bool IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile ) const
-{
-	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
-		return false;
-
-	DWORD fileIndex = m_vValidFiles[itemIndex];
-	
-	//TODO: implement
-
-	return false;
 }
 
 void IS6CabFile::GenerateInfoFile()
@@ -274,6 +260,24 @@ void IS6CabFile::GenerateInfoFile()
 
 	std::string strData = sstr.str();
 	m_sInfoFile = ConvertStrings(strData);
+}
+
+bool IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile ) const
+{
+	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
+		return false;
+
+	DWORD fileIndex = m_vValidFiles[itemIndex];
+	FILEDESC* pFileDesc = GetFileDesc(m_pCabDesc, m_pDFT, fileIndex);
+
+	if (pFileDesc->DescStatus & DESC_INVALID)
+		return false;
+
+	//pFileDesc->
+
+	//TODO: implement
+
+	return false;
 }
 
 }// namespace IS6
