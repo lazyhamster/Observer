@@ -39,6 +39,9 @@
     <ClCompile Include="ISU\ISUCabFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="md5\md5c.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ishield.def">
@@ -71,6 +74,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ISU\ISUCabFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="md5\global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="md5\md5.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
