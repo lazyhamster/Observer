@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "ModulesController.h"
 
-#define SECTION_BUF_SIZE 1024
-
 static bool DoesExtensionFilterMatch( const wchar_t* path, const vector<wstring> &filter )
 {
 	if (filter.size() == 0)
