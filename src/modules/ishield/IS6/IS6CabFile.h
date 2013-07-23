@@ -8,6 +8,15 @@ namespace IS6
 
 #include "IS6_CabStructs.h"
 
+struct DataVolume
+{
+	DWORD VolumeIndex;
+	std::wstring FilePath;
+	HANDLE FileHandle;
+	FILESIZE FileSize;
+	CABHEADER Header;
+};
+
 class IS6CabFile : public ISCabFile
 {
 protected:
@@ -19,9 +28,13 @@ protected:
 	std::vector<FILEGROUPDESC> m_vFileGroups;
 	std::vector<DWORD> m_vComponents;
 
+	std::vector<DataVolume*> m_vVolumes;
+
 	void GenerateInfoFile();
 	bool IsVersionCompatible(DWORD version);
 	bool InternalOpen(HANDLE headerFile);
+
+	DataVolume* OpenVolume(DWORD volumeIndex);
 
 public:	
 	IS6CabFile();
@@ -29,7 +42,7 @@ public:
 
 	int GetTotalFiles() const;
 	bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const;
-	bool ExtractFile(int itemIndex, HANDLE targetFile) const;
+	int ExtractFile(int itemIndex, HANDLE targetFile);
 
 	void Close();
 };

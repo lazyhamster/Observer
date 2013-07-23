@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "IS6CabFile.h"
 #include "Utils.h"
+#include "md5/md5.h"
 
 namespace IS6
 {
@@ -141,7 +142,7 @@ bool IS6CabFile::InternalOpen( HANDLE headerFile )
 	for (DWORD i = 0; i < cabDesc->cFiles; i++)
 	{
 		FILEDESC* pFile = GetFileDesc(cabDesc, DFT, i);
-		if (pFile->DescStatus & DESC_INVALID)
+		if ((pFile->DescStatus & DESC_INVALID) || (pFile->ofsData == 0))
 			continue;
 
 		m_vValidFiles.push_back(i);
@@ -262,22 +263,114 @@ void IS6CabFile::GenerateInfoFile()
 	m_sInfoFile = ConvertStrings(strData);
 }
 
-bool IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile ) const
+int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile )
 {
 	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
-		return false;
+		return CAB_EXTRACT_READ_ERR;
 
 	DWORD fileIndex = m_vValidFiles[itemIndex];
 	FILEDESC* pFileDesc = GetFileDesc(m_pCabDesc, m_pDFT, fileIndex);
 
 	if (pFileDesc->DescStatus & DESC_INVALID)
-		return false;
+		return CAB_EXTRACT_READ_ERR;
 
-	//pFileDesc->
+	DataVolume* volume = OpenVolume(pFileDesc->Volume);
+	if (!volume) return CAB_EXTRACT_READ_ERR;
 
-	//TODO: implement
+	if (!SeekFile(volume->FileHandle, pFileDesc->ofsData))
+		return CAB_EXTRACT_READ_ERR;
 
-	return false;
+	MD5_CTX md5;
+	MD5Init(&md5);
+	
+	FILESIZE bytesLeft = pFileDesc->cbExpanded;
+
+	// Check if file is compressed or not
+	if (pFileDesc->DescStatus & DESC_COMPRESSED)
+	{
+		//TODO: figure out this combo
+		if (pFileDesc->DescStatus & DESC_ENCRYPTED)
+			return CAB_EXTRACT_READ_ERR;
+		
+		BYTE inputBuffer[COPY_BUFFER_SIZE];
+		BYTE outputBuffer[COPY_BUFFER_SIZE];
+
+		while (bytesLeft > 0)
+		{
+			WORD blockSize;
+			if (!ReadBuffer(volume->FileHandle, &blockSize, sizeof(blockSize)))
+				return CAB_EXTRACT_READ_ERR;
+
+
+		}
+
+		//TODO: unpack
+	}
+	else
+	{
+		BYTE copyBuffer[COPY_BUFFER_SIZE];
+		DWORD total = 0;
+		while (bytesLeft > 0)
+		{
+			DWORD copySize = (DWORD) min(bytesLeft, COPY_BUFFER_SIZE);
+
+			if (!ReadBuffer(volume->FileHandle, copyBuffer, copySize))
+				return CAB_EXTRACT_READ_ERR;
+
+			if (pFileDesc->DescStatus & DESC_ENCRYPTED)
+				DecryptBuffer(copyBuffer, copySize, &total);
+
+			if (!WriteBuffer(targetFile, copyBuffer, copySize))
+				return CAB_EXTRACT_WRITE_ERR;
+
+			MD5Update(&md5, copyBuffer, copySize);
+			bytesLeft -= copySize;
+		}
+	}
+
+	BYTE sig[16] = {0};
+	MD5Final(sig, &md5);
+	bool hashMatch = memcmp(sig, pFileDesc->MD5Sig, 16) == 0;
+	
+	return hashMatch ? CAB_EXTRACT_OK : CAB_EXTRACT_READ_ERR;
+}
+
+DataVolume* IS6CabFile::OpenVolume( DWORD volumeIndex )
+{
+	while (m_vVolumes.size() <= volumeIndex)
+		m_vVolumes.push_back(NULL);
+
+	DataVolume* volume = m_vVolumes[volumeIndex];
+	
+	if (volume == NULL)
+	{
+		wchar_t volumePath[4096] = {0};
+		swprintf_s(volumePath, m_sCabPattern.c_str(), volumeIndex);
+
+		HANDLE hFile = OpenFileForRead(volumePath);
+		if (hFile == INVALID_HANDLE_VALUE) return NULL;
+
+		CABHEADER header;
+		if (!ReadBuffer(hFile, &header, sizeof(header))
+			|| (header.Signature != m_Header.Signature)
+			|| (header.Version != m_Header.Version)
+			)
+		{
+			CloseHandle(hFile);
+			return NULL;
+		}
+
+		volume = new DataVolume();
+		volume->VolumeIndex = volumeIndex;
+		volume->FilePath = volumePath;
+		volume->FileHandle = hFile;
+		volume->Header = header;
+		volume->FileSize = FileSize(hFile);
+
+		m_vVolumes[volumeIndex] = volume;
+	}
+
+	return volume;
 }
 
 }// namespace IS6

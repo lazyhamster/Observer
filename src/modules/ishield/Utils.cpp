@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "Utils.h"
 
 bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
 {
@@ -6,10 +7,36 @@ bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
 	return ReadFile(file, buffer, bufferSize, &dwBytes, NULL) && (dwBytes == bufferSize);
 }
 
-bool SeekFile(HANDLE file, DWORD position)
+bool WriteBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
 {
-	DWORD filePtr = SetFilePointer(file, position, NULL, FILE_BEGIN);
-	return (filePtr != INVALID_SET_FILE_POINTER) && (filePtr == position);
+	DWORD dwBytes;
+	return WriteFile(file, buffer, bufferSize, &dwBytes, NULL) && (dwBytes == bufferSize);
+}
+
+bool SeekFile(HANDLE file, __int64 position)
+{
+	LARGE_INTEGER newPos, resultPos;
+
+	// First check if we will cross size limit
+	if (FileSize(file) < position)
+		return false;
+	
+	newPos.QuadPart = position;
+	BOOL retVal = SetFilePointerEx(file, newPos, &resultPos, FILE_BEGIN);
+	
+	return retVal && (resultPos.QuadPart == position);
+}
+
+HANDLE OpenFileForRead(const wchar_t* path)
+{
+	return CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
+}
+
+__int64 FileSize(HANDLE file)
+{
+	LARGE_INTEGER liSize = {0};
+	GetFileSizeEx(file, &liSize);
+	return liSize.QuadPart;
 }
 
 void CombinePath(char* buffer, size_t bufferSize, int numParts, ...)
@@ -92,8 +119,18 @@ std::wstring GenerateCabPatern(const wchar_t* headerFileName)
 	nameBuf[pos+1] = L'\0';
 
 	std::wstring result(nameBuf);
-	result.append(L"%s.cab");
+	result.append(L"%d.cab");
 	
 	free(nameBuf);
 	return result;
+}
+
+void DecryptBuffer(BYTE* buf, DWORD bufSize, DWORD* pTotal)
+{
+	BYTE ts;
+	for (; bufSize > 0; bufSize--, buf++, (*pTotal)++) {
+		ts = *buf ^ 0xd5;
+		__asm { ror byte ptr ts, 2 };
+		*buf = ts - (BYTE)(*pTotal % 0x47);
+	}
 }

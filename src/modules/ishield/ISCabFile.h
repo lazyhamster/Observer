@@ -3,6 +3,12 @@
 
 #include "ModuleDef.h"
 
+#define CAB_EXTRACT_OK SER_SUCCESS
+#define CAB_EXTRACT_READ_ERR SER_ERROR_READ
+#define CAB_EXTRACT_WRITE_ERR SER_ERROR_WRITE
+
+#define COPY_BUFFER_SIZE 32*1024
+
 class ISCabFile
 {
 protected:
@@ -17,7 +23,7 @@ protected:
 public:	
 	virtual int GetTotalFiles() const = 0;
 	virtual bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const = 0;
-	virtual bool ExtractFile(int itemIndex, HANDLE targetFile) const = 0;
+	virtual int ExtractFile(int itemIndex, HANDLE targetFile) = 0;
 
 	bool Open(HANDLE headerFile, const wchar_t* heaerFilePath);
 	virtual void Close() = 0;

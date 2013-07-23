@@ -77,7 +77,16 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	else if (params.item > 0 && params.item < cabStorage->GetTotalFiles())
 	{
 		// Dump archive file
-		status = cabStorage->ExtractFile(params.item - 1, hFile) ? SER_SUCCESS : SER_ERROR_READ;
+		status = cabStorage->ExtractFile(params.item - 1, hFile);
+
+		if (status == SER_SUCCESS)
+		{
+			StorageItemInfo itemInfo;
+			cabStorage->GetFileInfo(params.item - 1, &itemInfo);
+			
+			SetFileAttributes(params.destFilePath, itemInfo.Attributes);
+			SetFileTime(hFile, NULL, NULL, &itemInfo.ModificationTime);
+		}
 	}
 
 	CloseHandle(hFile);

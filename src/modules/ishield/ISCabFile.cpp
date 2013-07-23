@@ -8,7 +8,7 @@
 
 ISCabFile* OpenCab(const wchar_t* filePath)
 {
-	HANDLE hFile = CreateFile(filePath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
+	HANDLE hFile = OpenFileForRead(filePath);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return NULL;
 	
