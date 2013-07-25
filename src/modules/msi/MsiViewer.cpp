@@ -561,7 +561,7 @@ int CMsiViewer::generateInfoText()
 		UINT PropID;
 	};
 	PropDescription SUMMARY_PROPS[] = {{L"Title", 2}, {L"Subject", 3}, {L"Author", 4},
-		{L"Comments", 6}, {L"Revision Number", 9}};
+		{L"Keywords", 5}, {L"Comments", 6}, {L"Revision Number", 9}};
 	
 	wstringstream sstr;
 	UINT res;
@@ -584,7 +584,7 @@ int CMsiViewer::generateInfoText()
 			propdata.resize(len + 1);
 
 		if (res == ERROR_SUCCESS)
-			sstr << SUMMARY_PROPS[i].PropName << L" : " << (wchar_t *) &propdata[0] << endl;
+			sstr << SUMMARY_PROPS[i].PropName << L": " << (wchar_t *) &propdata[0] << endl;
 	}
 
 	// Read "Word Count" property to save default compression info
