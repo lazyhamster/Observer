@@ -15,7 +15,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		*storage = cabStorage;
 		
 		memset(info, 0, sizeof(StorageGeneralInfo));
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Install Shield Cabinet");
+		swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Install Shield %d Cabinet", cabStorage->MajorVersion());
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"ZData");
 		
 		return SOR_SUCCESS;

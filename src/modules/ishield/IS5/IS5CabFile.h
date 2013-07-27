@@ -32,6 +32,8 @@ public:
 	int ExtractFile(int itemIndex, HANDLE targetFile);
 
 	void Close();
+
+	DWORD MajorVersion() const;
 };
 
 } // namespace IS5

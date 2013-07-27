@@ -36,6 +36,11 @@ int IS5CabFile::GetTotalFiles() const
 	return (int) m_vValidFiles.size();
 }
 
+DWORD IS5CabFile::MajorVersion() const
+{
+	return GetMajorVersion(m_Header.Version);
+}
+
 bool IS5CabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 {
 	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())

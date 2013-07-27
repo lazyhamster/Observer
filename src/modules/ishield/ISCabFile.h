@@ -29,6 +29,7 @@ public:
 	virtual void Close() = 0;
 
 	const std::wstring GetCabInfo() const { return m_sInfoFile; }
+	virtual DWORD MajorVersion() const = 0;
 };
 
 ISCabFile* OpenCab(const wchar_t* filePath);
