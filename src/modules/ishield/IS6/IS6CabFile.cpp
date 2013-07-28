@@ -228,6 +228,7 @@ void IS6CabFile::GenerateInfoFile()
 		sstr << "Files           : " << groupDesc.LastFile - groupDesc.FirstFile + 1 << std::endl;
 		sstr << "Compressed size : " << groupDesc.cbCompressed << std::endl;
 		sstr << "Original size   : " << groupDesc.cbExpanded << std::endl;
+		sstr << "Target directory: " << GetString(m_pCabDesc, groupDesc.ofsTargetDir) << std::endl;
 		sstr << std::endl;
 	}
 

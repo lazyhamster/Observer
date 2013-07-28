@@ -91,6 +91,7 @@ void ISUCabFile::GenerateInfoFile()
 		sstr << L"Files           : " << groupDesc.LastFile - groupDesc.FirstFile + 1 << std::endl;
 		sstr << L"Compressed size : " << groupDesc.cbCompressed << std::endl;
 		sstr << L"Original size   : " << groupDesc.cbExpanded << std::endl;
+		sstr << L"Target directory: " << GetString(m_pCabDesc, groupDesc.ofsTargetDir) << std::endl;
 		sstr << std::endl;
 	}
 
