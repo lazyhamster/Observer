@@ -29,7 +29,7 @@ public:
 	
 	int GetTotalFiles() const;
 	bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const;
-	int ExtractFile(int itemIndex, HANDLE targetFile);
+	int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx);
 
 	void Close();
 

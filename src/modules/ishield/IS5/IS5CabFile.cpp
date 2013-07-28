@@ -260,7 +260,7 @@ void IS5CabFile::GenerateInfoFile()
 	m_sInfoFile = ConvertStrings(strData);
 }
 
-int IS5CabFile::ExtractFile( int itemIndex, HANDLE targetFile )
+int IS5CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
 {
 	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
 		return false;

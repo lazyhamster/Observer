@@ -6,6 +6,7 @@
 #define CAB_EXTRACT_OK SER_SUCCESS
 #define CAB_EXTRACT_READ_ERR SER_ERROR_READ
 #define CAB_EXTRACT_WRITE_ERR SER_ERROR_WRITE
+#define CAB_EXTRACT_USER_ABORT SER_USERABORT
 
 class ISCabFile
 {
@@ -21,7 +22,7 @@ protected:
 public:	
 	virtual int GetTotalFiles() const = 0;
 	virtual bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const = 0;
-	virtual int ExtractFile(int itemIndex, HANDLE targetFile) = 0;
+	virtual int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx) = 0;
 
 	bool Open(HANDLE headerFile, const wchar_t* heaerFilePath);
 	virtual void Close() = 0;

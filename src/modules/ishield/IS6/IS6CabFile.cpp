@@ -271,7 +271,7 @@ void IS6CabFile::GenerateInfoFile()
 
 #define EXTRACT_BUFFER_SIZE 64*1024
 
-int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile )
+int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
 {
 	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
 		return CAB_EXTRACT_READ_ERR;
@@ -326,6 +326,15 @@ int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile )
 				free(outputBuffer);
 				return CAB_EXTRACT_WRITE_ERR;
 			}
+
+			if (progressCtx.FileProgress && progressCtx.signalContext)
+			{
+				if (!progressCtx.FileProgress(progressCtx.signalContext, outputDataSize))
+				{
+					free(outputBuffer);
+					return CAB_EXTRACT_USER_ABORT;
+				}
+			}
 		}
 
 		free(outputBuffer);
@@ -349,6 +358,12 @@ int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile )
 
 			MD5Update(&md5, copyBuffer, copySize);
 			bytesLeft -= copySize;
+
+			if (progressCtx.FileProgress && progressCtx.signalContext)
+			{
+				if (!progressCtx.FileProgress(progressCtx.signalContext, copySize))
+					return CAB_EXTRACT_USER_ABORT;
+			}
 		}
 	}
 
