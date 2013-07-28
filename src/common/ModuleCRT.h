@@ -16,14 +16,19 @@ static inline bool IsValidPathChar(wchar_t ch)
 	return (wcschr(L":*?\"<>|\\/", ch) == NULL);
 }
 
-static inline void RenameInvalidPathChars(wchar_t* input)
+static inline void RenameInvalidPathChars(wchar_t* input, wchar_t substChar)
 {
 	size_t inputLen = wcslen(input);
 	for (size_t i = 0; i < inputLen; i++)
 	{
 		if (!IsValidPathChar(input[i]))
-			input[i] = '_';
+			input[i] = substChar;
 	}
+}
+
+static inline void RenameInvalidPathChars(wchar_t* input)
+{
+	RenameInvalidPathChars(input, '_');
 }
 
 static __int64 GetFileSize(const wchar_t* path)

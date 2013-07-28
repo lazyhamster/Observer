@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
+#include "ModuleCRT.h"
 #include "ISCabFile.h"
 
 static const char* BOM = "\xFF\xFE";
@@ -49,9 +50,20 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	else if (item_index > 0 && item_index < cabStorage->GetTotalFiles())
 	{
 		if (cabStorage->GetFileInfo(item_index - 1, item_info))
+		{
+			for (size_t i = 0, len = wcslen(item_info->Path); i < len; i++)
+			{
+				if (item_info->Path[i] == '<')
+					item_info->Path[i] = '[';
+				else if (item_info->Path[i] == '>')
+					item_info->Path[i] = ']';
+			}
 			return GET_ITEM_OK;
+		}
 		else
+		{
 			return GET_ITEM_ERROR;
+		}
 	}
 	
 	return GET_ITEM_NOMOREITEMS;

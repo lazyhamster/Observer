@@ -296,7 +296,7 @@ int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCal
 	// Check if file is compressed or not
 	if (pFileDesc->DescStatus & DESC_COMPRESSED)
 	{
-		//TODO: figure out this combo
+		//TODO: figure out this combo (if it ever exist)
 		if (pFileDesc->DescStatus & DESC_ENCRYPTED)
 			return CAB_EXTRACT_READ_ERR;
 		
