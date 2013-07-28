@@ -7,8 +7,6 @@
 #define CAB_EXTRACT_READ_ERR SER_ERROR_READ
 #define CAB_EXTRACT_WRITE_ERR SER_ERROR_WRITE
 
-#define COPY_BUFFER_SIZE 32*1024
-
 class ISCabFile
 {
 protected:

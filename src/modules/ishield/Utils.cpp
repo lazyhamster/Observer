@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Utils.h"
+#include "zlib.h"
 
 bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
 {
@@ -133,4 +134,45 @@ void DecryptBuffer(BYTE* buf, DWORD bufSize, DWORD* pTotal)
 		__asm { ror byte ptr ts, 2 };
 		*buf = ts - (BYTE)(*pTotal % 0x47);
 	}
+}
+
+bool UnpackBuffer( BYTE* inBuf, size_t inSize, BYTE* outBuf, size_t* outBufferSize, size_t* outDataSize )
+{
+	int ret;
+	z_stream strm = {0};
+
+	if (inflateInit2(&strm, -MAX_WBITS) != Z_OK)
+		return false;
+
+	strm.avail_in = inSize;
+	strm.next_in = inBuf;
+
+	BYTE* bufPtr = outBuf;
+	size_t nextOutSize = *outBufferSize;
+	*outDataSize = 0;
+	do 
+	{
+		strm.avail_out = nextOutSize;
+		strm.next_out = bufPtr;
+		
+		ret = inflate(&strm, Z_FINISH);
+		if (ret == Z_NEED_DICT)
+			ret = Z_DATA_ERROR;
+		if (ret < 0) break;
+
+		*outDataSize += nextOutSize - strm.avail_out;
+
+		if (strm.avail_out == 0 && ret != Z_STREAM_END)
+		{
+			nextOutSize = 4 * 1024;
+			bufPtr = outBuf + *outBufferSize;
+			
+			*outBufferSize = *outBufferSize + nextOutSize;
+			outBuf = (BYTE*) realloc(outBuf, *outBufferSize);
+		}
+
+	} while (ret != Z_STREAM_END);
+
+	inflateEnd(&strm);
+	return (ret == Z_STREAM_END);
 }

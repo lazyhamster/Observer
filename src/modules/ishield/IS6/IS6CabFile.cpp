@@ -269,6 +269,8 @@ void IS6CabFile::GenerateInfoFile()
 	m_sInfoFile = ConvertStrings(strData);
 }
 
+#define EXTRACT_BUFFER_SIZE 64*1024
+
 int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile )
 {
 	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
@@ -298,27 +300,43 @@ int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile )
 		if (pFileDesc->DescStatus & DESC_ENCRYPTED)
 			return CAB_EXTRACT_READ_ERR;
 		
-		BYTE inputBuffer[COPY_BUFFER_SIZE];
-		BYTE outputBuffer[COPY_BUFFER_SIZE];
+		BYTE inputBuffer[EXTRACT_BUFFER_SIZE] = {0};
+		
+		size_t outputBufferSize = EXTRACT_BUFFER_SIZE;
+		BYTE* outputBuffer = (BYTE*) malloc(outputBufferSize);
 
+		size_t outputDataSize;
 		while (bytesLeft > 0)
 		{
 			WORD blockSize;
-			if (!ReadBuffer(volume->FileHandle, &blockSize, sizeof(blockSize)))
-				return CAB_EXTRACT_READ_ERR;
+			if (!ReadBuffer(volume->FileHandle, &blockSize, sizeof(blockSize)) || !blockSize)
+				break;
 
+			if (!ReadBuffer(volume->FileHandle, inputBuffer, blockSize))
+				break;
 
+			if (!UnpackBuffer(inputBuffer, blockSize, outputBuffer, &outputBufferSize, &outputDataSize))
+				break;
+
+			bytesLeft -= outputDataSize;
+			MD5Update(&md5, outputBuffer, outputDataSize);
+
+			if (!WriteBuffer(targetFile, outputBuffer, outputDataSize))
+			{
+				free(outputBuffer);
+				return CAB_EXTRACT_WRITE_ERR;
+			}
 		}
 
-		//TODO: unpack
+		free(outputBuffer);
 	}
 	else
 	{
-		BYTE copyBuffer[COPY_BUFFER_SIZE];
+		BYTE copyBuffer[EXTRACT_BUFFER_SIZE];
 		DWORD total = 0;
 		while (bytesLeft > 0)
 		{
-			DWORD copySize = (DWORD) min(bytesLeft, COPY_BUFFER_SIZE);
+			DWORD copySize = (DWORD) min(bytesLeft, sizeof(copyBuffer));
 
 			if (!ReadBuffer(volume->FileHandle, copyBuffer, copySize))
 				return CAB_EXTRACT_READ_ERR;
