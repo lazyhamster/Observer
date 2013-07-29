@@ -142,6 +142,12 @@
     <M4_Macro Include="plug_version.h.m4">
       <Filter>Support Files</Filter>
     </M4_Macro>
+    <M4_Macro Include="text\ObserverEng.lng.m4">
+      <Filter>Support Files</Filter>
+    </M4_Macro>
+    <M4_Macro Include="text\ObserverRus.lng.m4">
+      <Filter>Support Files</Filter>
+    </M4_Macro>
   </ItemGroup>
   <ItemGroup>
     <DText Include="text\license.txt">
@@ -165,13 +171,5 @@
     <DText Include="text\whatsnew_ru.txt">
       <Filter>Support Files</Filter>
     </DText>
-  </ItemGroup>
-  <ItemGroup>
-    <LNG Include="text\ObserverEng.lng">
-      <Filter>Support Files</Filter>
-    </LNG>
-    <LNG Include="text\ObserverRus.lng">
-      <Filter>Support Files</Filter>
-    </LNG>
   </ItemGroup>
 </Project>

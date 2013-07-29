@@ -753,7 +753,9 @@
       <DestDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)</DestDir>
     </M4_Macro>
     <M4_Macro Include="text\ObserverEng.hlf.m4" />
+    <M4_Macro Include="text\ObserverEng.lng.m4" />
     <M4_Macro Include="text\ObserverRus.hlf.m4" />
+    <M4_Macro Include="text\ObserverRus.lng.m4" />
   </ItemGroup>
   <ItemGroup>
     <DText Include="text\license.txt" />
@@ -772,10 +774,6 @@
     </DText>
     <DText Include="text\whatsnew.txt" />
     <DText Include="text\whatsnew_ru.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <LNG Include="text\ObserverEng.lng" />
-    <LNG Include="text\ObserverRus.lng" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

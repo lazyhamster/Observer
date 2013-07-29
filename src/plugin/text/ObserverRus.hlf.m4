@@ -25,7 +25,7 @@
 
  Для дополнительной информации смотрите файл readme_ru.txt
 
- (c) 2009-2011, Ariman
+ (c) 2009-2013, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
  Контактный E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@

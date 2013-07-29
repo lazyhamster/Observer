@@ -25,7 +25,7 @@ m4_include(`version.m4i')m4_dnl
 
  For additional information look in supplied readme.txt
 
- (c) 2009-2011, Ariman
+ (c) 2009-2013, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
  Contact E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@
