@@ -8,22 +8,12 @@
       <Targets>_M4_Macro</Targets>
     </AvailableItemName>
     <AvailableItemName
-      Include="LNG">
-      <Targets>_LNG</Targets>
-    </AvailableItemName>
-    <AvailableItemName
       Include="DText">
       <Targets>_DText</Targets>
     </AvailableItemName>
   </ItemGroup>
   <UsingTask
     TaskName="M4_Macro"
-    TaskFactory="XamlTaskFactory"
-    AssemblyName="Microsoft.Build.Tasks.v4.0">
-    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
-  </UsingTask>
-  <UsingTask
-    TaskName="LNG"
     TaskFactory="XamlTaskFactory"
     AssemblyName="Microsoft.Build.Tasks.v4.0">
     <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
@@ -98,70 +88,6 @@
     </ItemGroup>
     <MakeDir
       Directories="@(M4_MacroDirsToMake-&gt;'%(RootDir)%(Directory)')" />
-  </Target>
-  <Target
-    Name="_LNG"
-    BeforeTargets="$(LNGBeforeTargets)"
-    AfterTargets="$(LNGAfterTargets)"
-    Condition="'@(LNG)' != ''"
-    DependsOnTargets="$(LNGDependsOn);ComputeLNGOutput"
-    Outputs="%(LNG.Outputs)"
-    Inputs="%(LNG.Identity);%(LNG.AdditionalDependencies);$(MSBuildProjectFile)">
-    <ItemGroup
-      Condition="'@(SelectedFiles)' != ''">
-      <LNG
-        Remove="@(LNG)"
-        Condition="'%(Identity)' != '@(SelectedFiles)'" />
-    </ItemGroup>
-    <ItemGroup>
-      <LNG_tlog
-        Include="%(LNG.Outputs)"
-        Condition="'%(LNG.Outputs)' != '' and '%(LNG.ExcludedFromBuild)' != 'true'">
-        <Source>@(LNG, '|')</Source>
-      </LNG_tlog>
-    </ItemGroup>
-    <Message
-      Importance="High"
-      Text="%(LNG.ExecutionDescription)" />
-    <WriteLinesToFile
-      Condition="'@(LNG_tlog)' != '' and '%(LNG_tlog.ExcludedFromBuild)' != 'true'"
-      File="$(IntDir)$(ProjectName).write.1.tlog"
-      Lines="^%(LNG_tlog.Source);@(LNG_tlog-&gt;'%(Fullpath)')" />
-    <LNG
-      Condition="'@(LNG)' != '' and '%(LNG.ExcludedFromBuild)' != 'true'"
-      CommandLineTemplate="%(LNG.CommandLineTemplate)"
-      AdditionalOptions="%(LNG.AdditionalOptions)"
-      Inputs="%(LNG.Identity)" />
-  </Target>
-  <PropertyGroup>
-    <ComputeLinkInputsTargets>
-            $(ComputeLinkInputsTargets);
-            ComputeLNGOutput;
-          </ComputeLinkInputsTargets>
-    <ComputeLibInputsTargets>
-            $(ComputeLibInputsTargets);
-            ComputeLNGOutput;
-          </ComputeLibInputsTargets>
-  </PropertyGroup>
-  <Target
-    Name="ComputeLNGOutput"
-    Condition="'@(LNG)' != ''">
-    <ItemGroup>
-      <LNGDirsToMake
-        Condition="'@(LNG)' != '' and '%(LNG.ExcludedFromBuild)' != 'true'"
-        Include="%(LNG.Outputs)" />
-      <Link
-        Include="%(LNGDirsToMake.Identity)"
-        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
-      <Lib
-        Include="%(LNGDirsToMake.Identity)"
-        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
-      <ImpLib
-        Include="%(LNGDirsToMake.Identity)"
-        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
-    </ItemGroup>
-    <MakeDir
-      Directories="@(LNGDirsToMake-&gt;'%(RootDir)%(Directory)')" />
   </Target>
   <Target
     Name="_DText"

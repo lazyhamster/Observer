@@ -18,22 +18,6 @@
     </M4_Macro>
   </ItemDefinitionGroup>
   <PropertyGroup
-    Condition="'$(LNGBeforeTargets)' == '' and '$(LNGAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
-    <LNGBeforeTargets>Midl</LNGBeforeTargets>
-    <LNGAfterTargets>CustomBuild</LNGAfterTargets>
-  </PropertyGroup>
-  <PropertyGroup>
-    <LNGDependsOn
-      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(LNGDependsOn)</LNGDependsOn>
-  </PropertyGroup>
-  <ItemDefinitionGroup>
-    <LNG>
-      <CommandLineTemplate>copy /y [Inputs] "$(OutDir)%(Filename)%(Extension)" &gt; nul</CommandLineTemplate>
-      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
-      <ExecutionDescription>Copying language file (%(Filename)%(Extension)) ...</ExecutionDescription>
-    </LNG>
-  </ItemDefinitionGroup>
-  <PropertyGroup
     Condition="'$(DTextBeforeTargets)' == '' and '$(DTextAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
     <DTextBeforeTargets>Midl</DTextBeforeTargets>
     <DTextAfterTargets>CustomBuild</DTextAfterTargets>
