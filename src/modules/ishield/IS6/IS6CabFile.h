@@ -13,7 +13,7 @@ struct DataVolume
 	DWORD VolumeIndex;
 	std::wstring FilePath;
 	HANDLE FileHandle;
-	FILESIZE FileSize;
+	__int64 FileSize;
 	CABHEADER Header;
 };
 

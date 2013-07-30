@@ -263,14 +263,104 @@ void IS5CabFile::GenerateInfoFile()
 int IS5CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
 {
 	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
-		return false;
+		return CAB_EXTRACT_READ_ERR;
 
 	DWORD fileIndex = m_vValidFiles[itemIndex];
 	FILEDESC* pFileDesc = GetFileDesc(m_pDFT, m_pCabDesc->cDirs + fileIndex);
+	
+	if (pFileDesc->DescStatus & DESC_INVALID)
+		return CAB_EXTRACT_READ_ERR;
+
+	int firstSearchVolume = -1, lastSearchVolume = -1;
+	
+	// Get file group for the file. From it we can find first/last volume indexes
+	for (auto cit = m_vFileGroups.cbegin(); cit != m_vFileGroups.cend(); cit++)
+	{
+		const FILEGROUPDESC &groupDesc = *cit;
+		if (fileIndex >= groupDesc.FirstFile && fileIndex <= groupDesc.LastFile)
+		{
+			firstSearchVolume = groupDesc.FirstVolume;
+			lastSearchVolume = groupDesc.LastVolume;
+			break;
+		}
+	}
+
+	// Volume boundaries not found
+	if (firstSearchVolume < 0 || lastSearchVolume < 0)
+		return CAB_EXTRACT_READ_ERR;
+
+	// Search for target volume
+	DataVolume* volume = NULL;
+	for (int i = firstSearchVolume; i <= lastSearchVolume; i++)
+	{
+		volume = OpenVolume((DWORD) i);
+		if (volume == NULL)	break;
+
+		if (itemIndex >= (int) volume->Header.FirstFile && itemIndex <= (int) volume->Header.LastFile)
+			break;
+		volume = NULL;
+	}
+
+	// Can not find proper volume file
+	if (volume == NULL)
+		return CAB_EXTRACT_READ_ERR;
+
+	if (!SeekFile(volume->FileHandle, pFileDesc->ofsData))
+		return CAB_EXTRACT_READ_ERR;
+
+	DWORD bytesLeft = pFileDesc->cbExpanded;
+
+	// Check if file is compressed or not
+	if (pFileDesc->DescStatus & DESC_COMPRESSED)
+	{
+		//
+	}
+	else
+	{
+		//
+	}
 
 	//TODO: implement
 
-	return false;
+	return CAB_EXTRACT_READ_ERR;
+}
+
+DataVolume* IS5CabFile::OpenVolume( DWORD volumeIndex )
+{
+	while (m_vVolumes.size() <= volumeIndex)
+		m_vVolumes.push_back(NULL);
+
+	DataVolume* volume = m_vVolumes[volumeIndex];
+
+	if (volume == NULL)
+	{
+		wchar_t volumePath[4096] = {0};
+		swprintf_s(volumePath, m_sCabPattern.c_str(), volumeIndex);
+
+		HANDLE hFile = OpenFileForRead(volumePath);
+		if (hFile == INVALID_HANDLE_VALUE) return NULL;
+
+		CABHEADER header;
+		if (!ReadBuffer(hFile, &header, sizeof(header))
+			|| (header.Signature != m_Header.Signature)
+			|| (header.Version != m_Header.Version)
+			)
+		{
+			CloseHandle(hFile);
+			return NULL;
+		}
+
+		volume = new DataVolume();
+		volume->VolumeIndex = volumeIndex;
+		volume->FilePath = volumePath;
+		volume->FileHandle = hFile;
+		volume->Header = header;
+		volume->FileSize = FileSize(hFile);
+
+		m_vVolumes[volumeIndex] = volume;
+	}
+
+	return volume;
 }
 
 } // namespace IS5
