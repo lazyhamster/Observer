@@ -40,7 +40,7 @@
     AfterTargets="$(M4_MacroAfterTargets)"
     Condition="'@(M4_Macro)' != ''"
     DependsOnTargets="$(M4_MacroDependsOn);ComputeM4_MacroOutput"
-    Outputs="%(M4_Macro.Outputs)"
+    Outputs="%(M4_Macro.OutputFile)"
     Inputs="%(M4_Macro.Identity);%(M4_Macro.AdditionalDependencies);$(MSBuildProjectFile)">
     <ItemGroup
       Condition="'@(SelectedFiles)' != ''">
@@ -65,7 +65,7 @@
     <M4_Macro
       Condition="'@(M4_Macro)' != '' and '%(M4_Macro.ExcludedFromBuild)' != 'true'"
       CommandLineTemplate="%(M4_Macro.CommandLineTemplate)"
-      DestDir="%(M4_Macro.DestDir)"
+      OutputFile="%(M4_Macro.OutputFile)"
       AdditionalOptions="%(M4_Macro.AdditionalOptions)"
       Inputs="%(M4_Macro.Identity)" />
   </Target>

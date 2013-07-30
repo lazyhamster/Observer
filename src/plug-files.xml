@@ -38,10 +38,10 @@
       </StringListProperty.DataSource>
     </StringListProperty>
     <StringProperty
-      Name="DestDir"
+      Name="OutputFile"
       HelpContext="0"
-      DisplayName="Destination Folder"
-      Description="Destination folder for the processed file" />
+      DisplayName="Destination File"
+      Description="Destination path for the processed file" />
     <StringProperty
       Name="CommandLineTemplate"
       DisplayName="Command Line"
