@@ -330,19 +330,23 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	wchar_t wszSubPath[PATH_BUFFER_SIZE] = {0};
 	item->GetPath(wszSubPath, PATH_BUFFER_SIZE);
 		
-	// Save file name for dialogs
-	size_t nPathLen = wcslen(wszSubPath);
-	wchar_t* wszSubPathPtr = wszSubPath;
-	if (nPathLen > MAX_PATH) wszSubPathPtr += (nPathLen % MAX_PATH);
-
-	wmemset(context->wszFilePath, 0, MAX_PATH);
-	wcscpy_s(context->wszFilePath, MAX_PATH, wszSubPath);
-	
 	// Shrink file path to fit on console
 	CONSOLE_SCREEN_BUFFER_INFO si;
 	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	if ((hStdOut != INVALID_HANDLE_VALUE) && GetConsoleScreenBufferInfo(hStdOut, &si))
-		FSF.TruncPathStr(context->wszFilePath, si.dwSize.X - 16);
+	{
+		FSF.TruncPathStr(wszSubPath, si.dwSize.X - 16);
+		wcscpy_s(context->wszFilePath, ARRAY_SIZE(context->wszFilePath), wszSubPath);
+	}
+	else
+	{
+		// Save file name for dialogs
+		size_t nPathLen = wcslen(wszSubPath);
+		wchar_t* wszSubPathPtr = wszSubPath;
+		if (nPathLen > MAX_PATH) wszSubPathPtr += (nPathLen % MAX_PATH);
+
+		wcscpy_s(context->wszFilePath, ARRAY_SIZE(context->wszFilePath), wszSubPathPtr);
+	}
 
 	return ExtractProgress((HANDLE)context, 0);
 }
