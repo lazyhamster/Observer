@@ -1,5 +1,9 @@
 Changes history:
 
+1.9.1
+- Fixed crash on very long path names inside containers.
+- Minor fixes.
+
 1.9.0
 - Support for latest Far3 API.
 - Added support for second cofiguration file - observer_user.ini.
