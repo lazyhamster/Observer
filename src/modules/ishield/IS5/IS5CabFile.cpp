@@ -332,7 +332,8 @@ int IS5CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCal
 				extractResult = UnpackFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
 				break;
 			case Old:
-				//
+				//TODO: implement and find sample to test
+				extractResult = CAB_EXTRACT_READ_ERR;
 				break;
 			default:
 				return CAB_EXTRACT_READ_ERR;
@@ -342,8 +343,6 @@ int IS5CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCal
 	{
 		extractResult = TransferFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, (pFileDesc->DescStatus & DESC_ENCRYPTED) != 0, md5Sig, &progressCtx);
 	}
-
-	//TODO: implement
 
 	return extractResult;
 }
