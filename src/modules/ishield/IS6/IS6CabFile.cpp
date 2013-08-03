@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "IS6CabFile.h"
 #include "Utils.h"
-#include "md5/md5.h"
 
 namespace IS6
 {
@@ -288,10 +287,8 @@ int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCal
 	if (!SeekFile(volume->FileHandle, pFileDesc->ofsData))
 		return CAB_EXTRACT_READ_ERR;
 
-	MD5_CTX md5;
-	MD5Init(&md5);
-	
-	FILESIZE bytesLeft = pFileDesc->cbExpanded;
+	BYTE md5Sig[16] = {0};
+	int extractResult = CAB_EXTRACT_OK;
 
 	// Check if file is compressed or not
 	if (pFileDesc->DescStatus & DESC_COMPRESSED)
@@ -299,79 +296,21 @@ int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCal
 		//TODO: figure out this combo (if it ever exist)
 		if (pFileDesc->DescStatus & DESC_ENCRYPTED)
 			return CAB_EXTRACT_READ_ERR;
-		
-		BYTE inputBuffer[EXTRACT_BUFFER_SIZE] = {0};
-		
-		size_t outputBufferSize = EXTRACT_BUFFER_SIZE;
-		BYTE* outputBuffer = (BYTE*) malloc(outputBufferSize);
 
-		size_t outputDataSize;
-		while (bytesLeft > 0)
-		{
-			WORD blockSize;
-			if (!ReadBuffer(volume->FileHandle, &blockSize, sizeof(blockSize)) || !blockSize)
-				break;
-
-			if (!ReadBuffer(volume->FileHandle, inputBuffer, blockSize))
-				break;
-
-			if (!UnpackBuffer(inputBuffer, blockSize, outputBuffer, &outputBufferSize, &outputDataSize))
-				break;
-
-			bytesLeft -= outputDataSize;
-			MD5Update(&md5, outputBuffer, outputDataSize);
-
-			if (!WriteBuffer(targetFile, outputBuffer, outputDataSize))
-			{
-				free(outputBuffer);
-				return CAB_EXTRACT_WRITE_ERR;
-			}
-
-			if (progressCtx.FileProgress && progressCtx.signalContext)
-			{
-				if (!progressCtx.FileProgress(progressCtx.signalContext, outputDataSize))
-				{
-					free(outputBuffer);
-					return CAB_EXTRACT_USER_ABORT;
-				}
-			}
-		}
-
-		free(outputBuffer);
+		extractResult = UnpackFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
 	}
 	else
 	{
-		BYTE copyBuffer[EXTRACT_BUFFER_SIZE];
-		DWORD total = 0;
-		while (bytesLeft > 0)
-		{
-			DWORD copySize = (DWORD) min(bytesLeft, sizeof(copyBuffer));
-
-			if (!ReadBuffer(volume->FileHandle, copyBuffer, copySize))
-				return CAB_EXTRACT_READ_ERR;
-
-			if (pFileDesc->DescStatus & DESC_ENCRYPTED)
-				DecryptBuffer(copyBuffer, copySize, &total);
-
-			if (!WriteBuffer(targetFile, copyBuffer, copySize))
-				return CAB_EXTRACT_WRITE_ERR;
-
-			MD5Update(&md5, copyBuffer, copySize);
-			bytesLeft -= copySize;
-
-			if (progressCtx.FileProgress && progressCtx.signalContext)
-			{
-				if (!progressCtx.FileProgress(progressCtx.signalContext, copySize))
-					return CAB_EXTRACT_USER_ABORT;
-			}
-		}
+		extractResult = TransferFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, (pFileDesc->DescStatus & DESC_ENCRYPTED) != 0, md5Sig, &progressCtx);
+	}
+	
+	if (extractResult == CAB_EXTRACT_OK)
+	{
+		bool hashMatch = memcmp(md5Sig, pFileDesc->MD5Sig, 16) == 0;
+		return hashMatch ? CAB_EXTRACT_OK : CAB_EXTRACT_READ_ERR;
 	}
 
-	BYTE sig[16] = {0};
-	MD5Final(sig, &md5);
-	bool hashMatch = memcmp(sig, pFileDesc->MD5Sig, 16) == 0;
-	
-	return hashMatch ? CAB_EXTRACT_OK : CAB_EXTRACT_READ_ERR;
+	return extractResult;
 }
 
 DataVolume* IS6CabFile::OpenVolume( DWORD volumeIndex )

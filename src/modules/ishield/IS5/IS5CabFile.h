@@ -17,12 +17,21 @@ struct DataVolume
 	CABHEADER Header;
 };
 
+enum CompressionSystem
+{
+	Unknown,
+	New,
+	Old
+};
+
 class IS5CabFile : public ISCabFile
 {
 protected:
 	CABHEADER m_Header;
 	CABDESC* m_pCabDesc;
 	DWORD* m_pDFT;
+
+	CompressionSystem m_eCompression;
 
 	std::vector<DWORD> m_vValidFiles;
 	std::vector<FILEGROUPDESC> m_vFileGroups;
@@ -35,6 +44,8 @@ protected:
 	bool InternalOpen(HANDLE headerFile);
 
 	DataVolume* OpenVolume(DWORD volumeIndex);
+
+	void DetectCompression(FILEDESC* fileDesc, DataVolume* fileVolume);
 
 public:	
 	IS5CabFile();

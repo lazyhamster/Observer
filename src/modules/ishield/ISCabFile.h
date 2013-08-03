@@ -19,6 +19,9 @@ protected:
 	virtual void GenerateInfoFile() = 0;
 	virtual bool InternalOpen(HANDLE headerFile) = 0;
 
+	int TransferFile(HANDLE src, HANDLE dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress);
+	int UnpackFile(HANDLE src, HANDLE dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress);
+
 public:	
 	virtual int GetTotalFiles() const = 0;
 	virtual bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const = 0;

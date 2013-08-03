@@ -19,6 +19,7 @@ IS5CabFile::IS5CabFile()
 	memset(&m_Header, 0, sizeof(m_Header));
 	m_pCabDesc = NULL;
 	m_pDFT = NULL;
+	m_eCompression = Unknown;
 }
 
 IS5CabFile::~IS5CabFile()
@@ -191,6 +192,7 @@ bool IS5CabFile::InternalOpen( HANDLE headerFile )
 
 	m_pCabDesc = cabDesc;
 	m_pDFT = DFT;
+	m_eCompression = Unknown;
 	memcpy_s(&m_Header, sizeof(m_Header), &cabHeader, sizeof(cabHeader));
 
 	return true;
@@ -296,7 +298,7 @@ int IS5CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCal
 		volume = OpenVolume((DWORD) i);
 		if (volume == NULL)	break;
 
-		if (itemIndex >= (int) volume->Header.FirstFile && itemIndex <= (int) volume->Header.LastFile)
+		if (fileIndex >= (int) volume->Header.FirstFile && fileIndex <= (int) volume->Header.LastFile)
 			break;
 		volume = NULL;
 	}
@@ -308,21 +310,42 @@ int IS5CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCal
 	if (!SeekFile(volume->FileHandle, pFileDesc->ofsData))
 		return CAB_EXTRACT_READ_ERR;
 
-	DWORD bytesLeft = pFileDesc->cbExpanded;
+	BYTE md5Sig[16] = {0};
+	int extractResult = CAB_EXTRACT_OK;
 
 	// Check if file is compressed or not
 	if (pFileDesc->DescStatus & DESC_COMPRESSED)
 	{
-		//
+		//TODO: figure out this combo (if it ever exist)
+		if (pFileDesc->DescStatus & DESC_ENCRYPTED)
+			return CAB_EXTRACT_READ_ERR;
+
+		if (m_eCompression == Unknown)
+		{
+			DetectCompression(pFileDesc, volume);
+			SeekFile(volume->FileHandle, pFileDesc->ofsData);
+		}
+
+		switch(m_eCompression)
+		{
+			case New:
+				extractResult = UnpackFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
+				break;
+			case Old:
+				//
+				break;
+			default:
+				return CAB_EXTRACT_READ_ERR;
+		}
 	}
 	else
 	{
-		//
+		extractResult = TransferFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, (pFileDesc->DescStatus & DESC_ENCRYPTED) != 0, md5Sig, &progressCtx);
 	}
 
 	//TODO: implement
 
-	return CAB_EXTRACT_READ_ERR;
+	return extractResult;
 }
 
 DataVolume* IS5CabFile::OpenVolume( DWORD volumeIndex )
@@ -361,6 +384,28 @@ DataVolume* IS5CabFile::OpenVolume( DWORD volumeIndex )
 	}
 
 	return volume;
+}
+
+void IS5CabFile::DetectCompression( FILEDESC* fileDesc, DataVolume* fileVolume )
+{
+	if (!fileVolume || !fileDesc) return;
+
+	DWORD totalLen = 0;
+	DWORD nextOfs = fileDesc->ofsData;
+	WORD blockSize;
+
+	while (totalLen < fileDesc->cbCompressed)
+	{
+		if (!SeekFile(fileVolume->FileHandle, nextOfs)) return;
+
+		if (!ReadBuffer(fileVolume->FileHandle, &blockSize, sizeof(blockSize))) return;
+
+		blockSize += sizeof(blockSize);
+		nextOfs += blockSize;
+		totalLen += blockSize;
+	}
+
+	m_eCompression = (totalLen == fileDesc->cbCompressed) ? New : Old;
 }
 
 } // namespace IS5
