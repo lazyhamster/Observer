@@ -148,7 +148,7 @@ bool IS5CabFile::InternalOpen( HANDLE headerFile )
 	for (DWORD i = 0; i < cabDesc->cFiles; i++)
 	{
 		FILEDESC* pFile = GetFileDesc(DFT, cabDesc->cDirs + i);
-		if (pFile->DescStatus & DESC_INVALID) continue;
+		if ((pFile->DescStatus & DESC_INVALID) || (pFile->ofsData == 0)) continue;
 
 		m_vValidFiles.push_back(i);
 	}
