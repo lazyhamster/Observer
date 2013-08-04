@@ -205,6 +205,17 @@ void IS6CabFile::Close()
 	FREE_NULL(m_pCabDesc);
 	FREE_NULL(m_pDFT);
 
+	for (auto it = m_vVolumes.begin(); it != m_vVolumes.end(); it++)
+	{
+		DataVolume* vol = *it;
+		if (vol != NULL)
+		{
+			CloseHandle(vol->FileHandle);
+			delete vol;
+		}
+	}
+
+	m_vVolumes.clear();
 	m_vComponents.clear();
 	m_vFileGroups.clear();
 	m_vValidFiles.clear();
