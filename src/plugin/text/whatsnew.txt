@@ -1,6 +1,7 @@
 Changes history:
 
 1.9.1
+- Added Intall Shield module.
 - Fixed crash on very long path names inside containers.
 - Minor fixes.
 

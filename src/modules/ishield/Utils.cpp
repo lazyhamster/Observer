@@ -126,13 +126,13 @@ std::wstring GenerateCabPatern(const wchar_t* headerFileName)
 	return result;
 }
 
-void DecryptBuffer(BYTE* buf, DWORD bufSize, DWORD* pTotal)
+void DecryptBuffer(BYTE* buf, DWORD bufSize, DWORD* seed)
 {
 	BYTE ts;
-	for (; bufSize > 0; bufSize--, buf++, (*pTotal)++) {
+	for (; bufSize > 0; bufSize--, buf++, (*seed)++) {
 		ts = *buf ^ 0xd5;
-		__asm { ror byte ptr ts, 2 };
-		*buf = ts - (BYTE)(*pTotal % 0x47);
+		ts = _rotr(ts, 2);  //__asm { ror byte ptr ts, 2 };
+		*buf = ts - (BYTE)(*seed % 0x47);
 	}
 }
 
@@ -144,7 +144,7 @@ bool UnpackBuffer( BYTE* inBuf, size_t inSize, BYTE* outBuf, size_t* outBufferSi
 	if (inflateInit2(&strm, -MAX_WBITS) != Z_OK)
 		return false;
 
-	strm.avail_in = inSize;
+	strm.avail_in = (uInt) inSize;
 	strm.next_in = inBuf;
 
 	BYTE* bufPtr = outBuf;
@@ -152,7 +152,7 @@ bool UnpackBuffer( BYTE* inBuf, size_t inSize, BYTE* outBuf, size_t* outBufferSi
 	*outDataSize = 0;
 	do 
 	{
-		strm.avail_out = nextOutSize;
+		strm.avail_out = (uInt) nextOutSize;
 		strm.next_out = bufPtr;
 		
 		ret = inflate(&strm, Z_FINISH);
