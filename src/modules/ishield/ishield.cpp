@@ -83,8 +83,8 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		// Dump info file
 		DWORD dwBytes;
 		const std::wstring infoData = cabStorage->GetCabInfo();
-		WriteFile(hFile, BOM, strlen(BOM), &dwBytes, NULL);
-		WriteFile(hFile, infoData.c_str(), infoData.size() * sizeof(wchar_t), &dwBytes, NULL);
+		WriteFile(hFile, BOM, (DWORD) strlen(BOM), &dwBytes, NULL);
+		WriteFile(hFile, infoData.c_str(), (DWORD)(infoData.size() * sizeof(wchar_t)), &dwBytes, NULL);
 	}
 	else if (params.item > 0 && params.item < cabStorage->GetTotalFiles())
 	{
