@@ -2,6 +2,9 @@
 #include "Utils.h"
 #include "zlib.h"
 
+#define ror8(x,n)   (((x) >> ((int)(n))) | ((x) << (8 - (int)(n))))
+#define rol8(x,n)   (((x) << ((int)(n))) | ((x) >> (8 - (int)(n))))
+
 bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
 {
 	DWORD dwBytes;
@@ -131,7 +134,7 @@ void DecryptBuffer(BYTE* buf, DWORD bufSize, DWORD* seed)
 	BYTE ts;
 	for (; bufSize > 0; bufSize--, buf++, (*seed)++) {
 		ts = *buf ^ 0xd5;
-		ts = _rotr(ts, 2);  //__asm { ror byte ptr ts, 2 };
+		ts = ror8(ts, 2);  //__asm { ror byte ptr ts, 2 };
 		*buf = ts - (BYTE)(*seed % 0x47);
 	}
 }
