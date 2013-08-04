@@ -15,6 +15,7 @@ Add/Delete/Change operations are not planned.
   - Installation packages made with NSIS
   - MSI packages for Windows Installer
   - Installation packages made with Wise Installer
+  - Install Shield packages.
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-images. Following formats are supported:
@@ -181,6 +182,17 @@ zlib is lossless data-compression library. Distributed under zlib license.
 - libbzip2 (http://bzip.org)
 bzip2 is a freely available, patent free (see below), high-quality data compressor.
 Distributed under BSD-style license.
+
+- i5comp
+InstallShield 5.x Cabinet Compression & Maintenance Util by fOSSiL.
+
+- i6comp (ftp://ftp.elf.stuba.sk/pub/pc/pack/i6comp02.zip)
+InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
+
+- unshield (https://github.com/twogood/unshield)
+Pocket PC tool from SyncCE project.
+Distributed under LGPL license.
+
 
 3. System requirements.
 OS: WinXP or higher.

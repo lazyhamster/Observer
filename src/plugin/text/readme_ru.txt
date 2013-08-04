@@ -15,6 +15,7 @@ Observer
   - Инсталляторы, сделаные с помощью системы NSIS
   - MSI пакеты для Windows Installer-а
   - Инсталляционные пакеты, сделаные Wise Installer-ом.
+  - Инсталляторы Install Shield-а.
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-образы. Поддерживаются следующие файловые системы:
@@ -178,6 +179,16 @@ zlib это библиотека для сжатия данных без потерь.
 
 - libbzip2 (http://bzip.org)
 bzip2 это свободная библиотека для сжатия данных.
+
+- i5comp
+InstallShield 5.x Cabinet Compression & Maintenance Util by fOSSiL.
+
+- i6comp (ftp://ftp.elf.stuba.sk/pub/pc/pack/i6comp02.zip)
+InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
+
+- unshield (https://github.com/twogood/unshield)
+Утилита из проекта SyncCE.
+Распространяется по лицензии MIT.
 
 3. Системные требования.
 OS: WinXP или новее.
