@@ -31,7 +31,7 @@ ISUCabFile::~ISUCabFile()
 bool ISUCabFile::IsVersionCompatible( DWORD version )
 {
 	DWORD major_version = GetMajorVersion(version);
-	return major_version >= 16;
+	return major_version >= 17;
 }
 
 bool ISUCabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const

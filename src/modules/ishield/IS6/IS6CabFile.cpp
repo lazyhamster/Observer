@@ -29,7 +29,7 @@ IS6CabFile::~IS6CabFile()
 bool IS6CabFile::IsVersionCompatible( DWORD version )
 {
 	DWORD major_version = GetMajorVersion(version);
-	return major_version >= 6 && major_version <= 15;
+	return major_version >= 6 && major_version <= 16;
 }
 
 int IS6CabFile::GetTotalFiles() const
