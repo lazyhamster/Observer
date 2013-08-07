@@ -123,9 +123,9 @@ int ISCabFile::UnpackFile( HANDLE src, HANDLE dest, __int64 fileSize, BYTE* hash
 			break;
 
 		bytesLeft -= outputDataSize;
-		MD5Update(&md5, outputBuffer, outputDataSize);
+		MD5Update(&md5, outputBuffer, (unsigned int) outputDataSize);
 
-		if (!WriteBuffer(dest, outputBuffer, outputDataSize))
+		if (!WriteBuffer(dest, outputBuffer, (DWORD) outputDataSize))
 		{
 			free(outputBuffer);
 			return CAB_EXTRACT_WRITE_ERR;
