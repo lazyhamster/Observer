@@ -180,11 +180,14 @@ zlib это библиотека для сжатия данных без потерь.
 - libbzip2 (http://bzip.org)
 bzip2 это свободная библиотека для сжатия данных.
 
-- i5comp
+- i5comp (ftp://ftp.elf.stuba.sk/pub/pc/pack/i5comp21.rar)
 InstallShield 5.x Cabinet Compression & Maintenance Util by fOSSiL.
 
 - i6comp (ftp://ftp.elf.stuba.sk/pub/pc/pack/i6comp02.zip)
 InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
+
+- i6compx (http://www.ctpax-x.org/uploads/i6compx.zip)
+Исправленная i6comp для поддержки Юникода.
 
 - unshield (https://github.com/twogood/unshield)
 Утилита из проекта SyncCE.
