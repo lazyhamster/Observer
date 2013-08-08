@@ -327,7 +327,7 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	free(szAnsiDestName);
 
 	// Reopen destination file to set required attributes
-	if (cabfile)
+	if (cabfile && result)
 	{
 		HANDLE hFile = CreateFile(destFilePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
 		if (hFile != INVALID_HANDLE_VALUE)
