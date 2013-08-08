@@ -98,7 +98,10 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 {
 	int result = SER_SUCCESS;
 
-	HANDLE hFile = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+	DWORD existAttrs = GetFileAttributes(destPath);
+	DWORD openAttrs = (existAttrs != INVALID_FILE_ATTRIBUTES) ? existAttrs : FILE_ATTRIBUTE_NORMAL;
+
+	HANDLE hFile = CreateFile(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, openAttrs, NULL);
 	if (hFile == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
 
 	bool xbox = dir->VolumeDescriptor->XBOX;
@@ -169,9 +172,9 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 	CloseHandle(hFile);
 
 	if (result == SER_SUCCESS)
-		SetFileAttributesW(destPath, GetDirectoryAttributes(dir));
+		SetFileAttributes(destPath, GetDirectoryAttributes(dir));
 	else
-		DeleteFileW(destPath);
+		DeleteFile(destPath);
 
 	return result;
 }
