@@ -1119,7 +1119,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 
 			if (strCabPath.length() > 0)
 			{
-				int extr_res = m_pCabControl->ExtractFile(cab, strCabPath.c_str(), file->Key, destFilePath);
+				bool extr_res = m_pCabControl->ExtractFile(cab, strCabPath.c_str(), file->Key, destFilePath);
 				result = extr_res ? SER_SUCCESS : SER_ERROR_READ;
 			}
 		}

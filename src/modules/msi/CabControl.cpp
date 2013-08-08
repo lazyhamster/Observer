@@ -300,14 +300,13 @@ CCabControl::~CCabControl(void)
 	m_mCabCache.clear();
 }
 
-int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, const wchar_t* sourceFileName, const wchar_t* destFilePath )
+bool CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, const wchar_t* sourceFileName, const wchar_t* destFilePath )
 {
 	if (!cabName || !cabPath || !sourceFileName)
-		return FALSE;
+		return false;
 	
 	CabCacheItem* item = getCacheItem(cabName, cabPath);
-	if (!item)
-		return FALSE;
+	if (!item) return false;
 
 	// Unpack library expects disk file names in UTF-8 (after custom patch)
 	size_t nDestNameLen = wcslen(destFilePath) * 2 + 1;
@@ -315,7 +314,7 @@ int CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, co
 	memset(szAnsiDestName, 0, nDestNameLen);
 	WideCharToMultiByte(CP_UTF8, 0, destFilePath, -1, szAnsiDestName, (int)nDestNameLen, NULL, NULL);
 	
-	int result = FALSE;
+	bool result = false;
 
 	mscabd_file *cabfile = FindFileByName(item->data->files, sourceFileName);
 	if (cabfile)
