@@ -119,31 +119,21 @@ static struct mspack_file *msp_open(struct mspack_system *self,
 				    const char *filename, int mode)
 {
   struct mspack_file_p *fh;
-  wchar_t *fmode;
-  int slen;
-  wchar_t *wname;
+  char *fmode;
 
   switch (mode) {
-  case MSPACK_SYS_OPEN_READ:   fmode = L"rb";  break;
-  case MSPACK_SYS_OPEN_WRITE:  fmode = L"wb";  break;
-  case MSPACK_SYS_OPEN_UPDATE: fmode = L"r+b"; break;
-  case MSPACK_SYS_OPEN_APPEND: fmode = L"ab";  break;
+  case MSPACK_SYS_OPEN_READ:   fmode = "rb, ccs=UTF-8";  break;
+  case MSPACK_SYS_OPEN_WRITE:  fmode = "wb, ccs=UTF-8";  break;
+  case MSPACK_SYS_OPEN_UPDATE: fmode = "r+b, ccs=UTF-8"; break;
+  case MSPACK_SYS_OPEN_APPEND: fmode = "ab, ccs=UTF-8";  break;
   default: return NULL;
   }
 
   if ((fh = (struct mspack_file_p *) malloc(sizeof(struct mspack_file_p)))) {
     fh->name = filename;
 
-	// To avoid changing char* to wchar_t* in all function signatures
-	// it is easier to pass file name here in UTF-8 and decode before open
-
-	slen = MultiByteToWideChar(CP_UTF8, 0, filename, -1, NULL, 0);
-	wname  = (wchar_t*) malloc((slen + 1) * sizeof(wchar_t));
-	memset(wname, 0, (slen + 1) * sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, filename, -1, wname, slen + 1);
-
-	fh->fh = _wfopen(wname, fmode);
-	free(wname);
+	// File name must be in UTF-8 encoding
+	fh->fh = fopen(filename, fmode);
 
     if (fh->fh) return (struct mspack_file *) fh;
     free(fh);
