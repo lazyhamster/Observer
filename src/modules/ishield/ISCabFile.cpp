@@ -150,6 +150,9 @@ int ISCabFile::UnpackFile( HANDLE src, HANDLE dest, __int64 fileSize, BYTE* hash
 	}
 
 	free(outputBuffer);
-	MD5Final(hashBuf, &md5);
+	if (hashBuf != NULL)
+	{
+		MD5Final(hashBuf, &md5);
+	}
 	return CAB_EXTRACT_OK;
 }

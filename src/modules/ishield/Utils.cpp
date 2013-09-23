@@ -7,6 +7,9 @@
 
 bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
 {
+	if (bufferSize == 0) return true;
+	if (buffer == NULL) return false;
+	
 	DWORD dwBytes;
 	return ReadFile(file, buffer, bufferSize, &dwBytes, NULL) && (dwBytes == bufferSize);
 }
