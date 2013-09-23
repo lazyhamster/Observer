@@ -9,14 +9,36 @@ struct CABHEADER
 {
 	DWORD Signature;	// 0
 	BYTE Unk1[8];		// 4
-	WORD NumFiles;		// 0c
+	WORD cFiles;		// 0c
 	BYTE Unk2[4];		// 0e
-	DWORD ArcSize;		// 12
-	BYTE Unk3[19];		// 16
-	DWORD offsEntries;	// 29
-	BYTE Unk4[3];		// 2d
-	WORD Dirs;			// 31
-	BYTE Unk5[204];		// 33
+	DWORD ArchiveSize;	// 12
+	DWORD UnpackedSize;	// 16
+	BYTE Unk3[15];		// 1A
+	DWORD offsTOC;		// 29
+	BYTE Unk4[4];		// 2d
+	WORD cDirs;			// 31
+	DWORD Unk5;			// 35
+};
+
+struct DIRDESC
+{
+	WORD cFiles;
+	WORD cbDescSize;
+	WORD cbNameLength;
+};
+
+struct FILEDESC
+{
+	BYTE Unk1[3];
+	DWORD cbExpanded;
+	DWORD cbCompressed;
+	DWORD ofsCompData;
+	WORD FatDate;
+	WORD FatTime;
+	DWORD Attrs;
+	WORD cbDescSize;
+	BYTE Unk2[4];
+	BYTE cbNameLength;
 };
 
 #pragma pack(pop)

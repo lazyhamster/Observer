@@ -8,9 +8,24 @@ namespace IS3
 
 #include "IS3_Structs.h"
 
+struct DirEntry
+{
+	WORD NumFiles;
+	char Name[MAX_PATH];
+};
+
+struct FileEntry
+{
+	//
+};
+
 class IS3CabFile : public ISCabFile
 {
 protected:
+	CABHEADER m_Header;
+	std::vector<DirEntry> m_vDirs;
+	std::vector<FileEntry> m_vFiles;
+	
 	void GenerateInfoFile() { /* Not used for this class */ }
 	bool InternalOpen(HANDLE headerFile);
 
