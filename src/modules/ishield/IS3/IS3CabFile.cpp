@@ -135,7 +135,7 @@ bool IS3CabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 struct BufPtr
 {
 	void* buf;
-	size_t bufSize;
+	unsigned int bufSize;
 };
 
 unsigned int blast_in(void *how, unsigned char **buf)
