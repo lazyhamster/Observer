@@ -31,6 +31,7 @@ public:
 	virtual void Close() = 0;
 
 	const std::wstring GetCabInfo() const { return m_sInfoFile; }
+	virtual bool HasInfoData() const = 0;
 	virtual DWORD MajorVersion() const = 0;
 };
 

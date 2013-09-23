@@ -47,6 +47,7 @@ public:
 	void Close();
 
 	DWORD MajorVersion() const;
+	bool HasInfoData() const { return true; }
 };
 
 } // namespace IS5

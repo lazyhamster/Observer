@@ -37,19 +37,19 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	ISCabFile* cabStorage = (ISCabFile*) storage;
-	if (cabStorage == NULL) return GET_ITEM_ERROR;
+	if (cabStorage == NULL || item_index < 0) return GET_ITEM_ERROR;
 
 	memset(item_info, 0, sizeof(StorageItemInfo));
-	if (item_index == 0)
+	if (item_index == 0 && cabStorage->HasInfoData())
 	{
 		// First file will be always fake info file
 		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{info}.txt");
 		item_info->Size = cabStorage->GetCabInfo().size() * sizeof(wchar_t);
 		return GET_ITEM_OK;
 	}
-	else if (item_index > 0 && item_index < cabStorage->GetTotalFiles())
+	else if (item_index < cabStorage->GetTotalFiles())
 	{
-		if (cabStorage->GetFileInfo(item_index - 1, item_info))
+		if (cabStorage->GetFileInfo(cabStorage->HasInfoData() ? item_index - 1 : item_index, item_info))
 		{
 			for (size_t i = 0, len = wcslen(item_info->Path); i < len; i++)
 			{
@@ -72,13 +72,13 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	ISCabFile* cabStorage = (ISCabFile*) storage;
-	if (cabStorage == NULL) return SER_ERROR_SYSTEM;
+	if (cabStorage == NULL || params.item < 0) return SER_ERROR_SYSTEM;
 
 	HANDLE hFile = CreateFile(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (hFile == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
 
 	int status = SER_SUCCESS;
-	if (params.item == 0)
+	if (params.item == 0 && cabStorage->HasInfoData())
 	{
 		// Dump info file
 		DWORD dwBytes;
@@ -86,15 +86,17 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		WriteFile(hFile, BOM, (DWORD) strlen(BOM), &dwBytes, NULL);
 		WriteFile(hFile, infoData.c_str(), (DWORD)(infoData.size() * sizeof(wchar_t)), &dwBytes, NULL);
 	}
-	else if (params.item > 0 && params.item < cabStorage->GetTotalFiles())
+	else if (params.item < cabStorage->GetTotalFiles())
 	{
+		int itemIndex = cabStorage->HasInfoData() ? params.item - 1 : params.item;
+		
 		// Dump archive file
-		status = cabStorage->ExtractFile(params.item - 1, hFile, params.callbacks);
+		status = cabStorage->ExtractFile(itemIndex, hFile, params.callbacks);
 
 		if (status == SER_SUCCESS)
 		{
 			StorageItemInfo itemInfo;
-			cabStorage->GetFileInfo(params.item - 1, &itemInfo);
+			cabStorage->GetFileInfo(itemIndex, &itemInfo);
 			
 			SetFileAttributes(params.destFilePath, itemInfo.Attributes);
 			SetFileTime(hFile, NULL, NULL, &itemInfo.ModificationTime);
