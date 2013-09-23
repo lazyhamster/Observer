@@ -31,7 +31,7 @@ protected:
 	std::vector<DataVolume*> m_vVolumes;
 
 	void GenerateInfoFile();
-	bool IsVersionCompatible(DWORD version);
+	virtual bool IsVersionCompatible(DWORD version);
 	bool InternalOpen(HANDLE headerFile);
 
 	DataVolume* OpenVolume(DWORD volumeIndex);

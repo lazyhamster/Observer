@@ -15,7 +15,6 @@ protected:
 	std::wstring m_sCabPattern;
 	std::wstring m_sInfoFile;
 	
-	virtual bool IsVersionCompatible(DWORD version) = 0;
 	virtual void GenerateInfoFile() = 0;
 	virtual bool InternalOpen(HANDLE headerFile) = 0;
 

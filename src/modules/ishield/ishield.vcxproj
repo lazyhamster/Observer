@@ -570,6 +570,7 @@
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="IS3\IS3CabFile.cpp" />
     <ClCompile Include="IS5\IS5CabFile.cpp" />
     <ClCompile Include="IS6\IS6CabFile.cpp" />
     <ClCompile Include="ISCabFile.cpp" />
@@ -609,6 +610,8 @@
     <None Include="ishield.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IS3\IS3CabFile.h" />
+    <ClInclude Include="IS3\IS3_Structs.h" />
     <ClInclude Include="IS5\IS5CabFile.h" />
     <ClInclude Include="IS5\IS5_CabStructs.h" />
     <ClInclude Include="IS6\IS6CabFile.h" />
