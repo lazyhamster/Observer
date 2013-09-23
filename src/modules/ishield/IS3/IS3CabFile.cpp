@@ -2,6 +2,11 @@
 #include "IS3CabFile.h"
 #include "Utils.h"
 
+extern "C"
+{
+#include "blast.h"
+};
+
 namespace IS3
 {
 
@@ -9,6 +14,7 @@ IS3CabFile::IS3CabFile()
 {
 	m_hHeaderFile = INVALID_HANDLE_VALUE;
 	memset(&m_Header, 0, sizeof(m_Header));
+	m_pFileList = NULL;
 }
 
 IS3CabFile::~IS3CabFile()
@@ -126,9 +132,60 @@ bool IS3CabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 	return true;
 }
 
+struct BufPtr
+{
+	void* buf;
+	size_t bufSize;
+};
+
+unsigned int blast_in(void *how, unsigned char **buf)
+{
+	BufPtr* ptr = (BufPtr*)how;
+	*buf = (unsigned char *)ptr->buf;
+	return ptr->bufSize;
+}
+
+int blast_out(void *how, unsigned char *buf, unsigned len)
+{
+	HANDLE outFile = (HANDLE) how;
+	return WriteBuffer(outFile, buf, len) ? 0 : 1;
+}
+
 int IS3CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
 {
-	return CAB_EXTRACT_READ_ERR;
+	if (!m_pFileList || itemIndex < 0 || itemIndex >= (int)m_vFiles.size())
+		return CAB_EXTRACT_READ_ERR;
+
+	FILEDESC* pFileDesc = m_vFiles[itemIndex];
+
+	if (!SeekFile(m_hHeaderFile, pFileDesc->ofsCompData))
+		return CAB_EXTRACT_READ_ERR;
+
+	BYTE* inBuffer = (BYTE*) malloc(pFileDesc->cbCompressed);
+	
+	int result = CAB_EXTRACT_READ_ERR;
+	if (ReadBuffer(m_hHeaderFile, inBuffer, pFileDesc->cbCompressed))
+	{
+		BufPtr inhow = {inBuffer, pFileDesc->cbCompressed};
+		int blastRet = blast(blast_in, &inhow, blast_out, targetFile);
+
+		switch (blastRet)
+		{
+			case 0:
+				result = CAB_EXTRACT_OK;
+				break;
+			case 1:
+				result = CAB_EXTRACT_WRITE_ERR;
+				break;
+			default:
+				result = CAB_EXTRACT_READ_ERR;
+				break;
+		}
+	}
+
+	free(inBuffer);
+		
+	return result;
 }
 
 } //namespace IS3

@@ -45,6 +45,9 @@
     <ClCompile Include="IS3\IS3CabFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="IS3\blast.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ishield.def">
@@ -89,6 +92,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IS3\IS3_Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IS3\blast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
