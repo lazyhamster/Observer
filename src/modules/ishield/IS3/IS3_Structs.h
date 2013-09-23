@@ -14,10 +14,11 @@ struct CABHEADER
 	DWORD ArchiveSize;	// 12
 	DWORD UnpackedSize;	// 16
 	BYTE Unk3[15];		// 1A
-	DWORD offsTOC;		// 29
-	BYTE Unk4[4];		// 2d
+	DWORD ofsDirList;	// 29
+	DWORD cbDirList;	// 2d
 	WORD cDirs;			// 31
-	DWORD Unk5;			// 35
+	DWORD ofsFileList;	// 35
+	DWORD cbFileList;	// 39
 };
 
 struct DIRDESC
@@ -40,6 +41,8 @@ struct FILEDESC
 	BYTE Unk2[4];
 	BYTE cbNameLength;
 };
+
+//TODO: figure out where is dir index in FILEDESC
 
 #pragma pack(pop)
 

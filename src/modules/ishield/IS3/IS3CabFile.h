@@ -14,17 +14,13 @@ struct DirEntry
 	char Name[MAX_PATH];
 };
 
-struct FileEntry
-{
-	//
-};
-
 class IS3CabFile : public ISCabFile
 {
 protected:
 	CABHEADER m_Header;
+	LPVOID m_pFileList;
 	std::vector<DirEntry> m_vDirs;
-	std::vector<FileEntry> m_vFiles;
+	std::vector<FILEDESC*> m_vFiles;
 	
 	void GenerateInfoFile() { /* Not used for this class */ }
 	bool InternalOpen(HANDLE headerFile);
