@@ -6,7 +6,7 @@
 
 static bool IsScriptBuffer(const char* buf)
 {
-	return (buf[0] == 0x04 || buf[0] == 0x14) && (buf[1] == 0);
+	return (buf[0] == 0x04 || buf[0] == 0x14 || buf[0] == 0x17) && (buf[1] == 0);
 }
 
 // Service file types
