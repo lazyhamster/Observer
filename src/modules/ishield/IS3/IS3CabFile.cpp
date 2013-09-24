@@ -111,17 +111,18 @@ bool IS3CabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 		return false;
 
 	FILEDESC* pFileDesc = m_vFiles[itemIndex];
+		
 	char pFileName[MAX_PATH] = {0};
-
-	char* pDir = NULL; //TODO: get dir name properly
 	strncpy_s(pFileName, sizeof(pFileName), (char*) pFileDesc + sizeof(*pFileDesc), pFileDesc->cbNameLength);
 
-	if (!pDir && !pFileName[0])
+	if ((pFileDesc->DirIndex >= m_vDirs.size()) || !pFileName[0])
 		return false;
+
+	const DirEntry &dir = m_vDirs[pFileDesc->DirIndex];
 
 	// Create full path
 	char fullName[MAX_PATH] = {0};
-	CombinePath(fullName, MAX_PATH, 2, pDir, pFileName);
+	CombinePath(fullName, MAX_PATH, 2, dir.Name, pFileName);
 
 	// Fill result structure
 	MultiByteToWideChar(CP_ACP, 0, fullName, -1, itemInfo->Path, STRBUF_SIZE(itemInfo->Path));

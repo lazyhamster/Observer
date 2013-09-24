@@ -30,7 +30,8 @@ struct DIRDESC
 
 struct FILEDESC
 {
-	BYTE Unk1[3];
+	BYTE Unk1;
+	WORD DirIndex;
 	DWORD cbExpanded;
 	DWORD cbCompressed;
 	DWORD ofsCompData;
@@ -41,8 +42,6 @@ struct FILEDESC
 	BYTE Unk2[4];
 	BYTE cbNameLength;
 };
-
-//TODO: figure out where is dir index in FILEDESC
 
 #pragma pack(pop)
 
