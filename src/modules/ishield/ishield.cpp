@@ -44,7 +44,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	{
 		// First file will be always fake info file
 		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{info}.txt");
-		item_info->Size = cabStorage->GetCabInfo().size() * sizeof(wchar_t);
+		item_info->Size = cabStorage->GetCabInfo().size() * sizeof(wchar_t) + strlen(BOM);
 		return GET_ITEM_OK;
 	}
 	else if (item_index < cabStorage->GetTotalFiles())
