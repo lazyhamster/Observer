@@ -394,8 +394,8 @@ struct ScriptFileRec
 	int endOffset;
 	int date;
 	int unpackedSize;
-	int unknown[5];
-	unsigned long fileCRC;
+	char unknown[20];
+	DWORD fileCRC;
 	char fileName[1];
 };
 
@@ -422,8 +422,16 @@ bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 		{
 			if (rec->fileCRC == infoBuf->CRC32 || rec->fileCRC == 0)
 			{
-				MultiByteToWideChar(CP_ACP, 0, rec->fileName, -1, infoBuf->FileName, MAX_PATH);
-				return true;
+				if (rec->fileName[0] > 32)
+				{
+					MultiByteToWideChar(CP_ACP, 0, rec->fileName, -1, infoBuf->FileName, MAX_PATH);
+					return true;
+				}
+				else if (rec->unknown[0] > 32)
+				{
+					MultiByteToWideChar(CP_ACP, 0, &(rec->unknown[0]), -1, infoBuf->FileName, MAX_PATH);
+					return true;
+				}
 			}
 		}
 		pos++;
