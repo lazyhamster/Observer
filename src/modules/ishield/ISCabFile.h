@@ -26,7 +26,7 @@ public:
 	virtual bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const = 0;
 	virtual int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx) = 0;
 
-	bool Open(HANDLE headerFile, const wchar_t* heaerFilePath);
+	bool Open(HANDLE headerFile, const wchar_t* headerFilePath);
 	virtual void Close() = 0;
 
 	const std::wstring GetCabInfo() const { return m_sInfoFile; }

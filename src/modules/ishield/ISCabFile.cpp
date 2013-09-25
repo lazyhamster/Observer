@@ -8,40 +8,30 @@
 #include "ISU\ISUCabFile.h"
 #include "IS3\IS3CabFile.h"
 
+template <typename T>
+ISCabFile* TryOpen(HANDLE hFile, const wchar_t* wszFilePath)
+{
+	T* obj = new T();
+	if (obj->Open(hFile, wszFilePath))
+		return obj;
+
+	delete obj;
+	return NULL;
+}
+
+#define RNN(type, hf, path) { auto isf = TryOpen<type>(hf, path); if (isf) return isf; }
+
 ISCabFile* OpenCab(const wchar_t* filePath)
 {
 	HANDLE hFile = OpenFileForRead(filePath);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return NULL;
+
+	RNN(IS5::IS5CabFile, hFile, filePath);
+	RNN(IS6::IS6CabFile, hFile, filePath);
+	RNN(ISU::ISUCabFile, hFile, filePath);
+	RNN(IS3::IS3CabFile, hFile, filePath);
 	
-	IS5::IS5CabFile* is5 = new IS5::IS5CabFile();
-	if (is5->Open(hFile, filePath))
-	{
-		return is5;
-	}
-	delete is5;
-
-	IS6::IS6CabFile* is6 = new IS6::IS6CabFile();
-	if (is6->Open(hFile, filePath))
-	{
-		return is6;
-	}
-	delete is6;
-
-	ISU::ISUCabFile* isu = new ISU::ISUCabFile();
-	if (isu->Open(hFile, filePath))
-	{
-		return isu;
-	}
-	delete isu;
-
-	IS3::IS3CabFile* is3 = new IS3::IS3CabFile();
-	if (is3->Open(hFile, filePath))
-	{
-		return is3;
-	}
-	delete is3;
-
 	CloseHandle(hFile);
 	return NULL;
 }
@@ -55,14 +45,14 @@ void CloseCab(ISCabFile* cab)
 	}
 }
 
-bool ISCabFile::Open( HANDLE headerFile, const wchar_t* heaerFilePath )
+bool ISCabFile::Open( HANDLE headerFile, const wchar_t* headerFilePath )
 {
 	SetFilePointer(headerFile, 0, NULL, FILE_BEGIN);
 	
 	if (InternalOpen(headerFile))
 	{
 		m_hHeaderFile = headerFile;
-		m_sCabPattern = GenerateCabPatern(heaerFilePath);
+		m_sCabPattern = GenerateCabPatern(headerFilePath);
 		GenerateInfoFile();
 		return true;
 	}
