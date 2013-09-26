@@ -36,7 +36,7 @@ static void ParseExtensionList(const wchar_t* listval, ExternalModule& module)
 	free(strList);
 }
 
-int ModulesController::Init( const wchar_t* basePath, Config* cfg )
+int ModulesController::Init( const wchar_t* basePath, Config* cfg, vector<FailedModuleInfo> &failed )
 {
 	Cleanup();
 
@@ -53,8 +53,9 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg )
 		
 		ConfigSection* moduleOpts = cfg->GetSection(module.Name());
 		wstring moduleSettingsStr = moduleOpts ? moduleOpts->GetAll() : L"";
+		wstring moduleLoadError;
 
-		if (LoadModule(basePath, module, moduleSettingsStr.c_str()))
+		if (LoadModule(basePath, module, moduleSettingsStr.c_str(), moduleLoadError))
 		{
 			// Read extensions filter for each module
 			if (mFiltersList != NULL)
@@ -65,6 +66,14 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg )
 			}
 			
 			modules.push_back(module);
+		}
+		else
+		{
+			FailedModuleInfo failInfo;
+			failInfo.ModuleName = module.Name();
+			failInfo.ErrorMessage = moduleLoadError;
+
+			failed.push_back(failInfo);
 		}
 	} // for
 	
@@ -122,7 +131,7 @@ void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
 	}
 }
 
-bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings )
+bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, wstring &errorMsg )
 {
 	if (!module.Name()[0] || !module.LibraryFile()[0])
 		return false;
@@ -161,27 +170,34 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 			__except (EXCEPTION_EXECUTE_HANDLER)
 			{
 				//Nothing to do here. Module unload code is below.
-#ifdef _DEBUG
-				wchar_t msgText[1024] = {0};
-				swprintf_s(msgText, ARRAY_SIZE(msgText), L"Module load exception (Error: %u, Path: %s)", _exception_code(), module.LibraryFile());
-				MessageBox(0, msgText, L"Error", MB_OK);
-#endif
+
+				wchar_t* msgBuffer = NULL;
+				if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, GetModuleHandle(L"NTDLL.dll"), _exception_code(), 0, msgBuffer, 0, NULL) == 0)
+				{
+					msgBuffer = (wchar_t*) LocalAlloc(LPTR, 256 * sizeof(wchar_t));
+					swprintf_s(msgBuffer, ARRAY_SIZE(msgBuffer), L"Unrecognized exception: %u", _exception_code());
+				}
+				errorMsg = msgBuffer;
+				LocalFree(msgBuffer);
 			}
 		}
 
 		FreeLibrary(module.ModuleHandle);
 		return false;
 	}
-#ifdef _DEBUG
 	else
 	{
 		DWORD err = GetLastError();
-		
-		wchar_t msgText[1024] = {0};
-		swprintf_s(msgText, ARRAY_SIZE(msgText), L"Can not load modules (Error: %u, Path: %s)", err, module.LibraryFile());
-		MessageBox(0, msgText, L"Error", MB_OK);
+
+		wchar_t* msgBuffer = NULL;
+		if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, 0, (LPWSTR) &msgBuffer, 0, NULL) == 0)
+		{
+			msgBuffer = (wchar_t*) LocalAlloc(LPTR, 256 * sizeof(wchar_t));
+			swprintf_s(msgBuffer, LocalSize(msgBuffer) / sizeof(*msgBuffer), L"Unrecognized error code: %u", err);
+		}
+		errorMsg = msgBuffer;
+		LocalFree(msgBuffer);
 	}
-#endif
 	
 	return false;
 }

@@ -1,6 +1,6 @@
 Observer
 Plug-in for FAR Manager 1.75+ / 2.0+ / 3.0+
-Copyright: 2009-2012, Ariman
+Copyright: 2009-2013, Ariman
 
 -------------------------------------------------------------------
 
@@ -82,6 +82,10 @@ Possible values: 1 (extended mode is on) or 0 (standard format is used).
 WARNING:
 This feature uses undocumented specifics of curent directory processing by FAR,
 so it can have unpredictabe side-effects or stop working at all after next update.
+
+[General] -> VerboseModuleLoad
+Turns on/off warning message on plugin start if any if the modules failed to load.
+Possible values: 1 (show message) or 0 (don't show).
 
 1.2.2 Filters.
 

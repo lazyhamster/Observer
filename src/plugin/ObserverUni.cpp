@@ -24,6 +24,7 @@ static ModulesController g_pController;
 static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
 static int optUseExtensionFilters = TRUE;
+static int optVerboseModuleLoad = FALSE;
 static wchar_t optPrefix[MAX_PREFIX_SIZE] = L"observe";
 
 // Extended settings
@@ -88,6 +89,7 @@ static void LoadSettings(Config* cfg)
 		generalCfg->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
 		generalCfg->GetValue(L"ExtendedCurDir", optExtendedCurDir);
 		generalCfg->GetValue(L"UseExtensionFilters", optUseExtensionFilters);
+		generalCfg->GetValue(L"VerboseModuleLoad", optVerboseModuleLoad);
 	}
 
 	// Load dynamic settings from registry (they will overwrite static ones)
@@ -703,6 +705,13 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	return retVal;
 }
 
+void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
+{
+	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
+
+	//TODO: show dialog
+}
+
 //-----------------------------------  Export functions ----------------------------------------
 
 int WINAPI GetMinFarVersionW(void)
@@ -732,7 +741,10 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 	cfg.ParseFile(strConfigLocation + CONFIG_USER_FILE);
 
 	LoadSettings(&cfg);
-	g_pController.Init(wszPluginLocation, &cfg);
+
+	vector<FailedModuleInfo> fails;
+	g_pController.Init(wszPluginLocation, &cfg, fails);
+	ReportFailedModules(fails);
 }
 
 void WINAPI GetPluginInfoW(struct PluginInfo *Info)

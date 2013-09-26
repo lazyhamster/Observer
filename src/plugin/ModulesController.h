@@ -45,18 +45,24 @@ struct OpenStorageFileInParams
 	int openWithModule;  // set -1 to poll all modules
 };
 
+struct FailedModuleInfo 
+{
+	wstring ModuleName;
+	wstring ErrorMessage;
+};
+
 class ModulesController
 {
 private:
 	vector<ExternalModule> modules;
 	
-	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings);
+	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, wstring &errorMsg);
 
 public:
 	ModulesController(void) {};
 	~ModulesController(void) { this->Cleanup(); };
 
-	int Init(const wchar_t* basePath, Config* cfg);
+	int Init(const wchar_t* basePath, Config* cfg, vector<FailedModuleInfo> &failed);
 	void Cleanup();
 	
 	size_t NumModules() { return modules.size(); }
