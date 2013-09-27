@@ -244,6 +244,48 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 	return fRet;
 }
 
+void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
+{
+	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
+
+	size_t listItemsNumber = failedModules.size() * 3 - 1;
+	size_t listBufferSize = listItemsNumber * sizeof(FarListItem);
+	FarListItem* dataList = (FarListItem*) malloc(listBufferSize);
+	memset(dataList, 0, listBufferSize);
+
+	int list_index = 0;
+	for (size_t i = 0; i < failedModules.size(); i++)
+	{
+		const FailedModuleInfo &failInfo = failedModules[i];
+		dataList[list_index].Text = failInfo.ModuleName.c_str();
+		dataList[list_index+1].Text = failInfo.ErrorMessage.c_str();
+		if (i < failedModules.size() - 1)
+			dataList[list_index+2].Flags = LIF_SEPARATOR;
+
+		list_index += 3;
+	}
+
+	FarList farList = {listItemsNumber, dataList};
+
+	FarDialogItem DialogItems []={
+		/*0*/{DI_DOUBLEBOX, 3, 1, 56,15, 0, 0, 0,0, L"Modules failed to load"},
+		/*1*/{DI_LISTBOX,   5, 2, 54,12, 0, (DWORD_PTR)&farList, DIF_LISTNOCLOSE|DIF_LISTNOBOX, 0, L"Failed Modules", 0},
+		/*2*/{DI_TEXT,	    3,13,  0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
+		/*3*/{DI_BUTTON,	0,14,  0, 0, 1, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_OK), 0},
+	};
+
+	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 60, 17, L"Loading Error",
+		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, FDLG_WARNING, FarSInfo.DefDlgProc, 0);
+
+	if (hDlg != INVALID_HANDLE_VALUE)
+	{
+		FarSInfo.DialogRun(hDlg);
+		FarSInfo.DialogFree(hDlg);
+	}
+
+	//TODO: show dialog
+}
+
 //-----------------------------------  Content functions ----------------------------------------
 
 static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleIndex)
@@ -703,13 +745,6 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	}
 
 	return retVal;
-}
-
-void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
-{
-	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
-
-	//TODO: show dialog
 }
 
 //-----------------------------------  Export functions ----------------------------------------
