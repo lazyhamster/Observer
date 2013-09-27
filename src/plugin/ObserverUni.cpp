@@ -268,10 +268,11 @@ void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 	FarList farList = {listItemsNumber, dataList};
 
 	FarDialogItem DialogItems []={
-		/*0*/{DI_DOUBLEBOX, 3, 1, 56,15, 0, 0, 0,0, L"Modules failed to load"},
-		/*1*/{DI_LISTBOX,   5, 2, 54,12, 0, (DWORD_PTR)&farList, DIF_LISTNOCLOSE|DIF_LISTNOBOX, 0, L"Failed Modules", 0},
-		/*2*/{DI_TEXT,	    3,13,  0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
-		/*3*/{DI_BUTTON,	0,14,  0, 0, 1, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_OK), 0},
+		/*0*/{DI_DOUBLEBOX, 3, 1, 56,15, 0, 0, 0,0, L"Observer"},
+		/*1*/{DI_TEXT,		5, 2, 54, 0, 0, 0, DIF_CENTERTEXT, 0, L"Some modules failed to load", 0},
+		/*2*/{DI_LISTBOX,   5, 3, 54,12, 0, (DWORD_PTR)&farList, DIF_LISTNOCLOSE|DIF_LISTNOBOX, 0, L"Failed Modules", 0},
+		/*3*/{DI_TEXT,	    3,13,  0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
+		/*4*/{DI_BUTTON,	0,14,  0, 0, 1, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_OK), 0},
 	};
 
 	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 60, 17, L"Loading Error",
@@ -283,7 +284,7 @@ void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 		FarSInfo.DialogFree(hDlg);
 	}
 
-	//TODO: show dialog
+	free(dataList);
 }
 
 //-----------------------------------  Content functions ----------------------------------------

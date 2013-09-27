@@ -192,6 +192,13 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 	return fRet;
 }
 
+void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
+{
+	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
+
+	//TODO: show dialog
+}
+
 //-----------------------------------  Content functions ----------------------------------------
 
 static bool AnalizeStorage(const wchar_t* Name, bool applyExtFilters)
@@ -655,13 +662,6 @@ bool ConfirmExtract(int NumFiles, int NumDirectories, ExtractSelectedParams &par
 	}
 
 	return false;
-}
-
-void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
-{
-	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
-
-	//TODO: show dialog
 }
 
 //-----------------------------------  Export functions ----------------------------------------
