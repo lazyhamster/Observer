@@ -5,6 +5,7 @@ HANDLE OpenFileForRead(const wchar_t* path);
 bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize);
 bool WriteBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize);
 bool SeekFile(HANDLE file, __int64 position);
+__int64 FilePos(HANDLE file);
 __int64 SizeOfFile(HANDLE file);
 
 void CombinePath(char* buffer, size_t bufferSize, int numParts, ...);

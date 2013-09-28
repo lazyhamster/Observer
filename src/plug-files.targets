@@ -140,15 +140,6 @@
       <DTextDirsToMake
         Condition="'@(DText)' != '' and '%(DText.ExcludedFromBuild)' != 'true'"
         Include="%(DText.Outputs)" />
-      <Link
-        Include="%(DTextDirsToMake.Identity)"
-        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
-      <Lib
-        Include="%(DTextDirsToMake.Identity)"
-        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
-      <ImpLib
-        Include="%(DTextDirsToMake.Identity)"
-        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
     </ItemGroup>
     <MakeDir
       Directories="@(DTextDirsToMake-&gt;'%(RootDir)%(Directory)')" />

@@ -34,6 +34,14 @@ bool SeekFile(HANDLE file, __int64 position)
 	return retVal && (resultPos.QuadPart == position);
 }
 
+__int64 FilePos(HANDLE file)
+{
+	LARGE_INTEGER zero = {0}, pos;
+	BOOL retVal = SetFilePointerEx(file, zero, &pos, FILE_CURRENT);
+
+	return retVal ? pos.QuadPart : -1;
+}
+
 HANDLE OpenFileForRead(const wchar_t* path)
 {
 	return CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);

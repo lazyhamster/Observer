@@ -7,6 +7,7 @@
 #include "IS6\IS6CabFile.h"
 #include "ISU\ISUCabFile.h"
 #include "IS3\IS3CabFile.h"
+#include "ISSFX\ISEncSfxFile.h"
 
 template <typename T>
 ISCabFile* TryOpen(HANDLE hFile, const wchar_t* wszFilePath)
@@ -31,6 +32,7 @@ ISCabFile* OpenCab(const wchar_t* filePath)
 	RNN(IS6::IS6CabFile, hFile, filePath);
 	RNN(ISU::ISUCabFile, hFile, filePath);
 	RNN(IS3::IS3CabFile, hFile, filePath);
+	RNN(ISSfx::ISEncSfxFile, hFile, filePath);
 	
 	CloseHandle(hFile);
 	return NULL;

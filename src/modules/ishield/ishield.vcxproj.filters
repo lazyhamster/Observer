@@ -48,6 +48,12 @@
     <ClCompile Include="IS3\blast.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ISSFX\PEHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ISSFX\ISEncSfxFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ishield.def">
@@ -95,6 +101,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IS3\blast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ISSFX\PEHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ISSFX\ISEncSfxFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
