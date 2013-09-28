@@ -25,7 +25,7 @@ bool SeekFile(HANDLE file, __int64 position)
 	LARGE_INTEGER newPos, resultPos;
 
 	// First check if we will cross size limit
-	if (FileSize(file) < position)
+	if (SizeOfFile(file) < position)
 		return false;
 	
 	newPos.QuadPart = position;
@@ -39,7 +39,7 @@ HANDLE OpenFileForRead(const wchar_t* path)
 	return CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
 }
 
-__int64 FileSize(HANDLE file)
+__int64 SizeOfFile(HANDLE file)
 {
 	LARGE_INTEGER liSize = {0};
 	GetFileSizeEx(file, &liSize);

@@ -388,7 +388,7 @@ DataVolume* IS5CabFile::OpenVolume( DWORD volumeIndex )
 		volume->FilePath = volumePath;
 		volume->FileHandle = hFile;
 		volume->Header = header;
-		volume->FileSize = FileSize(hFile);
+		volume->FileSize = SizeOfFile(hFile);
 
 		m_vVolumes[volumeIndex] = volume;
 	}

@@ -38,7 +38,7 @@ bool IS3CabFile::InternalOpen( HANDLE headerFile )
 		return false;
 	if (cabHeader.cFiles == 0)
 		return false;
-	if (cabHeader.ArchiveSize != FileSize(headerFile) || cabHeader.ofsDirList >= cabHeader.ArchiveSize)
+	if (cabHeader.ArchiveSize != SizeOfFile(headerFile) || cabHeader.ofsDirList >= cabHeader.ArchiveSize)
 		return false;
 
 	if (!SeekFile(headerFile, cabHeader.ofsDirList))
