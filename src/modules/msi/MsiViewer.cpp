@@ -560,7 +560,7 @@ int CMsiViewer::generateInfoText()
 		wchar_t* PropName;
 		UINT PropID;
 	};
-	PropDescription SUMMARY_PROPS[] = {{L"Title", 2}, {L"Subject", 3}, {L"Author", 4},
+	PropDescription SUMMARY_PROPS[] = {{L"Title", 2}, {L"Subject", 3}, {L"Author", 4}, {L"Codepage", 1},
 		{L"Keywords", 5}, {L"Comments", 6}, {L"Revision Number", 9}};
 	
 	wstringstream sstr;
@@ -576,15 +576,21 @@ int CMsiViewer::generateInfoText()
 	OK ( MsiGetSummaryInformationW(m_hMsi, NULL, 0, &hSummary) );
 	
 	UINT nDataType;
+	INT nIntVal;
 	DWORD len;
 	vector<wchar_t> propdata(512);
 	for (int i = 0; i < sizeof(SUMMARY_PROPS) / sizeof(SUMMARY_PROPS[0]); i++)
 	{
-		while ((res = MsiSummaryInfoGetPropertyW(hSummary, SUMMARY_PROPS[i].PropID, &nDataType, NULL, NULL, &propdata[0], &(len = (DWORD) propdata.size()))) == ERROR_MORE_DATA)
+		while ((res = MsiSummaryInfoGetPropertyW(hSummary, SUMMARY_PROPS[i].PropID, &nDataType, &nIntVal, NULL, &propdata[0], &(len = (DWORD) propdata.size()))) == ERROR_MORE_DATA)
 			propdata.resize(len + 1);
 
 		if (res == ERROR_SUCCESS)
-			sstr << SUMMARY_PROPS[i].PropName << L": " << (wchar_t *) &propdata[0] << endl;
+		{
+			if ((nDataType == 30 /*VT_LPSTR*/) || (nDataType == 31 /*VT_LPWSTR*/))
+				sstr << SUMMARY_PROPS[i].PropName << L": " << (wchar_t *) &propdata[0] << endl;
+			else if ((nDataType == 2 /*VT_I2*/) || (nDataType == 3 /*VT_I4*/))
+				sstr << SUMMARY_PROPS[i].PropName << L": " << nIntVal << endl;
+		}
 	}
 
 	// Read "Word Count" property to save default compression info
