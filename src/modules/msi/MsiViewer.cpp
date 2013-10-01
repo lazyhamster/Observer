@@ -561,7 +561,7 @@ int CMsiViewer::generateInfoText()
 		UINT PropID;
 	};
 	PropDescription SUMMARY_PROPS[] = {{L"Title", 2}, {L"Subject", 3}, {L"Author", 4}, {L"Codepage", 1},
-		{L"Keywords", 5}, {L"Comments", 6}, {L"Revision Number", 9}};
+	{L"Keywords", 5}, {L"Comments", 6}, {L"Template", 7}, {L"Revision Number", 9}};
 	
 	wstringstream sstr;
 	UINT res;
