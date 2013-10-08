@@ -33,6 +33,7 @@ public:
 	const std::wstring GetCabInfo() const { return m_sInfoFile; }
 	virtual bool HasInfoData() const = 0;
 	virtual DWORD MajorVersion() const = 0;
+	virtual const wchar_t* GetCompression() const = 0;
 };
 
 ISCabFile* OpenCab(const wchar_t* filePath);

@@ -59,6 +59,7 @@ public:
 
 	DWORD MajorVersion() const;
 	bool HasInfoData() const { return true; }
+	const wchar_t* GetCompression() const { return L"ZData"; }
 };
 
 } // namespace IS5

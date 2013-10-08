@@ -38,6 +38,7 @@ public:
 
 	DWORD MajorVersion() const { return -1; }
 	bool HasInfoData() const { return false; }
+	const wchar_t* GetCompression() const { return L"None"; }
 };
 
 } // namespace ISSfx

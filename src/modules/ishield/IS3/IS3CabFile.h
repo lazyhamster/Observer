@@ -37,6 +37,7 @@ public:
 
 	DWORD MajorVersion() const { return 3; }
 	bool HasInfoData() const { return false; }
+	const wchar_t* GetCompression() const { return L"PKWare DCL"; }
 };
 
 } // namespace IS3
