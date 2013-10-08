@@ -95,7 +95,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 		if (status == SER_SUCCESS)
 		{
-			StorageItemInfo itemInfo;
+			StorageItemInfo itemInfo = {0};
 			cabStorage->GetFileInfo(itemIndex, &itemInfo);
 			
 			SetFileAttributes(params.destFilePath, itemInfo.Attributes);

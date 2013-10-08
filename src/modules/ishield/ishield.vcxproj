@@ -589,6 +589,7 @@
     <ClCompile Include="IS6\IS6CabFile.cpp" />
     <ClCompile Include="ISCabFile.cpp" />
     <ClCompile Include="ISSFX\ISEncSfxFile.cpp" />
+    <ClCompile Include="ISSFX\ISPlainSfxFile.cpp" />
     <ClCompile Include="ISSFX\PEHelper.cpp" />
     <ClCompile Include="ISU\ISUCabFile.cpp" />
     <ClCompile Include="md5\md5c.c">
@@ -635,6 +636,7 @@
     <ClInclude Include="IS6\IS6_CabStructs.h" />
     <ClInclude Include="ISCabFile.h" />
     <ClInclude Include="ISSFX\ISEncSfxFile.h" />
+    <ClInclude Include="ISSFX\ISPlainSfxFile.h" />
     <ClInclude Include="ISSFX\PEHelper.h" />
     <ClInclude Include="ISU\ISUCabFile.h" />
     <ClInclude Include="md5\global.h" />

@@ -3,6 +3,7 @@
 
 HANDLE OpenFileForRead(const wchar_t* path);
 bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize);
+bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize, DWORD* numBytesRead);
 bool WriteBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize);
 bool SeekFile(HANDLE file, __int64 position);
 __int64 FilePos(HANDLE file);

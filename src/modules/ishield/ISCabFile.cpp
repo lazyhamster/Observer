@@ -8,6 +8,7 @@
 #include "ISU\ISUCabFile.h"
 #include "IS3\IS3CabFile.h"
 #include "ISSFX\ISEncSfxFile.h"
+#include "ISSFX\ISPlainSfxFile.h"
 
 template <typename T>
 ISCabFile* TryOpen(HANDLE hFile, const wchar_t* wszFilePath)
@@ -33,6 +34,7 @@ ISCabFile* OpenCab(const wchar_t* filePath)
 	RNN(ISU::ISUCabFile, hFile, filePath);
 	RNN(IS3::IS3CabFile, hFile, filePath);
 	RNN(ISSfx::ISEncSfxFile, hFile, filePath);
+	RNN(ISSfx::ISPlainSfxFile, hFile, filePath);
 	
 	CloseHandle(hFile);
 	return NULL;
@@ -50,6 +52,7 @@ void CloseCab(ISCabFile* cab)
 bool ISCabFile::Open( HANDLE headerFile, const wchar_t* headerFilePath )
 {
 	SetFilePointer(headerFile, 0, NULL, FILE_BEGIN);
+	m_sHeaderFilePath = headerFilePath;
 	
 	if (InternalOpen(headerFile))
 	{
@@ -59,6 +62,7 @@ bool ISCabFile::Open( HANDLE headerFile, const wchar_t* headerFilePath )
 		return true;
 	}
 
+	m_sHeaderFilePath.clear();
 	return false;
 }
 

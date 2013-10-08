@@ -5,13 +5,19 @@
 #define ror8(x,n)   (((x) >> ((int)(n))) | ((x) << (8 - (int)(n))))
 #define rol8(x,n)   (((x) << ((int)(n))) | ((x) >> (8 - (int)(n))))
 
-bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
+bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize, DWORD* numBytesRead)
 {
 	if (bufferSize == 0) return true;
 	if (buffer == NULL) return false;
-	
+
 	DWORD dwBytes;
-	return ReadFile(file, buffer, bufferSize, &dwBytes, NULL) && (dwBytes == bufferSize);
+	return ReadFile(file, buffer, bufferSize, numBytesRead ? numBytesRead : &dwBytes, NULL) != FALSE;
+}
+
+bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
+{
+	DWORD dwBytes;
+	return ReadBuffer(file, buffer, bufferSize, &dwBytes) && (dwBytes == bufferSize);
 }
 
 bool WriteBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)

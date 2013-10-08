@@ -12,6 +12,7 @@ class ISCabFile
 {
 protected:
 	HANDLE m_hHeaderFile;
+	std::wstring m_sHeaderFilePath;
 	std::wstring m_sCabPattern;
 	std::wstring m_sInfoFile;
 	

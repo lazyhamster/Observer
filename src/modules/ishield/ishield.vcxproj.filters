@@ -54,6 +54,9 @@
     <ClCompile Include="ISSFX\ISEncSfxFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ISSFX\ISPlainSfxFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="ishield.def">
@@ -107,6 +110,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ISSFX\ISEncSfxFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ISSFX\ISPlainSfxFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
