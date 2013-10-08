@@ -63,7 +63,7 @@ void ISSfx::ISPlainSfxFile::Close()
 
 int ISSfx::ISPlainSfxFile::GetTotalFiles() const
 {
-	return m_vFiles.size();
+	return (int) m_vFiles.size();
 }
 
 bool ISSfx::ISPlainSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const

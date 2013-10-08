@@ -61,7 +61,7 @@ void ISSfx::ISEncSfxFile::Close()
 
 int ISSfx::ISEncSfxFile::GetTotalFiles() const
 {
-	return m_vFiles.size();
+	return (int) m_vFiles.size();
 }
 
 bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
@@ -74,6 +74,8 @@ bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo 
 	// Fill result structure
 	MultiByteToWideChar(CP_ACP, 0, fileEntry.Header.Name, -1, itemInfo->Path, STRBUF_SIZE(itemInfo->Path));
 	itemInfo->Size = fileEntry.Header.CompressedSize;
+
+	//TODO: find uncompressed size
 
 	return true;
 }
