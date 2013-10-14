@@ -22,6 +22,8 @@ bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
 
 bool WriteBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
 {
+	if (bufferSize == 0) return true;
+	
 	DWORD dwBytes;
 	return WriteFile(file, buffer, bufferSize, &dwBytes, NULL) && (dwBytes == bufferSize);
 }
