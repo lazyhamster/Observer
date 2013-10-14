@@ -2,6 +2,7 @@
 #include "ISEncSfxFile.h"
 #include "Utils.h"
 #include "PEHelper.h"
+#include "zlib.h"
 
 ISSfx::ISEncSfxFile::ISEncSfxFile()
 {
@@ -71,12 +72,24 @@ bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo 
 
 	const SfxFileEntry &fileEntry = m_vFiles[itemIndex];
 
+	__int64 unpackedSize = 0;
+	switch (fileEntry.Header.Type)
+	{
+		case 0:
+			//TODO: find proper sample and implement this case
+			break;
+		case 2:
+			DecodeFile(&fileEntry, NULL, 0, &unpackedSize, NULL);
+			break;
+		case 6:
+			DecodeFile(&fileEntry, NULL, 1024, &unpackedSize, NULL);
+			break;
+	}
+
 	// Fill result structure
 	MultiByteToWideChar(CP_ACP, 0, fileEntry.Header.Name, -1, itemInfo->Path, STRBUF_SIZE(itemInfo->Path));
-	itemInfo->Size = fileEntry.Header.CompressedSize;
-
-	//TODO: find uncompressed size
-
+	itemInfo->Size = unpackedSize;
+		
 	return true;
 }
 
@@ -91,11 +104,12 @@ int ISSfx::ISEncSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractP
 	switch (fileEntry.Header.Type)
 	{
 		case 0:
+			//TODO: find proper sample and implement this case
 			break;
 		case 2:
-			return DecryptFile(&fileEntry, targetFile, 0, &unpackedSize, &progressCtx);
+			return DecodeFile(&fileEntry, targetFile, 0, &unpackedSize, &progressCtx);
 		case 6:
-			return DecryptFile(&fileEntry, targetFile, 1024, &unpackedSize, &progressCtx);
+			return DecodeFile(&fileEntry, targetFile, 1024, &unpackedSize, &progressCtx);
 	}
 	
 	return CAB_EXTRACT_READ_ERR;
@@ -127,7 +141,7 @@ static inline BYTE SwapBits(BYTE input)
 
 #define EXTRACT_BUFFER_SIZE 32*1024
 
-int ISSfx::ISEncSfxFile::DecryptFile(const SfxFileEntry *pEntry, HANDLE dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx)
+int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const
 {
 	*unpackedSize = 0;
 
@@ -137,8 +151,12 @@ int ISSfx::ISEncSfxFile::DecryptFile(const SfxFileEntry *pEntry, HANDLE dest, DW
 
 	size_t offsChunk = 0, offsKey = 0;
 	__int64 bytesLeft = pEntry->Header.CompressedSize;
-	char extractBuffer[EXTRACT_BUFFER_SIZE] = {0};
+	BYTE readBuffer[EXTRACT_BUFFER_SIZE] = {0};
 	DWORD readDataSize;
+
+	z_stream strm = {0};
+	if (pEntry->Header.IsCompressed && (inflateInit2(&strm, MAX_WBITS) != Z_OK))
+		return CAB_EXTRACT_READ_ERR;
 
 	size_t unpackBufferSize = EXTRACT_BUFFER_SIZE * 2;
 	BYTE* unpackBuffer = (BYTE*) malloc(unpackBufferSize);
@@ -148,7 +166,7 @@ int ISSfx::ISEncSfxFile::DecryptFile(const SfxFileEntry *pEntry, HANDLE dest, DW
 	{
 		readDataSize = (DWORD) min(bytesLeft, EXTRACT_BUFFER_SIZE);
 		
-		if (!ReadBuffer(m_hHeaderFile, extractBuffer, readDataSize))
+		if (!ReadBuffer(m_hHeaderFile, readBuffer, readDataSize))
 		{
 			result = CAB_EXTRACT_READ_ERR;
 			break;
@@ -157,7 +175,7 @@ int ISSfx::ISEncSfxFile::DecryptFile(const SfxFileEntry *pEntry, HANDLE dest, DW
 		// Decrypting buffer
 		for (DWORD i = 0; i < readDataSize; i++)
 		{
-			extractBuffer[i] = SwapBits(extractBuffer[i]) ^ (BYTE) decryptKey[offsKey];
+			readBuffer[i] = SwapBits(readBuffer[i]) ^ (BYTE) decryptKey[offsKey];
 
 			offsKey++;
 			offsChunk++;
@@ -173,30 +191,46 @@ int ISSfx::ISEncSfxFile::DecryptFile(const SfxFileEntry *pEntry, HANDLE dest, DW
 			}
 		}
 
-		LPVOID pWriteBuf = extractBuffer;
-		DWORD nWriteSize = readDataSize;
+		__int64 nWriteSize = 0;
 
 		// Decompress if needed
 		if (pEntry->Header.IsCompressed)
 		{
-			/*
-			size_t outDataSize;
-			if (!UnpackBuffer((BYTE*)extractBuffer, readDataSize, unpackBuffer, &unpackBufferSize, &outDataSize))
+			strm.avail_in = readDataSize;
+			strm.next_in = readBuffer;
+
+			do 
 			{
-				result = CAB_EXTRACT_READ_ERR;
+				strm.avail_out = unpackBufferSize;
+				strm.next_out = unpackBuffer;
+				
+				int ret = inflate(&strm, Z_NO_FLUSH);
+				if (ret == Z_NEED_DICT)
+					ret = Z_DATA_ERROR;
+				if (ret < 0) break;
+
+				__int64 haveBytes = unpackBufferSize - strm.avail_out;
+
+				if (dest && !WriteBuffer(dest, unpackBuffer, (DWORD) haveBytes))
+				{
+					result = CAB_EXTRACT_WRITE_ERR;
+					break;
+				}
+
+				nWriteSize += haveBytes;
+
+			} while (strm.avail_out == 0);
+
+			if (result != CAB_EXTRACT_OK) break;
+		}
+		else
+		{
+			nWriteSize = readDataSize;
+			if (dest && !WriteBuffer(dest, readBuffer, readDataSize))
+			{
+				result = CAB_EXTRACT_WRITE_ERR;
 				break;
 			}
-			*/
-
-			//pWriteBuf = unpackBuffer;
-			//nWriteSize = (DWORD) outDataSize;
-		}
-
-		// Dump decoded data
-		if (dest && !WriteBuffer(dest, pWriteBuf, nWriteSize))
-		{
-			result = CAB_EXTRACT_WRITE_ERR;
-			break;
 		}
 
 		if (pctx && pctx->FileProgress)
@@ -213,5 +247,7 @@ int ISSfx::ISEncSfxFile::DecryptFile(const SfxFileEntry *pEntry, HANDLE dest, DW
 	}
 
 	free(unpackBuffer);
+	if (pEntry->Header.IsCompressed) inflateEnd(&strm);
+
 	return result;
 }

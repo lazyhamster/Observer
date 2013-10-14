@@ -36,7 +36,7 @@ protected:
 	void GenerateInfoFile() { /* Not used for this class */ }
 	bool InternalOpen(HANDLE headerFile);
 
-	int DecryptFile(const SfxFileEntry *pEntry, HANDLE dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx);
+	int DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const;
 
 public:
 	ISEncSfxFile();
