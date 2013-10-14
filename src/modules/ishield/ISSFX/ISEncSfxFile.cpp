@@ -203,7 +203,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 
 			do 
 			{
-				strm.avail_out = unpackBufferSize;
+				strm.avail_out = (uInt) unpackBufferSize;
 				strm.next_out = unpackBuffer;
 				
 				int ret = inflate(&strm, Z_NO_FLUSH);
