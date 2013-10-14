@@ -279,8 +279,6 @@ void IS6CabFile::GenerateInfoFile()
 	m_sInfoFile = ConvertStrings(strData);
 }
 
-#define EXTRACT_BUFFER_SIZE 64*1024
-
 int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
 {
 	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
