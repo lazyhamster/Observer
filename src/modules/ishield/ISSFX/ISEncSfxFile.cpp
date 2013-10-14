@@ -145,7 +145,9 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 {
 	*unpackedSize = 0;
 
-	std::string decryptKey = PrepareKey(pEntry->Header.Name);
+	std::string strDecryptKey = PrepareKey(pEntry->Header.Name);
+	size_t decryptKeySize = strDecryptKey.size();
+	const char* decryptKey = strDecryptKey.c_str();
 
 	SeekFile(m_hHeaderFile, pEntry->StartOffset);
 
@@ -180,7 +182,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 			offsKey++;
 			offsChunk++;
 
-			if (offsKey >= decryptKey.size())
+			if (offsKey >= decryptKeySize)
 			{
 				offsKey = 0;
 			}
