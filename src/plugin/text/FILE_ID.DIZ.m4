@@ -21,6 +21,7 @@ Supported file formats:
 - Steam containers (GCF, WAD, XZP, PAK, BSP, VBSP)
 - MoPaQ containers
 - Mail containers in MBox format
+- Install Shield 3+ packages
 
 (c) 2009-2013, Ariman
 -----------------------------------------
