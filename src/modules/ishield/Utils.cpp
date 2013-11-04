@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Utils.h"
-#include "zlib.h"
+#include "zlib\zlib.h"
 
 #define ror8(x,n)   (((x) >> ((int)(n))) | ((x) << (8 - (int)(n))))
 #define rol8(x,n)   (((x) << ((int)(n))) | ((x) >> (8 - (int)(n))))

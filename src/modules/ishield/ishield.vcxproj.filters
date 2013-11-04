@@ -45,9 +45,6 @@
     <ClCompile Include="IS3\IS3CabFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="IS3\blast.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ISSFX\PEHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -55,6 +52,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ISSFX\ISPlainSfxFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\blast\blast.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -103,9 +103,6 @@
     <ClInclude Include="IS3\IS3_Structs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="IS3\blast.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ISSFX\PEHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -113,6 +110,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ISSFX\ISPlainSfxFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\blast\blast.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

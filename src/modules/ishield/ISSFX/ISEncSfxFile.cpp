@@ -2,7 +2,7 @@
 #include "ISEncSfxFile.h"
 #include "Utils.h"
 #include "PEHelper.h"
-#include "zlib.h"
+#include "zlib\zlib.h"
 
 ISSfx::ISEncSfxFile::ISEncSfxFile()
 {

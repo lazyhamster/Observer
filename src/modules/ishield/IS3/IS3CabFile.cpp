@@ -4,7 +4,7 @@
 
 extern "C"
 {
-#include "blast.h"
+#include "blast\blast.h"
 };
 
 namespace IS3
