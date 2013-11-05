@@ -4,6 +4,7 @@
 bool IWcxModule::Load( HMODULE module, const wchar_t* moduleName, int codePage )
 {
 	modCloseArchive = (CloseArchiveFunc) GetProcAddress(module, "CloseArchive");
+	modGetPackerCaps = (GetPackerCapsFunc) GetProcAddress(module, "GetPackerCaps");
 	if (modCloseArchive == NULL) return false;
 	
 	if (InternalInit(module))
@@ -11,6 +12,7 @@ bool IWcxModule::Load( HMODULE module, const wchar_t* moduleName, int codePage )
 		m_Module = module;
 		m_ModuleName = moduleName;
 		m_DefaultCodePage = codePage;
+		m_nPackerCaps = modGetPackerCaps ? modGetPackerCaps() : 0;
 
 		return true;
 	}
@@ -49,6 +51,10 @@ bool WcxUnicodeModule::InternalInit(HMODULE module)
 
 bool WcxUnicodeModule::IsArchive(const wchar_t* wszFilePath)
 {
+	// If flag is not defined then just assume file can be accepted
+	if (m_nPackerCaps > 0 && (m_nPackerCaps & PK_CAPS_BY_CONTENT) == 0)
+		return true;
+	
 	return (modCanYouHandleThisFile == NULL) || (modCanYouHandleThisFile(wszFilePath) != FALSE);
 }
 
@@ -102,6 +108,10 @@ bool WcxAnsiModule::InternalInit(HMODULE module)
 
 bool WcxAnsiModule::IsArchive(const wchar_t* wszFilePath)
 {
+	// If flag is not defined then just assume file can be accepted
+	if (m_nPackerCaps > 0 && (m_nPackerCaps & PK_CAPS_BY_CONTENT) == 0)
+		return true;
+	
 	char szAnsiFilePath[MAX_PATH] = {0};
 	int ret = WideCharToMultiByte(m_DefaultCodePage, 0, wszFilePath, -1, szAnsiFilePath, MAX_PATH, NULL, NULL);
 

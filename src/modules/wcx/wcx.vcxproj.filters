@@ -55,5 +55,8 @@
     <ClInclude Include="..\..\common\OptionsParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wcxhead.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -25,6 +25,7 @@ typedef BOOL (__stdcall *CanYouHandleThisFileFunc) (const char *FileName);
 typedef BOOL (__stdcall *CanYouHandleThisFileWFunc) (const wchar_t *FileName);
 
 typedef int (__stdcall *CloseArchiveFunc) (HANDLE hArcData);
+typedef int (__stdcall *GetPackerCapsFunc) ();
 
 class IWcxModule
 {
@@ -32,8 +33,10 @@ protected:
 	HMODULE m_Module;
 	std::wstring m_ModuleName;
 	int m_DefaultCodePage;
+	int m_nPackerCaps;
 
 	CloseArchiveFunc modCloseArchive;
+	GetPackerCapsFunc modGetPackerCaps;
 
 	virtual bool InternalInit(HMODULE module) = 0;
 
