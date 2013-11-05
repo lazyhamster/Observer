@@ -53,3 +53,24 @@ bool Explode(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *o
 	if (outCrc) *outCrc = outhow.outCrc;
 	return blastRet == 0;
 }
+
+bool Unstore(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *outCrc)
+{
+	const uint32_t bufferSize = 32 * 1024;
+	uint8_t buffer[bufferSize];
+
+	uint32_t bytesLeft = inSize;
+	uint32_t crcVal = 0;
+	while (bytesLeft > 0)
+	{
+		uint32_t copySize = min(bytesLeft, bufferSize);
+		if (!inStream->ReadBuffer(buffer, copySize) || !outStream->WriteBuffer(buffer, copySize))
+			return false;
+
+		bytesLeft -= copySize;
+		crcVal = crc32(crcVal, buffer, copySize);
+	}
+	
+	if (outCrc) *outCrc = crcVal;
+	return true;
+}

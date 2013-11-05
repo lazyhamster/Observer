@@ -12,6 +12,10 @@ private:
 	CMemoryStream* m_pScriptData;
 
 	bool CheckSignature(CFileStream* inFile, int64_t offset);
+	int ParseScript(int64_t baseOffset);
+	
+	bool ReadString(AStream* stream, char* buf);
+	bool SkipString(AStream* stream);
 
 public:
 	SetupFactory56(void);
