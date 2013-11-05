@@ -16,6 +16,8 @@ public:
 	virtual bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin) = 0;
 	virtual bool ReadBuffer(LPVOID buffer, size_t bufferSize) = 0;
 	virtual bool WriteBuffer(LPVOID buffer, size_t bufferSize) = 0;
+
+	int64_t CopyFrom(AStream* src);
 };
 
 class CFileStream : public AStream

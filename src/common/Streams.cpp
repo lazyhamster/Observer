@@ -13,6 +13,24 @@ bool AStream::SetPos( int64_t newPos )
 	return Seek(newPos, &resultPos, STREAM_BEGIN) && (resultPos == newPos);
 }
 
+int64_t AStream::CopyFrom( AStream* src )
+{
+	const size_t copyBufSize = 32 * 1024;
+	uint8_t copyBuf[copyBufSize];
+	
+	int64_t totalDataSize = src->GetSize() - src->GetPos();
+	int64_t bytesLeft = totalDataSize;
+	while (bytesLeft > 0)
+	{
+		size_t copySize = (size_t) min(bytesLeft, copyBufSize);
+		src->ReadBuffer(copyBuf, copySize);
+		this->WriteBuffer(copyBuf, copySize);
+		bytesLeft -= copySize;
+	}
+
+	return totalDataSize;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 CFileStream::CFileStream( const wchar_t* filePath, bool readOnly, bool createIfNotExists )
