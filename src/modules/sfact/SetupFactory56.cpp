@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "SetupFactory56.h"
+#include "Decomp.h"
 
 #define DATA_OFFSET_5 0x8000
 #define DATA_OFFSET_6 0x12000
@@ -11,24 +12,6 @@
 
 #define SIGNATURE_SIZE 8
 const uint8_t SIGNATURE[SIGNATURE_SIZE] = {0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0xe7};
-
-#pragma pack(push, 1)
-
-struct file_info_5
-{
-	char name[16];
-	uint32_t size;
-	uint32_t crc;
-};
-
-struct file_info_6
-{
-	char name[260];
-	uint32_t size;
-	uint32_t crc;
-};
-
-#pragma pack(pop)
 
 SetupFactory56::SetupFactory56(void)
 {
@@ -87,6 +70,7 @@ void SetupFactory56::Close()
 
 int SetupFactory56::EnumFiles()
 {
+	m_vFiles.clear();
 	m_pInFile->SetPos(m_nStartOffset);
 
 	// Read service files
@@ -122,10 +106,28 @@ int SetupFactory56::EnumFiles()
 		fe.IsCompressed = true;
 		fe.DataOffset = m_pInFile->GetPos();
 		
-		fe.UnpackedSize = 0;
+		bool isScript = strcmp(nameBuf, SCRIPT_FILE) == 0;
+		AStream* destUnpack;
+		size_t destSize;
+		
+		if (isScript)
+		{
+			destUnpack = new CMemoryStream();
+			m_pScriptData = (CMemoryStream*) destUnpack;
+		}
+		else
+		{
+			destUnpack = new CNullStream();
+		}
+
+		if (!Explode(m_pInFile, size, destUnpack, &destSize))
+			return false;
+
+		fe.UnpackedSize = destSize;
+		m_vFiles.push_back(fe);
 	}
 
-	return 0;
+	return m_vFiles.size();
 }
 
 bool SetupFactory56::CheckSignature( CFileStream* inFile, int64_t offset )

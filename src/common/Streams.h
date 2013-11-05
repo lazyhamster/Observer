@@ -45,7 +45,7 @@ public:
 	const wchar_t* FileName() const { return m_strPath; }
 };
 
-#define MEM_EXPAND_CHUNK_SIZE 16 * 1024
+#define MEM_EXPAND_CHUNK_SIZE (16 * 1024)
 
 class CMemoryStream : public AStream
 {
