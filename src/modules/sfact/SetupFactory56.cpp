@@ -108,7 +108,7 @@ int SetupFactory56::EnumFiles()
 		
 		bool isScript = strcmp(nameBuf, SCRIPT_FILE) == 0;
 		AStream* destUnpack;
-		size_t destSize;
+		uint32_t destSize, destCrc;
 		
 		if (isScript)
 		{
@@ -120,12 +120,18 @@ int SetupFactory56::EnumFiles()
 			destUnpack = new CNullStream();
 		}
 
-		if (!Explode(m_pInFile, size, destUnpack, &destSize))
+		if (!Explode(m_pInFile, size, destUnpack, &destSize, &destCrc))
 			return false;
 
 		fe.UnpackedSize = destSize;
 		m_vFiles.push_back(fe);
 	}
+
+	// No script == no other files
+	if (m_pScriptData == nullptr)
+		return m_vFiles.size();
+
+	// Now let's read actual content
 
 	return m_vFiles.size();
 }
@@ -136,4 +142,13 @@ bool SetupFactory56::CheckSignature( CFileStream* inFile, int64_t offset )
 	return inFile->SetPos(offset)
 		&& inFile->ReadBuffer(sigBuf, SIGNATURE_SIZE)
 		&& (memcmp(sigBuf, SIGNATURE, SIGNATURE_SIZE) == 0);
+}
+
+bool SetupFactory56::ExtractFile( int index, AStream* outStream )
+{
+	const SFFileEntry& entry = m_vFiles[index];
+	m_pInFile->SetPos(entry.DataOffset);
+	uint32_t outCrc;
+	bool ret = Explode(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
+	return ret && (outCrc == entry.CRC || entry.CRC == 0);
 }

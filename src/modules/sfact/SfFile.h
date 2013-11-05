@@ -27,6 +27,8 @@ public:
 
 	size_t GetCount() { return m_vFiles.size(); };
 	SFFileEntry GetFile(int index) { return m_vFiles[index]; }
+
+	virtual bool ExtractFile(int index, AStream* outStream) = 0;
 };
 
 SetupFactoryFile* OpenInstaller(const wchar_t* filePath);

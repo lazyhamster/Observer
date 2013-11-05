@@ -21,6 +21,7 @@ public:
 	void Close();
 	int EnumFiles();
 	int GetVersion() { return m_nVersion; }
+	bool ExtractFile(int index, AStream* outStream);
 };
 
 #endif // SetupFactory56_h__

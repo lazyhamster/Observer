@@ -3,6 +3,6 @@
 
 #include "Streams.h"
 
-bool Explode(AStream* inStream, size_t inSize, AStream* outStream, size_t *outSize);
+bool Explode(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *outSize, uint32_t *outCrc);
 
 #endif // Decomp_h__

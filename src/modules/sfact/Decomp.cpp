@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Decomp.h"
+#include "zlib/zlib.h"
 
 extern "C"
 {
@@ -15,7 +16,8 @@ struct InBufPtr
 struct OutBufPtr
 {
 	AStream* strm;
-	size_t outTotalSize;
+	uint32_t outTotalSize;
+	uint32_t outCrc;
 };
 
 static unsigned int blast_in_impl(void *how, unsigned char **buf)
@@ -31,21 +33,23 @@ static int blast_out_impl(void *how, unsigned char *buf, unsigned len)
 	if (ptr->strm->WriteBuffer(buf, len))
 	{
 		ptr->outTotalSize += len;
+		ptr->outCrc = crc32(ptr->outCrc, buf, len);
 		return 0;
 	}
 	return 1;
 }
 
-bool Explode(AStream* inStream, size_t inSize, AStream* outStream, size_t *outSize)
+bool Explode(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *outSize, uint32_t *outCrc)
 {
 	LPVOID inBuffer = malloc(inSize);
 	if (!inStream->ReadBuffer(inBuffer, inSize)) return false;
 	
 	InBufPtr inhow = {inBuffer, inSize};
-	OutBufPtr outhow = {outStream, 0};
+	OutBufPtr outhow = {outStream, 0, 0};
 	int blastRet = blast(blast_in_impl, &inhow, blast_out_impl, &outhow);
 
 	free(inBuffer);
 	if (outSize) *outSize = outhow.outTotalSize;
+	if (outCrc) *outCrc = outhow.outCrc;
 	return blastRet == 0;
 }

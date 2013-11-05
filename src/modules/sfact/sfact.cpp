@@ -59,9 +59,25 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	SetupFactoryFile* sfInst = (SetupFactoryFile*) storage;
-	if (sfInst == NULL || params.item < 0) return SER_ERROR_SYSTEM;
+	if (sfInst == NULL || params.item < 0 || params.item >= (int) sfInst->GetCount()) return SER_ERROR_SYSTEM;
+
+	CFileStream* outStream = new CFileStream(params.destFilePath, false, true);
+	if (!outStream->IsValid())
+	{
+		delete outStream;
+		return SER_ERROR_WRITE;
+	}
 	
-	return SER_ERROR_SYSTEM;
+	bool extractResult = sfInst->ExtractFile(params.item, outStream);
+	delete outStream;
+
+	if (!extractResult)
+	{
+		DeleteFile(params.destFilePath);
+		return SER_ERROR_READ;
+	}
+	
+	return SER_SUCCESS;
 }
 
 //////////////////////////////////////////////////////////////////////////
