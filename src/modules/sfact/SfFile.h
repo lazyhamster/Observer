@@ -1,7 +1,7 @@
 #ifndef SfFile_h__
 #define SfFile_h__
 
-#include "FileStream.h"
+#include "Streams.h"
 
 struct SFFileEntry
 {
@@ -10,6 +10,7 @@ struct SFFileEntry
 	int64_t PackedSize;
 	bool IsCompressed;
 	int64_t DataOffset;
+	uint32_t CRC;
 };
 
 class SetupFactoryFile
@@ -21,6 +22,11 @@ protected:
 public:
 	virtual bool Open(CFileStream* inFile) = 0;
 	virtual void Close() = 0;
+	virtual int EnumFiles() = 0;
+	virtual int GetVersion() = 0;
+
+	size_t GetCount() { return m_vFiles.size(); };
+	SFFileEntry GetFile(int index) { return m_vFiles[index]; }
 };
 
 SetupFactoryFile* OpenInstaller(const wchar_t* filePath);

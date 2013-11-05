@@ -24,10 +24,16 @@
     <ClCompile Include="sfact.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\common\FileStream.cpp">
+    <ClCompile Include="SfFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SfFile.cpp">
+    <ClCompile Include="SetupFactory56.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\common\Streams.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Decomp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -43,10 +49,16 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\common\FileStream.h">
+    <ClInclude Include="SfFile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SfFile.h">
+    <ClInclude Include="SetupFactory56.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\common\Streams.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Decomp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
