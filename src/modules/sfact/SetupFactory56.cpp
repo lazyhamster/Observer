@@ -150,7 +150,10 @@ bool SetupFactory56::CheckSignature( CFileStream* inFile, int64_t offset )
 bool SetupFactory56::ExtractFile( int index, AStream* outStream )
 {
 	const SFFileEntry& entry = m_vFiles[index];
+	if (entry.PackedSize == 0) return true;
+
 	m_pInFile->SetPos(entry.DataOffset);
+
 	uint32_t outCrc;
 	bool ret = false;
 
