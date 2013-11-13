@@ -2,6 +2,7 @@ Changes history:
 
 1.9.1
 - Added Intall Shield module.
+- Added Setup Factory module (versions 5 and 6 for now).
 - Added message if some modules failed to load (optional).
 - Fixed crash on very long path names inside containers.
 - ISO: Fixed inability to overwrite files with hidden or system attribute set.
