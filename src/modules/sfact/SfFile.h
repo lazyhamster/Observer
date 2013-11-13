@@ -18,6 +18,7 @@ class SetupFactoryFile
 protected:
 	CFileStream* m_pInFile;
 	std::vector<SFFileEntry> m_vFiles;
+	UINT m_nFilenameCodepage;
 
 public:
 	virtual bool Open(CFileStream* inFile) = 0;
@@ -29,6 +30,9 @@ public:
 	SFFileEntry GetFile(int index) { return m_vFiles[index]; }
 
 	virtual bool ExtractFile(int index, AStream* outStream) = 0;
+
+	void SetFileNameEncoding(UINT codePage) { m_nFilenameCodepage = codePage; }
+	UINT GetFileNameEncoding() { return m_nFilenameCodepage; }
 };
 
 SetupFactoryFile* OpenInstaller(const wchar_t* filePath);

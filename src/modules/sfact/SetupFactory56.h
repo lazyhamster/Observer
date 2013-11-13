@@ -9,6 +9,7 @@ class SetupFactory56 :
 private:
 	int m_nVersion;
 	int64_t m_nStartOffset;
+	int64_t m_nContentBaseOffset;
 	CMemoryStream* m_pScriptData;
 
 	bool CheckSignature(CFileStream* inFile, int64_t offset);

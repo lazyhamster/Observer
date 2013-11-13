@@ -20,7 +20,9 @@ SetupFactory56::SetupFactory56(void)
 	m_pInFile = nullptr;
 	m_nVersion = 0;
 	m_nStartOffset = 0;
+	m_nContentBaseOffset = 0;
 	m_pScriptData = nullptr;
+	m_nFilenameCodepage = CP_ACP;
 }
 
 SetupFactory56::~SetupFactory56(void)
@@ -57,6 +59,7 @@ void SetupFactory56::Close()
 {
 	m_nVersion = 0;
 	m_nStartOffset = 0;
+	m_nContentBaseOffset = 0;
 	m_vFiles.clear();
 	if (m_pInFile)
 	{
@@ -134,7 +137,8 @@ int SetupFactory56::EnumFiles()
 		return m_vFiles.size();
 
 	// Now let's read actual content
-	ParseScript(m_pInFile->GetPos());
+	m_nContentBaseOffset = m_pInFile->GetPos();
+	ParseScript(m_nContentBaseOffset);
 
 	return m_vFiles.size();
 }
@@ -243,7 +247,7 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		}
 		strcat_s(fullLocalPath, MAX_PATH, strBaseName);
 		
-		MultiByteToWideChar(CP_ACP, 0, fullLocalPath, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
+		MultiByteToWideChar(m_nFilenameCodepage, 0, fullLocalPath, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
 		
 		m_vFiles.push_back(fe);
 		nextOffset += nCompSize;
