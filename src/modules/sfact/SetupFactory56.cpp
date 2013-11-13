@@ -172,7 +172,7 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 
 	uint16_t numEntries;
 	m_pScriptData->ReadBuffer(&numEntries, sizeof(numEntries));
-	m_pScriptData->Seek(4, STREAM_CURRENT);  // Skip 2 unknown uint16_t numbers
+	m_pScriptData->Seek(4, STREAM_CURRENT);  // Skip 2 unknown uint16_t numbers, always 0xFFFF and 0x0003
 
 	uint16_t classNameLen;
 	char className[128] = {0};

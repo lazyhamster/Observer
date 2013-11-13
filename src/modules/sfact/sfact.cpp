@@ -13,8 +13,8 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		*storage = sfInst;
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
-		swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Setup Factory %d Installer", sfInst->GetVersion());
-		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
+		swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Setup Factory %d", sfInst->GetVersion());
+		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"PKWare DCL");
 		
 		return SOR_SUCCESS;
 	}
