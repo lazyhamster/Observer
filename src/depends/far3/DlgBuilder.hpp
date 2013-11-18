@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 3000
+  Dynamic construction of dialogs for FAR Manager 3.0 build 3525
 */
 
 /*
@@ -188,7 +188,7 @@ class DialogBuilderBase
 			// AddDialogItem и аналогичных методов, поэтому размер массива подбираем такой,
 			// чтобы все нормальные диалоги помещались без реаллокации
 			// TODO хорошо бы, чтобы они вообще не инвалидировались
-			DialogItemsAllocated += 32;
+			DialogItemsAllocated += 64;
 			if (!DialogItems)
 			{
 				DialogItems = new T[DialogItemsAllocated];
@@ -386,8 +386,9 @@ class DialogBuilderBase
 		}
 
 		DialogBuilderBase()
-			: DialogItems(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), Indent(0), SingleBoxIndex(-1),
-			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnMinWidth(0)
+			: DialogItems(nullptr), Bindings(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), Indent(0), SingleBoxIndex(-1),
+			  OKButtonID(-1),
+			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnStartY(-1), ColumnEndY(-1), ColumnMinWidth(0)
 		{
 		}
 
@@ -436,7 +437,7 @@ class DialogBuilderBase
 			if (!Mask)
 				Item->Selected = *Value;
 			else
-				Item->Selected = (*Value & Mask) ? TRUE : FALSE ;
+				Item->Selected = (*Value & Mask) != 0;
 			SetLastItemBinding(CreateCheckBoxBinding(Value, Mask));
 			return Item;
 		}
@@ -584,9 +585,14 @@ class DialogBuilderBase
 		// ƒобавл€ет сепаратор.
 		void AddSeparator(int MessageId=-1)
 		{
-			T *Separator = AddDialogItem(DI_TEXT, MessageId == -1 ? L"" : GetLangString(MessageId));
+			return AddSeparator(MessageId == -1 ? L"" : GetLangString(MessageId));
+		}
+
+		void AddSeparator(const wchar_t* Text)
+		{
+			T *Separator = AddDialogItem(DI_TEXT, Text);
 			Separator->Flags = DIF_SEPARATOR;
-			Separator->X1 = 3;
+			Separator->X1 = -1;
 			Separator->Y1 = Separator->Y2 = NextY++;
 		}
 
@@ -734,6 +740,7 @@ public:
 		: DialogAPIBinding(aInfo, aHandle, aID),
 		  Value(aValue)
 	{
+		memset(Buffer, 0, sizeof(Buffer));
 		aInfo.FSF->sprintf(Buffer, L"%u", *aValue);
 		int MaskWidth = Width < 31 ? Width : 31;
 		for(int i=1; i<MaskWidth; i++)
@@ -809,13 +816,13 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 
 public:
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
-			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
+			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}
 
 		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
-			: Info(aInfo), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
+			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
 		{
 			AddBorder(TitleMessage);
 		}

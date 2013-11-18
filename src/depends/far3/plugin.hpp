@@ -5,7 +5,7 @@
 /*
   plugin.hpp
 
-  Plugin API for Far Manager 3.0 build 3000
+  Plugin API for Far Manager 3.0 build 3525
 */
 
 /*
@@ -43,7 +43,7 @@ other possible license with no implications from the above license on them.
 #define FARMANAGERVERSION_MAJOR 3
 #define FARMANAGERVERSION_MINOR 0
 #define FARMANAGERVERSION_REVISION 0
-#define FARMANAGERVERSION_BUILD 3000
+#define FARMANAGERVERSION_BUILD 3525
 #define FARMANAGERVERSION_STAGE VS_RELEASE
 
 #ifndef RC_INVOKED
@@ -186,6 +186,7 @@ static const FARDIALOGITEMFLAGS
 	DIF_HISTORY               = 0x0000000000040000ULL,
 	DIF_BTNNOCLOSE            = 0x0000000000040000ULL,
 	DIF_CENTERTEXT            = 0x0000000000040000ULL,
+	DIF_SEPARATORUSER         = 0x0000000000080000ULL,
 	DIF_SETSHIELD             = 0x0000000000080000ULL,
 	DIF_EDITEXPAND            = 0x0000000000080000ULL,
 	DIF_DROPDOWNLIST          = 0x0000000000100000ULL,
@@ -207,6 +208,8 @@ static const FARDIALOGITEMFLAGS
 	DIF_DISABLE               = 0x0000000080000000ULL,
 	DIF_DEFAULTBUTTON         = 0x0000000100000000ULL,
 	DIF_FOCUS                 = 0x0000000200000000ULL,
+	DIF_RIGHTTEXT             = 0x0000000400000000ULL,
+	DIF_WORDWRAP              = 0x0000000800000000ULL,
 	DIF_NONE                  = 0;
 
 enum FARMESSAGE
@@ -523,36 +526,6 @@ struct FarGetDialogItem
 	struct FarDialogItem* Item;
 };
 
-#define Dlg_RedrawDialog(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_REDRAW,0,0)
-
-#define Dlg_GetDlgData(Info,hDlg)              Info.SendDlgMessage(hDlg,DM_GETDLGDATA,0,0)
-#define Dlg_SetDlgData(Info,hDlg,Data)         Info.SendDlgMessage(hDlg,DM_SETDLGDATA,0,(intptr_t)Data)
-
-#define Dlg_GetDlgItemData(Info,hDlg,ID)       Info.SendDlgMessage(hDlg,DM_GETITEMDATA,0,0)
-#define Dlg_SetDlgItemData(Info,hDlg,ID,Data)  Info.SendDlgMessage(hDlg,DM_SETITEMDATA,0,(intptr_t)Data)
-
-#define DlgItem_GetFocus(Info,hDlg)            Info.SendDlgMessage(hDlg,DM_GETFOCUS,0,0)
-#define DlgItem_SetFocus(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_SETFOCUS,ID,0)
-#define DlgItem_Enable(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_ENABLE,ID,TRUE)
-#define DlgItem_Disable(Info,hDlg,ID)          Info.SendDlgMessage(hDlg,DM_ENABLE,ID,FALSE)
-#define DlgItem_IsEnable(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_ENABLE,ID,-1)
-#define DlgItem_SetText(Info,hDlg,ID,Str)      Info.SendDlgMessage(hDlg,DM_SETTEXTPTR,ID,(intptr_t)Str)
-
-#define DlgItem_GetCheck(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_GETCHECK,ID,0)
-#define DlgItem_SetCheck(Info,hDlg,ID,State)   Info.SendDlgMessage(hDlg,DM_SETCHECK,ID,State)
-
-#define DlgEdit_AddHistory(Info,hDlg,ID,Str)   Info.SendDlgMessage(hDlg,DM_ADDHISTORY,ID,(intptr_t)Str)
-
-#define DlgList_AddString(Info,hDlg,ID,Str)    Info.SendDlgMessage(hDlg,DM_LISTADDSTR,ID,(intptr_t)Str)
-#define DlgList_GetCurPos(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTGETCURPOS,ID,0)
-#define DlgList_SetCurPos(Info,hDlg,ID,NewPos) {struct FarListPos LPos={sizeof(FarListPos),NewPos,-1};Info.SendDlgMessage(hDlg,DM_LISTSETCURPOS,ID,(intptr_t)&LPos);}
-#define DlgList_ClearList(Info,hDlg,ID)        Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,0)
-#define DlgList_DeleteItem(Info,hDlg,ID,Index) {struct FarListDelete FLDItem={sizeof(FarListDelete),Index,1}; Info.SendDlgMessage(hDlg,DM_LISTDELETE,ID,(intptr_t)&FLDItem);}
-#define DlgList_SortUp(Info,hDlg,ID)           Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,0)
-#define DlgList_SortDown(Info,hDlg,ID)         Info.SendDlgMessage(hDlg,DM_LISTSORT,ID,1)
-#define DlgList_GetItemData(Info,hDlg,ID,Index)          Info.SendDlgMessage(hDlg,DM_LISTGETDATA,ID,Index)
-#define DlgList_SetItemStrAsData(Info,hDlg,ID,Index,Str) {struct FarListItemData FLID{sizeof(FarListItemData),Index,0,Str,0}; Info.SendDlgMessage(hDlg,DM_LISTSETDATA,ID,(intptr_t)&FLID);}
-
 typedef unsigned __int64 FARDIALOGFLAGS;
 static const FARDIALOGFLAGS
 	FDLG_WARNING             = 0x0000000000000001ULL,
@@ -672,6 +645,13 @@ struct FarPanelItemFreeInfo
 
 typedef void (WINAPI *FARPANELITEMFREECALLBACK)(void* UserData, const struct FarPanelItemFreeInfo* Info);
 
+struct UserDataItem
+{
+	void* Data;
+	FARPANELITEMFREECALLBACK FreeData;
+};
+
+
 struct PluginPanelItem
 {
 	FILETIME CreationTime;
@@ -687,11 +667,7 @@ struct PluginPanelItem
 	const wchar_t * const *CustomColumnData;
 	size_t CustomColumnNumber;
 	PLUGINPANELITEMFLAGS Flags;
-	struct
-	{
-		void* Data;
-		FARPANELITEMFREECALLBACK FreeData;
-	} UserData;
+	struct UserDataItem UserData;
 	uintptr_t FileAttributes;
 	uintptr_t NumberOfLinks;
 	uintptr_t CRC32;
@@ -835,6 +811,7 @@ enum FILE_CONTROL_COMMANDS
 	FCTL_GETPANELHOSTFILE           = 32,
 	FCTL_SETCASESENSITIVESORT       = 33,
 	FCTL_GETPANELPREFIX             = 34,
+	FCTL_SETACTIVEPANEL             = 35,
 };
 
 typedef void (WINAPI *FARAPITEXT)(
@@ -933,6 +910,7 @@ static const FARHELPFLAGS
 	FHELP_FARHELP     = 0x0000000000000001ULL,
 	FHELP_CUSTOMFILE  = 0x0000000000000002ULL,
 	FHELP_CUSTOMPATH  = 0x0000000000000004ULL,
+	FHELP_GUID        = 0x0000000000000008ULL,
 	FHELP_USECONTENTS = 0x0000000040000000ULL,
 	FHELP_NONE        = 0;
 
@@ -981,13 +959,15 @@ enum FAR_MACRO_CONTROL_COMMANDS
 	MCTL_ADDMACRO          = 7,
 	MCTL_DELMACRO          = 8,
 	MCTL_GETLASTERROR      = 9,
+	MCTL_EXECSTRING        = 10,
 };
 
 typedef unsigned __int64 FARKEYMACROFLAGS;
 static const FARKEYMACROFLAGS
-	KMFLAGS_DISABLEOUTPUT       = 0x0000000000000001,
-	KMFLAGS_NOSENDKEYSTOPLUGINS = 0x0000000000000002,
 	KMFLAGS_SILENTCHECK         = 0x0000000000000001,
+	KMFLAGS_DISABLEOUTPUT       = 0x0000000000000001, // this flag is ignored, don't use it in new projects.
+	KMFLAGS_NOSENDKEYSTOPLUGINS = 0x0000000000000002,
+	KMFLAGS_ENABLEOUTPUT        = 0x0000000000000004,
 	KMFLAGS_NONE                = 0;
 
 enum FARMACROSENDSTRINGCOMMAND
@@ -998,23 +978,23 @@ enum FARMACROSENDSTRINGCOMMAND
 
 enum FARMACROAREA
 {
-	MACROAREA_OTHER                      =   0,
-	MACROAREA_SHELL                      =   1,
-	MACROAREA_VIEWER                     =   2,
-	MACROAREA_EDITOR                     =   3,
-	MACROAREA_DIALOG                     =   4,
-	MACROAREA_SEARCH                     =   5,
-	MACROAREA_DISKS                      =   6,
-	MACROAREA_MAINMENU                   =   7,
-	MACROAREA_MENU                       =   8,
-	MACROAREA_HELP                       =   9,
-	MACROAREA_INFOPANEL                  =  10,
-	MACROAREA_QVIEWPANEL                 =  11,
-	MACROAREA_TREEPANEL                  =  12,
-	MACROAREA_FINDFOLDER                 =  13,
-	MACROAREA_USERMENU                   =  14,
-	MACROAREA_SHELLAUTOCOMPLETION        =  15,
-	MACROAREA_DIALOGAUTOCOMPLETION       =  16,
+	MACROAREA_OTHER                      =   0,   // Mode of copying text from the screen; vertical menus
+	MACROAREA_SHELL                      =   1,   // File panels
+	MACROAREA_VIEWER                     =   2,   // Internal viewer program
+	MACROAREA_EDITOR                     =   3,   // Editor
+	MACROAREA_DIALOG                     =   4,   // Dialogs
+	MACROAREA_SEARCH                     =   5,   // Quick search in panels
+	MACROAREA_DISKS                      =   6,   // Menu of disk selection
+	MACROAREA_MAINMENU                   =   7,   // Main menu
+	MACROAREA_MENU                       =   8,   // Other menus
+	MACROAREA_HELP                       =   9,   // Help system
+	MACROAREA_INFOPANEL                  =  10,   // Info panel
+	MACROAREA_QVIEWPANEL                 =  11,   // Quick view panel
+	MACROAREA_TREEPANEL                  =  12,   // Folders tree panel
+	MACROAREA_FINDFOLDER                 =  13,   // Find folder
+	MACROAREA_USERMENU                   =  14,   // User menu
+	MACROAREA_SHELLAUTOCOMPLETION        =  15,   // Autocompletion list in command line
+	MACROAREA_DIALOGAUTOCOMPLETION       =  16,   // Autocompletion list in dialogs
 
 	MACROAREA_COMMON                     = 255,
 };
@@ -1077,6 +1057,9 @@ enum FARMACROVARTYPE
 	FMVT_DOUBLE                 = 3,
 	FMVT_BOOLEAN                = 4,
 	FMVT_BINARY                 = 5,
+	FMVT_POINTER                = 6,
+	FMVT_NIL                    = 7,
+	FMVT_ARRAY                  = 8,
 };
 
 struct FarMacroValue
@@ -1088,11 +1071,17 @@ struct FarMacroValue
 		__int64        Boolean;
 		double         Double;
 		const wchar_t *String;
+		void          *Pointer;
 		struct
 		{
 			void *Data;
 			size_t Size;
 		} Binary;
+		struct
+		{
+			struct FarMacroValue *Values;
+			size_t Count;
+		} Array;
 	}
 #ifndef __cplusplus
 	Value
@@ -1111,6 +1100,8 @@ enum MACROPLUGINRETURNTYPE
 	MPRT_PLUGINMENU    = 6,
 	MPRT_PLUGINCONFIG  = 7,
 	MPRT_PLUGINCOMMAND = 8,
+	MPRT_USERMENU      = 9,
+	MPRT_COMMONCASE    = 100
 };
 
 struct MacroPluginReturn
@@ -1129,12 +1120,22 @@ struct FarMacroCall
 	void *CallbackData;
 };
 
-
 struct FarGetValue
 {
 	size_t StructSize;
 	intptr_t Type;
 	struct FarMacroValue Value;
+};
+
+struct MacroExecuteString
+{
+	size_t StructSize;
+	unsigned __int64 Flags;
+	const wchar_t *SequenceText;
+	size_t InCount;
+	struct FarMacroValue *InValues;
+	size_t OutCount;
+	const struct FarMacroValue *OutValues;
 };
 
 typedef unsigned __int64 FARSETCOLORFLAGS;
@@ -1375,6 +1376,8 @@ enum EDITOR_CONTROL_COMMANDS
 	ECTL_UNDOREDO                   = 32,
 	ECTL_GETFILENAME                = 33,
 	ECTL_DELCOLOR                   = 34,
+	ECTL_SUBSCRIBECHANGEEVENT       = 36,
+	ECTL_UNSUBSCRIBECHANGEEVENT     = 37,
 };
 
 enum EDITOR_SETPARAMETER_TYPES
@@ -1554,7 +1557,6 @@ struct EditorConvertPos
 	intptr_t DestPos;
 };
 
-
 typedef unsigned __int64 EDITORCOLORFLAGS;
 static const EDITORCOLORFLAGS
 	ECF_TABMARKFIRST   = 0x0000000000000001ULL,
@@ -1603,6 +1605,12 @@ struct EditorChange
 	size_t StructSize;
 	enum EDITOR_CHANGETYPE Type;
 	intptr_t StringNumber;
+};
+
+struct EditorSubscribeChangeEvent
+{
+	size_t StructSize;
+	GUID PluginId;
 };
 
 typedef unsigned __int64 INPUTBOXFLAGS;
@@ -2137,6 +2145,18 @@ struct ArclitePrivateInfo
 	FARAPICREATEDIRECTORY CreateDirectory;
 };
 
+struct NetBoxPrivateInfo
+{
+	size_t StructSize;
+	FARAPICREATEFILE CreateFile;
+	FARAPIGETFILEATTRIBUTES GetFileAttributes;
+	FARAPISETFILEATTRIBUTES SetFileAttributes;
+	FARAPIMOVEFILEEX MoveFileEx;
+	FARAPIDELETEFILE DeleteFile;
+	FARAPIREMOVEDIRECTORY RemoveDirectory;
+	FARAPICREATEDIRECTORY CreateDirectory;
+};
+
 typedef intptr_t (WINAPI *FARAPICALLFAR)(intptr_t CheckCode, struct FarMacroCall* Data);
 
 struct MacroPrivateInfo
@@ -2325,6 +2345,7 @@ struct OpenPanelInfo
 	const struct KeyBarTitles   *KeyBar;
 	const wchar_t               *ShortcutData;
 	unsigned __int64             FreeSize;
+	struct UserDataItem          UserData;
 };
 
 struct AnalyseInfo
@@ -2392,6 +2413,14 @@ enum MACROCALLTYPE
 	MCT_MACROSTEP          = 1,
 	MCT_MACROFINAL         = 2,
 	MCT_MACROPARSE         = 3,
+	MCT_LOADMACROS         = 4,
+	MCT_ENUMMACROS         = 5,
+	MCT_WRITEMACROS        = 6,
+	MCT_GETMACRO           = 7,
+	MCT_PROCESSMACRO       = 8,
+	MCT_DELMACRO           = 9,
+	MCT_RUNSTARTMACRO      = 10,
+	MCT_EXECSTRING         = 11,
 };
 
 struct OpenMacroPluginInfo
@@ -2429,8 +2458,9 @@ struct SetDirectoryInfo
 	size_t StructSize;
 	HANDLE hPanel;
 	const wchar_t *Dir;
-	intptr_t UserData;
+	intptr_t Reserved;
 	OPERATION_MODES OpMode;
+	struct UserDataItem UserData;
 };
 
 struct SetFindListInfo
@@ -2601,6 +2631,9 @@ struct ConfigureInfo
 	size_t StructSize;
 	const GUID* Guid;
 };
+
+static const GUID FarGuid =
+{0x00000000, 0x0000, 0x0000, {0x00,0x00, 0x00,0x00,0x00,0x00,0x00,0x00}};
 
 #ifdef __cplusplus
 extern "C"
