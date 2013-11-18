@@ -5,6 +5,7 @@ Changes history:
 - Added Setup Factory module (versions 5 and 6 for now).
 - Added message if some modules failed to load (optional).
 - Fixed crash on very long path names inside containers.
+- Fixed crash on Alt-F6 in Far3.
 - ISO: Fixed inability to overwrite files with hidden or system attribute set.
 - Minor fixes.
 

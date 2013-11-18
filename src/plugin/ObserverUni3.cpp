@@ -1088,9 +1088,11 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 		// Collect all indices of items to extract
 		for (int i = 0; i < (int) pi.SelectedItemsNumber; i++)
 		{
-			PluginPanelItem* pItem = (PluginPanelItem*) malloc(FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, NULL));
+			intptr_t nItemBufferSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, NULL);
+			PluginPanelItem* pItem = (PluginPanelItem*) malloc(nItemBufferSize);
 			
-			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, pItem);
+			FarGetPluginPanelItem gppi = { sizeof(FarGetPluginPanelItem), nItemBufferSize, pItem };
+			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, &gppi);
 			if (wcscmp(pItem->FileName, L"..") != 0)
 			{
 				ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem->FileName);
