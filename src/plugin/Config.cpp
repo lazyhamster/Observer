@@ -75,7 +75,7 @@ bool ConfigSection::GetValue( const wchar_t* Key, char *Value, size_t MaxValueSi
 	wstring strValue;
 	if (GetValueByKey(Key, strValue))
 	{
-		WideCharToMultiByte(CP_UTF8, 0, strValue.c_str(), -1, Value, MaxValueSize, NULL, NULL);
+		WideCharToMultiByte(CP_UTF8, 0, strValue.c_str(), -1, Value, (int) MaxValueSize, NULL, NULL);
 		return true;
 	}
 
