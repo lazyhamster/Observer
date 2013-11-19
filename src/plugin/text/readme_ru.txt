@@ -16,6 +16,7 @@ Observer
   - MSI пакеты для Windows Installer-а
   - Инсталляционные пакеты, сделаные Wise Installer-ом.
   - Инсталляторы Install Shield-а.
+  - Инсталяторы Setup Factory (версий 5/6).
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-образы. Поддерживаются следующие файловые системы:
@@ -204,7 +205,7 @@ OS: WinXP или новее.
 Windows Installer 4+
 Microsoft Visual C++ 2010 SP1 Redistributable Package
 
-Модуль VDISK дополнительно требует Microsoft .NET Framework 3.5.
+Модуль VDISK дополнительно требует Microsoft .NET Framework 4.0.
 Если .NET не установлен, то этот модуль не будет загружаться.
 
 4. Гарантии.

@@ -16,6 +16,7 @@ Add/Delete/Change operations are not planned.
   - MSI packages for Windows Installer
   - Installation packages made with Wise Installer
   - Install Shield packages.
+  - Setup Factory 5/6 packages.
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-images. Following formats are supported:
@@ -208,7 +209,7 @@ Minimal FAR versions are 1.75 build 2634 / 2.0 build 1807
 Windows Installer 4+
 Microsoft Visual C++ 2010 SP1 Redistributable Package
 
-VDISK module requires Microsoft .NET Framework 3.5 to be installed.
+VDISK module requires Microsoft .NET Framework 4.0 to be installed.
 If you don't install .NET then this modile will not load.
 
 4. Diclaimer.
