@@ -109,7 +109,17 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 			const ExternalModule &modulePtr = modules[i];
 			if (!srcParams.applyExtFilters || DoesExtensionFilterMatch(srcParams.path, modulePtr.ExtensionFilter))
 			{
-				int openRes = modulePtr.OpenStorage(openParams, storage, sinfo);
+				int openRes;
+				__try
+				{
+					openRes = modulePtr.OpenStorage(openParams, storage, sinfo);
+				}
+				__except (EXCEPTION_EXECUTE_HANDLER)
+				{
+					//NOTE: Maybe module that produced exception should be unloaded
+					continue;
+				}
+
 				if (openRes != SOR_INVALID_FILE)
 				{
 					*moduleIndex = (int) i;
