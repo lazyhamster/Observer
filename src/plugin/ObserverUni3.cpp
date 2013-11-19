@@ -741,7 +741,7 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 	edtField->X1 += 3;
 
 	Builder.AddCheckbox(MSG_CONFIG_USEEXTFILTERS, &optUseExtensionFilters);
-	Builder.AddOKCancel(MSG_BTN_OK, MSG_BTN_CANCEL, true);
+	Builder.AddOKCancel(MSG_BTN_OK, MSG_BTN_CANCEL, -1, true);
 
 	if (Builder.ShowDialog())
 	{
