@@ -37,6 +37,7 @@ protected:
 	bool InternalOpen(HANDLE headerFile);
 
 	int DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const;
+	int CopyPlainFile(const SfxFileEntry *pEntry, HANDLE dest, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const;
 
 public:
 	ISEncSfxFile();

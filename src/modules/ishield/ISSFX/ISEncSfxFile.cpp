@@ -76,7 +76,7 @@ bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo 
 	switch (fileEntry.Header.Type)
 	{
 		case 0:
-			//TODO: find proper sample and implement this case
+			unpackedSize = fileEntry.Header.CompressedSize;
 			break;
 		case 2:
 			DecodeFile(&fileEntry, NULL, 0, &unpackedSize, NULL);
@@ -104,8 +104,7 @@ int ISSfx::ISEncSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractP
 	switch (fileEntry.Header.Type)
 	{
 		case 0:
-			//TODO: find proper sample and implement this case
-			break;
+			return CopyPlainFile(&fileEntry, targetFile, &unpackedSize, &progressCtx);
 		case 2:
 			return DecodeFile(&fileEntry, targetFile, 0, &unpackedSize, &progressCtx);
 		case 6:
@@ -250,6 +249,52 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 
 	free(unpackBuffer);
 	if (pEntry->Header.IsCompressed) inflateEnd(&strm);
+
+	return result;
+}
+
+int ISSfx::ISEncSfxFile::CopyPlainFile( const SfxFileEntry *pEntry, HANDLE dest, __int64 *unpackedSize, ExtractProcessCallbacks *pctx ) const
+{
+	// File can not be compressed
+	if (pEntry->Header.Type == 0 && pEntry->Header.IsCompressed != 0)
+		return CAB_EXTRACT_READ_ERR;
+	
+	*unpackedSize = 0;
+	SeekFile(m_hHeaderFile, pEntry->StartOffset);
+
+	__int64 bytesLeft = pEntry->Header.CompressedSize;
+	BYTE readBuffer[EXTRACT_BUFFER_SIZE] = {0};
+	DWORD readDataSize;
+
+	int result = CAB_EXTRACT_OK;
+	while (bytesLeft > 0)
+	{
+		readDataSize = (DWORD) min(bytesLeft, EXTRACT_BUFFER_SIZE);
+
+		if (!ReadBuffer(m_hHeaderFile, readBuffer, readDataSize))
+		{
+			result = CAB_EXTRACT_READ_ERR;
+			break;
+		}
+
+		if (dest && !WriteBuffer(dest, readBuffer, readDataSize))
+		{
+			result = CAB_EXTRACT_WRITE_ERR;
+			break;
+		}
+
+		if (pctx && pctx->FileProgress)
+		{
+			if (!pctx->FileProgress(pctx->signalContext, readDataSize))
+			{
+				result = CAB_EXTRACT_USER_ABORT;
+				break;
+			}
+		}
+
+		bytesLeft -= readDataSize;
+		*unpackedSize += readDataSize;
+	}
 
 	return result;
 }
