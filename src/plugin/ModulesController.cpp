@@ -184,8 +184,12 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 				wchar_t* msgBuffer = NULL;
 				if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, GetModuleHandle(L"NTDLL.dll"), _exception_code(), 0, msgBuffer, 0, NULL) == 0)
 				{
-					msgBuffer = (wchar_t*) LocalAlloc(LPTR, 256 * sizeof(wchar_t));
-					swprintf_s(msgBuffer, ARRAY_SIZE(msgBuffer), L"Unrecognized exception: %u", _exception_code());
+					const size_t kMsgBufferSize = 256;
+					msgBuffer = (wchar_t*) LocalAlloc(LPTR, kMsgBufferSize * sizeof(wchar_t));
+					if (_exception_code() == 0xE0434352)
+						swprintf_s(msgBuffer, kMsgBufferSize, L".NET code has thrown an exception");
+					else
+						swprintf_s(msgBuffer, kMsgBufferSize, L"Unrecognized exception: %u", _exception_code());
 				}
 				errorMsg = msgBuffer;
 				LocalFree(msgBuffer);
