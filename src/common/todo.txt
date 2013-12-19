@@ -19,3 +19,6 @@ VALVE:
 
 VISK:
 - add long file names support for FAT
+
+WCX:
+- be more conformant with how TC works

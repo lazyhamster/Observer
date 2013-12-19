@@ -3,7 +3,6 @@ Changes history:
 1.9.1
 - Added Intall Shield module.
 - Added Setup Factory module (versions 5 and 6 for now).
-- Added message if some modules failed to load (optional).
 - Fixed crash on very long path names inside containers.
 - Fixed crash on Alt-F6 in Far3.
 - Fixed crash if required .NET version is missing.
