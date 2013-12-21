@@ -44,6 +44,14 @@ CFileStream::CFileStream( const wchar_t* filePath, bool readOnly, bool createIfN
 	m_hFile = CreateFile(filePath, dwAccess, FILE_SHARE_READ, NULL, dwDisposition, FILE_ATTRIBUTE_NORMAL, 0);
 }
 
+CFileStream::CFileStream( HANDLE fileHandle, bool readOnly )
+{
+	m_strPath = nullptr;
+	m_fReadOnly = readOnly;
+	m_nSizeCache = -1;
+	m_hFile = fileHandle;
+}
+
 CFileStream::~CFileStream()
 {
 	Close();
@@ -123,6 +131,15 @@ bool CFileStream::WriteBuffer( LPVOID buffer, size_t bufferSize )
 	BOOL fWriteResult = WriteFile(m_hFile, buffer, (DWORD) bufferSize, &dwBytes, nullptr);
 
 	return fWriteResult && (dwBytes == bufferSize);
+}
+
+CFileStream* CFileStream::Open( const wchar_t* filePath, bool readOnly, bool createIfNotExists )
+{
+	CFileStream* pStream = new CFileStream(filePath, readOnly, createIfNotExists);
+	if (pStream->IsValid())	return pStream;
+
+	delete pStream;
+	return nullptr;
 }
 
 //////////////////////////////////////////////////////////////////////////

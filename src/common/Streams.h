@@ -22,6 +22,11 @@ public:
 
 class CFileStream : public AStream
 {
+private:
+	CFileStream() {}
+	CFileStream(const CFileStream& other) {}
+	CFileStream& operator=( const CFileStream& rhs ) {}
+
 protected:
 	HANDLE m_hFile;
 	wchar_t* m_strPath;
@@ -32,7 +37,10 @@ protected:
 
 public:
 	CFileStream(const wchar_t* filePath, bool readOnly, bool createIfNotExists);
+	CFileStream(HANDLE fileHandle, bool readOnly);
 	~CFileStream();
+
+	static CFileStream* Open(const wchar_t* filePath, bool readOnly, bool createIfNotExists);
 
 	void Close();
 	bool IsValid();
@@ -51,6 +59,10 @@ public:
 
 class CMemoryStream : public AStream
 {
+private:
+	CMemoryStream(const CMemoryStream& other) {}
+	CMemoryStream& operator=( const CMemoryStream& rhs ) {}
+
 protected:
 	char* m_pDataBuffer;
 	size_t m_nCapacity;

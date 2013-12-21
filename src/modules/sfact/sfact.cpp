@@ -61,12 +61,8 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	SetupFactoryFile* sfInst = (SetupFactoryFile*) storage;
 	if (sfInst == NULL || params.item < 0 || params.item >= (int) sfInst->GetCount()) return SER_ERROR_SYSTEM;
 
-	CFileStream* outStream = new CFileStream(params.destFilePath, false, true);
-	if (!outStream->IsValid())
-	{
-		delete outStream;
-		return SER_ERROR_WRITE;
-	}
+	CFileStream* outStream = CFileStream::Open(params.destFilePath, false, true);
+	if (!outStream)	return SER_ERROR_WRITE;
 	
 	bool extractResult = sfInst->ExtractFile(params.item, outStream);
 	delete outStream;

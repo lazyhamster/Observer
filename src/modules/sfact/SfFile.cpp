@@ -4,12 +4,8 @@
 
 SetupFactoryFile* OpenInstaller( const wchar_t* filePath )
 {
-	CFileStream* inFile = new CFileStream(filePath, true, false);
-	if (!inFile->IsValid())
-	{
-		delete inFile;
-		return nullptr;
-	}
+	CFileStream* inFile = CFileStream::Open(filePath, true, false);
+	if (!inFile) return nullptr;
 
 	SetupFactory56* sf56 = new SetupFactory56();
 	if (sf56->Open(inFile))
