@@ -15,6 +15,8 @@ Observer
   - Инсталляторы, сделаные с помощью системы NSIS
   - MSI пакеты для Windows Installer-а
   - Инсталляционные пакеты, сделаные Wise Installer-ом.
+  - Инсталляторы Install Shield-а.
+  - Инсталяторы Setup Factory (версий 5/6).
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-образы. Поддерживаются следующие файловые системы:
@@ -43,6 +45,8 @@ Observer
   - BIG, SGA - контейнеры из игр компании Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
   - GCF, WAD, XZP, PAK, BSP, VBSP - используются в системе Steam
   - MoPaQ архивы (используются Blizzard)
+
+- Поддерживается использование WCX модулей от Total Commander-а в режиме чтения
 
 1.2. Настройки.
 
@@ -78,6 +82,10 @@ Observer
 ВНИМАНИЕ:
 Данный метод использует недокументированные особенности обработки FAR-ом значения текущей директории,
 поэтому может иметь неожиданные побочные эффекты или вообще прекратить работать с очередным обновлением.
+
+[General] -> VerboseModuleLoad
+Включает показ сообщения на старте плагина, если какие-либо модули не загрузились.
+Допустимые значения: 1 (показывать сообщение) or 0 (не показывать).
 
 1.2.2 Фильтры.
 
@@ -177,14 +185,27 @@ zlib это библиотека для сжатия данных без потерь.
 - libbzip2 (http://bzip.org)
 bzip2 это свободная библиотека для сжатия данных.
 
+- i5comp (ftp://ftp.elf.stuba.sk/pub/pc/pack/i5comp21.rar)
+InstallShield 5.x Cabinet Compression & Maintenance Util by fOSSiL.
+
+- i6comp (ftp://ftp.elf.stuba.sk/pub/pc/pack/i6comp02.zip)
+InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
+
+- i6compx (http://www.ctpax-x.org/uploads/i6compx.zip)
+Исправленная i6comp для поддержки Юникода.
+
+- unshield (https://github.com/twogood/unshield)
+Утилита из проекта SyncCE.
+Распространяется по лицензии MIT.
+
 3. Системные требования.
 OS: WinXP или новее.
 Минимальные версии FAR-а для работы плагина 1.75 build 2634 / 2.0 build 1807
 
 Windows Installer 4+
-Microsoft Visual C++ 2008 SP1 Redistributable Package
+Microsoft Visual C++ 2010 SP1 Redistributable Package
 
-Модуль VDISK дополнительно требует Microsoft .NET Framework 3.5.
+Модуль VDISK дополнительно требует Microsoft .NET Framework 4.0.
 Если .NET не установлен, то этот модуль не будет загружаться.
 
 4. Гарантии.

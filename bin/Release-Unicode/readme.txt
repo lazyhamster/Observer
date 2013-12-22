@@ -1,6 +1,6 @@
 Observer
 Plug-in for FAR Manager 1.75+ / 2.0+ / 3.0+
-Copyright: 2009-2012, Ariman
+Copyright: 2009-2013, Ariman
 
 -------------------------------------------------------------------
 
@@ -15,6 +15,8 @@ Add/Delete/Change operations are not planned.
   - Installation packages made with NSIS
   - MSI packages for Windows Installer
   - Installation packages made with Wise Installer
+  - Install Shield packages.
+  - Setup Factory 5/6 packages.
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-images. Following formats are supported:
@@ -43,6 +45,8 @@ Add/Delete/Change operations are not planned.
   - BIG, SGA - containers from games made by Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
   - GCF, WAD, XZP, PAK, BSP, VBSP - used inside Steam
   - MoPaQ packages (used by Blizzard)
+
+- Supports usage of WCX modules from Total Commander (read-only)
 
 1.2. Settings.
 
@@ -79,6 +83,10 @@ Possible values: 1 (extended mode is on) or 0 (standard format is used).
 WARNING:
 This feature uses undocumented specifics of curent directory processing by FAR,
 so it can have unpredictabe side-effects or stop working at all after next update.
+
+[General] -> VerboseModuleLoad
+Turns on/off warning message on plugin start if any if the modules failed to load.
+Possible values: 1 (show message) or 0 (don't show).
 
 1.2.2 Filters.
 
@@ -180,14 +188,28 @@ zlib is lossless data-compression library. Distributed under zlib license.
 bzip2 is a freely available, patent free (see below), high-quality data compressor.
 Distributed under BSD-style license.
 
+- i5comp (ftp://ftp.elf.stuba.sk/pub/pc/pack/i5comp21.rar)
+InstallShield 5.x Cabinet Compression & Maintenance Util by fOSSiL.
+
+- i6comp (ftp://ftp.elf.stuba.sk/pub/pc/pack/i6comp02.zip)
+InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
+
+- i6compx (http://www.ctpax-x.org/uploads/i6compx.zip)
+Patched i6comp for Unicode support.
+
+- unshield (https://github.com/twogood/unshield)
+Pocket PC tool from SyncCE project.
+Distributed under LGPL license.
+
+
 3. System requirements.
 OS: WinXP or higher.
 Minimal FAR versions are 1.75 build 2634 / 2.0 build 1807
 
 Windows Installer 4+
-Microsoft Visual C++ 2008 SP1 Redistributable Package
+Microsoft Visual C++ 2010 SP1 Redistributable Package
 
-VDISK module requires Microsoft .NET Framework 3.5 to be installed.
+VDISK module requires Microsoft .NET Framework 4.0 to be installed.
 If you don't install .NET then this modile will not load.
 
 4. Diclaimer.
