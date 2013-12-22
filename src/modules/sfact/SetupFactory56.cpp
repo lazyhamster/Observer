@@ -2,9 +2,6 @@
 #include "SetupFactory56.h"
 #include "Decomp.h"
 
-#define DATA_OFFSET_5 0x8000
-#define DATA_OFFSET_6 0x12000
-
 #define SCRIPT_FILE "irsetup.dat"
 
 #define FILENAME_SIZE_5 16
@@ -30,24 +27,41 @@ SetupFactory56::~SetupFactory56(void)
 	Close();
 }
 
+bool SetupFactory56::CheckSignature( CFileStream* inFile, int64_t offset, int sufVersion )
+{
+	uint8_t sigBuf[SIGNATURE_SIZE];
+	bool isMatch = inFile->SetPos(offset)
+		&& inFile->ReadBuffer(sigBuf, SIGNATURE_SIZE)
+		&& (memcmp(sigBuf, SIGNATURE, SIGNATURE_SIZE) == 0);
+
+	m_nVersion = sufVersion;
+	m_nStartOffset = offset + SIGNATURE_SIZE;
+
+	return isMatch;
+}
+
 bool SetupFactory56::Open( CFileStream* inFile )
 {
 	Close();
 	
 	inFile->SetPos(0);
 
-	if (CheckSignature(inFile, DATA_OFFSET_5))
+	if (CheckSignature(inFile, 0x8000, 5))
 	{
-		m_nVersion = 5;
-		m_nStartOffset = DATA_OFFSET_5 + SIGNATURE_SIZE;
 		m_pInFile = inFile;
 		return true;
 	}
 
-	if (CheckSignature(inFile, DATA_OFFSET_6))
+	// Main offset for version 6
+	if (CheckSignature(inFile, 0x12000, 6))
 	{
-		m_nVersion = 6;
-		m_nStartOffset = DATA_OFFSET_6 + SIGNATURE_SIZE;
+		m_pInFile = inFile;
+		return true;
+	}
+
+	// Alternative offset for version 6 (usually have no files in script)
+	if (CheckSignature(inFile, 0x15000, 6))
+	{
 		m_pInFile = inFile;
 		return true;
 	}
@@ -141,14 +155,6 @@ int SetupFactory56::EnumFiles()
 	ParseScript(m_nContentBaseOffset);
 
 	return m_vFiles.size();
-}
-
-bool SetupFactory56::CheckSignature( CFileStream* inFile, int64_t offset )
-{
-	uint8_t sigBuf[SIGNATURE_SIZE];
-	return inFile->SetPos(offset)
-		&& inFile->ReadBuffer(sigBuf, SIGNATURE_SIZE)
-		&& (memcmp(sigBuf, SIGNATURE, SIGNATURE_SIZE) == 0);
 }
 
 bool SetupFactory56::ExtractFile( int index, AStream* outStream )

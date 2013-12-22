@@ -12,7 +12,7 @@ private:
 	int64_t m_nContentBaseOffset;
 	CMemoryStream* m_pScriptData;
 
-	bool CheckSignature(CFileStream* inFile, int64_t offset);
+	bool CheckSignature(CFileStream* inFile, int64_t offset, int sufVersion);
 	int ParseScript(int64_t baseOffset);
 	
 	bool ReadString(AStream* stream, char* buf);
