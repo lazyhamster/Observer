@@ -119,7 +119,7 @@ int SetupFactory56::EnumFiles()
 			return -1;
 		
 		SFFileEntry fe = {0};
-		MultiByteToWideChar(CP_ACP, 0, nameBuf, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
+		MultiByteToWideChar(m_nFilenameCodepage, 0, nameBuf, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
 		fe.PackedSize = size;
 		fe.CRC = crc;
 		fe.IsCompressed = true;
