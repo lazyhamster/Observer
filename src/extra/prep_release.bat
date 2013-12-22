@@ -20,6 +20,8 @@ ECHO Using Visual Studio 2010 from
 ECHO %DEVENV_EXE_PATH%
 ECHO.
 
+SET PACKER_CMD=@rar.exe a -y -r -ep1 -apObserver -x*.metagen
+
 ECHO Building version for Far 1 x86
 %DEVENV_EXE_PATH% /Rebuild "Release|Win32" "..\Observer.VS2010.sln"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
@@ -31,7 +33,7 @@ pushd ..\..\bin\Release
 popd
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
+%PACKER_CMD% -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x86
@@ -39,7 +41,7 @@ ECHO Building version for Far 2 x86
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far2_x86_%1.rar "..\..\bin\Release-Unicode\*" > nul
+%PACKER_CMD% -- Observer_Far2_x86_%1.rar "..\..\bin\Release-Unicode\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x64
@@ -47,7 +49,7 @@ ECHO Building version for Far 2 x64
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far2_x64_%1.rar "..\..\bin\Release-Unicode-x64\*" > nul
+%PACKER_CMD% -- Observer_Far2_x64_%1.rar "..\..\bin\Release-Unicode-x64\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x86
@@ -55,7 +57,7 @@ ECHO Building version for Far 3 x86
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far3_x86_%1.rar "..\..\bin\Release-Unicode-3\*" > nul
+%PACKER_CMD% -- Observer_Far3_x86_%1.rar "..\..\bin\Release-Unicode-3\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x64
@@ -63,7 +65,11 @@ ECHO Building version for Far 3 x64
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far3_x64_%1.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
+%PACKER_CMD% -- Observer_Far3_x64_%1.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
+if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
+
+ECHO Packing source code
+%PACKER_CMD% -xipch "-x*\ipch" "-x*\ipch\*" -x*.suo -x*.sdf -x*.opensdf -xObserver*.rar -- Observer_%1_src.rar "..\..\src" "..\..\doc"
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO [SUCCESS] Global build complete !!!
