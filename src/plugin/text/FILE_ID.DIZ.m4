@@ -22,6 +22,7 @@ Supported file formats:
 - MoPaQ containers
 - Mail containers in MBox format
 - Install Shield 3+ packages
+- Setup Factory 5/6 packages
 
 (c) 2009-2013, Ariman
 -----------------------------------------
