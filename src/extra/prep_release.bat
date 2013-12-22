@@ -31,7 +31,7 @@ pushd ..\..\bin\Release
 popd
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
+@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x86
@@ -39,7 +39,7 @@ ECHO Building version for Far 2 x86
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -- Observer_Far2_x86_%1.rar "..\..\bin\Release-Unicode\*" > nul
+@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far2_x86_%1.rar "..\..\bin\Release-Unicode\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x64
@@ -47,7 +47,7 @@ ECHO Building version for Far 2 x64
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -- Observer_Far2_x64_%1.rar "..\..\bin\Release-Unicode-x64\*" > nul
+@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far2_x64_%1.rar "..\..\bin\Release-Unicode-x64\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x86
@@ -55,7 +55,7 @@ ECHO Building version for Far 3 x86
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -- Observer_Far3_x86_%1.rar "..\..\bin\Release-Unicode-3\*" > nul
+@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far3_x86_%1.rar "..\..\bin\Release-Unicode-3\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x64
@@ -63,7 +63,7 @@ ECHO Building version for Far 3 x64
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-@rar.exe a -y -r -ep1 -apObserver -- Observer_Far3_x64_%1.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
+@rar.exe a -y -r -ep1 -apObserver -x*.metagen -- Observer_Far3_x64_%1.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO [SUCCESS] Global build complete !!!
