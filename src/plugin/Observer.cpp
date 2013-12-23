@@ -26,6 +26,7 @@ static ModulesController g_pController;
 static int optEnabled = TRUE;
 static int optUsePrefix = TRUE;
 static int optUseExtensionFilters = TRUE;
+static int optVerboseModuleLoad = FALSE;
 static char optPrefix[MAX_PREFIX_SIZE] = "observe";
 
 // Extended settings
@@ -223,6 +224,13 @@ static int SelectModuleToOpenFileAs()
 
 	delete [] MenuItems;
 	return nMSel;
+}
+
+void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
+{
+	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
+
+	//TODO: show dialog
 }
 
 //-----------------------------------  Content functions ----------------------------------------
@@ -619,7 +627,10 @@ void WINAPI SetStartupInfo(const struct PluginStartupInfo *Info)
 	cfg.ParseFile(strConfigLocation + CONFIG_USER_FILE);
 
 	LoadSettings(&cfg);
-	g_pController.Init(wszPluginLocation, &cfg);
+
+	vector<FailedModuleInfo> fails;
+	g_pController.Init(wszPluginLocation, &cfg, fails);
+	ReportFailedModules(fails);
 }
 
 void WINAPI GetPluginInfo(struct PluginInfo *Info)
