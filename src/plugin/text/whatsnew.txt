@@ -1,5 +1,8 @@
 Changes history:
 
+1.x.y
+- Update zlib library to version 1.2.8.
+
 1.9.1
 - Added Intall Shield module.
 - Added Setup Factory module (versions 5 and 6 for now).
