@@ -1,6 +1,6 @@
 Changes history:
 
-1.x.y
+1.9.2
 - Update zlib library to version 1.2.8.
 
 1.9.1
