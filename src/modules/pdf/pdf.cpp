@@ -11,7 +11,7 @@ static bool optOpenAllFiles = false;
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	PDFDoc* doc = new PDFDoc(params.FilePath, wcslen(params.FilePath));
+	PDFDoc* doc = new PDFDoc(params.FilePath, (int) wcslen(params.FilePath));
 	if (doc->isOk())
 	{
 		PdfInfo* pData = new PdfInfo();
@@ -69,7 +69,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		else
 		{
 			size_t currLen = wcslen(item_info->Path);
-			MultiByteToWideChar(CP_ACP, 0, strName->getCString(), strName->getLength(), item_info->Path + currLen, STRBUF_SIZE(item_info->Path) - currLen);
+			MultiByteToWideChar(CP_ACP, 0, strName->getCString(), strName->getLength(), item_info->Path + currLen, (int) (STRBUF_SIZE(item_info->Path) - currLen));
 			item_info->Path[currLen + strName->getLength()] = 0;
 		}
 		item_info->Size = embFileInfo->size();
@@ -94,7 +94,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	{
 		DWORD dwBytes;
 		HANDLE hf = CreateFileW(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-		WriteFile(hf, pData->metadata.c_str(), pData->metadata.size(), &dwBytes, NULL);
+		WriteFile(hf, pData->metadata.c_str(), (DWORD) pData->metadata.size(), &dwBytes, NULL);
 		CloseHandle(hf);
 
 		return SER_SUCCESS;
