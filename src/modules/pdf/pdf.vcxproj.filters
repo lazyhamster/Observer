@@ -13,6 +13,30 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Source Files\poppler">
+      <UniqueIdentifier>{d98ab5e9-ebdf-4a58-a107-b4f59b509362}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\goo">
+      <UniqueIdentifier>{51330709-4ec6-488a-a3c7-4f27c74ba6dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fofi">
+      <UniqueIdentifier>{ed6733ae-3988-48c6-abda-ae3d9da233b3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\goo">
+      <UniqueIdentifier>{634a11ff-76f9-43e0-9f4c-0d15dc96f679}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fofi">
+      <UniqueIdentifier>{cfa9c269-dc75-4b1d-8438-e3b522470880}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\poppler">
+      <UniqueIdentifier>{6c301a09-3b04-4ed4-964f-8cdce6140489}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{6e350996-c10b-43ea-8fce-2608f148572a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{bb363e34-e804-4602-b3e8-bd043447f98e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -23,6 +47,216 @@
     </ClCompile>
     <ClCompile Include="pdf.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\PDFDoc.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\goo\gfile.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\goo\GooString.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\goo\gmem.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Catalog.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\XRef.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\goo\GooList.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Dict.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Page.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Parser.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\PopplerCache.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\GfxState.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Lexer.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\ViewerPreferences.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Function.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\GfxFont.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Object.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Array.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\CharCodeToUnicode.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Linearization.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Outline.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Error.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\PageLabelInfo.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Form.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\StructTreeRoot.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\FileSpec.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Link.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Gfx.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\CMap.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiBase.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiIdentifier.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiTrueType.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiType1.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiType1C.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiEncodings.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Stream.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\goo\GooHash.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\goo\GooTimer.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\goo\gstrtod.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\ProfileData.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Sound.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\JBIG2Stream.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\JPXStream.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\JArithmeticDecoder.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Hints.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\SecurityHandler.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Decrypt.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\goo\grandom.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\CachedFile.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\OptionalContent.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\StructElement.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\GlobalParams.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\PSTokenizer.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\UTF.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\PDFDocEncoding.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\UnicodeMap.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\BuiltinFont.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\BuiltinFontTables.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\FontEncodingTables.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Rendition.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\NameToCharCode.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\FlateStream.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\MarkedContentOutputDev.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\OutputDev.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\UnicodeTypeTable.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Annot.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\Movie.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\poppler\DateInfo.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="PdfInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\poppler\utils\JSInfo.cc">
+      <Filter>Source Files\utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -36,6 +270,261 @@
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiBase.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiEncodings.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiIdentifier.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiTrueType.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiType1.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiType1C.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\gfile.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\gmem.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\GooHash.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\GooLikely.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\GooList.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\GooMutex.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\GooString.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\GooTimer.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\grandom.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\gstrtod.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\goo\gtypes.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="PdfInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Annot.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Array.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\BuiltinFont.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\BuiltinFontTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\CachedFile.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Catalog.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\CharCodeToUnicode.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\CharTypes.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\CMap.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\DateInfo.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Decrypt.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Dict.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Error.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\ErrorCodes.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\FileSpec.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\FlateStream.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\FontEncodingTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Form.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Function.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Gfx.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\GfxFont.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\GfxState.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\GfxState_helpers.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\GlobalParams.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Hints.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\JArithmeticDecoder.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\JBIG2Stream.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\JPXStream.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Lexer.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Linearization.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Link.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\MarkedContentOutputDev.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Movie.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\NameToCharCode.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\NameToUnicodeTable.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Object.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\OptionalContent.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Outline.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\OutputDev.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Page.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\PageLabelInfo.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\PageLabelInfo_p.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Parser.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\PDFDoc.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\PDFDocEncoding.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\PopplerCache.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\ProfileData.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\PSTokenizer.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Rendition.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\SecurityHandler.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Sound.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Stream.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\Stream-CCITT.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\StructElement.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\StructTreeRoot.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\TextOutputDev.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeCClassTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeCompTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeDecompTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeMap.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeMapTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeTypeTable.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\UTF.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\UTF8.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\ViewerPreferences.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\poppler\XRef.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\poppler\utils\JSInfo.h">
+      <Filter>Header Files\utils</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

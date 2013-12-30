@@ -58,57 +58,57 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -252,14 +252,15 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -276,14 +277,15 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -298,13 +300,14 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -324,13 +327,14 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -346,14 +350,15 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -367,14 +372,15 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -391,14 +397,15 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -415,14 +422,15 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -437,13 +445,14 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -460,13 +469,14 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -486,13 +496,14 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -512,13 +523,14 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
@@ -532,6 +544,75 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiBase.cc" />
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiEncodings.cc" />
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiIdentifier.cc" />
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiTrueType.cc" />
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiType1.cc" />
+    <ClCompile Include="..\..\depends\poppler\fofi\FoFiType1C.cc" />
+    <ClCompile Include="..\..\depends\poppler\goo\gfile.cc" />
+    <ClCompile Include="..\..\depends\poppler\goo\gmem.cc" />
+    <ClCompile Include="..\..\depends\poppler\goo\GooHash.cc" />
+    <ClCompile Include="..\..\depends\poppler\goo\GooList.cc" />
+    <ClCompile Include="..\..\depends\poppler\goo\GooString.cc" />
+    <ClCompile Include="..\..\depends\poppler\goo\GooTimer.cc" />
+    <ClCompile Include="..\..\depends\poppler\goo\grandom.cc" />
+    <ClCompile Include="..\..\depends\poppler\goo\gstrtod.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Annot.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Array.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\BuiltinFont.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\BuiltinFontTables.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\CachedFile.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Catalog.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\CharCodeToUnicode.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\CMap.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\DateInfo.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Decrypt.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Dict.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Error.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\FileSpec.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\FlateStream.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\FontEncodingTables.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Form.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Function.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Gfx.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\GfxFont.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\GfxState.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\GlobalParams.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Hints.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\JArithmeticDecoder.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\JBIG2Stream.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\JPXStream.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Lexer.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Linearization.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Link.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\MarkedContentOutputDev.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Movie.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\NameToCharCode.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Object.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\OptionalContent.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Outline.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\OutputDev.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Page.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\PageLabelInfo.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Parser.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\PDFDoc.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\PDFDocEncoding.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\PopplerCache.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\ProfileData.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\PSTokenizer.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Rendition.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\SecurityHandler.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Sound.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\Stream.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\StructElement.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\StructTreeRoot.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\UnicodeMap.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\UnicodeTypeTable.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\UTF.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\ViewerPreferences.cc" />
+    <ClCompile Include="..\..\depends\poppler\poppler\XRef.cc" />
+    <ClCompile Include="..\..\depends\poppler\utils\JSInfo.cc" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
       </PrecompiledHeader>
@@ -570,6 +651,7 @@
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="PdfInfo.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
@@ -590,8 +672,98 @@
     <None Include="pdf.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiBase.h" />
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiEncodings.h" />
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiIdentifier.h" />
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiTrueType.h" />
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiType1.h" />
+    <ClInclude Include="..\..\depends\poppler\fofi\FoFiType1C.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\gfile.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\gmem.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\GooHash.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\GooLikely.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\GooList.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\GooMutex.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\GooString.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\GooTimer.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\grandom.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\gstrtod.h" />
+    <ClInclude Include="..\..\depends\poppler\goo\gtypes.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Annot.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Array.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\BuiltinFont.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\BuiltinFontTables.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\CachedFile.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Catalog.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\CharCodeToUnicode.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\CharTypes.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\CMap.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\DateInfo.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Decrypt.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Dict.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Error.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\ErrorCodes.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\FileSpec.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\FlateStream.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\FontEncodingTables.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Form.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Function.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Gfx.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\GfxFont.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\GfxState.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\GfxState_helpers.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\GlobalParams.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Hints.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\JArithmeticDecoder.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\JBIG2Stream.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\JPXStream.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Lexer.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Linearization.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Link.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\MarkedContentOutputDev.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Movie.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\NameToCharCode.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\NameToUnicodeTable.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Object.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\OptionalContent.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Outline.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\OutputDev.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Page.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\PageLabelInfo.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\PageLabelInfo_p.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Parser.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\PDFDoc.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\PDFDocEncoding.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\PopplerCache.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\ProfileData.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\PSTokenizer.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Rendition.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\SecurityHandler.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Sound.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Stream-CCITT.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\Stream.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\StructElement.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\StructTreeRoot.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\TextOutputDev.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeCClassTables.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeCompTables.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeDecompTables.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeMap.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeMapTables.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\UnicodeTypeTable.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\UTF.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\UTF8.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\ViewerPreferences.h" />
+    <ClInclude Include="..\..\depends\poppler\poppler\XRef.h" />
+    <ClInclude Include="..\..\depends\poppler\utils\JSInfo.h" />
+    <ClInclude Include="PdfInfo.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
+      <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
