@@ -176,10 +176,10 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 	}
 
 	// print linearization info
-	sstr << "Optimized:      " << (doc->isLinearized() ? "yes" : "no")  << ENDL;
+	sstr << "Optimized:      " << (doc->isLinearized() ? "yes" : "no") << ENDL;
 
 	// print PDF version
-	sstr << "PDF version:    " << doc->getPDFMajorVersion() << "." << doc->getPDFMinorVersion()  << ENDL;
+	sstr << "PDF version:    " << doc->getPDFMajorVersion() << "." << doc->getPDFMinorVersion() << ENDL;
 
 	// print the metadata
 	GooString* strMeta = doc->readMetadata();
