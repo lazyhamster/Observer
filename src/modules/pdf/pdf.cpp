@@ -137,6 +137,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ExtractItem = ExtractItem;
 
 	globalParams = new GlobalParams();
+	globalParams->setErrQuiet(gTrue);
 
 	return TRUE;
 }
