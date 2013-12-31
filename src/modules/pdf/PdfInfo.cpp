@@ -10,21 +10,13 @@ bool TryParseDateTime( GooString* strDate, FILETIME *fTime )
 	if (strDate == nullptr)
 		return false;
 	
-	const size_t tmpBufLen = 256;
-	char tmpBuf[tmpBufLen] = {0};
-
-	if (strDate->hasUnicodeMarker())
-		WideCharToMultiByte(CP_UTF8, 0, (wchar_t*) (strDate->getCString() + 2), (strDate->getLength() - 2) / 2, tmpBuf, tmpBufLen, NULL, NULL);
-	else
-		strncpy_s(tmpBuf, tmpBufLen, strDate->getCString(), strDate->getLength());
-
 	int year, month, day;
 	int hour, minute, sec;
 	int tzhour, tzmin;
 	char tz;
 	
 	//TODO: deal with timezone
-	if (parseDateString(tmpBuf, &year, &month, &day, &hour, &minute, &sec, &tz, &tzhour, &tzmin))
+	if (parseDateString(strDate->getCString(), &year, &month, &day, &hour, &minute, &sec, &tz, &tzhour, &tzmin))
 	{
 		SYSTEMTIME stime = {0};
 		stime.wYear = year;

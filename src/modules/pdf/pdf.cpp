@@ -64,7 +64,16 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{files}\\");
 		if (strName->hasUnicodeMarker())
 		{
-			wcscat_s(item_info->Path, STRBUF_SIZE(item_info->Path), (wchar_t*)(strName->getCString() + 2));
+			int numWChars = (strName->getLength() - 2) / 2;
+			size_t nextCharPos = wcslen(item_info->Path);
+			char* pChar = strName->getCString() + 2;
+			for (int i = 0; i < numWChars; i++)
+			{
+				item_info->Path[nextCharPos] = (pChar[0] << 8) | pChar[1];
+				nextCharPos++;
+				pChar += 2;
+			}
+			item_info->Path[nextCharPos] = 0;
 		}
 		else
 		{
