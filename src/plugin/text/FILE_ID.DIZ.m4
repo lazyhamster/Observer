@@ -23,8 +23,9 @@ Supported file formats:
 - Mail containers in MBox format
 - Install Shield 3+ packages
 - Setup Factory 5/6 packages
+- PDF files (embedded files)
 
-(c) 2009-2013, Ariman
+(c) 2009-2014, Ariman
 -----------------------------------------
 Web-site: http://sourceforge.net/projects/far-observer/
 E-mail for suggestions, bug reports, etc: ariman@inbox.ru

@@ -1,6 +1,7 @@
 Changes history:
 
 1.9.2
+- Added PDF support module (extracts embedded files).
 - Update zlib library to version 1.2.8.
 
 1.9.1

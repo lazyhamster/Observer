@@ -46,6 +46,9 @@ Observer
   - GCF, WAD, XZP, PAK, BSP, VBSP - используются в системе Steam
   - MoPaQ архивы (используются Blizzard)
 
+- Другое
+  - Встроенные файлы из PDF.
+
 - Поддерживается использование WCX модулей от Total Commander-а в режиме чтения
 
 1.2. Настройки.
@@ -197,6 +200,9 @@ InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
 - unshield (https://github.com/twogood/unshield)
 Утилита из проекта SyncCE.
 Распространяется по лицензии MIT.
+
+- poppler (http://poppler.freedesktop.org/)
+Библиотека обработки PDF.
 
 3. Системные требования.
 OS: WinXP или новее.

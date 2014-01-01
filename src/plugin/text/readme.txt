@@ -1,6 +1,6 @@
 Observer
 Plug-in for FAR Manager 1.75+ / 2.0+ / 3.0+
-Copyright: 2009-2013, Ariman
+Copyright: 2009-2014, Ariman
 
 -------------------------------------------------------------------
 
@@ -45,6 +45,9 @@ Add/Delete/Change operations are not planned.
   - BIG, SGA - containers from games made by Relic (Homeworld 1/2, CoH, WH40k DoW 1/2)
   - GCF, WAD, XZP, PAK, BSP, VBSP - used inside Steam
   - MoPaQ packages (used by Blizzard)
+
+- Other
+  - Embedded files from PDF.
 
 - Supports usage of WCX modules from Total Commander (read-only)
 
@@ -201,6 +204,8 @@ Patched i6comp for Unicode support.
 Pocket PC tool from SyncCE project.
 Distributed under LGPL license.
 
+- poppler (http://poppler.freedesktop.org/)
+PDF rendering library.
 
 3. System requirements.
 OS: WinXP or higher.
