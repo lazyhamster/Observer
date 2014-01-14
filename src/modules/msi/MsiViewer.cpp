@@ -229,10 +229,14 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 		if (!fileEntry.Component[0] || !wcscmp(fileEntry.Component, L" "))
 			continue;
 
+		// If file refers to non-existing component then skip it
+		if (componentmap.find(fileEntry.Component) == componentmap.end())
+			continue;
+
 		FileNode *node = new FileNode();
 		node->Init(&fileEntry);
 
-		ComponentEntry component = componentmap[fileEntry.Component];
+		const ComponentEntry &component = componentmap[fileEntry.Component];
 		DirectoryNode *dir = nodemap[component.Directory];
 		
 		if (dir)
