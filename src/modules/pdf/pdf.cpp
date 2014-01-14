@@ -51,7 +51,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	if (item_index == 0)
 	{
 		// First file will be always fake info file
-		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{info}.txt");
+		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{pdf_info}.txt");
 		item_info->Size = pData->metadata.size();
 		return GET_ITEM_OK;
 	}
