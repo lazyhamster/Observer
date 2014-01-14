@@ -440,7 +440,7 @@ void CMsiViewer::removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolde
 		removeEmptyFolders(subDir, forcedFolders);
 
 		WStringMap::const_iterator citer = forcedFolders.find(subDir->Key);
-		bool fIsAllowedEmpty = (citer != forcedFolders.end());
+		bool fIsAllowedEmpty = (citer != forcedFolders.cend());
 		
 		if ((subDir->SubDirs.size() == 0) && (subDir->Files.size() == 0) && !fIsAllowedEmpty)
 		{
