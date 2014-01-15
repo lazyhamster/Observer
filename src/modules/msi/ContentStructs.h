@@ -70,6 +70,7 @@ public:
 	~DirectoryNode();
 
 	bool Init(DirectoryEntry *entry, bool substDotTargetWithSource);
+	bool Init(const wchar_t *dirName);
 	void AddSubdir(DirectoryNode *child);
 	void AddFile(FileNode *file) { Files.push_back(file); file->Parent = this; }
 

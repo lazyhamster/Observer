@@ -239,10 +239,13 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 		const ComponentEntry &component = componentmap[fileEntry.Component];
 		DirectoryNode *dir = nodemap[component.Directory];
 		
-		if (dir)
-			dir->AddFile(node);
-		else
-			return ERROR_INVALID_DATA;
+		if (!dir)
+		{
+			dir = new DirectoryNode();
+			dir->Init(component.Directory);
+			nodemap[component.Directory] = dir;
+		}
+		dir->AddFile(node);
 	}
 
 	return ERROR_SUCCESS;
@@ -392,8 +395,15 @@ int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecia
 		DirectoryNode* node = dirIter->second;
 		DirectoryNode* parent = (node->ParentKey) ? nodemap[node->ParentKey] : m_pRootDir;
 
-		// This should not occur under normal circumstances
-		if (!parent) return ERROR_INVALID_DATA;
+		// This should not occur under normal circumstances but happens sometimes
+		if (!parent && (parent != m_pRootDir))
+		{
+			parent = new DirectoryNode();
+			parent->Init(node->ParentKey);
+			m_pRootDir->AddSubdir(parent);
+
+			nodemap[node->ParentKey] = parent;
+		}
 
 		// Check for special folder
 		int cmpRes = 1;

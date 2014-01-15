@@ -123,10 +123,27 @@ bool DirectoryNode::Init(DirectoryEntry *entry, bool substDotTargetWithSource)
 	return true;
 }
 
+bool DirectoryNode::Init( const wchar_t *dirName )
+{
+	if (!dirName || !*dirName)
+		return false;
+
+	Key = _wcsdup(dirName);
+	ParentKey = NULL;
+	SourceName = _wcsdup(dirName);
+	TargetName = _wcsdup(dirName);
+	
+	return true;
+}
+
 void DirectoryNode::AddSubdir(DirectoryNode *child)
 {
-	SubDirs.push_back(child);
-	child->Parent = this;
+	// Avoid duplication when adding child
+	if (std::find(SubDirs.begin(), SubDirs.end(), child) == SubDirs.end())
+	{
+		SubDirs.push_back(child);
+		child->Parent = this;
+	}
 }
 
 int DirectoryNode::GetFilesCount()
