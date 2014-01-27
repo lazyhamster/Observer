@@ -119,13 +119,14 @@ static struct mspack_file *msp_open(struct mspack_system *self,
 				    const char *filename, int mode)
 {
   struct mspack_file_p *fh;
-  char *fmode;
+  wchar_t *fmode;
+  wchar_t wfilename[260] = {0};
 
   switch (mode) {
-  case MSPACK_SYS_OPEN_READ:   fmode = "rb, ccs=UTF-8";  break;
-  case MSPACK_SYS_OPEN_WRITE:  fmode = "wb, ccs=UTF-8";  break;
-  case MSPACK_SYS_OPEN_UPDATE: fmode = "r+b, ccs=UTF-8"; break;
-  case MSPACK_SYS_OPEN_APPEND: fmode = "ab, ccs=UTF-8";  break;
+  case MSPACK_SYS_OPEN_READ:   fmode = L"rb";  break;
+  case MSPACK_SYS_OPEN_WRITE:  fmode = L"wb";  break;
+  case MSPACK_SYS_OPEN_UPDATE: fmode = L"r+b"; break;
+  case MSPACK_SYS_OPEN_APPEND: fmode = L"ab";  break;
   default: return NULL;
   }
 
@@ -133,7 +134,9 @@ static struct mspack_file *msp_open(struct mspack_system *self,
     fh->name = filename;
 
 	// File name must be in UTF-8 encoding
-	fh->fh = fopen(filename, fmode);
+	MultiByteToWideChar(CP_UTF8, 0, filename, -1, wfilename, sizeof(wfilename) / sizeof(wfilename[0]));
+
+	fh->fh = _wfopen(wfilename, fmode);
 
     if (fh->fh) return (struct mspack_file *) fh;
     free(fh);

@@ -4,6 +4,7 @@ Changes history:
 - Added PDF support module (extracts embedded files).
 - Update zlib library to version 1.2.8.
 - MSI: Attach orphan folders to root.
+- MSI: Fixed issues with extracting to folders contaning non-latin characters.
 
 1.9.1
 - Added Intall Shield module.
