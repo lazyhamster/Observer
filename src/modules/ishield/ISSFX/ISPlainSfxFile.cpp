@@ -40,7 +40,7 @@ bool ISSfx::ISPlainSfxFile::InternalOpen( HANDLE headerFile )
 	{
 		SfxFilePlainEntry entry = {0};
 		__int64 entrySize = fIsUnicode ? ReadUnicodeEntry(headerFile, &entry) : ReadAnsiEntry(headerFile, &entry);
-		if (entrySize <= 0) return false;
+		if ((entrySize <= 0) || !entry.Path[0] || (entry.Size <= 0)) return false;
 
 		nBytesRemain -= entrySize;
 		m_vFiles.push_back(entry);
