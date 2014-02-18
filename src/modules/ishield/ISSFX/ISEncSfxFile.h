@@ -8,7 +8,7 @@ namespace ISSfx
 
 #pragma pack(push, 1)
 
-struct SfxFileHeader
+struct SfxFileHeaderA
 {
 	char Name[256];
 	DWORD Unknown1;
@@ -20,12 +20,26 @@ struct SfxFileHeader
 	char Unknown4[28];
 };
 
+struct SfxFileHeaderW
+{
+	DWORD NameBytes;
+	WORD Type;
+	DWORD Unknown1;
+	DWORD CompressedSize;
+	DWORD Unknown2[2];
+	WORD IsCompressed;
+};
+
 #pragma pack(pop)
 
 struct SfxFileEntry
 {
-	SfxFileHeader Header;
+	char Name[MAX_PATH];
 	__int64 StartOffset;
+	DWORD Type;
+	DWORD CompressedSize;
+	bool IsCompressed;
+	bool IsUnicode;
 };
 
 class ISEncSfxFile : public ISCabFile

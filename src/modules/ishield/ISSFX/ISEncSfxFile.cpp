@@ -24,25 +24,56 @@ bool ISSfx::ISEncSfxFile::InternalOpen( HANDLE headerFile )
 	SeekFile(headerFile, nOverlayStart);
 
 	char Sig[14];
-	if (!ReadBuffer(headerFile, Sig, sizeof(Sig)) || strcmp(Sig, "InstallShield"))
+	if (!ReadBuffer(headerFile, Sig, sizeof(Sig)))
 		return false;
 
-	DWORD NumFiles;
+	bool isStreamUnicode;
+	if (strcmp(Sig, "InstallShield") == 0)
+		isStreamUnicode = false;
+	else if  (strcmp(Sig, "ISSetupStream") == 0)
+		isStreamUnicode = true;
+	else
+		return false;
+
+	WORD NumFiles;
 	if (!ReadBuffer(headerFile, &NumFiles, sizeof(NumFiles)) || NumFiles == 0)
 		return false;
 
-	if (!SeekFile(headerFile, FilePos(headerFile) + 0x1C))
+	if (!SeekFile(headerFile, FilePos(headerFile) + 0x1E))
 		return false;
 
-	for (DWORD i = 0; i < NumFiles; i++)
+	SfxFileHeaderA headerA;
+	SfxFileHeaderW headerW;
+
+	for (WORD i = 0; i < NumFiles; i++)
 	{
 		SfxFileEntry fe;
-		ReadBuffer(headerFile, &fe.Header, sizeof(fe.Header));
-		fe.StartOffset = FilePos(headerFile);
-		m_vFiles.push_back(fe);
+		memset(&fe, 0, sizeof(fe));
 
-		if ((fe.StartOffset + fe.Header.CompressedSize > nOverlayStart + nOverlaySize) || !SeekFile(headerFile, fe.StartOffset + fe.Header.CompressedSize))
+		if (isStreamUnicode)
+		{
+			ReadBuffer(headerFile, &headerW, sizeof(headerW));
+			ReadBuffer(headerFile, fe.Name, headerW.NameBytes);
+			fe.CompressedSize = headerW.CompressedSize;
+			fe.IsCompressed = headerW.IsCompressed != 0;
+			fe.Type = headerW.Type;
+			fe.IsUnicode = true;
+		}
+		else
+		{
+			ReadBuffer(headerFile, &headerA, sizeof(headerA));
+			strcpy_s(fe.Name, sizeof(fe.Name), headerA.Name);
+			fe.CompressedSize = headerA.CompressedSize;
+			fe.IsCompressed = headerA.IsCompressed != 0;
+			fe.Type = headerA.Type;
+			fe.IsUnicode = false;
+		}
+		fe.StartOffset = FilePos(headerFile);
+		
+		if ((fe.StartOffset + fe.CompressedSize > nOverlayStart + nOverlaySize) || !SeekFile(headerFile, fe.StartOffset + fe.CompressedSize))
 			return false;
+
+		m_vFiles.push_back(fe);
 	}
 
 	m_hHeaderFile = headerFile;
@@ -73,10 +104,10 @@ bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo 
 	const SfxFileEntry &fileEntry = m_vFiles[itemIndex];
 
 	__int64 unpackedSize = 0;
-	switch (fileEntry.Header.Type)
+	switch (fileEntry.Type)
 	{
 		case 0:
-			unpackedSize = fileEntry.Header.CompressedSize;
+			unpackedSize = fileEntry.CompressedSize;
 			break;
 		case 2:
 			DecodeFile(&fileEntry, NULL, 0, &unpackedSize, NULL);
@@ -87,7 +118,10 @@ bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo 
 	}
 
 	// Fill result structure
-	MultiByteToWideChar(CP_ACP, 0, fileEntry.Header.Name, -1, itemInfo->Path, STRBUF_SIZE(itemInfo->Path));
+	if (fileEntry.IsUnicode)
+		wcscpy_s(itemInfo->Path, STRBUF_SIZE(itemInfo->Path), (wchar_t*) fileEntry.Name);
+	else
+		MultiByteToWideChar(CP_ACP, 0, fileEntry.Name, -1, itemInfo->Path, STRBUF_SIZE(itemInfo->Path));
 	itemInfo->Size = unpackedSize;
 		
 	return true;
@@ -101,7 +135,7 @@ int ISSfx::ISEncSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractP
 	const SfxFileEntry &fileEntry = m_vFiles[itemIndex];
 	__int64 unpackedSize = 0;
 
-	switch (fileEntry.Header.Type)
+	switch (fileEntry.Type)
 	{
 		case 0:
 			return CopyPlainFile(&fileEntry, targetFile, &unpackedSize, &progressCtx);
@@ -114,11 +148,11 @@ int ISSfx::ISEncSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractP
 	return CAB_EXTRACT_READ_ERR;
 }
 
-static std::string PrepareKey(const char* fileName)
+static std::string PrepareKey(const char* fileName, size_t fileNameLen)
 {
 	const char* SpecialKey = "\xEC\xCA\x79\xF8";
 
-	size_t keyLen = strlen(fileName);
+	size_t keyLen = fileNameLen;
 	size_t specLen = strlen(SpecialKey);
 
 	std::string retVal(keyLen, ' ');
@@ -144,19 +178,20 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 {
 	*unpackedSize = 0;
 
-	std::string strDecryptKey = PrepareKey(pEntry->Header.Name);
+	size_t fileNameLen = pEntry->IsUnicode ? wcslen((wchar_t*) pEntry->Name) * sizeof(wchar_t) : strlen(pEntry->Name);
+	std::string strDecryptKey = PrepareKey(pEntry->Name, fileNameLen);
 	size_t decryptKeySize = strDecryptKey.size();
 	const char* decryptKey = strDecryptKey.c_str();
 
 	SeekFile(m_hHeaderFile, pEntry->StartOffset);
 
 	size_t offsChunk = 0, offsKey = 0;
-	__int64 bytesLeft = pEntry->Header.CompressedSize;
+	__int64 bytesLeft = pEntry->CompressedSize;
 	BYTE readBuffer[EXTRACT_BUFFER_SIZE] = {0};
 	DWORD readDataSize;
 
 	z_stream strm = {0};
-	if (pEntry->Header.IsCompressed && (inflateInit2(&strm, MAX_WBITS) != Z_OK))
+	if (pEntry->IsCompressed && (inflateInit2(&strm, MAX_WBITS) != Z_OK))
 		return CAB_EXTRACT_READ_ERR;
 
 	size_t unpackBufferSize = EXTRACT_BUFFER_SIZE * 2;
@@ -195,7 +230,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 		__int64 nWriteSize = 0;
 
 		// Decompress if needed
-		if (pEntry->Header.IsCompressed)
+		if (pEntry->IsCompressed)
 		{
 			strm.avail_in = readDataSize;
 			strm.next_in = readBuffer;
@@ -208,7 +243,12 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 				int ret = inflate(&strm, Z_NO_FLUSH);
 				if (ret == Z_NEED_DICT)
 					ret = Z_DATA_ERROR;
-				if (ret < 0) break;
+
+				if (ret < 0)
+				{
+					result = CAB_EXTRACT_READ_ERR;
+					break;
+				}
 
 				__int64 haveBytes = unpackBufferSize - strm.avail_out;
 
@@ -248,7 +288,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 	}
 
 	free(unpackBuffer);
-	if (pEntry->Header.IsCompressed) inflateEnd(&strm);
+	if (pEntry->IsCompressed) inflateEnd(&strm);
 
 	return result;
 }
@@ -256,13 +296,13 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 int ISSfx::ISEncSfxFile::CopyPlainFile( const SfxFileEntry *pEntry, HANDLE dest, __int64 *unpackedSize, ExtractProcessCallbacks *pctx ) const
 {
 	// File can not be compressed
-	if (pEntry->Header.Type == 0 && pEntry->Header.IsCompressed != 0)
+	if (pEntry->Type == 0 && pEntry->IsCompressed)
 		return CAB_EXTRACT_READ_ERR;
 	
 	*unpackedSize = 0;
 	SeekFile(m_hHeaderFile, pEntry->StartOffset);
 
-	__int64 bytesLeft = pEntry->Header.CompressedSize;
+	__int64 bytesLeft = pEntry->CompressedSize;
 	BYTE readBuffer[EXTRACT_BUFFER_SIZE] = {0};
 	DWORD readDataSize;
 
