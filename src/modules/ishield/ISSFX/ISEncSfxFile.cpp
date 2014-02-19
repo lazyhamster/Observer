@@ -150,17 +150,20 @@ int ISSfx::ISEncSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractP
 
 static std::string PrepareKey(const char* fileName, size_t fileNameLen)
 {
+	//NOTE: Processing of the unicode names is experimental and may be wrong.
+	//Experiments suggest that we should skip 0 bytes in file name.
+	
 	const char* SpecialKey = "\xEC\xCA\x79\xF8";
-
-	size_t keyLen = fileNameLen;
 	size_t specLen = strlen(SpecialKey);
 
-	std::string retVal(keyLen, ' ');
+	std::string retVal;
 
 	size_t specIndex = 0;
-	for (size_t i = 0; i < keyLen; i++)
+	for (size_t i = 0; i < fileNameLen; i++)
 	{
-		retVal[i] = fileName[i] ^ SpecialKey[specIndex];
+		if (fileName[i] == 0) continue;
+
+		retVal.push_back(fileName[i] ^ SpecialKey[specIndex]);
 		specIndex = (specIndex + 1 < specLen) ? specIndex + 1 : 0;
 	}
 
