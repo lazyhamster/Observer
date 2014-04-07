@@ -9,7 +9,7 @@
 /*
   DlgBuilder.hpp
 
-  Dynamic construction of dialogs for FAR Manager 3.0 build 3525
+  Dynamic construction of dialogs for FAR Manager 3.0 build 3800
 */
 
 /*
@@ -271,7 +271,8 @@ class DialogBuilderBase
 		void UpdateBorderSize()
 		{
 			T *Title = &DialogItems[0];
-			Title->X2 = Title->X1 + MaxTextWidth() + 3;
+			intptr_t MaxWidth = MaxTextWidth();
+			Title->X2 = Title->X1 + MaxWidth + 3;
 			Title->Y2 = DialogItems [DialogItemsCount-1].Y2 + 1;
 
 			for (int i=1; i<DialogItemsCount; i++)
@@ -280,6 +281,10 @@ class DialogBuilderBase
 				{
 					Indent = 2;
 					DialogItems[i].X2 = Title->X2;
+				}
+				else if (DialogItems[i].Type == DI_TEXT && (DialogItems[i].Flags & DIF_CENTERTEXT))
+				{//BUGBUG: two columns items are not supported
+					DialogItems[i].X2 = DialogItems[i].X1 + MaxWidth - 1;
 				}
 			}
 
@@ -334,7 +339,7 @@ class DialogBuilderBase
 			Bindings [DialogItemsCount-1] = Binding;
 		}
 
-		int GetItemID(T *Item)
+		int GetItemID(T *Item) const
 		{
 			int Index = static_cast<int>(Item - DialogItems);
 			if (Index >= 0 && Index < DialogItemsCount)
@@ -396,8 +401,7 @@ class DialogBuilderBase
 		{
 			for(int i=0; i<DialogItemsCount; i++)
 			{
-				if (Bindings [i])
-					delete Bindings [i];
+				delete Bindings [i];
 			}
 			delete [] DialogItems;
 			delete [] Bindings;
@@ -405,7 +409,7 @@ class DialogBuilderBase
 
 	public:
 
-		int GetLastID()
+		int GetLastID() const
 		{
 			return DialogItemsCount-1;
 		}
@@ -488,11 +492,11 @@ class DialogBuilderBase
 		}
 
 		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
-		T *AddTextAfter(T *RelativeTo, const wchar_t* Label)
+		T *AddTextAfter(T *RelativeTo, const wchar_t* Label, int skip=1)
 		{
 			T *Item = AddDialogItem(DI_TEXT, Label);
 			Item->Y1 = Item->Y2 = RelativeTo->Y1;
-			Item->X1 = RelativeTo->X1 + ItemWidth(*RelativeTo) - 1 + 2;
+			Item->X1 = RelativeTo->X1 + ItemWidth(*RelativeTo) + skip;
 
 			DialogItemBinding<T> *Binding = FindBinding(RelativeTo);
 			if (Binding)
@@ -501,9 +505,9 @@ class DialogBuilderBase
 			return Item;
 		}
 
-		T *AddTextAfter(T *RelativeTo, int LabelId)
+		T *AddTextAfter(T *RelativeTo, int LabelId, int skip=1)
 		{
-			return AddTextAfter(RelativeTo, GetLangString(LabelId));
+			return AddTextAfter(RelativeTo, GetLangString(LabelId), skip);
 		}
 
 		// Добавляет кнопку справа от элемента RelativeTo.
@@ -675,7 +679,7 @@ public:
 
 	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex)
 	{
-		BOOL Selected = static_cast<BOOL>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0));
+		BOOL Selected = Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, 0) != 0;
 		if (!Mask)
 		{
 			*Value = Selected;
@@ -760,7 +764,7 @@ public:
 		return Buffer;
 	}
 
-	const wchar_t *GetMask()
+	const wchar_t *GetMask() const
 	{
 		return Mask;
 	}
