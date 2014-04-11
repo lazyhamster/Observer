@@ -641,6 +641,7 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="FarStorage.cpp" />
+    <ClCompile Include="InterfaceCommon.cpp" />
     <ClCompile Include="ModulesController.cpp" />
     <ClCompile Include="Observer.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
@@ -704,6 +705,7 @@
     <ClInclude Include="..\common\ModuleCRT.h" />
     <ClInclude Include="..\common\ModuleDef.h" />
     <ClInclude Include="Guids.h" />
+    <ClInclude Include="InterfaceCommon.h" />
     <ClInclude Include="ModulesController.h" />
     <ClInclude Include="OptionsFile.h" />
     <ClInclude Include="..\common\OptionsParser.h" />

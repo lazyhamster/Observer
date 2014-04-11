@@ -8,6 +8,7 @@
 #include "PlugLang.h"
 #include "FarStorage.h"
 #include "CommonFunc.h"
+#include "InterfaceCommon.h"
 
 #include "Config.h"
 #include "RegistrySettings.h"
@@ -30,48 +31,6 @@ static wchar_t optPrefix[MAX_PREFIX_SIZE] = L"observe";
 // Extended settings
 static wchar_t optPanelHeaderPrefix[MAX_PREFIX_SIZE] = L"";
 static int optExtendedCurDir = FALSE;
-
-struct ProgressContext
-{
-	wchar_t wszFilePath[MAX_PATH];
-	int nCurrentFileNumber;
-	__int64 nCurrentFileSize;
-	
-	int nTotalFiles;
-	__int64 nTotalSize;
-
-	__int64 nProcessedFileBytes;
-	__int64 nTotalProcessedBytes;
-	int nCurrentProgress;
-	
-	ProgressContext()
-	{
-		memset(wszFilePath, 0, sizeof(wszFilePath));
-		nCurrentFileNumber = 0;
-		nTotalFiles = 0;
-		nTotalSize = 0;
-		nProcessedFileBytes = 0;
-		nCurrentFileSize = 0;
-		nTotalProcessedBytes = 0;
-		nCurrentProgress = -1;
-	}
-};
-
-struct ExtractSelectedParams
-{
-	wstring strDestPath;
-	int bRecursive;
-	int nPathProcessing;			// from KeepPathValues
-	int nOverwriteExistingFiles;    // 0 - skip, 1 - overwrite, 2 - ask
-
-	ExtractSelectedParams(const wchar_t* dstPath)
-	{
-		strDestPath = dstPath;
-		bRecursive = 1;
-		nPathProcessing = KPV_PARTIAL;
-		nOverwriteExistingFiles = 2;
-	}
-};
 
 //-----------------------------------  Local functions ----------------------------------------
 
@@ -371,10 +330,8 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 	int nFileProgress = (pc->nCurrentFileSize > 0) ? (int) ((pc->nProcessedFileBytes * 100) / pc->nCurrentFileSize) : 0;
 	int nTotalProgress = (pc->nTotalSize > 0) ? (int) (((pc->nTotalProcessedBytes + pc->nProcessedFileBytes) * 100) / pc->nTotalSize) : 0;
 
-	if (nFileProgress != pc->nCurrentProgress)
+	if (pc->bDisplayOnScreen && (nFileProgress != pc->nCurrentProgress))
 	{
-		pc->nCurrentProgress = nFileProgress;
-
 		static wchar_t szFileProgressLine[100] = {0};
 		swprintf_s(szFileProgressLine, 100, L"File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, nFileProgress, nTotalProgress);
 
@@ -396,6 +353,7 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 		}
 	}
 
+	pc->nCurrentProgress = nFileProgress;
 	return TRUE;
 }
 
@@ -525,7 +483,7 @@ static bool AskExtractOverwrite(int &overwrite, const WIN32_FIND_DATAW* existing
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, const wchar_t* destPath, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, const wchar_t* destPath, bool showMessages, int &doOverwrite, bool &skipOnError, ProgressContext* pctx)
 {
 	if (!item || !storage || item->IsDir())
 		return SER_ERROR_READ;
@@ -537,7 +495,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	WIN32_FIND_DATAW fdExistingFile = {0};
 	bool fAlreadyExists = FileExists(destPath, &fdExistingFile);
 
-	if (!silent && fAlreadyExists)
+	if (showMessages && fAlreadyExists)
 	{
 		if (doOverwrite == EXTR_OVERWRITE_ASK)
 			if (!AskExtractOverwrite(doOverwrite, &fdExistingFile, item))
@@ -563,7 +521,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		{
 			if (!ForceDirectoryExist(strTargetDir.c_str()))
 			{
-				if (!silent)
+				if (showMessages)
 					DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, strTargetDir.c_str());
 
 				return SER_ERROR_WRITE;
@@ -577,7 +535,6 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		SetFileAttributes(destPath, fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 	}
 
-	ProgressContext* pctx = (ProgressContext*) callbackContext;
 	HANDLE hScreen;
 
 	int ret;
@@ -589,7 +546,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		params.flags = 0;
 		params.destFilePath = destPath;
 		params.callbacks.FileProgress = ExtractProgress;
-		params.callbacks.signalContext = callbackContext;
+		params.callbacks.signalContext = pctx;
 
 		ExtractStart(item, pctx, hScreen);
 		ret = storage->Extract(params);
@@ -600,8 +557,8 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 			int errorResp = EEN_ABORT;
 			if (skipOnError)
 				errorResp = EEN_SKIP;
-			else if (!silent)
-				errorResp = ExtractError(ret, callbackContext);
+			else if (showMessages)
+				errorResp = ExtractError(ret, pctx);
 
 			switch (errorResp)
 			{
@@ -632,14 +589,14 @@ static bool ItemSortPred(ContentTreeNode* item1, ContentTreeNode* item2)
 	return (item1->StorageIndex < item2->StorageIndex);
 }
 
-int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtractSize, bool silent, ExtractSelectedParams &extParams)
+int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtractSize, ExtractSelectedParams &extParams)
 {
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(items.begin(), items.end(), ItemSortPred);
 
 	if (!ForceDirectoryExist(extParams.strDestPath.c_str()))
 	{
-		if (!silent)
+		if (!extParams.bSilent)
 			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
 		return 0;
 	}
@@ -667,18 +624,26 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	ProgressContext pctx;
 	pctx.nTotalFiles = (int) items.size();
 	pctx.nTotalSize = totalExtractSize;
-
-	// Win7 only feature
-	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? (void*) PS_NORMAL : (void*) PS_INDETERMINATE);
+	pctx.bDisplayOnScreen = extParams.bShowProgress;
 
 	wchar_t wszSaveTitle[512], wszCurTitle[128];
-	GetConsoleTitle(wszSaveTitle, ARRAY_SIZE(wszSaveTitle));
+
+	if (extParams.bShowProgress)
+	{
+		// Win7 only feature
+		FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? (void*) PS_NORMAL : (void*) PS_INDETERMINATE);
+	
+		GetConsoleTitle(wszSaveTitle, ARRAY_SIZE(wszSaveTitle));
+	}
 
 	// Extract all files one by one
 	for (ContentNodeList::const_iterator cit = items.begin(); cit != items.end(); cit++)
 	{
-		swprintf_s(wszCurTitle, ARRAY_SIZE(wszCurTitle), L"Extracting Files (%d / %d)", pctx.nCurrentFileNumber, pctx.nTotalFiles);
-		SetConsoleTitle(wszCurTitle);
+		if (extParams.bShowProgress)
+		{
+			swprintf_s(wszCurTitle, ARRAY_SIZE(wszCurTitle), L"Extracting Files (%d / %d)", pctx.nCurrentFileNumber, pctx.nTotalFiles);
+			SetConsoleTitle(wszCurTitle);
+		}
 		
 		ContentTreeNode* nextItem = *cit;
 		wstring strFullTargetPath = GetFinalExtractionPath(info, nextItem, extParams.strDestPath.c_str(), extParams.nPathProcessing);
@@ -690,15 +655,18 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 		}
 		else
 		{
-			nExtractResult = ExtractStorageItem(info, nextItem, strFullTargetPath.c_str(), silent, doOverwrite, skipOnError, &pctx);
+			nExtractResult = ExtractStorageItem(info, nextItem, strFullTargetPath.c_str(), !extParams.bSilent, doOverwrite, skipOnError, &pctx);
 		}
 
 		if (nExtractResult != SER_SUCCESS) break;
 	}
 
-	SetConsoleTitle(wszSaveTitle);
-	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_NOPROGRESS);
-	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_PROGRESSNOTIFY, 0);
+	if (extParams.bShowProgress)
+	{
+		SetConsoleTitle(wszSaveTitle);
+		FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_NOPROGRESS);
+		FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_PROGRESSNOTIFY, 0);
+	}
 
 	if (nExtractResult == SER_USERABORT)
 		return -1;
@@ -1170,6 +1138,8 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 		return 0;
 
 	ExtractSelectedParams extParams(*DestPath);
+	extParams.bSilent = (OpMode & OPM_SILENT) > 0;
+	extParams.bShowProgress = (OpMode & OPM_FIND) == 0;
 
 	// Confirm extraction
 	if ((OpMode & OPM_SILENT) == 0)
@@ -1179,7 +1149,7 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 			return -1;
 	}
 
-	return BatchExtract(info, vcExtractItems, nTotalExtractSize, (OpMode & OPM_SILENT) > 0, extParams);
+	return BatchExtract(info, vcExtractItems, nTotalExtractSize, extParams);
 }
 
 int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
@@ -1218,8 +1188,9 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
 		CutFileNameFromPath(wszTargetDir, true);
 		
 		ExtractSelectedParams extParams(wszTargetDir);
+		extParams.bSilent = true;
 
-		BatchExtract(info, vcExtractItems, nTotalExtractSize, true, extParams);
+		BatchExtract(info, vcExtractItems, nTotalExtractSize, extParams);
 
 		free(wszTargetDir);
 		
