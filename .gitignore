@@ -1,0 +1,8 @@
+/obj/
+/bin/Release/
+/bin/Release-*-3/
+/bin/Release-*-x64/
+ipch/
+*.sdf
+*.opensdf
+*.suo
