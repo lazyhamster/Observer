@@ -8,6 +8,7 @@
 #include "ModulesController.h"
 #include "PlugLang.h"
 #include "FarStorage.h"
+#include "InterfaceCommon.h"
 
 #include "Config.h"
 #include "RegistrySettings.h"
@@ -32,48 +33,6 @@ static char optPrefix[MAX_PREFIX_SIZE] = "observe";
 // Extended settings
 static char optPanelHeaderPrefix[MAX_PREFIX_SIZE] = "";
 static int optExtendedCurDir = FALSE;
-
-struct ProgressContext
-{
-	char szFilePath[MAX_PATH];
-	int nCurrentFileNumber;
-	__int64 nCurrentFileSize;
-
-	int nTotalFiles;
-	__int64 nTotalSize;
-
-	__int64 nProcessedFileBytes;
-	__int64 nTotalProcessedBytes;
-	int nCurrentProgress;
-
-	ProgressContext()
-	{
-		memset(szFilePath, 0, sizeof(szFilePath));
-		nCurrentFileNumber = 0;
-		nTotalFiles = 0;
-		nTotalSize = 0;
-		nProcessedFileBytes = 0;
-		nCurrentFileSize = 0;
-		nTotalProcessedBytes = 0;
-		nCurrentProgress = -1;
-	}
-};
-
-struct ExtractSelectedParams
-{
-	string strDestPath;
-	int bRecursive;
-	int nPathProcessing;			// from KeepPathValues
-	int nOverwriteExistingFiles;    // 0 - skip, 1 - overwrite, 2 - ask
-
-	ExtractSelectedParams(const char* dstPath)
-	{
-		strDestPath = dstPath;
-		bRecursive = 1;
-		nPathProcessing = KPV_PARTIAL;
-		nOverwriteExistingFiles = 2;
-	}
-};
 
 //-----------------------------------  Local functions ----------------------------------------
 
