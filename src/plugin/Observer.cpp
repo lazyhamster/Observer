@@ -414,7 +414,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, c
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destPath, bool silent, int &doOverwrite, bool &skipOnError, HANDLE callbackContext)
+static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destPath, bool silent, int &doOverwrite, bool &skipOnError, ProgressContext* pctx)
 {
 	if (!item || !storage || item->IsDir()) return FALSE;
 
@@ -469,7 +469,6 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 		SetFileAttributes(destPath, fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 	}
 
-	ProgressContext* pctx = (ProgressContext*) callbackContext;
 	HANDLE hScreen;
 
 	int ret;
@@ -481,7 +480,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 		params.flags = 0;
 		params.destFilePath = destPath;
 		params.callbacks.FileProgress = ExtractProgress;
-		params.callbacks.signalContext = callbackContext;
+		params.callbacks.signalContext = pctx;
 
 		ExtractStart(item, pctx, hScreen);
 		ret = storage->Extract(params);
@@ -493,7 +492,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 			if (skipOnError)
 				errorResp = EEN_SKIP;
 			else if (!silent)
-				errorResp = ExtractError(ret, callbackContext);
+				errorResp = ExtractError(ret, pctx);
 
 			switch (errorResp)
 			{
@@ -982,7 +981,10 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 
 	// Confirm extraction
 	ExtractSelectedParams extrParams(DestPath);
-	if ((OpMode & OPM_SILENT) == 0)
+	extrParams.bSilent = (OpMode & OPM_SILENT) != 0;
+	extrParams.bShowProgress = (OpMode & OPM_FIND) == 0;
+
+	if (!extrParams.bSilent)
 	{
 		IncludeTrailingPathDelim(extrParams.strDestPath);
 		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extrParams))
@@ -999,14 +1001,15 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	
 	if (!ForceDirectoryExist(wszWideDestPath))
 	{
-		if ((OpMode & OPM_SILENT) == 0)
+		if (!extrParams.bSilent)
 			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
 		return 0;
 	}
 
 	if (!IsEnoughSpaceInPath(wszWideDestPath, nTotalExtractSize))
 	{
-		DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
+		if (!extrParams.bSilent)
+			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_NODISKSPACE, NULL);
 		return 0;
 	}
 
@@ -1027,6 +1030,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 	ProgressContext pctx;
 	pctx.nTotalFiles = vcExtractItems.size();
 	pctx.nTotalSize = nTotalExtractSize;
+	pctx.bDisplayOnScreen = extrParams.bShowProgress;
 
 	// Extract all files one by one
 	for (ContentNodeList::const_iterator cit = vcExtractItems.begin(); cit != vcExtractItems.end(); cit++)
@@ -1041,7 +1045,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		}
 		else
 		{
-			nExtractResult = ExtractStorageItem(info, nextItem, strFullPath.c_str(), (OpMode & OPM_SILENT) > 0, doOverwrite, skipOnError, &pctx);
+			nExtractResult = ExtractStorageItem(info, nextItem, strFullPath.c_str(), extrParams.bSilent, doOverwrite, skipOnError, &pctx);
 		}
 
 		if (!nExtractResult) break;
