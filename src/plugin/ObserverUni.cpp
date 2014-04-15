@@ -1101,7 +1101,7 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 
 int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int ItemsNumber, int Move, const wchar_t **DestPath, int OpMode)
 {
-	if (Move || !DestPath || (OpMode & OPM_FIND) || !ItemsNumber)
+	if (Move || !DestPath || !ItemsNumber)
 		return 0;
 
 	// Check for single '..' item, do not show confirm dialog
@@ -1138,11 +1138,11 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 		return 0;
 
 	ExtractSelectedParams extParams(*DestPath);
-	extParams.bSilent = (OpMode & OPM_SILENT) > 0;
+	extParams.bSilent = (OpMode & OPM_SILENT) != 0;
 	extParams.bShowProgress = (OpMode & OPM_FIND) == 0;
 
 	// Confirm extraction
-	if ((OpMode & OPM_SILENT) == 0)
+	if (!extParams.bSilent)
 	{
 		IncludeTrailingPathDelim(extParams.strDestPath);
 		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extParams))

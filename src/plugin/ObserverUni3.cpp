@@ -1042,11 +1042,11 @@ intptr_t WINAPI GetFilesW(GetFilesInfo *gfInfo)
 		return 0;
 
 	ExtractSelectedParams extParams(gfInfo->DestPath);
-	extParams.bSilent = (gfInfo->OpMode & OPM_SILENT) > 0;
+	extParams.bSilent = (gfInfo->OpMode & OPM_SILENT) != 0;
 	extParams.bShowProgress = (gfInfo->OpMode & OPM_FIND) == 0;
 
 	// Confirm extraction
-	if ((gfInfo->OpMode & OPM_SILENT) == 0)
+	if (!extParams.bSilent)
 	{
 		IncludeTrailingPathDelim(extParams.strDestPath);
 		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extParams))
