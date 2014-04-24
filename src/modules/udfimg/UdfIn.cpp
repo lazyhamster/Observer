@@ -922,7 +922,7 @@ bool CUdfArchive::Open(const wchar_t *path, CProgressVirt *progress)
   catch(...)
   {
 	  Clear();
-	  res = false;
+	  res = S_FALSE;
   }
 
   return (res == S_OK);

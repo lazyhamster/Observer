@@ -46,21 +46,10 @@ bool SetupFactory56::Open( CFileStream* inFile )
 	
 	inFile->SetPos(0);
 
-	if (CheckSignature(inFile, 0x8000, 5))
-	{
-		m_pInFile = inFile;
-		return true;
-	}
-
-	// Main offset for version 6
-	if (CheckSignature(inFile, 0x12000, 6))
-	{
-		m_pInFile = inFile;
-		return true;
-	}
-
-	// Alternative offset for version 6 (usually have no files in script)
-	if (CheckSignature(inFile, 0x15000, 6))
+	if (CheckSignature(inFile, 0x8000, 5)
+		|| CheckSignature(inFile, 0x12000, 6) // Main offset for version 6
+		|| CheckSignature(inFile, 0x15000, 6) // Alternative offset for version 6 (usually have no files in script)
+		)
 	{
 		m_pInFile = inFile;
 		return true;
@@ -140,7 +129,7 @@ int SetupFactory56::EnumFiles()
 		}
 
 		if (!Explode(m_pInFile, size, destUnpack, &destSize, &destCrc))
-			return false;
+			return -1;
 
 		fe.UnpackedSize = destSize;
 		m_vFiles.push_back(fe);

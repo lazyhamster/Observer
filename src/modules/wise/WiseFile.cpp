@@ -216,7 +216,7 @@ bool CWiseFile::Approximate(int &approxOffset, bool &isPkZip)
 
 	offsa = 0xbffc;
 	l2 = 0;
-	while ( ((buf[offsa] != 0) || (buf[offsa+1] != 0)) && (offsa > 0x20) && (l2 != 1) )
+	while ( ((buf[offsa] != 0) || (buf[offsa+1] != 0)) && (offsa > 0x20) )
 	{
 		offsa--;
 		if ( (buf[offsa] == 0) && (buf[offsa+1] == 0) )

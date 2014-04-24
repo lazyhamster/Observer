@@ -90,7 +90,7 @@ DirectoryNode::~DirectoryNode()
 
 bool DirectoryNode::Init(DirectoryEntry *entry, bool substDotTargetWithSource)
 {
-	if (!entry || !entry->Key || !*entry->Key)
+	if (!entry || !*entry->Key)
 		return false;
 
 	Key = _wcsdup(entry->Key);
@@ -263,7 +263,7 @@ FileNode::~FileNode()
 
 bool FileNode::Init( FileEntry *entry )
 {
-	if (!entry || !entry->Key || !*entry->Key)
+	if (!entry || !*entry->Key)
 		return false;
 
 	Key = _wcsdup(entry->Key);

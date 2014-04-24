@@ -41,6 +41,8 @@ protected:
 	virtual bool InternalInit(HMODULE module) = 0;
 
 public:
+	virtual ~IWcxModule() {}
+	
 	bool Load(HMODULE module, const wchar_t* moduleName, int codePage);
 	void Unload();
 

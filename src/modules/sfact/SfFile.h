@@ -21,6 +21,8 @@ protected:
 	UINT m_nFilenameCodepage;
 
 public:
+	virtual ~SetupFactoryFile() {}
+
 	virtual bool Open(CFileStream* inFile) = 0;
 	virtual void Close() = 0;
 	virtual int EnumFiles() = 0;
