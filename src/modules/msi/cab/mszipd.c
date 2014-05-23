@@ -201,7 +201,7 @@ static int inflate(struct mszipd_stream *zip) {
 	READ_IF_NEEDED;
 
 	this_run = length;
-	if (this_run > (unsigned int)(i_end - i_ptr)) this_run = i_end - i_ptr;
+	if (this_run > (unsigned int)(i_end - i_ptr)) this_run = (unsigned int)(i_end - i_ptr);
 	if (this_run > (MSZIP_FRAME_SIZE - zip->window_posn))
 	  this_run = MSZIP_FRAME_SIZE - zip->window_posn;
 
@@ -393,7 +393,7 @@ int mszipd_decompress(struct mszipd_stream *zip, off_t out_bytes) {
   if (zip->error) return zip->error;
 
   /* flush out any stored-up bytes before we begin */
-  i = zip->o_end - zip->o_ptr;
+  i = (int) (zip->o_end - zip->o_ptr);
   if ((off_t) i > out_bytes) i = (int) out_bytes;
   if (i) {
     if (zip->sys->write(zip->output, zip->o_ptr, i) != i) {
