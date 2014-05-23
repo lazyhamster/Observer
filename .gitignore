@@ -5,3 +5,4 @@ ipch/
 *.opensdf
 *.suo
 Observer_*.rar
+plug_version.h
