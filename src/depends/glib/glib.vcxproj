@@ -786,6 +786,7 @@
     <ClInclude Include="glib\gnulib\vasnprintf.h" />
     <ClInclude Include="glib\libcharset\libcharset.h" />
     <ClInclude Include="glib\libcharset\localcharset.h" />
+    <ClInclude Include="msvc_recommended_pragmas.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

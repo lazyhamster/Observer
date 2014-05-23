@@ -595,5 +595,8 @@
     <ClInclude Include="glib\libcharset\localcharset.h">
       <Filter>Header Files\libcharset</Filter>
     </ClInclude>
+    <ClInclude Include="msvc_recommended_pragmas.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
