@@ -5,7 +5,7 @@ Changes history:
 - Updated zlib library to version 1.2.8.
 - Enabled search inside containers.
 - MSI: Attach orphan folders to root.
-- MSI: Fixed issues with extracting to folders contaning non-latin characters.
+- MSI: Fixed issues with extracting to folders containing non-latin characters.
 - IShield: Added support for one more type of SFX files.
 
 1.9.1
