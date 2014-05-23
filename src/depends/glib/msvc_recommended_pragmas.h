@@ -37,3 +37,5 @@
 
 #pragma warning(disable:4715)  /* not all control paths return a value */
 #pragma warning(disable:4102)  /* unreferenced label */
+
+#pragma warning(disable:4267) /* conversion from 'x' to 'y', possible loss of data */
