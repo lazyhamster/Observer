@@ -69,7 +69,7 @@ ECHO Packing release
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Packing source code
-%PACKER_CMD% -xipch "-x*\ipch" "-x*\ipch\*" -x*.suo -x*.sdf -x*.opensdf -xObserver*.rar -- Observer_%1_src.rar "..\..\src" "..\..\doc"
+%PACKER_CMD% -xipch "-x*\ipch" "-x*\ipch\*" -x*.suo -x*.sdf -x*.opensdf -xObserver*.rar -- Observer_%1_src.rar "..\..\src" "..\..\doc" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO [SUCCESS] Global build complete !!!
