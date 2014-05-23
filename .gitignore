@@ -1,8 +1,7 @@
 /obj/
-/bin/Release/
-/bin/Release-*-3/
-/bin/Release-*-x64/
+/bin/Release*/
 ipch/
 *.sdf
 *.opensdf
 *.suo
+Observer_*.rar
