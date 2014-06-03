@@ -153,3 +153,25 @@ void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim)
 		*fullPath = 0;
 	}
 }
+
+void InsertCommas(wchar_t *Dest)
+{
+	int I;
+	for (I=(int)wcslen(Dest)-4;I>=0;I-=3)
+		if (Dest[I])
+		{
+			wmemmove(Dest+I+2,Dest+I+1,wcslen(Dest+I));
+			Dest[I+1]=',';
+		}
+}
+
+void InsertCommas(char *Dest)
+{
+	int I;
+	for (I=strlen(Dest)-4;I>=0;I-=3)
+		if (Dest[I])
+		{
+			memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
+			Dest[I+1]=',';
+		}
+}

@@ -1,5 +1,5 @@
 // Observer.cpp : Defines the exported functions for the DLL application.
-// This module contains functions for ANSI version of FAR (1.75+)
+// This module contains functions for Unicode version of FAR (2.0)
 
 #include "StdAfx.h"
 #include <far2/plugin.hpp>
@@ -75,17 +75,6 @@ static void SaveSettings()
 		regOpts.SetValue(L"Prefix", optPrefix);
 		regOpts.SetValue(L"UseExtensionFilters", optUseExtensionFilters);
 	}
-}
-
-static void InsertCommas(wchar_t *Dest)
-{
-  int I;
-  for (I=(int)wcslen(Dest)-4;I>=0;I-=3)
-    if (Dest[I])
-    {
-      wmemmove(Dest+I+2,Dest+I+1,wcslen(Dest+I));
-      Dest[I+1]=',';
-    }
 }
 
 static wstring ResolveFullPath(const wchar_t* input)

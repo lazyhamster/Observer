@@ -76,17 +76,6 @@ static void SaveSettings()
 	ps.Set(0, L"UseExtensionFilters", optUseExtensionFilters);
 }
 
-static void InsertCommas(wchar_t *Dest)
-{
-  int I;
-  for (I=(int)wcslen(Dest)-4;I>=0;I-=3)
-    if (Dest[I])
-    {
-      wmemmove(Dest+I+2,Dest+I+1,wcslen(Dest+I));
-      Dest[I+1]=',';
-    }
-}
-
 static wstring ResolveFullPath(const wchar_t* input)
 {
 	wstring strFull;

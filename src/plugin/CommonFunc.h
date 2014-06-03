@@ -20,4 +20,7 @@ void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize);
 void IncludeTrailingPathDelim(wstring& pathBuf);
 void IncludeTrailingPathDelim(string& pathBuf);
 
+void InsertCommas(wchar_t *Dest);
+void InsertCommas(char *Dest);
+
 #endif // CommonFunc_h__
