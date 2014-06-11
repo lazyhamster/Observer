@@ -22,11 +22,11 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	bool fEncrypted = false;
 
 	// First try to open file as plain MPQ
-	if (!SFileOpenArchive(params.FilePath, 0, MPQ_OPEN_READ_ONLY, &hMpq))
+	if (!SFileOpenArchive(params.FilePath, 0, STREAM_PROVIDER_FLAT | MPQ_OPEN_READ_ONLY, &hMpq))
 	{
 		// Additionally try to open file as encrypted MPQ
 		fEncrypted = true;
-		if (!SFileOpenArchive(params.FilePath, 0, MPQ_OPEN_ENCRYPTED | MPQ_OPEN_READ_ONLY, &hMpq))
+		if (!SFileOpenArchive(params.FilePath, 0, STREAM_PROVIDER_MPQE | MPQ_OPEN_READ_ONLY, &hMpq))
 			return SOR_INVALID_FILE;
 	}
 
