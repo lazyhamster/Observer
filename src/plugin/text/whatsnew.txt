@@ -1,5 +1,8 @@
 Changes history:
 
+1.9.3
+- MPQ: Updated StormLib library to version 9.0.
+
 1.9.2
 - Added PDF support module (extracts embedded files).
 - Updated zlib library to version 1.2.8.
