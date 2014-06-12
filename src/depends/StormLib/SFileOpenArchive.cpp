@@ -216,8 +216,10 @@ bool WINAPI SFileOpenArchive(
         if(dwFlags & MPQ_OPEN_CHECK_SECTOR_CRC)
             ha->dwFlags |= MPQ_FLAG_CHECK_SECTOR_CRC;
 
+		const ULONGLONG MaxSearchOffset = 1 * 1024 * 1024;
+
         // Find the offset of MPQ header within the file
-        while(SearchOffset < FileSize)
+        while(SearchOffset < FileSize && SearchOffset < MaxSearchOffset)
         {
             DWORD dwBytesAvailable = MPQ_HEADER_SIZE_V4;
 
