@@ -157,9 +157,6 @@
     <ClInclude Include="HLLib\HLLib.h">
       <Filter>Header Files\HLLib</Filter>
     </ClInclude>
-    <ClInclude Include="HLLib\HLTypes.h">
-      <Filter>Header Files\HLLib</Filter>
-    </ClInclude>
     <ClInclude Include="HLLib\Mapping.h">
       <Filter>Header Files\HLLib</Filter>
     </ClInclude>
@@ -213,6 +210,9 @@
     </ClInclude>
     <ClInclude Include="HLLib\SGAFile.h">
       <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\HLTypes.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
