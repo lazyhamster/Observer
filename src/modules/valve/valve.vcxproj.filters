@@ -13,88 +13,94 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
+    <Filter Include="Source Files\HLLib">
+      <UniqueIdentifier>{7191b357-5f2b-468f-a715-19e5b12a5b34}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\HLLib">
+      <UniqueIdentifier>{6eb6998d-33c7-4538-a26d-d1f6dc793177}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AuxUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HLLib\BSPFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\Checksum.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\DirectoryFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\DirectoryFolder.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\DirectoryItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\Error.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\FileMapping.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\FileStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\GCFFile.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\GCFStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\HLLib.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\Mapping.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\MappingStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\MemoryStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\NullStream.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\Package.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\PAKFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="HLLib\StreamMapping.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="HLLib\Utility.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="valve.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="HLLib\BSPFile.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\Checksum.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\DirectoryFile.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\DirectoryFolder.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\DirectoryItem.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\Error.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\FileMapping.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\FileStream.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\GCFFile.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\GCFStream.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\HLLib.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\Mapping.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\MappingStream.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\MemoryStream.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\NullStream.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\Package.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\PAKFile.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\StreamMapping.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\Utility.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
     <ClCompile Include="HLLib\VBSPFile.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\HLLib</Filter>
     </ClCompile>
     <ClCompile Include="HLLib\VPKFile.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\HLLib</Filter>
     </ClCompile>
     <ClCompile Include="HLLib\WADFile.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\HLLib</Filter>
     </ClCompile>
     <ClCompile Include="HLLib\XZPFile.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\HLLib</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -106,101 +112,101 @@
     <ClInclude Include="AuxUtils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="HLLib\BSPFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\Checksum.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\DirectoryFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\DirectoryFolder.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\DirectoryItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\DirectoryItems.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\Error.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\FileMapping.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\FileStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\GCFFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\GCFStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\HLLib.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\HLTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\Mapping.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\Mappings.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\MappingStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\MemoryStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\NullStream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\Package.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\Packages.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\PAKFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\Stream.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\StreamMapping.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="HLLib\Streams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="HLLib\BSPFile.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\Checksum.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\DirectoryFile.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\DirectoryFolder.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\DirectoryItem.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\DirectoryItems.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\Error.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\FileMapping.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\FileStream.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\GCFFile.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\GCFStream.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\HLLib.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\HLTypes.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\Mapping.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\Mappings.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\MappingStream.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\MemoryStream.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\NullStream.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\Package.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\Packages.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\PAKFile.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\resource.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\Stream.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\StreamMapping.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\Streams.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
     <ClInclude Include="HLLib\Utility.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\HLLib</Filter>
     </ClInclude>
     <ClInclude Include="HLLib\VBSPFile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\HLLib</Filter>
     </ClInclude>
     <ClInclude Include="HLLib\VPKFile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\HLLib</Filter>
     </ClInclude>
     <ClInclude Include="HLLib\WADFile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\HLLib</Filter>
     </ClInclude>
     <ClInclude Include="HLLib\XZPFile.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\HLLib</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
