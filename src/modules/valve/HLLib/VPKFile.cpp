@@ -1,6 +1,6 @@
 /*
  * HLLib
- * Copyright (C) 2006-2010 Ryan Gregg
+ * Copyright (C) 2006-2013 Ryan Gregg
 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,7 +26,7 @@ using namespace HLLib;
 const char *CVPKFile::lpAttributeNames[] = { "Archives", "Version" };
 const char *CVPKFile::lpItemAttributeNames[] = { "Preload Bytes", "Archive", "CRC" };
 
-CVPKFile::CVPKFile() : CPackage(), pView(0), uiArchiveCount(0), lpArchives(0), pHeader(0), pDirectoryItems(0)
+CVPKFile::CVPKFile() : CPackage(), pView(0), uiArchiveCount(0), lpArchives(0), pHeader(0), pExtendedHeader(0), lpArchiveHashes(0), pDirectoryItems(0)
 {
 
 }
@@ -46,9 +46,9 @@ const hlChar *CVPKFile::GetExtension() const
 	return "vpk";
 }
 
-const hlWChar *CVPKFile::GetDescription() const
+const hlChar *CVPKFile::GetDescription() const
 {
-	return L"Valve Package File";
+	return "Valve Package File";
 }
 
 hlBool CVPKFile::MapString(const hlChar *&lpViewData, const hlChar *lpViewDirectoryDataEnd, const hlChar *&lpString)
@@ -98,8 +98,22 @@ hlBool CVPKFile::MapDataStructures()
 	}
 	else
 	{
+		if(this->pHeader->uiVersion > 2)
+		{
+			LastError.SetErrorMessageFormated("Invalid VPK version (v%u): you have a version of a VPK file that HLLib does not know how to read. Check for product updates.", this->pHeader->uiVersion);
+			return hlFalse;
+		}
 		lpViewData += sizeof(VPKHeader);
+		if(this->pHeader->uiVersion >= 2)
+		{
+			this->pExtendedHeader = reinterpret_cast<const VPKExtendedHeader *>(lpViewData);
+			lpViewData += sizeof(VPKExtendedHeader);
+		}
 		lpViewDirectoryDataEnd = lpViewData + this->pHeader->uiDirectoryLength;
+		if(this->pExtendedHeader != 0)
+		{
+			this->lpArchiveHashes = reinterpret_cast<const VPKArchiveHash *>(lpViewDirectoryDataEnd);
+		}
 	}
 
 	while(hlTrue)
@@ -138,39 +152,35 @@ hlBool CVPKFile::MapDataStructures()
 					break;
 				}
 
-				const VPKDirectoryEntry *pDirectoryEntry;
 				if(lpViewData + sizeof(VPKDirectoryEntry) > lpViewDirectoryDataEnd)
 				{
 					LastError.SetErrorMessage("Invalid file: The file map is not within mapping bounds.");
 					return hlFalse;
 				}
-				pDirectoryEntry = reinterpret_cast<const VPKDirectoryEntry *>(lpViewData);
+				const VPKDirectoryEntry *pDirectoryEntry = reinterpret_cast<const VPKDirectoryEntry *>(lpViewData);
 				lpViewData += sizeof(VPKDirectoryEntry);
 
 				const hlVoid *lpPreloadData = 0;
-				if(pDirectoryEntry->uiArchiveIndex == HL_VPK_NO_ARCHIVE)
+				if(pDirectoryEntry->uiArchiveIndex == HL_VPK_NO_ARCHIVE && pDirectoryEntry->uiEntryLength > 0)
 				{
-					if(pDirectoryEntry->uiEntryLength > 0)
+					assert(pDirectoryEntry->uiPreloadBytes == 0);
+					if(lpViewDirectoryDataEnd + pDirectoryEntry->uiEntryOffset + pDirectoryEntry->uiEntryLength <= lpViewDataEnd)
 					{
-						if(lpViewDirectoryDataEnd + pDirectoryEntry->uiEntryOffset + pDirectoryEntry->uiEntryLength <= lpViewDataEnd)
-						{
-							lpPreloadData = lpViewDirectoryDataEnd + pDirectoryEntry->uiEntryOffset;
-						}
+						lpPreloadData = lpViewDirectoryDataEnd + pDirectoryEntry->uiEntryOffset;
 					}
 				}
-				else
+				else if(pDirectoryEntry->uiPreloadBytes > 0)
 				{
-					if(pDirectoryEntry->uiPreloadBytes > 0)
+					if(lpViewData + pDirectoryEntry->uiPreloadBytes > lpViewDirectoryDataEnd)
 					{
-						if(lpViewData + pDirectoryEntry->uiPreloadBytes > lpViewDirectoryDataEnd)
-						{
-							LastError.SetErrorMessage("Invalid file: The file map is not within mapping bounds.");
-							return hlFalse;
-						}
-						lpPreloadData = lpViewData;
-						lpViewData += pDirectoryEntry->uiPreloadBytes;
+						LastError.SetErrorMessage("Invalid file: The file map is not within mapping bounds.");
+						return hlFalse;
 					}
-
+					lpPreloadData = lpViewData;
+					lpViewData += pDirectoryEntry->uiPreloadBytes;
+				}
+				if(pDirectoryEntry->uiArchiveIndex != HL_VPK_NO_ARCHIVE)
+				{
 					if((hlUInt)pDirectoryEntry->uiArchiveIndex + 1 > this->uiArchiveCount)
 					{
 						this->uiArchiveCount = pDirectoryEntry->uiArchiveIndex + 1;
@@ -420,7 +430,7 @@ hlBool CVPKFile::GetFileExtractableInternal(const CDirectoryFile *pFile, hlBool 
 
 	if(pDirectoryItem->pDirectoryEntry->uiArchiveIndex == HL_VPK_NO_ARCHIVE)
 	{
-		bExtractable = pDirectoryItem->lpPreloadData != 0;
+		bExtractable = pDirectoryItem->lpPreloadData != 0 || (pDirectoryItem->pDirectoryEntry->uiPreloadBytes == 0 && pDirectoryItem->pDirectoryEntry->uiEntryLength == 0);
 	}
 	else if(pDirectoryItem->pDirectoryEntry->uiEntryLength != 0)
 	{
@@ -524,45 +534,7 @@ hlBool CVPKFile::GetFileSizeOnDiskInternal(const CDirectoryFile *pFile, hlUInt &
 {
 	const VPKDirectoryItem *pDirectoryItem = static_cast<const VPKDirectoryItem *>(pFile->GetData());
 
-	if(pDirectoryItem->pDirectoryEntry->uiArchiveIndex == HL_VPK_NO_ARCHIVE)
-	{
-		if(pDirectoryItem->lpPreloadData == 0)
-		{
-			uiSize = 0;
-		}
-		else
-		{
-			uiSize = pDirectoryItem->pDirectoryEntry->uiEntryLength;
-		}
-	}
-	else if(pDirectoryItem->pDirectoryEntry->uiEntryLength != 0)
-	{
-		uiSize = pDirectoryItem->pDirectoryEntry->uiEntryLength;
-
-		Mapping::CMapping *pMapping = this->lpArchives[pDirectoryItem->pDirectoryEntry->uiArchiveIndex].pMapping;
-		if(pMapping == 0)
-		{
-			uiSize = 0;
-		}
-		else
-		{
-			hlUInt uiMappingSize = static_cast<hlUInt>(pMapping->GetMappingSize());
-			if(pDirectoryItem->pDirectoryEntry->uiEntryOffset >= uiMappingSize)
-			{
-				uiSize = 0;
-			}
-			else if(pDirectoryItem->pDirectoryEntry->uiEntryOffset + uiSize > uiMappingSize)
-			{
-				uiSize = uiMappingSize - pDirectoryItem->pDirectoryEntry->uiEntryOffset;
-			}
-		}
-
-		uiSize += pDirectoryItem->pDirectoryEntry->uiPreloadBytes;
-	}
-	else
-	{
-		uiSize = pDirectoryItem->pDirectoryEntry->uiPreloadBytes;
-	}
+	uiSize = pDirectoryItem->pDirectoryEntry->uiEntryLength + pDirectoryItem->pDirectoryEntry->uiPreloadBytes;
 
 	return hlTrue;
 }
@@ -571,20 +543,24 @@ hlBool CVPKFile::CreateStreamInternal(const CDirectoryFile *pFile, Streams::IStr
 {
 	const VPKDirectoryItem *pDirectoryItem = static_cast<const VPKDirectoryItem *>(pFile->GetData());
 
-	if(pDirectoryItem->pDirectoryEntry->uiEntryLength != 0)
+	if(pDirectoryItem->pDirectoryEntry->uiArchiveIndex == HL_VPK_NO_ARCHIVE)
 	{
-		if(pDirectoryItem->pDirectoryEntry->uiArchiveIndex == HL_VPK_NO_ARCHIVE)
+		if(pDirectoryItem->lpPreloadData != 0)
 		{
-			if(pDirectoryItem->lpPreloadData != 0)
-			{
-				pStream = new Streams::CMemoryStream(const_cast<hlVoid *>(pDirectoryItem->lpPreloadData), pDirectoryItem->pDirectoryEntry->uiEntryLength);
-			}
-			else
-			{
-				return hlFalse;
-			}
+			pStream = new Streams::CMemoryStream(const_cast<hlVoid *>(pDirectoryItem->lpPreloadData), pDirectoryItem->pDirectoryEntry->uiEntryLength + pDirectoryItem->pDirectoryEntry->uiPreloadBytes);
 		}
-		else if(this->lpArchives[pDirectoryItem->pDirectoryEntry->uiArchiveIndex].pMapping != 0)
+		else if(pDirectoryItem->pDirectoryEntry->uiPreloadBytes == 0 && pDirectoryItem->pDirectoryEntry->uiEntryLength == 0)
+		{
+			pStream = new Streams::CNullStream();
+		}
+		else
+		{
+			return hlFalse;
+		}
+	}
+	else if(pDirectoryItem->pDirectoryEntry->uiEntryLength != 0)
+	{
+		if(this->lpArchives[pDirectoryItem->pDirectoryEntry->uiArchiveIndex].pMapping != 0)
 		{
 			if(pDirectoryItem->pDirectoryEntry->uiPreloadBytes != 0)
 			{

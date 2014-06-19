@@ -1,6 +1,6 @@
 /*
  * HLLib
- * Copyright (C) 2006-2010 Ryan Gregg
+ * Copyright (C) 2006-2012 Ryan Gregg
 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -26,6 +26,10 @@ namespace HLLib
 
 	hlVoid FixupIllegalCharacters(hlChar *lpName);
 	hlVoid RemoveIllegalCharacters(hlChar *lpName);
+
+	hlChar NibbleToChar(hlByte uiNibble);
+	hlUInt BufferToHexString(const hlByte *lpBuffer, hlUInt uiBufferSize, hlChar* lpString, hlUInt uiStringSize);
+	hlUInt WStringToString(const hlWChar *lpSource, hlChar* lpDest, hlUInt uiDestSize);
 }
 
 #endif

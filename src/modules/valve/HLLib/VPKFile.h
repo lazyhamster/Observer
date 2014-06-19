@@ -1,6 +1,6 @@
 /*
  * HLLib
- * Copyright (C) 2006-2010 Ryan Gregg
+ * Copyright (C) 2006-2013 Ryan Gregg
 
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,15 @@ namespace HLLib
 			hlUInt uiDirectoryLength;
 		};
 
+		// Added in version 2.
+		struct VPKExtendedHeader
+		{
+			hlUInt uiDummy0;
+			hlUInt uiArchiveHashLength;
+			hlUInt uiExtraLength;		// Looks like some more MD5 hashes.
+			hlUInt uiDummy1;
+		};
+
 		struct VPKDirectoryEntry
 		{
 			hlUInt uiCRC;
@@ -36,6 +45,15 @@ namespace HLLib
 			hlUInt uiEntryOffset;
 			hlUInt uiEntryLength;
 			hlUShort uiDummy0;			// Always 0xffff.
+		};
+
+		// Added in version 2.
+		struct VPKArchiveHash
+		{
+			hlUInt uiArchiveIndex;
+			hlUInt uiArchiveOffset;
+			hlUInt uiLength;
+			hlByte lpHash[16];			// MD5
 		};
 
 		#pragma pack()
@@ -71,6 +89,8 @@ namespace HLLib
 		VPKArchive *lpArchives;
 
 		const VPKHeader *pHeader;
+		const VPKExtendedHeader *pExtendedHeader;
+		const VPKArchiveHash *lpArchiveHashes;
 		CDirectoryItemList *pDirectoryItems;
 
 	public:
@@ -79,7 +99,7 @@ namespace HLLib
 
 		virtual HLPackageType GetType() const;
 		virtual const hlChar *GetExtension() const;
-		virtual const hlWChar *GetDescription() const;
+		virtual const hlChar *GetDescription() const;
 
 	protected:
 		virtual hlBool MapDataStructures();

@@ -49,9 +49,9 @@ const hlChar *CVBSPFile::GetExtension() const
 	return "bsp";
 }
 
-const hlWChar *CVBSPFile::GetDescription() const
+const hlChar *CVBSPFile::GetDescription() const
 {
-	return L"Half-Life 2 Level";
+	return "Half-Life 2 Level";
 }
 
 hlBool CVBSPFile::MapDataStructures()
@@ -540,7 +540,10 @@ hlBool CVBSPFile::GetFileValidationInternal(const CDirectoryFile *pFile, HLValid
 			delete pStream;
 		}
 
-		eValidation = (hlULong)pDirectoryItem->uiCRC32 == uiChecksum ? HL_VALIDATES_OK : HL_VALIDATES_CORRUPT;
+		if(eValidation == HL_VALIDATES_ASSUMED_OK)
+		{
+			eValidation = (hlULong)pDirectoryItem->uiCRC32 == uiChecksum ? HL_VALIDATES_OK : HL_VALIDATES_CORRUPT;
+		}
 	}
 	else
 	{

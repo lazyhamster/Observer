@@ -39,9 +39,9 @@ const hlChar *CXZPFile::GetExtension() const
 	return "xzp";
 }
 
-const hlWChar *CXZPFile::GetDescription() const
+const hlChar *CXZPFile::GetDescription() const
 {
-	return L"XBox Package File";
+	return "XBox Package File";
 }
 
 hlBool CXZPFile::MapDataStructures()

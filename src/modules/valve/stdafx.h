@@ -11,6 +11,7 @@
 #define _CRT_NONSTDC_NO_DEPRECATE
 
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers
+#define NOMINMAX
 // Windows Header Files:
 #include <windows.h>
 
@@ -18,3 +19,4 @@
 // Additional headers
 #include <list>
 #include <vector>
+#include <algorithm>

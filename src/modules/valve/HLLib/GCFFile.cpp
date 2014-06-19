@@ -77,9 +77,9 @@ const hlChar *CGCFFile::GetExtension() const
 	return "gcf";
 }
 
-const hlWChar *CGCFFile::GetDescription() const
+const hlChar *CGCFFile::GetDescription() const
 {
-	return L"Half-Life Game Cache File";
+	return "Half-Life Game Cache File";
 }
 
 hlBool CGCFFile::MapDataStructures()

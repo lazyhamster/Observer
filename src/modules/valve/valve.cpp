@@ -54,7 +54,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		*storage = vp;
 		
 		memset(info, 0, sizeof(StorageGeneralInfo));
-		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, pkg->GetDescription());
+		MultiByteToWideChar(CP_ACP, 0, pkg->GetDescription(), -1, info->Format, STORAGE_FORMAT_NAME_MAX_LEN);
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"Mixed");
 		wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
 		

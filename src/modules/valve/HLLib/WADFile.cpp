@@ -39,9 +39,9 @@ const hlChar *CWADFile::GetExtension() const
 	return "wad";
 }
 
-const hlWChar *CWADFile::GetDescription() const
+const hlChar *CWADFile::GetDescription() const
 {
-	return L"Half-Life Texture Package File";
+	return "Half-Life Texture Package File";
 }
 
 hlBool CWADFile::MapDataStructures()

@@ -42,7 +42,7 @@ namespace HLLib
 
 		virtual HLPackageType GetType() const = 0;
 		virtual const hlChar *GetExtension() const = 0;
-		virtual const hlWChar *GetDescription() const = 0;
+		virtual const hlChar *GetDescription() const = 0;
 
 		hlBool GetOpened() const;
 
@@ -50,6 +50,8 @@ namespace HLLib
 		hlBool Open(Mapping::CMapping &Mapping, hlUInt uiMode);
 		hlBool Open(const hlWChar *lpFileName, hlUInt uiMode);
 		hlVoid Close();
+
+		hlBool Defragment();
 
 		const Mapping::CMapping* GetMapping() const;
 		CDirectoryFolder *GetRoot();
@@ -74,6 +76,8 @@ namespace HLLib
 	protected:
 		virtual hlBool MapDataStructures() = 0;
 		virtual hlVoid UnmapDataStructures() = 0;
+
+		virtual hlBool DefragmentInternal();
 
 		virtual CDirectoryFolder *CreateRoot() = 0;
 		virtual hlVoid ReleaseRoot();
