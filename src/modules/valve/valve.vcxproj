@@ -588,6 +588,7 @@
     <ClCompile Include="HLLib\NullStream.cpp" />
     <ClCompile Include="HLLib\Package.cpp" />
     <ClCompile Include="HLLib\PAKFile.cpp" />
+    <ClCompile Include="HLLib\SGAFile.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
@@ -637,6 +638,7 @@
     <ClInclude Include="HLLib\Packages.h" />
     <ClInclude Include="HLLib\PAKFile.h" />
     <ClInclude Include="HLLib\resource.h" />
+    <ClInclude Include="HLLib\SGAFile.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="HLLib\Stream.h" />
     <ClInclude Include="HLLib\StreamMapping.h" />
