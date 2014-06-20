@@ -15,6 +15,7 @@ struct ExternalModule
 		CloseStorage = NULL;
 		GetNextItem = NULL;
 		Extract = NULL;
+		ShortCut = '\0';
 	}
 	
 	HMODULE ModuleHandle;
@@ -28,6 +29,8 @@ struct ExternalModule
 	CloseStorageFunc CloseStorage;
 	GetItemFunc GetNextItem;
 	ExtractFunc Extract;
+
+	wchar_t ShortCut;
 
 	const wchar_t* Name() const { return m_sModuleName.c_str(); }
 	const wchar_t* LibraryFile() const { return m_sLibraryFile.c_str(); }
