@@ -16,6 +16,11 @@
 
 typedef unsigned char		hlBool;
 typedef char				hlChar;
+#ifdef __cplusplus
+typedef wchar_t				hlWChar;
+#else
+typedef unsigned short		hlWChar;
+#endif
 typedef unsigned char		hlByte;
 typedef signed short		hlShort;
 typedef unsigned short		hlUShort;
@@ -28,7 +33,6 @@ typedef unsigned long long	hlULongLong;
 typedef float				hlSingle;
 typedef double				hlDouble;
 typedef void				hlVoid;
-typedef wchar_t				hlWChar;
 
 #ifdef _MSC_VER
 	typedef unsigned __int8		hlUInt8;
