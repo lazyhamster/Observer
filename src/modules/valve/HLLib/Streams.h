@@ -15,3 +15,4 @@
 #include "MappingStream.h"
 #include "MemoryStream.h"
 #include "NullStream.h"
+#include "ProcStream.h"

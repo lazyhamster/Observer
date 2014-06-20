@@ -49,6 +49,8 @@ namespace HLLib
 		hlBool Open(Streams::IStream &Stream, hlUInt uiMode);
 		hlBool Open(Mapping::CMapping &Mapping, hlUInt uiMode);
 		hlBool Open(const hlWChar *lpFileName, hlUInt uiMode);
+		hlBool Open(hlVoid *lpData, hlUInt uiBufferSize, hlUInt uiMode);
+		hlBool Open(hlVoid *pUserData, hlUInt uiMode);
 		hlVoid Close();
 
 		hlBool Defragment();

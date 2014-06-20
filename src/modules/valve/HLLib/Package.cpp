@@ -57,6 +57,16 @@ hlBool CPackage::Open(const hlWChar *lpFileName, hlUInt uiMode)
 	}
 }
 
+hlBool CPackage::Open(hlVoid *lpData, hlUInt uiBufferSize, hlUInt uiMode)
+{
+	return this->Open(new Mapping::CMemoryMapping(lpData, uiBufferSize), uiMode, hlTrue);
+}
+
+hlBool CPackage::Open(hlVoid *pUserData, hlUInt uiMode)
+{
+	return this->Open(new Streams::CProcStream(pUserData), uiMode, hlTrue);
+}
+
 hlBool CPackage::Open(Streams::IStream *pStream, hlUInt uiMode, hlBool bDeleteStream)
 {
 	this->Close();

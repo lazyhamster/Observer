@@ -584,10 +584,12 @@
     <ClCompile Include="HLLib\HLLib.cpp" />
     <ClCompile Include="HLLib\Mapping.cpp" />
     <ClCompile Include="HLLib\MappingStream.cpp" />
+    <ClCompile Include="HLLib\MemoryMapping.cpp" />
     <ClCompile Include="HLLib\MemoryStream.cpp" />
     <ClCompile Include="HLLib\NullStream.cpp" />
     <ClCompile Include="HLLib\Package.cpp" />
     <ClCompile Include="HLLib\PAKFile.cpp" />
+    <ClCompile Include="HLLib\ProcStream.cpp" />
     <ClCompile Include="HLLib\SGAFile.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
@@ -632,11 +634,13 @@
     <ClInclude Include="HLLib\Mapping.h" />
     <ClInclude Include="HLLib\Mappings.h" />
     <ClInclude Include="HLLib\MappingStream.h" />
+    <ClInclude Include="HLLib\MemoryMapping.h" />
     <ClInclude Include="HLLib\MemoryStream.h" />
     <ClInclude Include="HLLib\NullStream.h" />
     <ClInclude Include="HLLib\Package.h" />
     <ClInclude Include="HLLib\Packages.h" />
     <ClInclude Include="HLLib\PAKFile.h" />
+    <ClInclude Include="HLLib\ProcStream.h" />
     <ClInclude Include="HLLib\resource.h" />
     <ClInclude Include="HLLib\SGAFile.h" />
     <ClInclude Include="stdafx.h" />

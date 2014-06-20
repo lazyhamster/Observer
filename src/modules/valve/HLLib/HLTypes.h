@@ -342,10 +342,23 @@ typedef struct
 typedef hlVoid HLDirectoryItem;
 typedef hlVoid HLStream;
 
+typedef hlBool (*POpenProc) (hlUInt, hlVoid *);
+typedef hlVoid (*PCloseProc)(hlVoid *);
+typedef hlUInt (*PReadProc)  (hlVoid *, hlUInt, hlVoid *);
+typedef hlUInt (*PWriteProc)  (const hlVoid *, hlUInt, hlVoid *);
+typedef hlUInt (*PSeekProc) (hlLongLong, HLSeekMode, hlVoid *);
+typedef hlULongLong (*PSeekExProc) (hlLongLong, HLSeekMode, hlVoid *);
+typedef hlUInt (*PTellProc) (hlVoid *);
+typedef hlULongLong (*PTellExProc) (hlVoid *);
+typedef hlUInt (*PSizeProc) (hlVoid *);
+typedef hlULongLong (*PSizeExProc) (hlVoid *);
+
 typedef hlVoid (*PExtractItemStartProc) (const HLDirectoryItem *pItem);
 typedef hlVoid (*PExtractItemEndProc) (const HLDirectoryItem *pItem, hlBool bSuccess);
 typedef hlVoid (*PExtractFileProgressProc) (const HLDirectoryItem *pFile, hlUInt uiBytesExtracted, hlUInt uiBytesTotal, hlBool *pCancel);
 typedef hlVoid (*PValidateFileProgressProc) (const HLDirectoryItem *pFile, hlUInt uiBytesValidated, hlUInt uiBytesTotal, hlBool *pCancel);
+typedef hlVoid (*PDefragmentProgressProc) (const HLDirectoryItem *pFile, hlUInt uiFilesDefragmented, hlUInt uiFilesTotal, hlUInt uiBytesDefragmented, hlUInt uiBytesTotal, hlBool *pCancel);
+typedef hlVoid (*PDefragmentProgressExProc) (const HLDirectoryItem *pFile, hlUInt uiFilesDefragmented, hlUInt uiFilesTotal, hlULongLong uiBytesDefragmented, hlULongLong uiBytesTotal, hlBool *pCancel);
 
 #ifdef __cplusplus
 }

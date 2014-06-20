@@ -247,6 +247,8 @@ namespace HLLib
 		virtual hlBool MapDataStructures();
 		virtual hlVoid UnmapDataStructures();
 
+		virtual hlBool DefragmentInternal();
+
 		virtual CDirectoryFolder *CreateRoot();
 
 		virtual hlUInt GetAttributeCountInternal() const;

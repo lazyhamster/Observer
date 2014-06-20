@@ -105,6 +105,12 @@
     <ClCompile Include="HLLib\SGAFile.cpp">
       <Filter>Source Files\HLLib</Filter>
     </ClCompile>
+    <ClCompile Include="HLLib\ProcStream.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
+    <ClCompile Include="HLLib\MemoryMapping.cpp">
+      <Filter>Source Files\HLLib</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="valve.def">
@@ -213,6 +219,12 @@
     </ClInclude>
     <ClInclude Include="HLLib\HLTypes.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\ProcStream.h">
+      <Filter>Header Files\HLLib</Filter>
+    </ClInclude>
+    <ClInclude Include="HLLib\MemoryMapping.h">
+      <Filter>Header Files\HLLib</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

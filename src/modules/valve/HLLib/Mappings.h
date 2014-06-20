@@ -11,4 +11,5 @@
 
 #include "Mapping.h"
 #include "FileMapping.h"
+#include "MemoryMapping.h"
 #include "StreamMapping.h"

@@ -19,13 +19,30 @@ namespace HLLib
 	hlBool bInitialized = hlFalse;
 	CError LastError = CError();
 
+	POpenProc pOpenProc = 0;
+	PCloseProc pCloseProc = 0;
+	PReadProc pReadProc = 0;
+	PWriteProc pWriteProc = 0;
+	PSeekProc pSeekProc = 0;
+	PSeekExProc pSeekExProc = 0;
+	PTellProc pTellProc = 0;
+	PTellExProc pTellExProc = 0;
+	PSizeProc pSizeProc = 0;
+	PSizeExProc pSizeExProc = 0;
+
 	PExtractItemStartProc pExtractItemStartProc = 0;
 	PExtractItemEndProc pExtractItemEndProc = 0;
 	PExtractFileProgressProc pExtractFileProgressProc = 0;
 	PValidateFileProgressProc pValidateFileProgressProc = 0;
+	PDefragmentProgressProc pDefragmentProgressProc = 0;
+	PDefragmentProgressExProc pDefragmentProgressExProc = 0;
+
+	CPackage *pPackage = 0;
+	CPackageVector *pPackageVector = 0;
 
 	hlBool bOverwriteFiles = hlTrue;
 	hlBool bReadEncrypted = hlTrue;
+	hlBool bForceDefragment = hlFalse;
 
 	hlVoid hlExtractItemStart(const HLDirectoryItem *pItem)
 	{
@@ -56,6 +73,18 @@ namespace HLLib
 		if(pValidateFileProgressProc)
 		{
 			pValidateFileProgressProc(pFile, static_cast<hlUInt>(uiBytesValidated), static_cast<hlUInt>(uiBytesTotal), pCancel);
+		}
+	}
+
+	hlVoid hlDefragmentProgress(const HLDirectoryItem *pFile, hlUInt uiFilesDefragmented, hlUInt uiFilesTotal, hlULongLong uiBytesDefragmented, hlULongLong uiBytesTotal, hlBool *pCancel)
+	{
+		if(pDefragmentProgressProc)
+		{
+			pDefragmentProgressProc(pFile, uiFilesDefragmented, uiFilesTotal, static_cast<hlUInt>(uiBytesDefragmented), static_cast<hlUInt>(uiBytesTotal), pCancel);
+		}
+		if(pDefragmentProgressExProc)
+		{
+			pDefragmentProgressExProc(pFile, uiFilesDefragmented, uiFilesTotal, uiBytesDefragmented, uiBytesTotal, pCancel);
 		}
 	}
 }
