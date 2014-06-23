@@ -39,6 +39,7 @@ public:
 	bool GetValue(const wchar_t* Key, wchar_t *Value, size_t MaxValueSize) const;
 	bool GetValue(const wchar_t* Key, char *Value, size_t MaxValueSize) const;
 	bool GetValue(const wchar_t* Key, std::wstring &Value) const;
+	bool GetValue(const wchar_t* Key, wchar_t &Value) const;
 
 	wstring GetAll() const;
 };

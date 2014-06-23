@@ -87,6 +87,18 @@ bool ConfigSection::GetValue( const wchar_t* Key, std::wstring &Value ) const
 	return GetValueByKey(Key, Value);
 }
 
+bool ConfigSection::GetValue( const wchar_t* Key, wchar_t &Value ) const
+{
+	wstring strValue;
+	if (GetValueByKey(Key, strValue) && (strValue.length() >= 1))
+	{
+		Value = strValue[0];
+		return true;
+	}
+
+	return false;
+}
+
 void ConfigSection::AddItem( const wchar_t* Key, const wchar_t* Value )
 {
 	// Try to find and replace existing value
