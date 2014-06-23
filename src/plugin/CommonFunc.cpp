@@ -175,3 +175,18 @@ void InsertCommas(char *Dest)
 			Dest[I+1]=',';
 		}
 }
+
+std::wstring FormatString(const std::wstring fmt_str, ...)
+{
+	const size_t MaxBufferSize = 1024;
+	
+	wchar_t formatted[MaxBufferSize];
+	va_list ap;
+
+	wcscpy_s(&formatted[0], MaxBufferSize, fmt_str.c_str());
+	va_start(ap, fmt_str);
+	_vsnwprintf_s(&formatted[0], MaxBufferSize, MaxBufferSize, fmt_str.c_str(), ap);
+	va_end(ap);
+
+	return std::wstring(formatted);
+}

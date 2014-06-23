@@ -23,4 +23,6 @@ void IncludeTrailingPathDelim(string& pathBuf);
 void InsertCommas(wchar_t *Dest);
 void InsertCommas(char *Dest);
 
+std::wstring FormatString(const std::wstring fmt, ...);
+
 #endif // CommonFunc_h__
