@@ -61,7 +61,7 @@ bool ConfigSection::GetValue( const wchar_t* Key, int &Value ) const
 bool ConfigSection::GetValue( const wchar_t* Key, wchar_t *Value, size_t MaxValueSize ) const
 {
 	wstring strValue;
-	if (GetValueByKey(Key, strValue))
+	if (GetValueByKey(Key, strValue) && (strValue.length() < MaxValueSize))
 	{
 		wcscpy_s(Value, MaxValueSize, strValue.c_str());
 		return true;
