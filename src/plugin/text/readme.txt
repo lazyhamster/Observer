@@ -126,6 +126,12 @@ Full path to the location of wcx files. Default value is folder named "wcx" in t
 [WCX] -> RecursiveLoad
 Enables (1)* / disables (0) recursive scan when searching for wcx.
 
+1.2.4 Module selection shortcuts.
+
+[Shortcuts]
+Here you can set shortcut symbol for module that can be used in module selection menu.
+Shortcut can be a number of any alphabetical character ('A' - 'Z'). Character case is irrelevant.
+
 1.3 Plugin configuration dialog.
 
 As opposed to setttings, described in 1.2, which applied only on program start,
