@@ -45,6 +45,8 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, vector<Failed
 	if (!mModulesList) return 0;
 
 	ConfigSection *mFiltersList = cfg->GetSection(L"Filters");
+	ConfigSection *mShortcutList = cfg->GetSection(L"Shortcuts");
+	bool vUsedShortcuts[36] = {0};
 
 	for (size_t i = 0; i < mModulesList->Count(); i++)
 	{
@@ -60,9 +62,26 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, vector<Failed
 			// Read extensions filter for each module
 			if (mFiltersList != NULL)
 			{
-				wchar_t extList[1024] = {0};
-				mFiltersList->GetValue(module.Name(), extList, ARRAY_SIZE(extList));
-				ParseExtensionList(extList, module);
+				wstring extList;
+				if (mFiltersList->GetValue(module.Name(), extList))
+				{
+					ParseExtensionList(extList.c_str(), module);
+				}
+			}
+
+			// Assign shortcut
+			if (mShortcutList != NULL)
+			{
+				wchar_t cShortcut;
+				if (mShortcutList->GetValue(module.Name(), cShortcut))
+				{
+					cShortcut = towupper(cShortcut);
+					module.ShortCut = cShortcut;
+					if (iswalpha(cShortcut))
+						vUsedShortcuts[cShortcut - L'A' + 10] = true;
+					else
+						vUsedShortcuts[cShortcut - L'0'] = true;
+				}
 			}
 			
 			modules.push_back(module);
@@ -76,7 +95,26 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, vector<Failed
 			failed.push_back(failInfo);
 		}
 	} // for
-	
+
+	// Assign automatic shortcuts to modules without one
+	int lastScIndex = 1;
+	for (size_t j = 0; j < modules.size(); j++)
+	{
+		ExternalModule &module = modules[j];
+		if (module.ShortCut) continue;
+
+		// Find first unused shortcut
+		while (lastScIndex < 36 && vUsedShortcuts[lastScIndex])
+			lastScIndex++;
+		
+		// Too many modules, not enough shortcuts
+		if (lastScIndex > 36) break;
+		
+		module.ShortCut = (lastScIndex < 10) ? (L'0' + lastScIndex) : (L'A' + lastScIndex - 10);
+		vUsedShortcuts[lastScIndex] = true;
+		lastScIndex++;
+	}
+
 	return (int) modules.size();
 }
 
