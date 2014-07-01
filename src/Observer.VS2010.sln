@@ -39,9 +39,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "valve", "modules\valve\valv
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmime", "depends\gmime\gmime.vcxproj", "{4E67EBA5-E9FA-425A-AC99-B744F879F042}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glib", "depends\glib\glib.vcxproj", "{213E1C4D-556C-4D1F-AFA2-1938042920F0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glib", "depends\glib\build\glib.vcxproj", "{213E1C4D-556C-4D1F-AFA2-1938042920F0}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gobject", "depends\glib\gobject.vcxproj", "{AD0C1EE1-93C7-460C-8E59-7E8CD0815811}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gobject", "depends\glib\build\gobject.vcxproj", "{AD0C1EE1-93C7-460C-8E59-7E8CD0815811}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pdb", "modules\pdb\pdb.vcxproj", "{555114AC-E256-45EC-AC1C-1FA4F182DD40}"
 EndProject
