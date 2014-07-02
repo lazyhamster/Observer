@@ -39,9 +39,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="glib\libcharset\localcharset.c">
-      <Filter>Source Files\libcharset</Filter>
-    </ClCompile>
     <ClCompile Include="..\glib\pcre\pcre_chartables.c">
       <Filter>Source Files\pcre</Filter>
     </ClCompile>
@@ -315,14 +312,11 @@
     <ClCompile Include="..\glib\gwin32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\glib\libcharset\localcharset.c">
+      <Filter>Source Files\libcharset</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="glib\libcharset\libcharset.h">
-      <Filter>Header Files\libcharset</Filter>
-    </ClInclude>
-    <ClInclude Include="glib\libcharset\localcharset.h">
-      <Filter>Header Files\libcharset</Filter>
-    </ClInclude>
     <ClInclude Include="..\glib\pcre\pcre.h">
       <Filter>Header Files\pcre</Filter>
     </ClInclude>
@@ -610,6 +604,12 @@
     </ClInclude>
     <ClInclude Include="..\glib\gwin32.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\libcharset\libcharset.h">
+      <Filter>Header Files\libcharset</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\libcharset\localcharset.h">
+      <Filter>Header Files\libcharset</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
