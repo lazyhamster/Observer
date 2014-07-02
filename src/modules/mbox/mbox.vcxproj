@@ -612,14 +612,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\depends\glib\glib.vcxproj">
-      <Project>{213e1c4d-556c-4d1f-afa2-1938042920f0}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\..\depends\glib\gobject.vcxproj">
-      <Project>{ad0c1ee1-93c7-460c-8e59-7e8cd0815811}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\..\depends\gmime\gmime.vcxproj">
       <Project>{4e67eba5-e9fa-425a-ac99-b744f879f042}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
