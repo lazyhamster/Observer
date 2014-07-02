@@ -228,7 +228,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -247,7 +247,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -264,7 +264,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -283,7 +283,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -298,7 +298,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -314,7 +314,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -333,7 +333,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -352,7 +352,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -369,7 +369,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -385,7 +385,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -404,7 +404,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -423,7 +423,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>.;.\glib;..\iconv;.\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -436,49 +436,49 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="gobject\gatomicarray.c" />
-    <ClCompile Include="gobject\gbinding.c" />
-    <ClCompile Include="gobject\gboxed.c" />
-    <ClCompile Include="gobject\gclosure.c" />
-    <ClCompile Include="gobject\genums.c" />
-    <ClCompile Include="gobject\gobject.c" />
-    <ClCompile Include="gobject\gparam.c" />
-    <ClCompile Include="gobject\gparamspecs.c" />
-    <ClCompile Include="gobject\gsignal.c" />
-    <ClCompile Include="gobject\gsourceclosure.c" />
-    <ClCompile Include="gthread\gthread-impl.c" />
-    <ClCompile Include="gobject\gtype.c" />
-    <ClCompile Include="gobject\gtypemodule.c" />
-    <ClCompile Include="gobject\gtypeplugin.c" />
-    <ClCompile Include="gobject\gvalue.c" />
-    <ClCompile Include="gobject\gvaluearray.c" />
-    <ClCompile Include="gobject\gvaluetransform.c" />
-    <ClCompile Include="gobject\gvaluetypes.c" />
+    <ClCompile Include="..\gobject\gatomicarray.c" />
+    <ClCompile Include="..\gobject\gbinding.c" />
+    <ClCompile Include="..\gobject\gboxed.c" />
+    <ClCompile Include="..\gobject\gclosure.c" />
+    <ClCompile Include="..\gobject\genums.c" />
+    <ClCompile Include="..\gobject\gobject.c" />
+    <ClCompile Include="..\gobject\gparam.c" />
+    <ClCompile Include="..\gobject\gparamspecs.c" />
+    <ClCompile Include="..\gobject\gsignal.c" />
+    <ClCompile Include="..\gobject\gsourceclosure.c" />
+    <ClCompile Include="..\gobject\gtype.c" />
+    <ClCompile Include="..\gobject\gtypemodule.c" />
+    <ClCompile Include="..\gobject\gtypeplugin.c" />
+    <ClCompile Include="..\gobject\gvalue.c" />
+    <ClCompile Include="..\gobject\gvaluearray.c" />
+    <ClCompile Include="..\gobject\gvaluetransform.c" />
+    <ClCompile Include="..\gobject\gvaluetypes.c" />
+    <ClCompile Include="..\gthread\gthread-impl.c" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="gobject\gobject.def" />
+    <ClInclude Include="..\gobject\gatomicarray.h" />
+    <ClInclude Include="..\gobject\gbinding.h" />
+    <ClInclude Include="..\gobject\gboxed.h" />
+    <ClInclude Include="..\gobject\gclosure.h" />
+    <ClInclude Include="..\gobject\genums.h" />
+    <ClInclude Include="..\gobject\gmarshal.h" />
+    <ClInclude Include="..\gobject\gobject.h" />
+    <ClInclude Include="..\gobject\gobject_trace.h" />
+    <ClInclude Include="..\gobject\gparam.h" />
+    <ClInclude Include="..\gobject\gparamspecs.h" />
+    <ClInclude Include="..\gobject\gsignal.h" />
+    <ClInclude Include="..\gobject\gsourceclosure.h" />
+    <ClInclude Include="..\gobject\gtype-private.h" />
+    <ClInclude Include="..\gobject\gtype.h" />
+    <ClInclude Include="..\gobject\gtypemodule.h" />
+    <ClInclude Include="..\gobject\gtypeplugin.h" />
+    <ClInclude Include="..\gobject\gvalue.h" />
+    <ClInclude Include="..\gobject\gvaluearray.h" />
+    <ClInclude Include="..\gobject\gvaluecollector.h" />
+    <ClInclude Include="..\gobject\gvaluetypes.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gobject\gatomicarray.h" />
-    <ClInclude Include="gobject\gbinding.h" />
-    <ClInclude Include="gobject\gboxed.h" />
-    <ClInclude Include="gobject\gclosure.h" />
-    <ClInclude Include="gobject\genums.h" />
-    <ClInclude Include="gobject\gmarshal.h" />
-    <ClInclude Include="gobject\gobject.h" />
-    <ClInclude Include="gobject\gobject_trace.h" />
-    <ClInclude Include="gobject\gparam.h" />
-    <ClInclude Include="gobject\gparamspecs.h" />
-    <ClInclude Include="gobject\gsignal.h" />
-    <ClInclude Include="gobject\gsourceclosure.h" />
-    <ClInclude Include="gobject\gtype-private.h" />
-    <ClInclude Include="gobject\gtype.h" />
-    <ClInclude Include="gobject\gtypemodule.h" />
-    <ClInclude Include="gobject\gtypeplugin.h" />
-    <ClInclude Include="gobject\gvalue.h" />
-    <ClInclude Include="gobject\gvaluearray.h" />
-    <ClInclude Include="gobject\gvaluecollector.h" />
-    <ClInclude Include="gobject\gvaluetypes.h" />
+    <None Include="..\gobject\gobject.def" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="glib.vcxproj">
