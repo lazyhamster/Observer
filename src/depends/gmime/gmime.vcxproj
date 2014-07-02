@@ -536,11 +536,11 @@
     <ClInclude Include="util\url-scanner.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\glib\glib.vcxproj">
+    <ProjectReference Include="..\glib\build\glib.vcxproj">
       <Project>{213e1c4d-556c-4d1f-afa2-1938042920f0}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
-    <ProjectReference Include="..\glib\gobject.vcxproj">
+    <ProjectReference Include="..\glib\build\gobject.vcxproj">
       <Project>{ad0c1ee1-93c7-460c-8e59-7e8cd0815811}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
