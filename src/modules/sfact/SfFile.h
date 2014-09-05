@@ -20,6 +20,9 @@ protected:
 	std::vector<SFFileEntry> m_vFiles;
 	UINT m_nFilenameCodepage;
 
+	bool ReadString(AStream* stream, char* buf);
+	bool SkipString(AStream* stream);
+
 public:
 	virtual ~SetupFactoryFile() {}
 

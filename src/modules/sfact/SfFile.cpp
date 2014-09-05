@@ -24,3 +24,17 @@ void FreeInstaller( SetupFactoryFile* file )
 		delete file;
 	}
 }
+
+bool SetupFactoryFile::SkipString( AStream* stream )
+{
+	uint8_t strSize;
+	return stream->ReadBuffer(&strSize, sizeof(strSize)) && stream->Seek(strSize, STREAM_CURRENT);
+}
+
+bool SetupFactoryFile::ReadString( AStream* stream, char* buf )
+{
+	uint8_t strSize;
+	bool retval = stream->ReadBuffer(&strSize, sizeof(strSize)) && stream->ReadBuffer(buf, strSize);
+	if (retval) buf[strSize] = 0;
+	return retval;
+}
