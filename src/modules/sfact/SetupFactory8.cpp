@@ -42,8 +42,6 @@ bool SetupFactory8::Open( CFileStream* inFile )
 {
 	Close();
 
-	inFile->SetPos(0);
-
 	int64_t ovlStart, ovlSize;
 	if (!FindFileOverlay(inFile, ovlStart, ovlSize))
 		return false;
@@ -52,6 +50,8 @@ bool SetupFactory8::Open( CFileStream* inFile )
 	std::string manifestText = GetManifest(inFile->FileName());
 	if (manifestText.find("<description>Setup Factory 8.0 Run-time</description>") == std::string::npos)
 		return false;
+
+	inFile->SetPos(ovlStart);
 
 	uint8_t sigBuf[SIGNATURE_SIZE];
 	if (inFile->ReadBuffer(sigBuf, sizeof(sigBuf)) && (memcmp(sigBuf, SIGNATURE, SIGNATURE_SIZE) == 0))
