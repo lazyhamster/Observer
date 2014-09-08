@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "SetupFactory8.h"
 #include "Decomp.h"
+#include "modulecrt/PEHelper.h"
 
 #define SIGNATURE_SIZE 16
 const uint8_t SIGNATURE[SIGNATURE_SIZE] = {0xe0,0xe0,0xe1,0xe1,0xe2,0xe2,0xe3,0xe3,0xe4,0xe4,0xe5,0xe5,0xe6,0xe6,0xe7,0xe7};
@@ -43,9 +44,22 @@ bool SetupFactory8::Open( CFileStream* inFile )
 
 	inFile->SetPos(0);
 
-	if (/*CheckSignature(inFile, 0x11800, 9) || */CheckSignature(inFile, 0x13000, 8))
+	int64_t ovlStart, ovlSize;
+	if (!FindFileOverlay(inFile, ovlStart, ovlSize))
+		return false;
+
+	// Check manifest for proper version
+	std::string manifestText = GetManifest(inFile->FileName());
+	if (manifestText.find("<description>Setup Factory 8.0 Run-time</description>") == std::string::npos)
+		return false;
+
+	uint8_t sigBuf[SIGNATURE_SIZE];
+	if (inFile->ReadBuffer(sigBuf, sizeof(sigBuf)) && (memcmp(sigBuf, SIGNATURE, SIGNATURE_SIZE) == 0))
 	{
 		m_pInFile = inFile;
+		m_nStartOffset = inFile->GetPos();
+		m_nVersion = 8;
+
 		return true;
 	}
 
@@ -176,8 +190,11 @@ bool SetupFactory8::ExtractFile( int index, AStream* outStream )
 
 int SetupFactory8::ParseScript( int64_t baseOffset )
 {
+	int foundFiles = 0;
+	m_pScriptData->SetPos(0);
+	
 	//TODO: implement
-	return 0;
+	return foundFiles;
 }
 
 bool SetupFactory8::ReadSpecialFile( const wchar_t* fileName )
