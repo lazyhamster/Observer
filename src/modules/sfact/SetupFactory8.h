@@ -10,7 +10,6 @@ private:
 	int64_t m_nStartOffset;
 	int64_t m_nContentBaseOffset;
 	
-	bool CheckSignature(CFileStream* inFile, int64_t offset, int sufVersion);
 	int ParseScript(int64_t baseOffset);
 	bool ReadSpecialFile(const wchar_t* fileName);
 

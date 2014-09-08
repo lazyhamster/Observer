@@ -25,19 +25,6 @@ SetupFactory8::~SetupFactory8( void )
 	Close();
 }
 
-bool SetupFactory8::CheckSignature( CFileStream* inFile, int64_t offset, int sufVersion )
-{
-	uint8_t sigBuf[SIGNATURE_SIZE];
-	bool isMatch = inFile->SetPos(offset)
-		&& inFile->ReadBuffer(sigBuf, SIGNATURE_SIZE)
-		&& (memcmp(sigBuf, SIGNATURE, SIGNATURE_SIZE) == 0);
-
-	m_nVersion = sufVersion;
-	m_nStartOffset = offset + SIGNATURE_SIZE;
-
-	return isMatch;
-}
-
 bool SetupFactory8::Open( CFileStream* inFile )
 {
 	Close();
