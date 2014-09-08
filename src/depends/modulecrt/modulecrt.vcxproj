@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="OptionsParser.cpp" />
+    <ClCompile Include="PEHelper.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
     </ClCompile>
@@ -59,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="OptionsParser.h" />
+    <ClInclude Include="PEHelper.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Streams.h" />
     <ClInclude Include="targetver.h" />
