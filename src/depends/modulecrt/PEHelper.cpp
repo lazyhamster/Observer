@@ -113,7 +113,7 @@ std::string GetManifest(const wchar_t* libraryPath)
 	HMODULE hMod = LoadLibraryEx(libraryPath, NULL, LOAD_LIBRARY_AS_DATAFILE);
 	if (hMod == NULL) return false;
 
-	std::string manifestText = false;
+	std::string manifestText;
 
 	HRSRC hRsc = FindResource(hMod, MAKEINTRESOURCE(1), RT_MANIFEST);
 	if (hRsc != NULL)
