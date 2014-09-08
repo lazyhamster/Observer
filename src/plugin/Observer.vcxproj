@@ -599,6 +599,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\depends\modulecrt\OptionsParser.cpp" />
     <ClCompile Include="CommonFunc.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="ContentStructures.cpp" />

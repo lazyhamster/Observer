@@ -59,6 +59,9 @@
     <ClCompile Include="InterfaceCommon.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\depends\modulecrt\OptionsParser.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Observer.def">
