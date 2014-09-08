@@ -18,6 +18,12 @@ public:
 	virtual bool WriteBuffer(LPVOID buffer, size_t bufferSize) = 0;
 
 	int64_t CopyFrom(AStream* src);
+	
+	template <typename T>
+	bool Read(T* val)
+	{
+		return ReadBuffer(val, sizeof(T));
+	}
 };
 
 class CFileStream : public AStream
