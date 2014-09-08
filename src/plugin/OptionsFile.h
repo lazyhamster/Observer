@@ -1,7 +1,7 @@
 #ifndef OptionsFile_h__
 #define OptionsFile_h__
 
-#include "OptionsParser.h"
+#include "modulecrt/OptionsParser.h"
 
 class OptionsFile
 {

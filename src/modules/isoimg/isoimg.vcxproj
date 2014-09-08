@@ -575,7 +575,6 @@
     <ClCompile Include="iso_tc.cpp" />
     <ClCompile Include="isoimg.cpp" />
     <ClCompile Include="isz\iszsdk.cpp" />
-    <ClCompile Include="..\..\common\OptionsParser.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
@@ -601,7 +600,6 @@
     <ClInclude Include="iso_tc.h" />
     <ClInclude Include="isz\isz.h" />
     <ClInclude Include="isz\iszsdk.h" />
-    <ClInclude Include="..\..\common\OptionsParser.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
@@ -609,6 +607,9 @@
     <ProjectReference Include="..\..\depends\bzip2\libbz2.vcxproj">
       <Project>{d4d55d0b-1cc0-4838-a68f-39b486f1122c}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\..\depends\modulecrt\modulecrt.vcxproj">
+      <Project>{cebdd3f1-0d8a-4d3c-b5a9-1fdf98b8507f}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
       <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>

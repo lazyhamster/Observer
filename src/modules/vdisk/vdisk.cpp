@@ -5,7 +5,7 @@
 #include <vcclr.h>
 #include <msclr/marshal.h>
 #include "ModuleDef.h"
-#include "OptionsParser.h"
+#include "modulecrt/OptionsParser.h"
 
 using namespace System;
 using namespace System::Collections::Generic;

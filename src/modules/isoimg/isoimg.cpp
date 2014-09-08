@@ -5,7 +5,7 @@
 #include "ModuleDef.h"
 #include "iso_tc.h"
 #include "iso_ext.h"
-#include "OptionsParser.h"
+#include "modulecrt/OptionsParser.h"
 
 static int g_DefaultCharser = CP_ACP;
 static bool g_UseRockRidge = true;

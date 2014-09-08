@@ -30,9 +30,6 @@
     <ClCompile Include="WcxModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\common\OptionsParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="wcx.def">
@@ -50,9 +47,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WcxModule.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\common\OptionsParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="wcxhead.h">

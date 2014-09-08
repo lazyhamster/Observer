@@ -532,7 +532,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\common\Streams.cpp" />
     <ClCompile Include="..\..\depends\blast\blast.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">NotUsing</PrecompiledHeader>
@@ -609,7 +608,6 @@
     <None Include="sfact.def" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\common\Streams.h" />
     <ClInclude Include="..\..\depends\blast\blast.h" />
     <ClInclude Include="Decomp.h" />
     <ClInclude Include="SetupFactory56.h" />
@@ -619,6 +617,9 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\depends\modulecrt\modulecrt.vcxproj">
+      <Project>{cebdd3f1-0d8a-4d3c-b5a9-1fdf98b8507f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
       <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
     </ProjectReference>

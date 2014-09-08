@@ -674,7 +674,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="OptionsFile.cpp" />
-    <ClCompile Include="..\common\OptionsParser.cpp" />
     <ClCompile Include="RegistrySettings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
@@ -708,7 +707,6 @@
     <ClInclude Include="InterfaceCommon.h" />
     <ClInclude Include="ModulesController.h" />
     <ClInclude Include="OptionsFile.h" />
-    <ClInclude Include="..\common\OptionsParser.h" />
     <ClInclude Include="PlugLang.h" />
     <ClInclude Include="RegistrySettings.h" />
     <ClInclude Include="resource.h" />

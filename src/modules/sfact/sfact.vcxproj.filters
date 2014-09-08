@@ -30,9 +30,6 @@
     <ClCompile Include="SetupFactory56.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\common\Streams.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Decomp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -59,9 +56,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SetupFactory56.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\common\Streams.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Decomp.h">

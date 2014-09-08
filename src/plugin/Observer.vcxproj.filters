@@ -44,9 +44,6 @@
     <ClCompile Include="OptionsFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\common\OptionsParser.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RegistrySettings.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -97,9 +94,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="OptionsFile.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\common\OptionsParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlugLang.h">

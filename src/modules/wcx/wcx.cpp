@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include "ModuleDef.h"
 #include "wcx_loader.h"
-#include "OptionsParser.h"
+#include "modulecrt/OptionsParser.h"
 #include "ModuleCRT.h"
 
 static wchar_t optWcxLocation[MAX_PATH] = {0};

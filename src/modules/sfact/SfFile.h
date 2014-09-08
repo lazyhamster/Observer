@@ -1,7 +1,7 @@
 #ifndef SfFile_h__
 #define SfFile_h__
 
-#include "Streams.h"
+#include "modulecrt/Streams.h"
 
 struct SFFileEntry
 {
