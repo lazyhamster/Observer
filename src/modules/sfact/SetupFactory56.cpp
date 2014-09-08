@@ -2,8 +2,6 @@
 #include "SetupFactory56.h"
 #include "Decomp.h"
 
-#define SCRIPT_FILE "irsetup.dat"
-
 #define FILENAME_SIZE_5 16
 #define FILENAME_SIZE_6 260
 
@@ -14,12 +12,9 @@ const uint8_t SIGNATURE[SIGNATURE_SIZE] = {0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0x
 
 SetupFactory56::SetupFactory56(void)
 {
-	m_pInFile = nullptr;
-	m_nVersion = 0;
+	Init();
 	m_nStartOffset = 0;
 	m_nContentBaseOffset = 0;
-	m_pScriptData = nullptr;
-	m_nFilenameCodepage = CP_ACP;
 }
 
 SetupFactory56::~SetupFactory56(void)
@@ -60,20 +55,18 @@ bool SetupFactory56::Open( CFileStream* inFile )
 
 void SetupFactory56::Close()
 {
-	m_nVersion = 0;
 	m_nStartOffset = 0;
 	m_nContentBaseOffset = 0;
 	m_vFiles.clear();
 	if (m_pInFile)
 	{
 		delete m_pInFile;
-		m_pInFile = nullptr;
 	}
 	if (m_pScriptData)
 	{
 		delete m_pScriptData;
-		m_pScriptData = nullptr;
 	}
+	Init();
 }
 
 int SetupFactory56::EnumFiles()

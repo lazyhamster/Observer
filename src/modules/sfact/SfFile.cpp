@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SfFile.h"
+
 #include "SetupFactory56.h"
+#include "SetupFactory8.h"
 
 SetupFactoryFile* OpenInstaller( const wchar_t* filePath )
 {
@@ -11,6 +13,11 @@ SetupFactoryFile* OpenInstaller( const wchar_t* filePath )
 	if (sf56->Open(inFile))
 		return sf56;
 	delete sf56;
+
+	SetupFactory8* sf8 = new SetupFactory8();
+	if (sf8->Open(inFile))
+		return sf8;
+	delete sf8;
 
 	delete inFile;
 	return nullptr;
@@ -37,4 +44,12 @@ bool SetupFactoryFile::ReadString( AStream* stream, char* buf )
 	bool retval = stream->ReadBuffer(&strSize, sizeof(strSize)) && stream->ReadBuffer(buf, strSize);
 	if (retval) buf[strSize] = 0;
 	return retval;
+}
+
+void SetupFactoryFile::Init()
+{
+	m_pInFile = nullptr;
+	m_nFilenameCodepage = CP_ACP;
+	m_nVersion = 0;
+	m_pScriptData = nullptr;
 }

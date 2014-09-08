@@ -39,6 +39,9 @@
     <ClCompile Include="..\..\depends\blast\blast.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SetupFactory8.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sfact.def">
@@ -65,6 +68,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\depends\blast\blast.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SetupFactory8.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
