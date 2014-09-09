@@ -141,6 +141,7 @@ int SetupFactory8::EnumFiles()
 		}
 
 		if (!unpacked) return -1;
+		if (fileCrc != 0 && destCrc != fileCrc) return 1;
 
 		fe.Compression = m_eBaseCompression;
 		fe.UnpackedSize = destSize;
