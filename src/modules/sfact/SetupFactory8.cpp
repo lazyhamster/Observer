@@ -270,8 +270,9 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->Seek(12, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&skipVal, sizeof(skipVal));
 		m_pScriptData->Seek(skipVal * 2, STREAM_CURRENT);
-		m_pScriptData->Seek(3, STREAM_CURRENT);
 		
+		SkipString(m_pScriptData); // Install condition
+		m_pScriptData->Seek(2, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Install type
 		SkipString(m_pScriptData);
 		m_pScriptData->Seek(3, STREAM_CURRENT);
