@@ -243,7 +243,9 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->ReadBuffer(&nDecompSize, sizeof(nDecompSize));
 		m_pScriptData->Seek(62, STREAM_CURRENT);
 		ReadString(m_pScriptData, strDestDir); // Destination directory
-		m_pScriptData->Seek(12, STREAM_CURRENT);
+		m_pScriptData->Seek(10, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Start menu text
+		m_pScriptData->Seek(1, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Category
 		m_pScriptData->Seek(3, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Icon path
