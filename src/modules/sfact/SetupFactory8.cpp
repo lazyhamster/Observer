@@ -49,6 +49,15 @@ bool SetupFactory8::Open( CFileStream* inFile )
 		m_nVersion = 8;
 		return true;
 	}
+/*	
+	if (manifestText.find("<description>Setup Factory 9 Run-time</description>") != std::string::npos)
+	{
+		m_pInFile = inFile;
+		m_nStartOffset = inFile->GetPos();
+		m_nVersion = 9;
+		return true;
+	}
+*/
 
 	return false;
 }
@@ -228,6 +237,7 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 	uint8_t nIsCompressed;
 	int64_t nDecompSize, nCompSize;
 	uint32_t nCrc;
+	uint16_t skipVal;
 
 	int64_t nextOffset = baseOffset;
 	m_pScriptData->Seek(5, STREAM_CURRENT);
@@ -251,7 +261,13 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		SkipString(m_pScriptData); // Icon path
 		m_pScriptData->Seek(12, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
-		m_pScriptData->Seek(33, STREAM_CURRENT);
+		
+		// A little bit of black magic (not sure if it is correct way)
+		m_pScriptData->Seek(12, STREAM_CURRENT);
+		m_pScriptData->ReadBuffer(&skipVal, sizeof(skipVal));
+		m_pScriptData->Seek(skipVal * 2, STREAM_CURRENT);
+		m_pScriptData->Seek(3, STREAM_CURRENT);
+		
 		SkipString(m_pScriptData); // Install type
 		SkipString(m_pScriptData);
 		m_pScriptData->Seek(3, STREAM_CURRENT);
@@ -304,6 +320,9 @@ bool SetupFactory8::ReadSpecialFile( const wchar_t* fileName )
 bool SetupFactory8::DetectCompression(EntryCompression &value)
 {
 	bool result = false;
+
+	//TODO: add support for lzma2 packed installers
+	//it is the same as lzma but props is just 1 byte, not 5 (usually 0x18)
 	
 	unsigned char buf[2];
 	if (m_pInFile->ReadBuffer(buf, sizeof(buf)))
