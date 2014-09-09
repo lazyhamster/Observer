@@ -5,8 +5,10 @@
 extern "C"
 {
 #include "blast/blast.h"
-#include "lzma/C/LzmaLib.h"
 }
+
+#include "7zipSrc/C/LzmaDec.h"
+#include "7zipSrc/C/Alloc.h"
 
 struct InBufPtr
 {
@@ -76,6 +78,10 @@ bool Unstore(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *o
 	return true;
 }
 
+static void *SzAlloc(void *p, size_t size) { p = p; return MyAlloc(size); }
+static void SzFree(void *p, void *address) { p = p; MyFree(address); }
+static ISzAlloc g_Alloc = { SzAlloc, SzFree };
+
 bool LzmaDecomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *outSize, uint32_t *outCrc)
 {
 	int64_t decompSize = 0;
@@ -94,9 +100,10 @@ bool LzmaDecomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t
 	outbuf = (unsigned char*) malloc(outlen);
 
 	inStream->ReadBuffer(inbuf, inlen);
-	
-	SRes res = LzmaUncompress(outbuf, &outlen, inbuf, &inlen, props, LZMA_PROPS_SIZE);
 
+	ELzmaStatus status;
+	SRes res = LzmaDecode(outbuf, &outlen, inbuf, &inlen, props, LZMA_PROPS_SIZE, LZMA_FINISH_ANY, &status, &g_Alloc);
+	
 	if (res == SZ_OK)
 	{
 		outStream->WriteBuffer(outbuf, outlen);

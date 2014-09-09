@@ -532,6 +532,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\depends\7zipSrc\C\Alloc.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zipSrc\C\LzmaDec.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\..\depends\blast\blast.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">NotUsing</PrecompiledHeader>
@@ -608,6 +614,8 @@
     <None Include="sfact.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\depends\7zipSrc\C\Alloc.h" />
+    <ClInclude Include="..\..\depends\7zipSrc\C\LzmaDec.h" />
     <ClInclude Include="..\..\depends\blast\blast.h" />
     <ClInclude Include="Decomp.h" />
     <ClInclude Include="SetupFactory56.h" />
