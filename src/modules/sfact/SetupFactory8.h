@@ -13,6 +13,7 @@ private:
 	int ParseScript(int64_t baseOffset);
 	bool ReadSpecialFile(const wchar_t* fileName);
 	bool DetectCompression(EntryCompression &value);
+	uint32_t FindFileBlockInScript();
 
 public:
 	SetupFactory8(void);

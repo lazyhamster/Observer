@@ -204,9 +204,81 @@ bool SetupFactory8::ExtractFile( int index, AStream* outStream )
 int SetupFactory8::ParseScript( int64_t baseOffset )
 {
 	int foundFiles = 0;
-	m_pScriptData->SetPos(0);
 	
-	//TODO: implement
+	uint32_t filesBlockOff = FindFileBlockInScript();
+	if (filesBlockOff == 0)
+		return 0;
+
+	m_pScriptData->SetPos(filesBlockOff);
+
+	uint16_t numEntries;
+	m_pScriptData->ReadBuffer(&numEntries, sizeof(numEntries));
+	m_pScriptData->Seek(4, STREAM_CURRENT);  // Skip 2 unknown uint16_t numbers, always 0xFFFF and 0x0001
+
+	uint16_t classNameLen;
+	char className[128] = {0};
+	m_pScriptData->ReadBuffer(&classNameLen, sizeof(classNameLen));
+	m_pScriptData->ReadBuffer(className, min(classNameLen, sizeof(className) - 1));
+
+	// Check if we have proper script
+	if (strcmp(className, "CSetupFileData") != 0) return -1;
+
+	char strBaseName[MAX_PATH];
+	char strDestDir[MAX_PATH];
+	uint8_t nIsCompressed;
+	int64_t nDecompSize, nCompSize;
+	uint32_t nCrc;
+
+	int64_t nextOffset = baseOffset;
+	m_pScriptData->Seek(5, STREAM_CURRENT);
+
+	for (uint16_t i = 0; i < numEntries; i++)
+	{
+		SkipString(m_pScriptData); // Full source path
+		ReadString(m_pScriptData, strBaseName); // Base name
+		SkipString(m_pScriptData); // Source directory
+		SkipString(m_pScriptData); // Suffix
+		SkipString(m_pScriptData); // 'Archive'
+		m_pScriptData->Seek(3, STREAM_CURRENT);
+		m_pScriptData->ReadBuffer(&nDecompSize, sizeof(nDecompSize));
+		m_pScriptData->Seek(62, STREAM_CURRENT);
+		ReadString(m_pScriptData, strDestDir); // Destination directory
+		m_pScriptData->Seek(12, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Category
+		m_pScriptData->Seek(3, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Icon path
+		m_pScriptData->Seek(46, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Install type
+		SkipString(m_pScriptData);
+		m_pScriptData->Seek(3, STREAM_CURRENT);
+		m_pScriptData->ReadBuffer(&nCompSize, sizeof(nCompSize));
+		m_pScriptData->ReadBuffer(&nCrc, sizeof(nCrc));
+		m_pScriptData->Seek(8, STREAM_CURRENT);
+
+		//TODO: find where compression flag is
+
+		SFFileEntry fe = {0};
+		fe.PackedSize = nCompSize;
+		fe.UnpackedSize = nDecompSize;
+		//fe.Compression = (nIsCompressed != 0) ? COMP_PKWARE : COMP_NONE;
+		fe.DataOffset = nextOffset;
+		fe.CRC = nCrc;
+
+		char fullLocalPath[MAX_PATH] = {0};
+		strcpy_s(fullLocalPath, MAX_PATH, strDestDir);
+		if (fullLocalPath[0] && (fullLocalPath[strlen(fullLocalPath)-1] != '\\'))
+		{
+			strcat_s(fullLocalPath, MAX_PATH, "\\");
+		}
+		strcat_s(fullLocalPath, MAX_PATH, strBaseName);
+
+		MultiByteToWideChar(m_nFilenameCodepage, 0, fullLocalPath, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
+
+		m_vFiles.push_back(fe);
+		nextOffset += nCompSize;
+		foundFiles++;
+	}
+	
 	return foundFiles;
 }
 
@@ -248,4 +320,21 @@ bool SetupFactory8::DetectCompression(EntryCompression &value)
 	}
 
 	return result;
+}
+
+uint32_t SetupFactory8::FindFileBlockInScript()
+{
+	const char* srcStart = m_pScriptData->DataPtr();
+	const char* srcEnd = srcStart + m_pScriptData->GetSize();
+	const char* ptrnStart = "CSetupFileData";
+	const char* ptrnEnd = ptrnStart + strlen(ptrnStart);
+
+	const char* res = std::search(srcStart, srcEnd, ptrnStart, ptrnEnd);
+
+	if (res != srcEnd)
+	{
+		return (uint32_t) (res - srcStart) - 8;
+	}
+
+	return 0;
 }
