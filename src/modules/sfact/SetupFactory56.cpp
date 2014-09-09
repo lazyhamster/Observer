@@ -205,7 +205,9 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		ReadString(m_pScriptData, strDestDir); // Destination directory
 		m_pScriptData->Seek(5, STREAM_CURRENT);
 		SkipString(m_pScriptData);
-		m_pScriptData->Seek(9, STREAM_CURRENT);
+		m_pScriptData->Seek(3, STREAM_CURRENT);
+		SkipString(m_pScriptData);
+		m_pScriptData->Seek(5, STREAM_CURRENT);
 		SkipString(m_pScriptData);
 		m_pScriptData->Seek(5, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
