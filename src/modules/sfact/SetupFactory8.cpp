@@ -142,6 +142,9 @@ int SetupFactory8::EnumFiles()
 			case COMP_LZMA:
 				unpacked = LzmaDecomp(m_pInFile, (uint32_t) fileSize, destUnpack, &destSize, &destCrc);
 				break;
+			case COMP_LZMA2:
+				unpacked = Lzma2Decomp(m_pInFile, (uint32_t) fileSize, destUnpack, &destSize, &destCrc);
+				break;
 			case COMP_PKWARE:
 				unpacked = Explode(m_pInFile, (uint32_t) fileSize, destUnpack, &destSize, &destCrc);
 				break;
@@ -183,6 +186,9 @@ bool SetupFactory8::ExtractFile( int index, AStream* outStream )
 			break;
 		case COMP_LZMA:
 			ret = LzmaDecomp(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
+			break;
+		case COMP_LZMA2:
+			ret = Lzma2Decomp(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
 			break;
 		case COMP_NONE:
 			ret = Unstore(m_pInFile, (uint32_t) entry.PackedSize, outStream, &outCrc);
@@ -333,6 +339,11 @@ bool SetupFactory8::DetectCompression(EntryCompression &value)
 		else if (buf[0] == 0x5D && buf[1] == 0x00)
 		{
 			value = COMP_LZMA;
+			result = true;
+		}
+		else if (buf[0] == 0x18)
+		{
+			value = COMP_LZMA2;
 			result = true;
 		}
 		m_pInFile->Seek(-2, STREAM_CURRENT);

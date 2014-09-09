@@ -8,7 +8,8 @@ enum EntryCompression
 	COMP_UNKNOWN = -1,
 	COMP_NONE = 0,
 	COMP_PKWARE = 1,
-	COMP_LZMA = 2
+	COMP_LZMA = 2,
+	COMP_LZMA2 = 3
 };
 
 struct SFFileEntry

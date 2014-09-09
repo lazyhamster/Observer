@@ -8,6 +8,7 @@ extern "C"
 }
 
 #include "7zipSrc/C/LzmaDec.h"
+#include "7zipSrc/C/Lzma2Dec.h"
 #include "7zipSrc/C/Alloc.h"
 
 struct InBufPtr
@@ -104,6 +105,49 @@ bool LzmaDecomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t
 	ELzmaStatus status;
 	SRes res = LzmaDecode(outbuf, &outlen, inbuf, &inlen, props, LZMA_PROPS_SIZE, LZMA_FINISH_ANY, &status, &g_Alloc);
 	
+	if (res == SZ_OK)
+	{
+		outStream->WriteBuffer(outbuf, outlen);
+
+		if (outSize != nullptr)
+		{
+			*outSize = outlen;
+		}
+		if (outCrc != nullptr)
+		{
+			crcVal = crc32(crcVal, outbuf, outlen);
+			*outCrc = crcVal;
+		}
+	}
+
+	free(inbuf);
+	free(outbuf);
+
+	return (res == SZ_OK);
+}
+
+bool Lzma2Decomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *outSize, uint32_t *outCrc)
+{
+	int64_t decompSize = 0;
+	Byte prop;
+	unsigned char *inbuf, *outbuf;
+	uint32_t crcVal = 0;
+
+	size_t inlen = inSize - sizeof(prop) - sizeof(decompSize);
+	size_t outlen;
+
+	inStream->ReadBuffer(&prop, sizeof(prop));
+	inStream->ReadBuffer(&decompSize, sizeof(decompSize));
+
+	outlen = (size_t) decompSize;
+	inbuf = (unsigned char*) malloc(inlen);
+	outbuf = (unsigned char*) malloc(outlen);
+
+	inStream->ReadBuffer(inbuf, inlen);
+
+	ELzmaStatus status;
+	SRes res = Lzma2Decode(outbuf, &outlen, inbuf, &inlen, prop, LZMA_FINISH_ANY, &status, &g_Alloc);
+
 	if (res == SZ_OK)
 	{
 		outStream->WriteBuffer(outbuf, outlen);
