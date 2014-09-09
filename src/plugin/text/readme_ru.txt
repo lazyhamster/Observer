@@ -16,7 +16,7 @@ Observer
   - MSI пакеты для Windows Installer-а
   - Инсталляционные пакеты, сделаные Wise Installer-ом.
   - Инсталляторы Install Shield-а.
-  - Инсталяторы Setup Factory (версий 5/6).
+  - Инсталляторы Setup Factory.
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-образы. Поддерживаются следующие файловые системы:

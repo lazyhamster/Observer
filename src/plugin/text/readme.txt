@@ -16,7 +16,7 @@ Add/Delete/Change operations are not planned.
   - MSI packages for Windows Installer
   - Installation packages made with Wise Installer
   - Install Shield packages.
-  - Setup Factory 5/6 packages.
+  - Setup Factory packages.
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-images. Following formats are supported:

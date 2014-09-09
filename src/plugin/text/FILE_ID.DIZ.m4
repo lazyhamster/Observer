@@ -22,7 +22,7 @@ Supported file formats:
 - MoPaQ containers
 - Mail containers in MBox format
 - Install Shield 3+ packages
-- Setup Factory 5/6 packages
+- Setup Factory 5/6/8/9 packages
 - PDF files (embedded files)
 
 (c) 2009-2014, Ariman

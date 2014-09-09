@@ -49,7 +49,6 @@ bool SetupFactory8::Open( CFileStream* inFile )
 		m_nVersion = 8;
 		return true;
 	}
-/*	
 	if (manifestText.find("<description>Setup Factory 9 Run-time</description>") != std::string::npos)
 	{
 		m_pInFile = inFile;
@@ -57,7 +56,6 @@ bool SetupFactory8::Open( CFileStream* inFile )
 		m_nVersion = 9;
 		return true;
 	}
-*/
 
 	return false;
 }
