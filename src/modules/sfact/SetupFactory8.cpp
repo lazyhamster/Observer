@@ -247,7 +247,9 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		SkipString(m_pScriptData); // Category
 		m_pScriptData->Seek(3, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Icon path
-		m_pScriptData->Seek(46, STREAM_CURRENT);
+		m_pScriptData->Seek(12, STREAM_CURRENT);
+		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
+		m_pScriptData->Seek(33, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Install type
 		SkipString(m_pScriptData);
 		m_pScriptData->Seek(3, STREAM_CURRENT);
@@ -255,12 +257,10 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->ReadBuffer(&nCrc, sizeof(nCrc));
 		m_pScriptData->Seek(8, STREAM_CURRENT);
 
-		//TODO: find where compression flag is
-
 		SFFileEntry fe = {0};
 		fe.PackedSize = nCompSize;
 		fe.UnpackedSize = nDecompSize;
-		//fe.Compression = (nIsCompressed != 0) ? COMP_PKWARE : COMP_NONE;
+		fe.Compression = (nIsCompressed != 0) ? m_eBaseCompression : COMP_NONE;
 		fe.DataOffset = nextOffset;
 		fe.CRC = nCrc;
 
