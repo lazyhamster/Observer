@@ -275,7 +275,12 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->Seek(2, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Install type
 		SkipString(m_pScriptData);
-		m_pScriptData->Seek(3, STREAM_CURRENT);
+
+		//TODO: fix this block, if language string is present
+		//strangely enough there is a single extra 0 byte after lang name
+		m_pScriptData->Seek(2, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Language
+
 		m_pScriptData->ReadBuffer(&nCompSize, sizeof(nCompSize));
 		m_pScriptData->ReadBuffer(&nCrc, sizeof(nCrc));
 		m_pScriptData->Seek(8, STREAM_CURRENT);
@@ -326,9 +331,6 @@ bool SetupFactory8::DetectCompression(EntryCompression &value)
 {
 	bool result = false;
 
-	//TODO: add support for lzma2 packed installers
-	//it is the same as lzma but props is just 1 byte, not 5 (usually 0x18)
-	
 	unsigned char buf[2];
 	if (m_pInFile->ReadBuffer(buf, sizeof(buf)))
 	{
