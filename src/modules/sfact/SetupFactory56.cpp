@@ -47,6 +47,7 @@ bool SetupFactory56::Open( CFileStream* inFile )
 		)
 	{
 		m_pInFile = inFile;
+		m_eBaseCompression = COMP_PKWARE;
 		return true;
 	}
 
@@ -104,7 +105,7 @@ int SetupFactory56::EnumFiles()
 		MultiByteToWideChar(m_nFilenameCodepage, 0, nameBuf, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
 		fe.PackedSize = size;
 		fe.CRC = crc;
-		fe.IsCompressed = true;
+		fe.Compression = COMP_PKWARE;
 		fe.DataOffset = m_pInFile->GetPos();
 		
 		bool isScript = strcmp(nameBuf, SCRIPT_FILE) == 0;
@@ -149,10 +150,15 @@ bool SetupFactory56::ExtractFile( int index, AStream* outStream )
 	uint32_t outCrc;
 	bool ret = false;
 
-	if (entry.IsCompressed)
-		ret = Explode(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
-	else
-		ret = Unstore(m_pInFile, (uint32_t) entry.PackedSize, outStream, &outCrc);
+	switch(entry.Compression)
+	{
+		case COMP_PKWARE:
+			ret = Explode(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
+			break;
+		case COMP_NONE:
+			ret = Unstore(m_pInFile, (uint32_t) entry.PackedSize, outStream, &outCrc);
+			break;
+	}
 
 	return ret && (outCrc == entry.CRC || entry.CRC == 0);
 }
@@ -223,7 +229,7 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		SFFileEntry fe = {0};
 		fe.PackedSize = nCompSize;
 		fe.UnpackedSize = nDecompSize;
-		fe.IsCompressed = nIsCompressed != 0;
+		fe.Compression = (nIsCompressed != 0) ? COMP_PKWARE : COMP_NONE;
 		fe.DataOffset = nextOffset;
 		fe.CRC = nCrc;
 

@@ -14,8 +14,22 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
 		swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Setup Factory %d", sfInst->GetVersion());
-		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"PKWare DCL");
-		
+		switch(sfInst->GetCompression())
+		{
+			case COMP_NONE:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"None");
+				break;
+			case COMP_PKWARE:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"PKWare DCL");
+				break;
+			case COMP_LZMA:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"LZMA");
+				break;
+			default:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"Unknown");
+				break;
+		}
+				
 		return SOR_SUCCESS;
 	}
 

@@ -52,4 +52,5 @@ void SetupFactoryFile::Init()
 	m_nFilenameCodepage = CP_ACP;
 	m_nVersion = 0;
 	m_pScriptData = nullptr;
+	m_eBaseCompression = COMP_UNKNOWN;
 }

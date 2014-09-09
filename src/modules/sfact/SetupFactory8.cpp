@@ -106,7 +106,6 @@ int SetupFactory8::EnumFiles()
 		MultiByteToWideChar(m_nFilenameCodepage, 0, nameBuf, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
 		fe.PackedSize = fileSize;
 		fe.CRC = fileCrc;
-		fe.IsCompressed = true;
 		fe.DataOffset = m_pInFile->GetPos();
 
 		bool isScript = strcmp(nameBuf, SCRIPT_FILE) == 0;
@@ -123,9 +122,27 @@ int SetupFactory8::EnumFiles()
 			destUnpack = new CNullStream();
 		}
 
-		if (!Explode(m_pInFile, (uint32_t) fileSize, destUnpack, &destSize, &destCrc))
-			return -1;
+		bool unpacked = false;
 
+		if (m_eBaseCompression == COMP_UNKNOWN)
+		{
+			if (!DetectCompression(m_eBaseCompression))
+				return -1;
+		}
+
+		switch(m_eBaseCompression)
+		{
+			case COMP_LZMA:
+				unpacked = LzmaDecomp(m_pInFile, (uint32_t) fileSize, destUnpack, &destSize, &destCrc);
+				break;
+			case COMP_PKWARE:
+				unpacked = Explode(m_pInFile, (uint32_t) fileSize, destUnpack, &destSize, &destCrc);
+				break;
+		}
+
+		if (!unpacked) return -1;
+
+		fe.Compression = m_eBaseCompression;
 		fe.UnpackedSize = destSize;
 		m_vFiles.push_back(fe);
 	}
@@ -151,10 +168,18 @@ bool SetupFactory8::ExtractFile( int index, AStream* outStream )
 	uint32_t outCrc;
 	bool ret = false;
 
-	if (entry.IsCompressed)
-		ret = Explode(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
-	else
-		ret = Unstore(m_pInFile, (uint32_t) entry.PackedSize, outStream, &outCrc);
+	switch(entry.Compression)
+	{
+		case COMP_PKWARE:
+			ret = Explode(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
+			break;
+		case COMP_LZMA:
+			ret = LzmaDecomp(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
+			break;
+		case COMP_NONE:
+			ret = Unstore(m_pInFile, (uint32_t) entry.PackedSize, outStream, &outCrc);
+			break;
+	}
 
 	// Special treatment for irsetup.exe
 	// First 2000 bytes of the file are xor-ed with 0x07
@@ -193,10 +218,33 @@ bool SetupFactory8::ReadSpecialFile( const wchar_t* fileName )
 	wcscpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), fileName);
 	fe.PackedSize = fileSize;
 	fe.UnpackedSize = fileSize;
-	fe.IsCompressed = false;
+	fe.Compression = COMP_NONE;
 	fe.DataOffset = m_pInFile->GetPos();
 
 	m_vFiles.push_back(fe);
 
 	return m_pInFile->Seek(fileSize, STREAM_CURRENT);
+}
+
+bool SetupFactory8::DetectCompression(EntryCompression &value)
+{
+	bool result = false;
+	
+	unsigned char buf[2];
+	if (m_pInFile->ReadBuffer(buf, sizeof(buf)))
+	{
+		if (buf[0] == 0x00 && buf[1] == 0x06)
+		{
+			value = COMP_PKWARE;
+			result = true;
+		}
+		else if (buf[0] == 0x5D && buf[1] == 0x00)
+		{
+			value = COMP_LZMA;
+			result = true;
+		}
+		m_pInFile->Seek(-2, STREAM_CURRENT);
+	}
+
+	return result;
 }

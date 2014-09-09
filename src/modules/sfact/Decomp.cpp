@@ -5,6 +5,7 @@
 extern "C"
 {
 #include "blast/blast.h"
+#include "lzma/C/LzmaLib.h"
 }
 
 struct InBufPtr
@@ -73,4 +74,46 @@ bool Unstore(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *o
 	
 	if (outCrc) *outCrc = crcVal;
 	return true;
+}
+
+bool LzmaDecomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *outSize, uint32_t *outCrc)
+{
+	int64_t decompSize = 0;
+	unsigned char props[LZMA_PROPS_SIZE];
+	unsigned char *inbuf, *outbuf;
+	uint32_t crcVal = 0;
+	
+	size_t inlen = inSize - LZMA_PROPS_SIZE - sizeof(decompSize);
+	size_t outlen;
+
+	inStream->ReadBuffer(props, sizeof(props));
+	inStream->ReadBuffer(&decompSize, sizeof(decompSize));
+
+	outlen = (size_t) decompSize;
+	inbuf = (unsigned char*) malloc(inlen);
+	outbuf = (unsigned char*) malloc(outlen);
+
+	inStream->ReadBuffer(inbuf, inlen);
+	
+	SRes res = LzmaUncompress(outbuf, &outlen, inbuf, &inlen, props, LZMA_PROPS_SIZE);
+
+	if (res == SZ_OK)
+	{
+		outStream->WriteBuffer(outbuf, outlen);
+
+		if (outSize != nullptr)
+		{
+			*outSize = outlen;
+		}
+		if (outCrc != nullptr)
+		{
+			crcVal = crc32(crcVal, outbuf, outlen);
+			*outCrc = crcVal;
+		}
+	}
+
+	free(inbuf);
+	free(outbuf);
+
+	return (res == SZ_OK);
 }
