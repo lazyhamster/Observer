@@ -8,7 +8,7 @@
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	SetupFactoryFile* sfInst = OpenInstaller(params.FilePath);
-	if (sfInst != nullptr)
+	if ((sfInst != nullptr) && (sfInst->EnumFiles() > 0))
 	{
 		*storage = sfInst;
 
@@ -25,12 +25,20 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 			case COMP_LZMA:
 				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"LZMA");
 				break;
+			case COMP_LZMA2:
+				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"LZMA2");
+				break;
 			default:
 				wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"Unknown");
 				break;
 		}
 				
 		return SOR_SUCCESS;
+	}
+
+	if (sfInst != nullptr)
+	{
+		FreeInstaller(sfInst);
 	}
 
 	return SOR_INVALID_FILE;
@@ -50,12 +58,6 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	SetupFactoryFile* sfInst = (SetupFactoryFile*) storage;
 	if (sfInst == NULL || item_index < 0) return GET_ITEM_ERROR;
 
-	if (sfInst->GetCount() == 0)
-	{
-		if (sfInst->EnumFiles() < 0)
-			return GET_ITEM_ERROR;
-	}
-	
 	if (item_index < (int) sfInst->GetCount())
 	{
 		SFFileEntry fe = sfInst->GetFile(item_index);
