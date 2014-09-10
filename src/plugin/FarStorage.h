@@ -11,6 +11,7 @@ class StorageObject
 private:
 	StorageObject() {}
 	StorageObject(const StorageObject& copy) {}
+	StorageObject &operator=(const StorageObject &a) {}
 
 private:
 	ModulesController* m_pModules;

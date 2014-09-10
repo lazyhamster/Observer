@@ -37,7 +37,7 @@ int WcxLoader::LoadModulesInDirectory( const wchar_t* basePath, bool recursive )
 				}
 			}
 		}
-		else if (recursive && wcscmp(fd.cFileName, L"..") && wcscmp(fd.cFileName, L"."))
+		else if (recursive && (wcscmp(fd.cFileName, L"..") != 0) && (wcscmp(fd.cFileName, L".") != 0))
 		{
 			wstring dirPath(basePath);
 			dirPath += fd.cFileName;

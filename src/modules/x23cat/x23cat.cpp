@@ -230,12 +230,12 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			return SER_ERROR_WRITE;
 		}
 
-		int res = X2FD_CopyFile(hInput, hOutput);
+		bool res = X2FD_CopyFile(hInput, hOutput);
 		
 		X2FD_CloseFile(hInput);
 		X2FD_CloseFile(hOutput);
 
-		if (res > 0) return SER_SUCCESS;
+		if (res) return SER_SUCCESS;
 	}
 	else if (params.item == 0)
 	{
@@ -246,10 +246,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		X2FILE hOutput = X2FD_OpenFile(params.destFilePath, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0) return SER_ERROR_WRITE;
 
-		int res = X2FD_CopyFile(xst->FilePtr, hOutput);
+		bool res = X2FD_CopyFile(xst->FilePtr, hOutput);
 		X2FD_CloseFile(hOutput);
 
-		if (res > 0) return SER_SUCCESS;
+		if (res) return SER_SUCCESS;
 	}
 
 	return SER_ERROR_SYSTEM;

@@ -231,7 +231,7 @@ int X2FD_GetFileCompressionType(X2FILE hFile);
  * in: source file, destination file
  * ret: 0 on failure, nonzero otherwise
  ************************************************/
-int X2FD_CopyFile(X2FILE hSource, X2FILE hDestination);
+bool X2FD_CopyFile(X2FILE hSource, X2FILE hDestination);
 
 X2FILE X2FD_OpenFileInCatalog(x2catbuffer* catalog, x2catentry* entry, int nFileType);
 

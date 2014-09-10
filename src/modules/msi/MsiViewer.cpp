@@ -837,7 +837,7 @@ int CMsiViewer::dumpProperties(wstringstream &sstr)
 		while (MsiRecordGetString(hPropRec, 2, &vPropertyData[0], &(nCellSize = (DWORD) vPropertyData.size())) == ERROR_MORE_DATA)
 			vPropertyData.resize(nCellSize + 1);
 
-		if (wszPropertyName[0] && (res == ERROR_SUCCESS))
+		if (wszPropertyName[0])
 			sstr << wszPropertyName << L" = " << &vPropertyData[0] << endl;
 	}
 
@@ -1092,7 +1092,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 						DWORD dwBytesRead, dwBytesWritten;
 
 						BOOL readResult;
-						while ((readResult = ReadFile(hSourceFile, buf, FCOPY_BUF_SIZE, &dwBytesRead, NULL)) == TRUE)
+						while ((readResult = ReadFile(hSourceFile, buf, FCOPY_BUF_SIZE, &dwBytesRead, NULL)) != FALSE)
 						{
 							if (dwBytesRead == 0) break;
 							if (!WriteFile(hDestFile, buf, dwBytesRead, &dwBytesWritten, NULL) || (dwBytesRead != dwBytesWritten))

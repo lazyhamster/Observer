@@ -58,6 +58,7 @@ class DirectoryNode : public BasicNode
 {
 private:
 	DirectoryNode(const DirectoryNode &node) {};
+	DirectoryNode &operator=(const DirectoryNode &a) {}
 
 public:
 	wchar_t* ParentKey;

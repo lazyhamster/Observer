@@ -195,7 +195,7 @@ int X2FD_GetFileCompressionType(X2FILE hFile)
 	both source and destination files are set to EOF after the copy
 	Furthermore SetEndOfFile(destination) is called
 */
-int X2FD_CopyFile(X2FILE hSource, X2FILE hDestination)
+bool X2FD_CopyFile(X2FILE hSource, X2FILE hDestination)
 {
 	xfile *src, *dest;
 	src=getfile(hSource);
