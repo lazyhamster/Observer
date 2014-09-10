@@ -8,6 +8,8 @@
 class AStream
 {
 public:
+	virtual ~AStream() {}
+	
 	virtual int64_t GetPos();
 	virtual bool SetPos(int64_t newPos);
 
