@@ -17,7 +17,6 @@ SetupFactory8::SetupFactory8( void )
 {
 	Init();
 	m_nStartOffset = 0;
-	m_nContentBaseOffset = 0;
 }
 
 SetupFactory8::~SetupFactory8( void )
@@ -63,7 +62,6 @@ bool SetupFactory8::Open( CFileStream* inFile )
 void SetupFactory8::Close()
 {
 	m_nStartOffset = 0;
-	m_nContentBaseOffset = 0;
 	m_vFiles.clear();
 	if (m_pInFile)
 	{
@@ -162,8 +160,8 @@ int SetupFactory8::EnumFiles()
 	if (m_pScriptData != nullptr)
 	{
 		// Now let's read actual content
-		m_nContentBaseOffset = m_pInFile->GetPos();
-		ParseScript(m_nContentBaseOffset);
+		int64_t contentBaseOffset = m_pInFile->GetPos();
+		ParseScript(contentBaseOffset);
 	}
 	
 	return m_vFiles.size();

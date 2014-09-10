@@ -14,7 +14,6 @@ SetupFactory56::SetupFactory56(void)
 {
 	Init();
 	m_nStartOffset = 0;
-	m_nContentBaseOffset = 0;
 }
 
 SetupFactory56::~SetupFactory56(void)
@@ -57,7 +56,6 @@ bool SetupFactory56::Open( CFileStream* inFile )
 void SetupFactory56::Close()
 {
 	m_nStartOffset = 0;
-	m_nContentBaseOffset = 0;
 	m_vFiles.clear();
 	if (m_pInFile)
 	{
@@ -130,12 +128,12 @@ int SetupFactory56::EnumFiles()
 	}
 
 	// No script == no other files
-	if (m_pScriptData == nullptr)
-		return m_vFiles.size();
-
-	// Now let's read actual content
-	m_nContentBaseOffset = m_pInFile->GetPos();
-	ParseScript(m_nContentBaseOffset);
+	if (m_pScriptData != nullptr)
+	{
+		// Now let's read actual content
+		int64_t contentBaseOffset = m_pInFile->GetPos();
+		ParseScript(contentBaseOffset);
+	}
 
 	return m_vFiles.size();
 }
