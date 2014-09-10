@@ -17,7 +17,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		
 		memset(info, 0, sizeof(StorageGeneralInfo));
 		if (cabStorage->MajorVersion() != -1)
-			swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Install Shield %d Cabinet", cabStorage->MajorVersion());
+			swprintf_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Install Shield %u Cabinet", cabStorage->MajorVersion());
 		else
 			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Install Shield SFX");
 		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, cabStorage->GetCompression());

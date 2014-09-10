@@ -23,6 +23,8 @@ protected:
 	int UnpackFile(HANDLE src, HANDLE dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress);
 
 public:	
+	virtual ~ISCabFile() {}
+	
 	virtual int GetTotalFiles() const = 0;
 	virtual bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const = 0;
 	virtual int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx) = 0;

@@ -17,7 +17,7 @@ public:
 	RegistrySettings(const char* RootKey);
 	~RegistrySettings();
 
-	bool Open(int CanWrite = false);
+	bool Open(bool CanWrite = false);
 
 	bool GetValue(const wchar_t* ValueName, int &Output);
 	bool GetValue(const wchar_t* ValueName, wchar_t *Output, size_t OutputMaxSize);

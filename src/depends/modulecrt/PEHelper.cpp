@@ -55,13 +55,13 @@ bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &n
 
 	if (numDbgEntries > 0)
 	{
-		size_t dbgSectionIndex = -1;
+		int dbgSectionIndex = -1;
 		for (size_t i = 0; i < vSections.size(); i++)
 		{
 			const IMAGE_SECTION_HEADER &sect = vSections[i];
 			if (sect.Misc.VirtualSize > 0 && dbgDataDir.VirtualAddress >= sect.VirtualAddress && dbgDataDir.VirtualAddress < sect.VirtualAddress + sect.Misc.VirtualSize)
 			{
-				dbgSectionIndex = i;
+				dbgSectionIndex = static_cast<int>(i);
 				break;
 			}
 		}
@@ -111,7 +111,7 @@ bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &n
 std::string GetManifest(const wchar_t* libraryPath)
 {
 	HMODULE hMod = LoadLibraryEx(libraryPath, NULL, LOAD_LIBRARY_AS_DATAFILE);
-	if (hMod == NULL) return false;
+	if (hMod == NULL) return "";
 
 	std::string manifestText;
 

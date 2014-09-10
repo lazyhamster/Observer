@@ -33,6 +33,7 @@ int StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWith
 	
 	int moduleIndex = 0;
 	HANDLE storagePtr = NULL;
+	char passBuf[100] = {0};
 
 	OpenStorageFileInParams srcParams = {0};
 	srcParams.path = path;
@@ -44,7 +45,6 @@ int StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWith
 	// If some module requested password, then try to request it from user and try to open file again
 	while (retVal == SOR_PASSWORD_REQUIRED && m_fnPassCallback != NULL)
 	{
-		char passBuf[100] = {0};
 		if ( ! m_fnPassCallback(passBuf, ARRAY_SIZE(passBuf)) )
 			break;
 

@@ -43,7 +43,7 @@ RegistrySettings::~RegistrySettings()
 	}
 }
 
-bool RegistrySettings::Open(int CanWrite)
+bool RegistrySettings::Open(bool CanWrite)
 {
 	if (m_hkRegKey != 0)
 		return true;
