@@ -241,7 +241,7 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 	uint8_t nIsCompressed;
 	int64_t nDecompSize, nCompSize;
 	uint32_t nCrc;
-	uint16_t skipVal;
+	uint16_t skipVal, packageNum;
 
 	int64_t nextOffset = baseOffset;
 	m_pScriptData->Seek(5, STREAM_CURRENT);
@@ -252,17 +252,18 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		ReadString(m_pScriptData, strBaseName); // Base name
 		SkipString(m_pScriptData); // Source directory
 		SkipString(m_pScriptData); // Suffix
-		SkipString(m_pScriptData); // 'Archive'
-		SkipString(m_pScriptData);
+		SkipString(m_pScriptData); // Run-time folder (usually 'Archive')
+		SkipString(m_pScriptData); // File description
 		m_pScriptData->Seek(2, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nDecompSize, sizeof(nDecompSize));
 		m_pScriptData->Seek(62, STREAM_CURRENT);
 		ReadString(m_pScriptData, strDestDir); // Destination directory
 		m_pScriptData->Seek(10, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Start menu text
-		SkipString(m_pScriptData);
-		SkipString(m_pScriptData); // Category
-		m_pScriptData->Seek(3, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Shortcut comment
+		SkipString(m_pScriptData); // Shortcut description
+		SkipString(m_pScriptData); // Shortcut startup arguments
+		m_pScriptData->Seek(2, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Icon path
 		m_pScriptData->Seek(12, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
@@ -276,12 +277,12 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->Seek(2, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Install type
 		SkipString(m_pScriptData);
-
-		//TODO: fix this block, if language string is present
-		//strangely enough there is a single extra 0 byte after lang name
-		m_pScriptData->Seek(2, STREAM_CURRENT);
-		SkipString(m_pScriptData); // Language
-
+		m_pScriptData->ReadBuffer(&packageNum, sizeof(packageNum));
+		for (uint16_t i = 0; i < packageNum; i++)
+		{
+			SkipString(m_pScriptData); // Package name
+		}
+		m_pScriptData->Seek(1, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nCompSize, sizeof(nCompSize));
 		m_pScriptData->ReadBuffer(&nCrc, sizeof(nCrc));
 		m_pScriptData->Seek(8, STREAM_CURRENT);
