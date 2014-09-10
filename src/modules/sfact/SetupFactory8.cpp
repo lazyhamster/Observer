@@ -259,11 +259,12 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->Seek(62, STREAM_CURRENT);
 		ReadString(m_pScriptData, strDestDir); // Destination directory
 		m_pScriptData->Seek(10, STREAM_CURRENT);
-		SkipString(m_pScriptData); // Start menu text
+		SkipString(m_pScriptData); // Custom shortcut location
 		SkipString(m_pScriptData); // Shortcut comment
 		SkipString(m_pScriptData); // Shortcut description
 		SkipString(m_pScriptData); // Shortcut startup arguments
-		m_pScriptData->Seek(2, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Shortcut start directory
+		m_pScriptData->Seek(1, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Icon path
 		m_pScriptData->Seek(12, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
@@ -273,7 +274,7 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->ReadBuffer(&skipVal, sizeof(skipVal));
 		m_pScriptData->Seek(skipVal * 2, STREAM_CURRENT);
 		
-		SkipString(m_pScriptData); // Install condition
+		SkipString(m_pScriptData); // Script condition
 		m_pScriptData->Seek(2, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Install type
 		SkipString(m_pScriptData);
@@ -282,7 +283,7 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		{
 			SkipString(m_pScriptData); // Package name
 		}
-		m_pScriptData->Seek(1, STREAM_CURRENT);
+		SkipString(m_pScriptData); // File notes
 		m_pScriptData->ReadBuffer(&nCompSize, sizeof(nCompSize));
 		m_pScriptData->ReadBuffer(&nCrc, sizeof(nCrc));
 		m_pScriptData->Seek(8, STREAM_CURRENT);
