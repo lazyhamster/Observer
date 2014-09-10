@@ -14,7 +14,7 @@ enum EntryCompression
 
 struct SFFileEntry
 {
-	wchar_t LocalPath[MAX_PATH];
+	char LocalPath[MAX_PATH];
 	int64_t UnpackedSize;
 	int64_t PackedSize;
 	EntryCompression Compression;

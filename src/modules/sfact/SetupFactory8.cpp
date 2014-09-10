@@ -8,8 +8,8 @@ const uint8_t SIGNATURE[SIGNATURE_SIZE] = {0xe0,0xe0,0xe1,0xe1,0xe2,0xe2,0xe3,0x
 
 #define FILENAME_SIZE 264
 
-#define FILENAME_EMBEDDED_INSTALLER L"irsetup.exe"
-#define FILENAME_LUA_DLL L"lua5.1.dll"
+#define FILENAME_EMBEDDED_INSTALLER "irsetup.exe"
+#define FILENAME_LUA_DLL "lua5.1.dll"
 
 #define STRBUF_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
 
@@ -110,7 +110,7 @@ int SetupFactory8::EnumFiles()
 		m_pInFile->Seek(4, STREAM_CURRENT);
 
 		SFFileEntry fe = {0};
-		MultiByteToWideChar(m_nFilenameCodepage, 0, nameBuf, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
+		strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), nameBuf);
 		fe.PackedSize = fileSize;
 		fe.CRC = fileCrc;
 		fe.DataOffset = m_pInFile->GetPos();
@@ -197,7 +197,7 @@ bool SetupFactory8::ExtractFile( int index, AStream* outStream )
 
 	// Special treatment for irsetup.exe
 	// First 2000 bytes of the file are xor-ed with 0x07
-	if (ret && (wcscmp(entry.LocalPath, FILENAME_EMBEDDED_INSTALLER) == 0))
+	if (ret && (strcmp(entry.LocalPath, FILENAME_EMBEDDED_INSTALLER) == 0))
 	{
 		uint8_t buf[2000];
 		
@@ -295,16 +295,13 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		fe.DataOffset = nextOffset;
 		fe.CRC = nCrc;
 
-		char fullLocalPath[MAX_PATH] = {0};
-		strcpy_s(fullLocalPath, MAX_PATH, strDestDir);
-		if (fullLocalPath[0] && (fullLocalPath[strlen(fullLocalPath)-1] != '\\'))
+		strcpy_s(fe.LocalPath, MAX_PATH, strDestDir);
+		if (strDestDir[0] && (strDestDir[strlen(strDestDir)-1] != '\\'))
 		{
-			strcat_s(fullLocalPath, MAX_PATH, "\\");
+			strcat_s(fe.LocalPath, MAX_PATH, "\\");
 		}
-		strcat_s(fullLocalPath, MAX_PATH, strBaseName);
-
-		MultiByteToWideChar(m_nFilenameCodepage, 0, fullLocalPath, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
-
+		strcat_s(fe.LocalPath, MAX_PATH, strBaseName);
+		
 		m_vFiles.push_back(fe);
 		nextOffset += nCompSize;
 		foundFiles++;
@@ -313,13 +310,13 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 	return foundFiles;
 }
 
-bool SetupFactory8::ReadSpecialFile( const wchar_t* fileName )
+bool SetupFactory8::ReadSpecialFile( const char* fileName )
 {
 	int64_t fileSize = 0;
 	m_pInFile->ReadBuffer(&fileSize, sizeof(fileSize));
 
 	SFFileEntry fe = {0};
-	wcscpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), fileName);
+	strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), fileName);
 	fe.PackedSize = fileSize;
 	fe.UnpackedSize = fileSize;
 	fe.Compression = COMP_NONE;

@@ -102,7 +102,7 @@ int SetupFactory56::EnumFiles()
 			return -1;
 		
 		SFFileEntry fe = {0};
-		MultiByteToWideChar(m_nFilenameCodepage, 0, nameBuf, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
+		strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), nameBuf);
 		fe.PackedSize = size;
 		fe.CRC = crc;
 		fe.Compression = COMP_PKWARE;
@@ -235,15 +235,12 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		fe.DataOffset = nextOffset;
 		fe.CRC = nCrc;
 
-		char fullLocalPath[MAX_PATH] = {0};
-		strcpy_s(fullLocalPath, MAX_PATH, strDestDir);
-		if (fullLocalPath[0] && (fullLocalPath[strlen(fullLocalPath)-1] != '\\'))
+		strcpy_s(fe.LocalPath, MAX_PATH, strDestDir);
+		if (strDestDir[0] && (strDestDir[strlen(strDestDir)-1] != '\\'))
 		{
-			strcat_s(fullLocalPath, MAX_PATH, "\\");
+			strcat_s(fe.LocalPath, MAX_PATH, "\\");
 		}
-		strcat_s(fullLocalPath, MAX_PATH, strBaseName);
-		
-		MultiByteToWideChar(m_nFilenameCodepage, 0, fullLocalPath, -1, fe.LocalPath, STRBUF_SIZE(fe.LocalPath));
+		strcat_s(fe.LocalPath, MAX_PATH, strBaseName);
 		
 		m_vFiles.push_back(fe);
 		nextOffset += nCompSize;

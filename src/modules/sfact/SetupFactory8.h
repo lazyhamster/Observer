@@ -11,7 +11,7 @@ private:
 	int64_t m_nContentBaseOffset;
 		
 	int ParseScript(int64_t baseOffset);
-	bool ReadSpecialFile(const wchar_t* fileName);
+	bool ReadSpecialFile(const char* fileName);
 	bool DetectCompression(EntryCompression &value);
 	uint32_t FindFileBlockInScript();
 
