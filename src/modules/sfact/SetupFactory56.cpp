@@ -135,7 +135,7 @@ int SetupFactory56::EnumFiles()
 		ParseScript(contentBaseOffset);
 	}
 
-	return m_vFiles.size();
+	return (int) m_vFiles.size();
 }
 
 bool SetupFactory56::ExtractFile( int index, AStream* outStream )

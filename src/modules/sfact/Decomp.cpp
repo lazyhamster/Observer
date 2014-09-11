@@ -88,7 +88,7 @@ bool LzmaDecomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t
 	int64_t decompSize = 0;
 	unsigned char props[LZMA_PROPS_SIZE];
 	unsigned char *inbuf, *outbuf;
-	uint32_t crcVal = 0;
+	uLong crcVal = 0;
 	
 	size_t inlen = inSize - LZMA_PROPS_SIZE - sizeof(decompSize);
 	size_t outlen;
@@ -111,11 +111,11 @@ bool LzmaDecomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t
 
 		if (outSize != nullptr)
 		{
-			*outSize = outlen;
+			*outSize = (uint32_t) outlen;
 		}
 		if (outCrc != nullptr)
 		{
-			crcVal = crc32(crcVal, outbuf, outlen);
+			crcVal = crc32(crcVal, outbuf, (uInt) outlen);
 			*outCrc = crcVal;
 		}
 	}
@@ -131,7 +131,7 @@ bool Lzma2Decomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_
 	int64_t decompSize = 0;
 	Byte prop;
 	unsigned char *inbuf, *outbuf;
-	uint32_t crcVal = 0;
+	uLong crcVal = 0;
 
 	size_t inlen = inSize - sizeof(prop) - sizeof(decompSize);
 	size_t outlen;
@@ -154,11 +154,11 @@ bool Lzma2Decomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_
 
 		if (outSize != nullptr)
 		{
-			*outSize = outlen;
+			*outSize = (uint32_t) outlen;
 		}
 		if (outCrc != nullptr)
 		{
-			crcVal = crc32(crcVal, outbuf, outlen);
+			crcVal = crc32(crcVal, outbuf, (uInt) outlen);
 			*outCrc = crcVal;
 		}
 	}
