@@ -43,6 +43,7 @@ bool SetupFactory56::Open( CFileStream* inFile )
 	if (CheckSignature(inFile, 0x8000, 5)
 		|| CheckSignature(inFile, 0x12000, 6) // Main offset for version 6
 		|| CheckSignature(inFile, 0x15000, 6) // Alternative offset for version 6 (usually have no files in script)
+		|| CheckSignature(inFile, 0x1A000, 6) // Another offset (also usually without files)
 		)
 	{
 		m_pInFile = inFile;
