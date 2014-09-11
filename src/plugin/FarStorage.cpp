@@ -239,8 +239,5 @@ int StorageObject::ChangeCurrentDir( const wchar_t* path )
 
 ContentTreeNode* StorageObject::GetItem( size_t index )
 {
-	if ((index >= 0) && (index < m_vItems.size()))
-		return m_vItems[index];
-	else
-		return NULL;
+	return (index < m_vItems.size()) ? m_vItems[index] : NULL;
 }
