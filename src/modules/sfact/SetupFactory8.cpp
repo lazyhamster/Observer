@@ -266,7 +266,9 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		SkipString(m_pScriptData); // Shortcut start directory
 		m_pScriptData->Seek(1, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Icon path
-		m_pScriptData->Seek(12, STREAM_CURRENT);
+		m_pScriptData->Seek(8, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Font reg name (if file is font)
+		m_pScriptData->Seek(3, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
 		m_pScriptData->ReadBuffer(&useOrigAttr, sizeof(origAttr)); // 1 - use original file attributes
 		m_pScriptData->ReadBuffer(&forcedAttr, sizeof(forcedAttr)); // Set this attributes if prev. value is 0
