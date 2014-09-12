@@ -19,7 +19,14 @@ struct SFFileEntry
 	int64_t PackedSize;
 	EntryCompression Compression;
 	int64_t DataOffset;
+	int8_t Attributes;
 	uint32_t CRC;
+
+	SFFileEntry() : UnpackedSize(0), PackedSize(0),
+		Compression(COMP_UNKNOWN), DataOffset(0), Attributes(0), CRC(0)
+	{
+		memset(LocalPath, 0, sizeof(LocalPath));
+	}
 };
 
 #define SCRIPT_FILE "irsetup.dat"

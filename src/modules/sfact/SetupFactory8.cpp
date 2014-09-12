@@ -107,7 +107,7 @@ int SetupFactory8::EnumFiles()
 
 		m_pInFile->Seek(4, STREAM_CURRENT);
 
-		SFFileEntry fe = {0};
+		SFFileEntry fe;
 		strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), nameBuf);
 		fe.PackedSize = fileSize;
 		fe.CRC = fileCrc;
@@ -240,6 +240,7 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 	int64_t nDecompSize, nCompSize;
 	uint32_t nCrc;
 	uint16_t skipVal, packageNum;
+	uint8_t origAttr, useOrigAttr, forcedAttr;
 
 	int64_t nextOffset = baseOffset;
 	m_pScriptData->Seek(5, STREAM_CURRENT);
@@ -254,7 +255,8 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		SkipString(m_pScriptData); // File description
 		m_pScriptData->Seek(2, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nDecompSize, sizeof(nDecompSize));
-		m_pScriptData->Seek(62, STREAM_CURRENT);
+		m_pScriptData->ReadBuffer(&origAttr, sizeof(origAttr)); // Attributes of the original source file
+		m_pScriptData->Seek(61, STREAM_CURRENT);
 		ReadString(m_pScriptData, strDestDir); // Destination directory
 		m_pScriptData->Seek(10, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Custom shortcut location
@@ -266,9 +268,11 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		SkipString(m_pScriptData); // Icon path
 		m_pScriptData->Seek(12, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
+		m_pScriptData->ReadBuffer(&useOrigAttr, sizeof(origAttr)); // 1 - use original file attributes
+		m_pScriptData->ReadBuffer(&forcedAttr, sizeof(forcedAttr)); // Set this attributes if prev. value is 0
 		
 		// A little bit of black magic (not sure if it is correct way)
-		m_pScriptData->Seek(12, STREAM_CURRENT);
+		m_pScriptData->Seek(10, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&skipVal, sizeof(skipVal));
 		m_pScriptData->Seek(skipVal * 2, STREAM_CURRENT);
 		
@@ -286,12 +290,13 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->ReadBuffer(&nCrc, sizeof(nCrc));
 		m_pScriptData->Seek(8, STREAM_CURRENT);
 
-		SFFileEntry fe = {0};
+		SFFileEntry fe;
 		fe.PackedSize = nCompSize;
 		fe.UnpackedSize = nDecompSize;
 		fe.Compression = (nIsCompressed != 0) ? m_eBaseCompression : COMP_NONE;
 		fe.DataOffset = nextOffset;
 		fe.CRC = nCrc;
+		fe.Attributes = useOrigAttr ? origAttr : forcedAttr;
 
 		strcpy_s(fe.LocalPath, MAX_PATH, strDestDir);
 		if (strDestDir[0] && (strDestDir[strlen(strDestDir)-1] != '\\'))
@@ -313,7 +318,7 @@ bool SetupFactory8::ReadSpecialFile( const char* fileName )
 	int64_t fileSize = 0;
 	m_pInFile->ReadBuffer(&fileSize, sizeof(fileSize));
 
-	SFFileEntry fe = {0};
+	SFFileEntry fe;
 	strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), fileName);
 	fe.PackedSize = fileSize;
 	fe.UnpackedSize = fileSize;

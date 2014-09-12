@@ -65,6 +65,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		memset(item_info, 0, sizeof(StorageItemInfo));
 		MultiByteToWideChar(sfInst->GetFileNameEncoding(), 0, fe.LocalPath, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
 		item_info->Size = fe.UnpackedSize;
+		item_info->Attributes = fe.Attributes;
 		
 		return GET_ITEM_OK;
 	}

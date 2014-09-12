@@ -100,7 +100,7 @@ int SetupFactory56::EnumFiles()
 		if (!m_pInFile->ReadBuffer(nameBuf, fileNameSize) || !m_pInFile->ReadBuffer(&size, sizeof(size)) || !m_pInFile->ReadBuffer(&crc, sizeof(crc)))
 			return -1;
 		
-		SFFileEntry fe = {0};
+		SFFileEntry fe;
 		strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), nameBuf);
 		fe.PackedSize = size;
 		fe.CRC = crc;
@@ -227,7 +227,7 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		m_pScriptData->ReadBuffer(&nCrc, sizeof(nCrc));
 		m_pScriptData->Seek(39, STREAM_CURRENT);
 
-		SFFileEntry fe = {0};
+		SFFileEntry fe;
 		fe.PackedSize = nCompSize;
 		fe.UnpackedSize = nDecompSize;
 		fe.Compression = (nIsCompressed != 0) ? COMP_PKWARE : COMP_NONE;
