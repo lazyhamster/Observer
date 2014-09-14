@@ -120,7 +120,7 @@ bool CFileStream::ReadBuffer( LPVOID buffer, size_t bufferSize )
 	return fReadResult && (dwBytes == bufferSize);
 }
 
-bool CFileStream::WriteBuffer( LPVOID buffer, size_t bufferSize )
+bool CFileStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
 {
 	if (m_fReadOnly || !IsValid()) return false;
 
@@ -149,7 +149,7 @@ bool CNullStream::ReadBuffer( LPVOID buffer, size_t bufferSize )
 	return false;
 }
 
-bool CNullStream::WriteBuffer( LPVOID buffer, size_t bufferSize )
+bool CNullStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
 {
 	return true;
 }
@@ -229,7 +229,7 @@ bool CMemoryStream::ReadBuffer( LPVOID buffer, size_t bufferSize )
 	return true;
 }
 
-bool CMemoryStream::WriteBuffer( LPVOID buffer, size_t bufferSize )
+bool CMemoryStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
 {
 	if (!buffer) return false;
 	if (bufferSize == 0) return true;

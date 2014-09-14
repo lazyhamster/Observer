@@ -17,7 +17,7 @@ public:
 	virtual bool Seek(int64_t seekPos, int8_t seekOrigin) = 0;
 	virtual bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin) = 0;
 	virtual bool ReadBuffer(LPVOID buffer, size_t bufferSize) = 0;
-	virtual bool WriteBuffer(LPVOID buffer, size_t bufferSize) = 0;
+	virtual bool WriteBuffer(LPCVOID buffer, size_t bufferSize) = 0;
 
 	int64_t CopyFrom(AStream* src);
 	
@@ -58,7 +58,7 @@ public:
 	bool Seek(int64_t seekPos, int8_t seekOrigin);
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
 	bool ReadBuffer(LPVOID buffer, size_t bufferSize);
-	bool WriteBuffer(LPVOID buffer, size_t bufferSize);
+	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
 
 	const wchar_t* FileName() const { return m_strPath; }
 };
@@ -85,7 +85,7 @@ public:
 	bool Seek(int64_t seekPos, int8_t seekOrigin);
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
 	bool ReadBuffer(LPVOID buffer, size_t bufferSize);
-	bool WriteBuffer(LPVOID buffer, size_t bufferSize);
+	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
 
 	const char* DataPtr() { return m_pDataBuffer; }
 };
@@ -99,7 +99,7 @@ public:
 	bool Seek(int64_t seekPos, int8_t seekOrigin);
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
 	bool ReadBuffer(LPVOID buffer, size_t bufferSize);
-	bool WriteBuffer(LPVOID buffer, size_t bufferSize);
+	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
 };
 
 #endif // FileStream_h__
