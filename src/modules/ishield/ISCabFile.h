@@ -2,6 +2,7 @@
 #define ISCabFile_h__
 
 #include "ModuleDef.h"
+#include "modulecrt/Streams.h"
 
 #define CAB_EXTRACT_OK SER_SUCCESS
 #define CAB_EXTRACT_READ_ERR SER_ERROR_READ
@@ -11,25 +12,24 @@
 class ISCabFile
 {
 protected:
-	HANDLE m_hHeaderFile;
-	std::wstring m_sHeaderFilePath;
+	CFileStream* m_pHeaderFile;
 	std::wstring m_sCabPattern;
 	std::wstring m_sInfoFile;
 	
 	virtual void GenerateInfoFile() = 0;
-	virtual bool InternalOpen(HANDLE headerFile) = 0;
+	virtual bool InternalOpen(CFileStream* headerFile) = 0;
 
-	int TransferFile(HANDLE src, HANDLE dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress);
-	int UnpackFile(HANDLE src, HANDLE dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress);
+	int TransferFile(CFileStream* src, CFileStream* dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress);
+	int UnpackFile(CFileStream* src, CFileStream* dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress);
 
 public:	
 	virtual ~ISCabFile() {}
 	
 	virtual int GetTotalFiles() const = 0;
 	virtual bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const = 0;
-	virtual int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx) = 0;
+	virtual int ExtractFile(int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx) = 0;
 
-	bool Open(HANDLE headerFile, const wchar_t* headerFilePath);
+	bool Open(CFileStream* headerFile);
 	virtual void Close() = 0;
 
 	const std::wstring GetCabInfo() const { return m_sInfoFile; }

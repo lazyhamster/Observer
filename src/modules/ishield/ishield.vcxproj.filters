@@ -45,9 +45,6 @@
     <ClCompile Include="IS3\IS3CabFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ISSFX\PEHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ISSFX\ISEncSfxFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -101,9 +98,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IS3\IS3_Structs.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ISSFX\PEHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ISSFX\ISEncSfxFile.h">

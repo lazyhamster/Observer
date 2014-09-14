@@ -590,7 +590,6 @@
     <ClCompile Include="ISCabFile.cpp" />
     <ClCompile Include="ISSFX\ISEncSfxFile.cpp" />
     <ClCompile Include="ISSFX\ISPlainSfxFile.cpp" />
-    <ClCompile Include="ISSFX\PEHelper.cpp" />
     <ClCompile Include="ISU\ISUCabFile.cpp" />
     <ClCompile Include="md5\md5c.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">NotUsing</PrecompiledHeader>
@@ -637,7 +636,6 @@
     <ClInclude Include="ISCabFile.h" />
     <ClInclude Include="ISSFX\ISEncSfxFile.h" />
     <ClInclude Include="ISSFX\ISPlainSfxFile.h" />
-    <ClInclude Include="ISSFX\PEHelper.h" />
     <ClInclude Include="ISU\ISUCabFile.h" />
     <ClInclude Include="md5\global.h" />
     <ClInclude Include="md5\md5.h" />
@@ -646,6 +644,9 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\depends\modulecrt\modulecrt.vcxproj">
+      <Project>{cebdd3f1-0d8a-4d3c-b5a9-1fdf98b8507f}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
       <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
       <Private>true</Private>

@@ -23,7 +23,7 @@ protected:
 	std::vector<FILEDESC*> m_vFiles;
 	
 	void GenerateInfoFile() { /* Not used for this class */ }
-	bool InternalOpen(HANDLE headerFile);
+	bool InternalOpen(CFileStream* headerFile);
 
 public:
 	IS3CabFile();
@@ -31,7 +31,7 @@ public:
 
 	int GetTotalFiles() const;
 	bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const;
-	int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx);
+	int ExtractFile(int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx);
 
 	void Close();
 

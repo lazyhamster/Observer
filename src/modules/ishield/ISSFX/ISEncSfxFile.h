@@ -48,10 +48,10 @@ protected:
 	std::vector<SfxFileEntry> m_vFiles;
 	
 	void GenerateInfoFile() { /* Not used for this class */ }
-	bool InternalOpen(HANDLE headerFile);
+	bool InternalOpen(CFileStream* headerFile);
 
-	int DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const;
-	int CopyPlainFile(const SfxFileEntry *pEntry, HANDLE dest, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const;
+	int DecodeFile(const SfxFileEntry *pEntry, CFileStream* dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const;
+	int CopyPlainFile(const SfxFileEntry *pEntry, CFileStream* dest, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const;
 
 public:
 	ISEncSfxFile();
@@ -59,7 +59,7 @@ public:
 
 	int GetTotalFiles() const;
 	bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const;
-	int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx);
+	int ExtractFile(int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx);
 
 	void Close();
 

@@ -15,7 +15,7 @@ namespace IS6
 
 IS6CabFile::IS6CabFile()
 {
-	m_hHeaderFile = INVALID_HANDLE_VALUE;
+	m_pHeaderFile = nullptr;
 	memset(&m_Header, 0, sizeof(m_Header));
 	m_pCabDesc = NULL;
 	m_pDFT = NULL;
@@ -84,7 +84,7 @@ bool IS6CabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 	return true;
 }
 
-bool IS6CabFile::InternalOpen( HANDLE headerFile )
+bool IS6CabFile::InternalOpen( CFileStream* headerFile )
 {
 	if (headerFile == INVALID_HANDLE_VALUE)
 		return false;
@@ -93,7 +93,7 @@ bool IS6CabFile::InternalOpen( HANDLE headerFile )
 	CABDESC* cabDesc = NULL;
 	DWORD* DFT = NULL;
 
-	if (!ReadBuffer(headerFile, &cabHeader, sizeof(cabHeader)))
+	if (!headerFile->ReadBuffer(&cabHeader, sizeof(cabHeader)))
 		return false;
 
 	// Validate file
@@ -107,13 +107,13 @@ bool IS6CabFile::InternalOpen( HANDLE headerFile )
 
 	// Read CABDESC
 
-	if (!SeekFile(headerFile, cabHeader.ofsCabDesc))
+	if (!headerFile->SetPos(cabHeader.ofsCabDesc))
 		return false;
 
 	cabDesc = (CABDESC*) malloc(cabHeader.cbCabDesc);
 	if (cabDesc == NULL) return false;
 
-	if (!ReadBuffer(headerFile, cabDesc, cabHeader.cbCabDesc))
+	if (!headerFile->ReadBuffer(cabDesc, cabHeader.cbCabDesc))
 	{
 		free(cabDesc);
 		return false;
@@ -121,7 +121,7 @@ bool IS6CabFile::InternalOpen( HANDLE headerFile )
 
 	// Read DFT
 
-	if (!SeekFile(headerFile, cabHeader.ofsCabDesc + cabDesc->ofsDFT))
+	if (!headerFile->SetPos(cabHeader.ofsCabDesc + cabDesc->ofsDFT))
 	{
 		free(cabDesc);
 		return false;
@@ -134,7 +134,7 @@ bool IS6CabFile::InternalOpen( HANDLE headerFile )
 		return false;
 	}
 
-	if (!ReadBuffer(headerFile, DFT, cabDesc->cbDFT))
+	if (!headerFile->ReadBuffer(DFT, cabDesc->cbDFT))
 	{
 		free(cabDesc);
 		free(DFT);
@@ -198,9 +198,10 @@ bool IS6CabFile::InternalOpen( HANDLE headerFile )
 
 void IS6CabFile::Close()
 {
-	if (m_hHeaderFile != INVALID_HANDLE_VALUE)
+	if (m_pHeaderFile != nullptr)
 	{
-		CloseHandle(m_hHeaderFile);
+		delete m_pHeaderFile;
+		m_pHeaderFile = nullptr;
 	}
 	FREE_NULL(m_pCabDesc);
 	FREE_NULL(m_pDFT);
@@ -210,7 +211,7 @@ void IS6CabFile::Close()
 		DataVolume* vol = *it;
 		if (vol != NULL)
 		{
-			CloseHandle(vol->FileHandle);
+			delete vol->FileHandle;
 			delete vol;
 		}
 	}
@@ -279,7 +280,7 @@ void IS6CabFile::GenerateInfoFile()
 	m_sInfoFile = ConvertStrings(strData);
 }
 
-int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
+int IS6CabFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx )
 {
 	if (!m_pCabDesc || !m_pDFT || itemIndex < 0 || itemIndex >= (int)m_vValidFiles.size())
 		return CAB_EXTRACT_READ_ERR;
@@ -293,7 +294,7 @@ int IS6CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCal
 	DataVolume* volume = OpenVolume(pFileDesc->Volume);
 	if (!volume) return CAB_EXTRACT_READ_ERR;
 
-	if (!SeekFile(volume->FileHandle, pFileDesc->ofsData))
+	if (!volume->FileHandle->SetPos(pFileDesc->ofsData))
 		return CAB_EXTRACT_READ_ERR;
 
 	BYTE md5Sig[16] = {0};
@@ -334,25 +335,25 @@ DataVolume* IS6CabFile::OpenVolume( DWORD volumeIndex )
 		wchar_t volumePath[4096] = {0};
 		swprintf_s(volumePath, m_sCabPattern.c_str(), volumeIndex);
 
-		HANDLE hFile = OpenFileForRead(volumePath);
-		if (hFile == INVALID_HANDLE_VALUE) return NULL;
+		CFileStream* pFile = CFileStream::Open(volumePath, true, false);
+		if (pFile == nullptr) return NULL;
 
 		CABHEADER header;
-		if (!ReadBuffer(hFile, &header, sizeof(header))
+		if (!pFile->ReadBuffer(&header, sizeof(header))
 			|| (header.Signature != m_Header.Signature)
 			|| (header.Version != m_Header.Version)
 			)
 		{
-			CloseHandle(hFile);
+			delete pFile;
 			return NULL;
 		}
 
 		volume = new DataVolume();
 		volume->VolumeIndex = volumeIndex;
 		volume->FilePath = volumePath;
-		volume->FileHandle = hFile;
+		volume->FileHandle = pFile;
 		volume->Header = header;
-		volume->FileSize = SizeOfFile(hFile);
+		volume->FileSize = pFile->GetSize();
 
 		m_vVolumes[volumeIndex] = volume;
 	}

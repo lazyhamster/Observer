@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "ISEncSfxFile.h"
 #include "Utils.h"
-#include "PEHelper.h"
+#include "modulecrt\PEHelper.h"
 #include "zlib\zlib.h"
 
 ISSfx::ISEncSfxFile::ISEncSfxFile()
 {
-	m_hHeaderFile = INVALID_HANDLE_VALUE;
+	m_pHeaderFile = nullptr;
 }
 
 ISSfx::ISEncSfxFile::~ISEncSfxFile()
@@ -14,17 +14,17 @@ ISSfx::ISEncSfxFile::~ISEncSfxFile()
 	Close();
 }
 
-bool ISSfx::ISEncSfxFile::InternalOpen( HANDLE headerFile )
+bool ISSfx::ISEncSfxFile::InternalOpen( CFileStream* headerFile )
 {
 	__int64 nOverlayStart, nOverlaySize;
 
 	if (!FindFileOverlay(headerFile, nOverlayStart, nOverlaySize))
 		return false;
 
-	SeekFile(headerFile, nOverlayStart);
+	headerFile->SetPos(nOverlayStart);
 
 	char Sig[14];
-	if (!ReadBuffer(headerFile, Sig, sizeof(Sig)))
+	if (!headerFile->ReadBuffer(Sig, sizeof(Sig)))
 		return false;
 
 	bool isStreamUnicode;
@@ -36,10 +36,10 @@ bool ISSfx::ISEncSfxFile::InternalOpen( HANDLE headerFile )
 		return false;
 
 	WORD NumFiles;
-	if (!ReadBuffer(headerFile, &NumFiles, sizeof(NumFiles)) || NumFiles == 0)
+	if (!headerFile->ReadBuffer(&NumFiles, sizeof(NumFiles)) || NumFiles == 0)
 		return false;
 
-	if (!SeekFile(headerFile, FilePos(headerFile) + 0x1E))
+	if (!headerFile->Seek(0x1E, STREAM_CURRENT))
 		return false;
 
 	SfxFileHeaderA headerA;
@@ -52,8 +52,8 @@ bool ISSfx::ISEncSfxFile::InternalOpen( HANDLE headerFile )
 
 		if (isStreamUnicode)
 		{
-			ReadBuffer(headerFile, &headerW, sizeof(headerW));
-			ReadBuffer(headerFile, fe.Name, headerW.NameBytes);
+			headerFile->ReadBuffer(&headerW, sizeof(headerW));
+			headerFile->ReadBuffer(fe.Name, headerW.NameBytes);
 			fe.CompressedSize = headerW.CompressedSize;
 			fe.IsCompressed = headerW.IsCompressed != 0;
 			fe.Type = headerW.Type;
@@ -61,31 +61,30 @@ bool ISSfx::ISEncSfxFile::InternalOpen( HANDLE headerFile )
 		}
 		else
 		{
-			ReadBuffer(headerFile, &headerA, sizeof(headerA));
+			headerFile->ReadBuffer(&headerA, sizeof(headerA));
 			strcpy_s(fe.Name, sizeof(fe.Name), headerA.Name);
 			fe.CompressedSize = headerA.CompressedSize;
 			fe.IsCompressed = headerA.IsCompressed != 0;
 			fe.Type = headerA.Type;
 			fe.IsUnicode = false;
 		}
-		fe.StartOffset = FilePos(headerFile);
+		fe.StartOffset = headerFile->GetPos();
 		
-		if ((fe.StartOffset + fe.CompressedSize > nOverlayStart + nOverlaySize) || !SeekFile(headerFile, fe.StartOffset + fe.CompressedSize))
+		if ((fe.StartOffset + fe.CompressedSize > nOverlayStart + nOverlaySize) || !headerFile->SetPos(fe.StartOffset + fe.CompressedSize))
 			return false;
 
 		m_vFiles.push_back(fe);
 	}
 
-	m_hHeaderFile = headerFile;
-	
 	return m_vFiles.size() > 0;
 }
 
 void ISSfx::ISEncSfxFile::Close()
 {
-	if (m_hHeaderFile != INVALID_HANDLE_VALUE)
+	if (m_pHeaderFile != nullptr)
 	{
-		CloseHandle(m_hHeaderFile);
+		delete m_pHeaderFile;
+		m_pHeaderFile = nullptr;
 	}
 
 	m_vFiles.clear();
@@ -127,7 +126,7 @@ bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo 
 	return true;
 }
 
-int ISSfx::ISEncSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
+int ISSfx::ISEncSfxFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx )
 {
 	if (itemIndex < 0 || itemIndex >= (int)m_vFiles.size())
 		return CAB_EXTRACT_READ_ERR;
@@ -177,7 +176,7 @@ static inline BYTE SwapBits(BYTE input)
 
 #define EXTRACT_BUFFER_SIZE 32*1024
 
-int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const
+int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, CFileStream* dest, DWORD chunkSize, __int64 *unpackedSize, ExtractProcessCallbacks *pctx) const
 {
 	*unpackedSize = 0;
 
@@ -186,7 +185,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 	size_t decryptKeySize = strDecryptKey.size();
 	const char* decryptKey = strDecryptKey.c_str();
 
-	SeekFile(m_hHeaderFile, pEntry->StartOffset);
+	m_pHeaderFile->SetPos(pEntry->StartOffset);
 
 	size_t offsChunk = 0, offsKey = 0;
 	__int64 bytesLeft = pEntry->CompressedSize;
@@ -205,7 +204,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 	{
 		readDataSize = (DWORD) min(bytesLeft, EXTRACT_BUFFER_SIZE);
 		
-		if (!ReadBuffer(m_hHeaderFile, readBuffer, readDataSize))
+		if (!m_pHeaderFile->ReadBuffer(readBuffer, readDataSize))
 		{
 			result = CAB_EXTRACT_READ_ERR;
 			break;
@@ -255,7 +254,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 
 				__int64 haveBytes = unpackBufferSize - strm.avail_out;
 
-				if (dest && !WriteBuffer(dest, unpackBuffer, (DWORD) haveBytes))
+				if (dest && !dest->WriteBuffer(unpackBuffer, (DWORD) haveBytes))
 				{
 					result = CAB_EXTRACT_WRITE_ERR;
 					break;
@@ -270,7 +269,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 		else
 		{
 			nWriteSize = readDataSize;
-			if (dest && !WriteBuffer(dest, readBuffer, readDataSize))
+			if (dest && !dest->WriteBuffer(readBuffer, readDataSize))
 			{
 				result = CAB_EXTRACT_WRITE_ERR;
 				break;
@@ -296,14 +295,14 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, HANDLE dest, DWO
 	return result;
 }
 
-int ISSfx::ISEncSfxFile::CopyPlainFile( const SfxFileEntry *pEntry, HANDLE dest, __int64 *unpackedSize, ExtractProcessCallbacks *pctx ) const
+int ISSfx::ISEncSfxFile::CopyPlainFile( const SfxFileEntry *pEntry, CFileStream* dest, __int64 *unpackedSize, ExtractProcessCallbacks *pctx ) const
 {
 	// File can not be compressed
 	if (pEntry->Type == 0 && pEntry->IsCompressed)
 		return CAB_EXTRACT_READ_ERR;
 	
 	*unpackedSize = 0;
-	SeekFile(m_hHeaderFile, pEntry->StartOffset);
+	m_pHeaderFile->SetPos(pEntry->StartOffset);
 
 	__int64 bytesLeft = pEntry->CompressedSize;
 	BYTE readBuffer[EXTRACT_BUFFER_SIZE] = {0};
@@ -314,13 +313,13 @@ int ISSfx::ISEncSfxFile::CopyPlainFile( const SfxFileEntry *pEntry, HANDLE dest,
 	{
 		readDataSize = (DWORD) min(bytesLeft, EXTRACT_BUFFER_SIZE);
 
-		if (!ReadBuffer(m_hHeaderFile, readBuffer, readDataSize))
+		if (!m_pHeaderFile->ReadBuffer(readBuffer, readDataSize))
 		{
 			result = CAB_EXTRACT_READ_ERR;
 			break;
 		}
 
-		if (dest && !WriteBuffer(dest, readBuffer, readDataSize))
+		if (dest && !dest->WriteBuffer(readBuffer, readDataSize))
 		{
 			result = CAB_EXTRACT_WRITE_ERR;
 			break;

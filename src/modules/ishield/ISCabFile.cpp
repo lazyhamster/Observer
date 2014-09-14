@@ -11,32 +11,33 @@
 #include "ISSFX\ISPlainSfxFile.h"
 
 template <typename T>
-ISCabFile* TryOpen(HANDLE hFile, const wchar_t* wszFilePath)
+ISCabFile* TryOpen(CFileStream* pFile)
 {
 	T* obj = new T();
-	if (obj->Open(hFile, wszFilePath))
+	if (obj->Open(pFile))
 		return obj;
 
 	delete obj;
 	return NULL;
 }
 
-#define RNN(type, hf, path) { auto isf = TryOpen<type>(hf, path); if (isf) return isf; }
+#define RNN(type, hf) { auto isf = TryOpen<type>(hf); if (isf) return isf; }
 
 ISCabFile* OpenCab(const wchar_t* filePath)
 {
-	HANDLE hFile = OpenFileForRead(filePath);
-	if (hFile == INVALID_HANDLE_VALUE)
+	CFileStream* pFile = CFileStream::Open(filePath, true, false);
+	if (pFile == nullptr)
 		return NULL;
 
-	RNN(IS5::IS5CabFile, hFile, filePath);
-	RNN(IS6::IS6CabFile, hFile, filePath);
-	RNN(ISU::ISUCabFile, hFile, filePath);
-	RNN(IS3::IS3CabFile, hFile, filePath);
-	RNN(ISSfx::ISEncSfxFile, hFile, filePath);
-	RNN(ISSfx::ISPlainSfxFile, hFile, filePath);
+	RNN(IS5::IS5CabFile, pFile);
+	RNN(IS6::IS6CabFile, pFile);
+	RNN(ISU::ISUCabFile, pFile);
+	RNN(IS3::IS3CabFile, pFile);
+	RNN(ISSfx::ISEncSfxFile, pFile);
+	RNN(ISSfx::ISPlainSfxFile, pFile);
 	
-	CloseHandle(hFile);
+	delete pFile;
+
 	return NULL;
 }
 
@@ -49,26 +50,24 @@ void CloseCab(ISCabFile* cab)
 	}
 }
 
-bool ISCabFile::Open( HANDLE headerFile, const wchar_t* headerFilePath )
+bool ISCabFile::Open( CFileStream* headerFile )
 {
-	SetFilePointer(headerFile, 0, NULL, FILE_BEGIN);
-	m_sHeaderFilePath = headerFilePath;
+	headerFile->SetPos(0);
 	
 	if (InternalOpen(headerFile))
 	{
-		m_hHeaderFile = headerFile;
-		m_sCabPattern = GenerateCabPatern(headerFilePath);
+		m_pHeaderFile = headerFile;
+		m_sCabPattern = GenerateCabPatern(headerFile->FilePath());
 		GenerateInfoFile();
 		return true;
 	}
 
-	m_sHeaderFilePath.clear();
 	return false;
 }
 
 #define EXTRACT_BUFFER_SIZE 64*1024
 
-int ISCabFile::TransferFile( HANDLE src, HANDLE dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress )
+int ISCabFile::TransferFile( CFileStream* src, CFileStream* dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress )
 {
 	MD5_CTX md5;
 	MD5Init(&md5);
@@ -80,12 +79,12 @@ int ISCabFile::TransferFile( HANDLE src, HANDLE dest, __int64 fileSize, bool dec
 	{
 		DWORD copySize = (DWORD) min(bytesLeft, sizeof(copyBuffer));
 
-		if (!ReadBuffer(src, copyBuffer, copySize))
+		if (!src->ReadBuffer(copyBuffer, copySize))
 			return CAB_EXTRACT_READ_ERR;
 
 		if (decrypt) DecryptBuffer(copyBuffer, copySize, &total);
 
-		if (!WriteBuffer(dest, copyBuffer, copySize))
+		if (!dest->WriteBuffer(copyBuffer, copySize))
 			return CAB_EXTRACT_WRITE_ERR;
 
 		MD5Update(&md5, copyBuffer, copySize);
@@ -102,7 +101,7 @@ int ISCabFile::TransferFile( HANDLE src, HANDLE dest, __int64 fileSize, bool dec
 	return CAB_EXTRACT_OK;
 }
 
-int ISCabFile::UnpackFile( HANDLE src, HANDLE dest, __int64 fileSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
+int ISCabFile::UnpackFile( CFileStream* src, CFileStream* dest, __int64 fileSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
 {
 	MD5_CTX md5;
 	MD5Init(&md5);
@@ -117,10 +116,10 @@ int ISCabFile::UnpackFile( HANDLE src, HANDLE dest, __int64 fileSize, BYTE* hash
 	while (bytesLeft > 0)
 	{
 		WORD blockSize;
-		if (!ReadBuffer(src, &blockSize, sizeof(blockSize)) || !blockSize)
+		if (!src->ReadBuffer(&blockSize, sizeof(blockSize)) || !blockSize)
 			break;
 
-		if (!ReadBuffer(src, inputBuffer, blockSize))
+		if (!src->ReadBuffer(inputBuffer, blockSize))
 			break;
 
 		if (!UnpackBuffer(inputBuffer, blockSize, outputBuffer, &outputBufferSize, &outputDataSize))
@@ -129,7 +128,7 @@ int ISCabFile::UnpackFile( HANDLE src, HANDLE dest, __int64 fileSize, BYTE* hash
 		bytesLeft -= outputDataSize;
 		MD5Update(&md5, outputBuffer, (unsigned int) outputDataSize);
 
-		if (!WriteBuffer(dest, outputBuffer, (DWORD) outputDataSize))
+		if (!dest->WriteBuffer(outputBuffer, (DWORD) outputDataSize))
 		{
 			free(outputBuffer);
 			return CAB_EXTRACT_WRITE_ERR;

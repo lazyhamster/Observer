@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "ISPlainSfxFile.h"
 #include "Utils.h"
-#include "PEHelper.h"
+#include "modulecrt/PEHelper.h"
 
 ISSfx::ISPlainSfxFile::ISPlainSfxFile()
 {
-	m_hHeaderFile = INVALID_HANDLE_VALUE;
+	m_pHeaderFile = nullptr;
 }
 
 ISSfx::ISPlainSfxFile::~ISPlainSfxFile()
@@ -13,10 +13,11 @@ ISSfx::ISPlainSfxFile::~ISPlainSfxFile()
 	Close();
 }
 
-bool ISSfx::ISPlainSfxFile::InternalOpen( HANDLE headerFile )
+bool ISSfx::ISPlainSfxFile::InternalOpen( CFileStream* headerFile )
 {
 	// Since this type of storage does not have signature we will rely on manifest
-	if (!CheckManifest())
+	std::string strManifest = GetManifest(headerFile->FilePath());
+	if (strManifest.find("InstallShield.Setup") == std::string::npos)
 		return false;
 
 	__int64 nOverlayStart, nOverlaySize;
@@ -24,17 +25,17 @@ bool ISSfx::ISPlainSfxFile::InternalOpen( HANDLE headerFile )
 	if (!FindFileOverlay(headerFile, nOverlayStart, nOverlaySize) || nOverlaySize < 2048)  // 2048 is a random number
 		return false;
 
-	SeekFile(headerFile, nOverlayStart);
+	headerFile->SetPos(nOverlayStart);
 
 	// Unicode version has number of files at the start
 	// So if first 4 bytes produce reasonable number then let's assume it is unicode
 	DWORD numFiles;
-	ReadBuffer(headerFile, &numFiles, sizeof(numFiles));
+	headerFile->ReadBuffer(&numFiles, sizeof(numFiles));
 	bool fIsUnicode = (numFiles < 100);
 
 	__int64 nBytesRemain = fIsUnicode ? nOverlaySize - 4 : nOverlaySize;
 	int nFilesLeft = fIsUnicode ? (int) numFiles : -1;
-	if (!fIsUnicode) SeekFile(headerFile, nOverlayStart);
+	if (!fIsUnicode) headerFile->SetPos(nOverlayStart);
 
 	while (nBytesRemain > 0 && nFilesLeft != 0)
 	{
@@ -53,9 +54,10 @@ bool ISSfx::ISPlainSfxFile::InternalOpen( HANDLE headerFile )
 
 void ISSfx::ISPlainSfxFile::Close()
 {
-	if (m_hHeaderFile != INVALID_HANDLE_VALUE)
+	if (m_pHeaderFile != nullptr)
 	{
-		CloseHandle(m_hHeaderFile);
+		delete m_pHeaderFile;
+		m_pHeaderFile = nullptr;
 	}
 
 	m_vFiles.clear();
@@ -81,7 +83,7 @@ bool ISSfx::ISPlainSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInf
 
 #define COPY_BUFFER_SIZE 64*1024
 
-int ISSfx::ISPlainSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
+int ISSfx::ISPlainSfxFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx )
 {
 	if (itemIndex < 0 || itemIndex >= (int)m_vFiles.size())
 		return CAB_EXTRACT_READ_ERR;
@@ -90,18 +92,18 @@ int ISSfx::ISPlainSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, Extrac
 
 	char copyBuffer[COPY_BUFFER_SIZE];
 
-	SeekFile(m_hHeaderFile, fileEntry.StartOffset);
+	m_pHeaderFile->SetPos(fileEntry.StartOffset);
 	__int64 nBytesRemain = fileEntry.Size;
 	while (nBytesRemain > 0)
 	{
 		DWORD copySize = (DWORD) min(nBytesRemain, COPY_BUFFER_SIZE);
-		if (!ReadBuffer(m_hHeaderFile, copyBuffer, copySize))
+		if (!m_pHeaderFile->ReadBuffer(copyBuffer, copySize))
 			return CAB_EXTRACT_READ_ERR;
 
 		if (!progressCtx.FileProgress(progressCtx.signalContext, copySize))
 			return CAB_EXTRACT_USER_ABORT;
 
-		if (!WriteBuffer(targetFile, copyBuffer, copySize))
+		if (!targetFile->WriteBuffer(copyBuffer, copySize))
 			return CAB_EXTRACT_WRITE_ERR;
 
 		nBytesRemain -= copySize;
@@ -110,40 +112,14 @@ int ISSfx::ISPlainSfxFile::ExtractFile( int itemIndex, HANDLE targetFile, Extrac
 	return CAB_EXTRACT_OK;
 }
 
-bool ISSfx::ISPlainSfxFile::CheckManifest()
+__int64 ISSfx::ISPlainSfxFile::ReadAnsiEntry( CFileStream* pFile, SfxFilePlainEntry *pEntry )
 {
-	HMODULE hMod = LoadLibraryEx(m_sHeaderFilePath.c_str(), NULL, LOAD_LIBRARY_AS_DATAFILE);
-	if (hMod == NULL) return false;
-
-	bool fIsSetup = false;
-
-	HRSRC hRsc = FindResource(hMod, MAKEINTRESOURCE(1), RT_MANIFEST);
-	if (hRsc != NULL)
-	{
-		HGLOBAL resData = LoadResource(hMod, hRsc);
-		DWORD resSize = SizeofResource(hMod, hRsc);
-
-		if (resData && resSize)
-		{
-			char* pManifestData = (char*) LockResource(resData);
-			fIsSetup = strstr(pManifestData, "InstallShield.Setup") != NULL;
-			UnlockResource(pManifestData);
-		}
-		FreeResource(resData);
-	}
-	
-	FreeLibrary(hMod);
-	return fIsSetup;
-}
-
-__int64 ISSfx::ISPlainSfxFile::ReadAnsiEntry( HANDLE hFile, SfxFilePlainEntry *pEntry )
-{
-	__int64 filePos = FilePos(hFile);
+	__int64 filePos = pFile->GetPos();
 	__int64 entrySize = 0;
 
 	char dataBuf[1024] = {0};
-	DWORD readSize = 0;
-	if (!ReadBuffer(hFile, dataBuf, sizeof(dataBuf), &readSize))
+	size_t readSize = 0;
+	if (!pFile->ReadBufferAny(dataBuf, sizeof(dataBuf), &readSize))
 		return -1;
 
 	char* sName = dataBuf;
@@ -154,7 +130,7 @@ __int64 ISSfx::ISPlainSfxFile::ReadAnsiEntry( HANDLE hFile, SfxFilePlainEntry *p
 	long nSize = atol(sSize);
 	entrySize = sSize - sName + strlen(sSize) + 1 + nSize;
 
-	if (!SeekFile(hFile, filePos + entrySize))
+	if (!pFile->SetPos(filePos + entrySize))
 		return -1;
 
 	MultiByteToWideChar(CP_ACP, 0, sFullName, -1, pEntry->Path, sizeof(pEntry->Path) / sizeof(pEntry->Path[0]));
@@ -164,14 +140,14 @@ __int64 ISSfx::ISPlainSfxFile::ReadAnsiEntry( HANDLE hFile, SfxFilePlainEntry *p
 	return entrySize;
 }
 
-__int64 ISSfx::ISPlainSfxFile::ReadUnicodeEntry( HANDLE hFile, SfxFilePlainEntry *pEntry )
+__int64 ISSfx::ISPlainSfxFile::ReadUnicodeEntry( CFileStream* pFile, SfxFilePlainEntry *pEntry )
 {
-	__int64 filePos = FilePos(hFile);
+	__int64 filePos = pFile->GetPos();
 	__int64 entrySize = 0;
 
 	wchar_t dataBuf[1024] = {0};
-	DWORD readSize = 0;
-	if (!ReadBuffer(hFile, dataBuf, sizeof(dataBuf), &readSize))
+	size_t readSize = 0;
+	if (!pFile->ReadBufferAny(dataBuf, sizeof(dataBuf), &readSize))
 		return -1;
 
 	wchar_t* sName = dataBuf;
@@ -182,7 +158,7 @@ __int64 ISSfx::ISPlainSfxFile::ReadUnicodeEntry( HANDLE hFile, SfxFilePlainEntry
 	long nSize = _wtol(sSize);
 	entrySize = (sSize - sName + wcslen(sSize) + 1) * sizeof(wchar_t) + nSize;
 
-	if (!SeekFile(hFile, filePos + entrySize))
+	if (!pFile->SetPos(filePos + entrySize))
 		return -1;
 
 	wcscpy_s(pEntry->Path, sizeof(pEntry->Path) / sizeof(pEntry->Path[0]), sFullName);

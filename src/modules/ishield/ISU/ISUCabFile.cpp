@@ -17,7 +17,7 @@ namespace ISU
 
 ISUCabFile::ISUCabFile()
 {
-	m_hHeaderFile = INVALID_HANDLE_VALUE;
+	m_pHeaderFile = nullptr;
 	memset(&m_Header, 0, sizeof(m_Header));
 	m_pCabDesc = NULL;
 	m_pDFT = NULL;

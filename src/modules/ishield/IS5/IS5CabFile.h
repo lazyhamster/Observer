@@ -12,7 +12,7 @@ struct DataVolume
 {
 	DWORD VolumeIndex;
 	std::wstring FilePath;
-	HANDLE FileHandle;
+	CFileStream* FileHandle;
 	__int64 FileSize;
 	CABHEADER Header;
 };
@@ -41,7 +41,7 @@ protected:
 
 	void GenerateInfoFile();
 	bool IsVersionCompatible(DWORD version);
-	bool InternalOpen(HANDLE headerFile);
+	bool InternalOpen(CFileStream* headerFile);
 
 	DataVolume* OpenVolume(DWORD volumeIndex);
 
@@ -53,7 +53,7 @@ public:
 	
 	int GetTotalFiles() const;
 	bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const;
-	int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx);
+	int ExtractFile(int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx);
 
 	void Close();
 

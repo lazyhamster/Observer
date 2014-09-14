@@ -16,15 +16,14 @@ struct SfxFilePlainEntry
 class ISPlainSfxFile : public ISCabFile
 {
 private:
-	bool CheckManifest();
-	__int64 ReadAnsiEntry(HANDLE hFile, SfxFilePlainEntry *pEntry);
-	__int64 ReadUnicodeEntry(HANDLE hFile, SfxFilePlainEntry *pEntry);
+	__int64 ReadAnsiEntry(CFileStream* pFile, SfxFilePlainEntry *pEntry);
+	__int64 ReadUnicodeEntry(CFileStream* pFile, SfxFilePlainEntry *pEntry);
 
 protected:
 	std::vector<SfxFilePlainEntry> m_vFiles;
 	
 	void GenerateInfoFile() { /* Not used for this class */ }
-	bool InternalOpen(HANDLE headerFile);
+	bool InternalOpen(CFileStream* headerFile);
 
 public:
 	ISPlainSfxFile();
@@ -32,7 +31,7 @@ public:
 
 	int GetTotalFiles() const;
 	bool GetFileInfo(int itemIndex, StorageItemInfo* itemInfo) const;
-	int ExtractFile(int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx);
+	int ExtractFile(int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx);
 
 	void Close();
 

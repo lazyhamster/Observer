@@ -5,63 +5,6 @@
 #define ror8(x,n)   (((x) >> ((int)(n))) | ((x) << (8 - (int)(n))))
 #define rol8(x,n)   (((x) << ((int)(n))) | ((x) >> (8 - (int)(n))))
 
-bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize, DWORD* numBytesRead)
-{
-	if (bufferSize == 0) return true;
-	if (buffer == NULL) return false;
-
-	DWORD dwBytes;
-	return ReadFile(file, buffer, bufferSize, numBytesRead ? numBytesRead : &dwBytes, NULL) != FALSE;
-}
-
-bool ReadBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
-{
-	DWORD dwBytes;
-	return ReadBuffer(file, buffer, bufferSize, &dwBytes) && (dwBytes == bufferSize);
-}
-
-bool WriteBuffer(HANDLE file, LPVOID buffer, DWORD bufferSize)
-{
-	if (bufferSize == 0) return true;
-	
-	DWORD dwBytes;
-	return WriteFile(file, buffer, bufferSize, &dwBytes, NULL) && (dwBytes == bufferSize);
-}
-
-bool SeekFile(HANDLE file, __int64 position)
-{
-	LARGE_INTEGER newPos, resultPos;
-
-	// First check if we will cross size limit
-	if (SizeOfFile(file) < position)
-		return false;
-	
-	newPos.QuadPart = position;
-	BOOL retVal = SetFilePointerEx(file, newPos, &resultPos, FILE_BEGIN);
-	
-	return retVal && (resultPos.QuadPart == position);
-}
-
-__int64 FilePos(HANDLE file)
-{
-	LARGE_INTEGER zero = {0}, pos;
-	BOOL retVal = SetFilePointerEx(file, zero, &pos, FILE_CURRENT);
-
-	return retVal ? pos.QuadPart : -1;
-}
-
-HANDLE OpenFileForRead(const wchar_t* path)
-{
-	return CreateFile(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, 0);
-}
-
-__int64 SizeOfFile(HANDLE file)
-{
-	LARGE_INTEGER liSize = {0};
-	GetFileSizeEx(file, &liSize);
-	return liSize.QuadPart;
-}
-
 void CombinePath(char* buffer, size_t bufferSize, int numParts, ...)
 {
 	va_list argptr;

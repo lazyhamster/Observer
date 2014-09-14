@@ -14,6 +14,8 @@
 
 // Additional headers
 #include <malloc.h>
+#include <stdint.h>
+
 #include <vector>
 #include <sstream>
 

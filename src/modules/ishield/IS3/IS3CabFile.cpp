@@ -12,7 +12,7 @@ namespace IS3
 
 IS3CabFile::IS3CabFile()
 {
-	m_hHeaderFile = INVALID_HANDLE_VALUE;
+	m_pHeaderFile = nullptr;
 	memset(&m_Header, 0, sizeof(m_Header));
 	m_pFileList = NULL;
 }
@@ -22,14 +22,14 @@ IS3CabFile::~IS3CabFile()
 	Close();
 }
 
-bool IS3CabFile::InternalOpen( HANDLE headerFile )
+bool IS3CabFile::InternalOpen( CFileStream* headerFile )
 {
-	if (headerFile == INVALID_HANDLE_VALUE)
+	if (headerFile == nullptr)
 		return false;
 
 	CABHEADER cabHeader = {0};
-
-	if (!ReadBuffer(headerFile, &cabHeader, sizeof(cabHeader)))
+	
+	if (!headerFile->ReadBuffer(&cabHeader, sizeof(cabHeader)))
 		return false;
 
 	// Validate file
@@ -38,10 +38,10 @@ bool IS3CabFile::InternalOpen( HANDLE headerFile )
 		return false;
 	if (cabHeader.cFiles == 0)
 		return false;
-	if (cabHeader.ArchiveSize != SizeOfFile(headerFile) || cabHeader.ofsDirList >= cabHeader.ArchiveSize)
+	if (cabHeader.ArchiveSize != headerFile->GetSize() || cabHeader.ofsDirList >= cabHeader.ArchiveSize)
 		return false;
 
-	if (!SeekFile(headerFile, cabHeader.ofsDirList))
+	if (!headerFile->SetPos(cabHeader.ofsDirList))
 		return false;
 
 	// Read directories
@@ -50,24 +50,24 @@ bool IS3CabFile::InternalOpen( HANDLE headerFile )
 	{
 		DIRDESC dir;
 
-		if (!ReadBuffer(headerFile, &dir, sizeof(dir)))
+		if (!headerFile->ReadBuffer(&dir, sizeof(dir)))
 			return false;
 
 		DirEntry de = {0};
 		de.NumFiles = dir.cFiles;
-		ReadBuffer(headerFile, de.Name, dir.cbNameLength);
+		headerFile->ReadBuffer(de.Name, dir.cbNameLength);
 		m_vDirs.push_back(de);
 
 		filePos += dir.cbDescSize;
-		if (!SeekFile(headerFile, filePos)) return false;
+		if (!headerFile->SetPos(filePos)) return false;
 	}
 
-	if (!SeekFile(headerFile, cabHeader.ofsFileList))
+	if (!headerFile->SetPos(cabHeader.ofsFileList))
 		return false;
 
 	// Read files from all directories
 	LPVOID pFileList = malloc(cabHeader.cbFileList);
-	if (!ReadBuffer(headerFile, pFileList, cabHeader.cbFileList))
+	if (!headerFile->ReadBuffer(pFileList, cabHeader.cbFileList))
 		return false;
 
 	BYTE* listPtr = (BYTE*) pFileList;
@@ -89,9 +89,10 @@ bool IS3CabFile::InternalOpen( HANDLE headerFile )
 
 void IS3CabFile::Close()
 {
-	if (m_hHeaderFile != INVALID_HANDLE_VALUE)
+	if (m_pHeaderFile != nullptr)
 	{
-		CloseHandle(m_hHeaderFile);
+		delete m_pHeaderFile;
+		m_pHeaderFile = nullptr;
 	}
 
 	FREE_NULL(m_pFileList);
@@ -148,24 +149,24 @@ unsigned int blast_in(void *how, unsigned char **buf)
 
 int blast_out(void *how, unsigned char *buf, unsigned len)
 {
-	HANDLE outFile = (HANDLE) how;
-	return WriteBuffer(outFile, buf, len) ? 0 : 1;
+	CFileStream* outFile = (CFileStream*) how;
+	return outFile->WriteBuffer(buf, len) ? 0 : 1;
 }
 
-int IS3CabFile::ExtractFile( int itemIndex, HANDLE targetFile, ExtractProcessCallbacks progressCtx )
+int IS3CabFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProcessCallbacks progressCtx )
 {
 	if (!m_pFileList || itemIndex < 0 || itemIndex >= (int)m_vFiles.size())
 		return CAB_EXTRACT_READ_ERR;
 
 	FILEDESC* pFileDesc = m_vFiles[itemIndex];
 
-	if (!SeekFile(m_hHeaderFile, pFileDesc->ofsCompData))
+	if (!m_pHeaderFile->SetPos(pFileDesc->ofsCompData))
 		return CAB_EXTRACT_READ_ERR;
 
 	BYTE* inBuffer = (BYTE*) malloc(pFileDesc->cbCompressed);
 	
 	int result = CAB_EXTRACT_READ_ERR;
-	if (ReadBuffer(m_hHeaderFile, inBuffer, pFileDesc->cbCompressed))
+	if (m_pHeaderFile->ReadBuffer(inBuffer, pFileDesc->cbCompressed))
 	{
 		BufPtr inhow = {inBuffer, pFileDesc->cbCompressed};
 		int blastRet = blast(blast_in, &inhow, blast_out, targetFile);
