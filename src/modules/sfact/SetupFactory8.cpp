@@ -40,7 +40,7 @@ bool SetupFactory8::Open( CFileStream* inFile )
 		return false;
 	
 	// Check manifest for proper version
-	std::string manifestText = GetManifest(inFile->FileName());
+	std::string manifestText = GetManifest(inFile->FilePath());
 	if (manifestText.find("<description>Setup Factory 8.0 Run-time</description>") != std::string::npos)
 	{
 		m_pInFile = inFile;

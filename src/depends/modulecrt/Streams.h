@@ -16,8 +16,10 @@ public:
 	virtual int64_t GetSize() = 0;
 	virtual bool Seek(int64_t seekPos, int8_t seekOrigin) = 0;
 	virtual bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin) = 0;
-	virtual bool ReadBuffer(LPVOID buffer, size_t bufferSize) = 0;
+	virtual bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize) = 0;
 	virtual bool WriteBuffer(LPCVOID buffer, size_t bufferSize) = 0;
+
+	bool ReadBuffer(LPVOID buffer, size_t bufferSize);
 
 	int64_t CopyFrom(AStream* src);
 	
@@ -57,10 +59,11 @@ public:
 	
 	bool Seek(int64_t seekPos, int8_t seekOrigin);
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
-	bool ReadBuffer(LPVOID buffer, size_t bufferSize);
+	bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize);
 	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
 
-	const wchar_t* FileName() const { return m_strPath; }
+	const wchar_t* FilePath() const { return m_strPath; }
+	HANDLE GetHandle() { return m_hFile; }
 };
 
 #define MEM_EXPAND_CHUNK_SIZE (16 * 1024)
@@ -84,7 +87,7 @@ public:
 	int64_t GetSize();
 	bool Seek(int64_t seekPos, int8_t seekOrigin);
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
-	bool ReadBuffer(LPVOID buffer, size_t bufferSize);
+	bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize);
 	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
 
 	const char* DataPtr() { return m_pDataBuffer; }
@@ -98,7 +101,7 @@ public:
 	int64_t GetSize();
 	bool Seek(int64_t seekPos, int8_t seekOrigin);
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
-	bool ReadBuffer(LPVOID buffer, size_t bufferSize);
+	bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize);
 	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
 };
 

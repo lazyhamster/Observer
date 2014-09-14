@@ -31,6 +31,12 @@ int64_t AStream::CopyFrom( AStream* src )
 	return totalDataSize;
 }
 
+bool AStream::ReadBuffer( LPVOID buffer, size_t bufferSize )
+{
+	size_t readSize;
+	return ReadBufferAny(buffer, bufferSize, &readSize) && (readSize == bufferSize);
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 CFileStream::CFileStream( const wchar_t* filePath, bool readOnly, bool createIfNotExists )
@@ -107,7 +113,7 @@ bool CFileStream::Seek( int64_t seekPos, int64_t* newPos, int8_t seekOrigin )
 	return retVal != FALSE;
 }
 
-bool CFileStream::ReadBuffer( LPVOID buffer, size_t bufferSize )
+bool CFileStream::ReadBufferAny( LPVOID buffer, size_t bufferSize, size_t *readSize )
 {
 	if (!IsValid()) return false;
 
@@ -117,7 +123,12 @@ bool CFileStream::ReadBuffer( LPVOID buffer, size_t bufferSize )
 	DWORD dwBytes;
 	BOOL fReadResult = ReadFile(m_hFile, buffer, (DWORD) bufferSize, &dwBytes, NULL);
 
-	return fReadResult && (dwBytes == bufferSize);
+	if (fReadResult && readSize)
+	{
+		*readSize = dwBytes;
+	}
+
+	return fReadResult != FALSE;
 }
 
 bool CFileStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
@@ -144,7 +155,7 @@ CFileStream* CFileStream::Open( const wchar_t* filePath, bool readOnly, bool cre
 
 //////////////////////////////////////////////////////////////////////////
 
-bool CNullStream::ReadBuffer( LPVOID buffer, size_t bufferSize )
+bool CNullStream::ReadBufferAny( LPVOID buffer, size_t bufferSize, size_t *readSize )
 {
 	return false;
 }
@@ -217,15 +228,21 @@ bool CMemoryStream::Seek( int64_t seekPos, int64_t* newPos, int8_t seekOrigin )
 	return true;
 }
 
-bool CMemoryStream::ReadBuffer( LPVOID buffer, size_t bufferSize )
+bool CMemoryStream::ReadBufferAny( LPVOID buffer, size_t bufferSize, size_t *readSize )
 {
-	if (!buffer || (m_pCurrPtr - m_pDataBuffer + bufferSize > m_nDataSize))
+	if (!buffer || ((size_t)(m_pCurrPtr - m_pDataBuffer) >= m_nDataSize))
 		return false;
 	if (bufferSize == 0)
 		return true;
 
-	memcpy(buffer, m_pCurrPtr, bufferSize);
-	m_pCurrPtr += bufferSize;
+	size_t copySize = min(bufferSize, m_nDataSize - (m_pCurrPtr - m_pDataBuffer));
+
+	memcpy(buffer, m_pCurrPtr, copySize);
+	m_pCurrPtr += copySize;
+	if (readSize)
+	{
+		*readSize = copySize;
+	}
 	return true;
 }
 
