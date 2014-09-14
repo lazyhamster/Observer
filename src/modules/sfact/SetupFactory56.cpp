@@ -203,12 +203,16 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		m_pScriptData->Seek(38, STREAM_CURRENT);
 		ReadString(m_pScriptData, strDestDir); // Destination directory
 		m_pScriptData->Seek(5, STREAM_CURRENT);
-		SkipString(m_pScriptData);
+		SkipString(m_pScriptData); // Shortcut description
+		SkipString(m_pScriptData); // Shortcut startup arguments
+		SkipString(m_pScriptData); // Shortcut working directory
+		m_pScriptData->Seek(1, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Path to icon
+		m_pScriptData->Seek(5, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Package name
+		m_pScriptData->Seek(1, STREAM_CURRENT);
+		SkipString(m_pScriptData); // Font name
 		m_pScriptData->Seek(3, STREAM_CURRENT);
-		SkipString(m_pScriptData);
-		m_pScriptData->Seek(5, STREAM_CURRENT);
-		SkipString(m_pScriptData);
-		m_pScriptData->Seek(5, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
 
 		switch(m_nVersion)

@@ -6,6 +6,7 @@ Changes history:
 - MPQ: Invalid attributes for files inside containers.
 - Valve: Updated HLLib sources to version 2.4.5.
 - SetupFactory: Added support for Setup Factory 8/9.
+- SetupFactory: Improved support for Setup Factory 5/6.
 - Minor changes.
 
 1.9.2
