@@ -183,6 +183,7 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 	char strDestDir[MAX_PATH];
 	uint8_t nIsCompressed;
 	uint32_t nDecompSize, nCompSize, nCrc;
+	uint8_t origAttr, useOrigAttr, forcedAttr;
 
 	int64_t nextOffset = baseOffset;
 		
@@ -200,7 +201,8 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		SkipString(m_pScriptData); // Suffix
 		m_pScriptData->Seek(1, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nDecompSize, sizeof(nDecompSize));
-		m_pScriptData->Seek(38, STREAM_CURRENT);
+		m_pScriptData->ReadBuffer(&origAttr, sizeof(origAttr)); // Attributes of the original source file
+		m_pScriptData->Seek(37, STREAM_CURRENT);
 		ReadString(m_pScriptData, strDestDir); // Destination directory
 		m_pScriptData->Seek(5, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Shortcut description
@@ -214,14 +216,16 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		SkipString(m_pScriptData); // Font name
 		m_pScriptData->Seek(3, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nIsCompressed, sizeof(nIsCompressed));
+		m_pScriptData->ReadBuffer(&useOrigAttr, sizeof(origAttr)); // 1 - use original file attributes
+		m_pScriptData->ReadBuffer(&forcedAttr, sizeof(forcedAttr)); // Set this attributes if prev. value is 0
 
 		switch(m_nVersion)
 		{
 			case 5:
-				m_pScriptData->Seek(17, STREAM_CURRENT);
+				m_pScriptData->Seek(15, STREAM_CURRENT);
 				break;
 			case 6:
-				m_pScriptData->Seek(8, STREAM_CURRENT);
+				m_pScriptData->Seek(6, STREAM_CURRENT);
 				SkipString(m_pScriptData);
 				m_pScriptData->Seek(2, STREAM_CURRENT);
 				break;
@@ -237,6 +241,7 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		fe.Compression = (nIsCompressed != 0) ? COMP_PKWARE : COMP_NONE;
 		fe.DataOffset = nextOffset;
 		fe.CRC = nCrc;
+		fe.Attributes = useOrigAttr ? origAttr : forcedAttr;
 
 		strcpy_s(fe.LocalPath, MAX_PATH, strDestDir);
 		if (strDestDir[0] && (strDestDir[strlen(strDestDir)-1] != '\\'))
