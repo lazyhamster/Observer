@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "ModuleDef.h"
 #include "SfFile.h"
+#include "ModuleCRT.h"
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
@@ -66,6 +67,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		MultiByteToWideChar(sfInst->GetFileNameEncoding(), 0, fe.LocalPath, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
 		item_info->Size = fe.UnpackedSize;
 		item_info->Attributes = fe.Attributes;
+		if (fe.LastWriteTime != 0) UnixTimeToFileTime(fe.LastWriteTime, &item_info->ModificationTime);
 		
 		return GET_ITEM_OK;
 	}
