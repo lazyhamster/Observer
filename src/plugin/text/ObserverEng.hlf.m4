@@ -9,25 +9,24 @@ m4_include(`version.m4i')m4_dnl
  All formats support files listing and extraction.
 
  Supported file formats:
- - #MSI# installation packages
- - #NSIS# installation packages
- - #UDF# (ISO 13346) images
- - CD disk images : #ISO-9660# (incl. Joliet), #CUE/BIN#, #MDF/MDS#
- - Volition Pack V2 files (from Freespace 1/2/Open)
- - Egosoft packages (for X-series games)
- - MIME containers
- - MS Outlook databases
- - #WISE# Installer packages
- - Virtual disk images (VMDK, VDI, VHD, XVA).
- - Several containers from Steam games (GCF, WAD, XZP, PAK, BSP, VBSP).
+ - Installation packages (#MSI#, #NSIS#, #WISE#, #Install Shield#, #Setup Factory#)
+ - Optical disk images (#ISO-9660# (incl. Joliet), #CUE/BIN#, #MDF/MDS#, #UDF#)
+ - #MIME# containers
+ - Mail containers (#MBox#, The Bat!, #MS Outlook#)
+ - Virtual disk images (VMDK, VDI, VHD, XVA)
+ - #Steam# containers (GCF, WAD, XZP, PAK, BSP, VBSP)
  - #MoPaQ# containers
- - #MBox# mail storage containers
+ - #PDF# embedded files
+ - Containers from various games
+ 
+ Also plugin supports Total Commander's #WCX# modules.
 
  For additional information look in supplied readme.txt
 
- (c) 2009-2013, Ariman
+ (c) 2009-2014, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
+ Download link: ~https://sourceforge.net/projects/far-observer~@https://sourceforge.net/projects/far-observer@
  Contact E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@
 
 @ObserverConfig

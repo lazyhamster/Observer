@@ -9,25 +9,24 @@
  Все поддерживаемые форматы допускают просмотр списков файлов и их извлечение.
 
  Список поддерживаемых форматов:
- - Установочные пакеты #MSI#
- - Установочные пакеты #NSIS#
- - Образы #UDF# (ISO 13346)
- - Образы CD дисков : #ISO-9660# (вкл. Joliet), #CUE/BIN#, #MDF/MDS#
- - Файлы Volition Pack V2 (из игр Freespace 1/2/Open)
- - Egosoft packages (for X-series games)
- - Контейнеры MIME
- - Почтовые базы MS Outlook
- - Установочные пакеты #WISE#
- - Образы виртуальных дисков (#VMDK#, #VDI#, #VHD#, #XVA#).
- - Несколько контейнеров исползуемых в системе #Steam# (GCF, WAD, XZP, PAK, BSP, VBSP).
+ - Установочные пакеты (#MSI#, #NSIS#, #WISE#, #Install Shield#, #Setup Factory#)
+ - Образы оптических дисков (#ISO-9660# (incl. Joliet), #CUE/BIN#, #MDF/MDS#, #UDF#)
+ - #MIME# контейнеры
+ - Почтовые контейнеры (#MBox#, The Bat!, #MS Outlook#)
+ - Образы виртуальных дисков (VMDK, VDI, VHD, XVA)
+ - #Steam# контейнеры (GCF, WAD, XZP, PAK, BSP, VBSP)
  - #MoPaQ# контейнеры
- - Почтовые контейнеры #MBox#
+ - Встроенные файлы из #PDF#
+ - Контейнеры из различных игр
+ 
+ Также проддерживаются #WCX#-модули от Total Commander-а.
 
  Для дополнительной информации смотрите файл readme_ru.txt
 
- (c) 2009-2013, Ariman
+ (c) 2009-2014, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
+ Download link: ~https://sourceforge.net/projects/far-observer~@https://sourceforge.net/projects/far-observer@
  Контактный E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@
 
 @ObserverConfig
