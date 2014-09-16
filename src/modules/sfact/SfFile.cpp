@@ -53,4 +53,5 @@ void SetupFactoryFile::Init()
 	m_nVersion = 0;
 	m_pScriptData = nullptr;
 	m_eBaseCompression = COMP_UNKNOWN;
+	m_nStartOffset = 0;
 }

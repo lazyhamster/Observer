@@ -7,8 +7,6 @@ class SetupFactory8 :
 	public SetupFactoryFile
 {
 private:
-	int64_t m_nStartOffset;
-
 	int ParseScript(int64_t baseOffset);
 	bool ReadSpecialFile(const char* fileName);
 	bool DetectCompression(EntryCompression &value);

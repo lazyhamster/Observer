@@ -43,6 +43,7 @@ protected:
 	int m_nVersion;
 	CMemoryStream* m_pScriptData;
 	EntryCompression m_eBaseCompression;
+	int64_t m_nStartOffset;
 
 	void Init();
 	

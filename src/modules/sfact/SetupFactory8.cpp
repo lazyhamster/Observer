@@ -16,7 +16,6 @@ const uint8_t SIGNATURE[SIGNATURE_SIZE] = {0xe0,0xe0,0xe1,0xe1,0xe2,0xe2,0xe3,0x
 SetupFactory8::SetupFactory8( void )
 {
 	Init();
-	m_nStartOffset = 0;
 }
 
 SetupFactory8::~SetupFactory8( void )
@@ -61,7 +60,6 @@ bool SetupFactory8::Open( CFileStream* inFile )
 
 void SetupFactory8::Close()
 {
-	m_nStartOffset = 0;
 	m_vFiles.clear();
 	if (m_pInFile)
 	{

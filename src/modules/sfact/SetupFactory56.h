@@ -7,8 +7,6 @@ class SetupFactory56 :
 	public SetupFactoryFile
 {
 private:
-	int64_t m_nStartOffset;
-
 	bool CheckSignature(CFileStream* inFile, int64_t offset, int sufVersion);
 	int ParseScript(int64_t baseOffset);
 	
