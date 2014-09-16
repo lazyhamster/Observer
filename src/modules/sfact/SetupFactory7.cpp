@@ -16,11 +16,6 @@ bool SetupFactory7::Open( CFileStream* inFile )
 	return false;
 }
 
-void SetupFactory7::Close()
-{
-
-}
-
 int SetupFactory7::EnumFiles()
 {
 	return 0;

@@ -15,7 +15,6 @@ public:
 	~SetupFactory56(void);
 
 	bool Open(CFileStream* inFile);
-	void Close();
 	int EnumFiles();
 	bool ExtractFile(int index, AStream* outStream);
 };

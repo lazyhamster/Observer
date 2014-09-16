@@ -54,13 +54,13 @@ public:
 	virtual ~SetupFactoryFile() {}
 
 	virtual bool Open(CFileStream* inFile) = 0;
-	virtual void Close() = 0;
 	virtual int EnumFiles() = 0;
+	virtual bool ExtractFile(int index, AStream* outStream) = 0;
+
+	void Close();
 
 	size_t GetCount() { return m_vFiles.size(); };
 	SFFileEntry GetFile(int index) { return m_vFiles[index]; }
-
-	virtual bool ExtractFile(int index, AStream* outStream) = 0;
 
 	void SetFileNameEncoding(UINT codePage) { m_nFilenameCodepage = codePage; }
 	UINT GetFileNameEncoding() { return m_nFilenameCodepage; }

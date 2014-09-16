@@ -58,20 +58,6 @@ bool SetupFactory8::Open( CFileStream* inFile )
 	return false;
 }
 
-void SetupFactory8::Close()
-{
-	m_vFiles.clear();
-	if (m_pInFile)
-	{
-		delete m_pInFile;
-	}
-	if (m_pScriptData)
-	{
-		delete m_pScriptData;
-	}
-	Init();
-}
-
 int SetupFactory8::EnumFiles()
 {
 	m_vFiles.clear();

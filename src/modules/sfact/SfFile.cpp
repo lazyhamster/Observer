@@ -55,3 +55,17 @@ void SetupFactoryFile::Init()
 	m_eBaseCompression = COMP_UNKNOWN;
 	m_nStartOffset = 0;
 }
+
+void SetupFactoryFile::Close()
+{
+	m_vFiles.clear();
+	if (m_pInFile)
+	{
+		delete m_pInFile;
+	}
+	if (m_pScriptData)
+	{
+		delete m_pScriptData;
+	}
+	Init();
+}
