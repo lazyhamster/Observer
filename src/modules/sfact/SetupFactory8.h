@@ -8,7 +8,7 @@ class SetupFactory8 :
 {
 private:
 	int ParseScript(int64_t baseOffset);
-	bool ReadSpecialFile(const char* fileName);
+	bool ReadSpecialFile(const char* fileName, bool isXORed);
 	bool DetectCompression(EntryCompression &value);
 	uint32_t FindFileBlockInScript();
 
@@ -18,7 +18,6 @@ public:
 
 	bool Open(CFileStream* inFile);
 	int EnumFiles();
-	bool ExtractFile(int index, AStream* outStream);
 };
 
 #endif // SetupFactory9_h__

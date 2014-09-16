@@ -20,8 +20,3 @@ int SetupFactory7::EnumFiles()
 {
 	return 0;
 }
-
-bool SetupFactory7::ExtractFile( int index, AStream* outStream )
-{
-	return false;
-}

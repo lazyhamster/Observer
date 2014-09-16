@@ -65,7 +65,7 @@ int SetupFactory8::EnumFiles()
 
 	// Read embedded installer .exe
 	m_pInFile->Seek(10, STREAM_CURRENT);
-	ReadSpecialFile(FILENAME_EMBEDDED_INSTALLER);
+	ReadSpecialFile(FILENAME_EMBEDDED_INSTALLER, true);
 
 	// Read service files
 	uint32_t numFiles;
@@ -75,7 +75,7 @@ int SetupFactory8::EnumFiles()
 	if (numFiles > 1000)
 	{
 		m_pInFile->Seek(-4, STREAM_CURRENT);
-		ReadSpecialFile(FILENAME_LUA_DLL);
+		ReadSpecialFile(FILENAME_LUA_DLL, false);
 		m_pInFile->ReadBuffer(&numFiles, sizeof(numFiles));
 	}
 
@@ -149,51 +149,6 @@ int SetupFactory8::EnumFiles()
 	}
 	
 	return (int) m_vFiles.size();
-}
-
-bool SetupFactory8::ExtractFile( int index, AStream* outStream )
-{
-	const SFFileEntry& entry = m_vFiles[index];
-	if (entry.PackedSize == 0) return true;
-
-	m_pInFile->SetPos(entry.DataOffset);
-
-	uint32_t outCrc;
-	bool ret = false;
-
-	switch(entry.Compression)
-	{
-		case COMP_PKWARE:
-			ret = Explode(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
-			break;
-		case COMP_LZMA:
-			ret = LzmaDecomp(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
-			break;
-		case COMP_LZMA2:
-			ret = Lzma2Decomp(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
-			break;
-		case COMP_NONE:
-			ret = Unstore(m_pInFile, (uint32_t) entry.PackedSize, outStream, &outCrc);
-			break;
-	}
-
-	// Special treatment for irsetup.exe
-	// First 2000 bytes of the file are xor-ed with 0x07
-	if (ret && (strcmp(entry.LocalPath, FILENAME_EMBEDDED_INSTALLER) == 0))
-	{
-		uint8_t buf[2000];
-		
-		outStream->Seek(0, STREAM_BEGIN);
-		outStream->ReadBuffer(buf, sizeof(buf));
-		for (size_t i = 0; i < sizeof(buf); i++)
-		{
-			buf[i] = buf[i] ^ 0x07;
-		}
-		outStream->Seek(0, STREAM_BEGIN);
-		outStream->WriteBuffer(buf, sizeof(buf));
-	}
-
-	return ret && (outCrc == entry.CRC || entry.CRC == 0);
 }
 
 int SetupFactory8::ParseScript( int64_t baseOffset )
@@ -306,7 +261,7 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 	return foundFiles;
 }
 
-bool SetupFactory8::ReadSpecialFile( const char* fileName )
+bool SetupFactory8::ReadSpecialFile( const char* fileName, bool isXORed )
 {
 	int64_t fileSize = 0;
 	m_pInFile->ReadBuffer(&fileSize, sizeof(fileSize));
@@ -317,6 +272,7 @@ bool SetupFactory8::ReadSpecialFile( const char* fileName )
 	fe.UnpackedSize = fileSize;
 	fe.Compression = COMP_NONE;
 	fe.DataOffset = m_pInFile->GetPos();
+	fe.IsXORed = isXORed;
 
 	m_vFiles.push_back(fe);
 

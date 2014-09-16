@@ -123,29 +123,6 @@ int SetupFactory56::EnumFiles()
 	return (int) m_vFiles.size();
 }
 
-bool SetupFactory56::ExtractFile( int index, AStream* outStream )
-{
-	const SFFileEntry& entry = m_vFiles[index];
-	if (entry.PackedSize == 0) return true;
-
-	m_pInFile->SetPos(entry.DataOffset);
-
-	uint32_t outCrc;
-	bool ret = false;
-
-	switch(entry.Compression)
-	{
-		case COMP_PKWARE:
-			ret = Explode(m_pInFile, (uint32_t) entry.PackedSize, outStream, nullptr, &outCrc);
-			break;
-		case COMP_NONE:
-			ret = Unstore(m_pInFile, (uint32_t) entry.PackedSize, outStream, &outCrc);
-			break;
-	}
-
-	return ret && (outCrc == entry.CRC || entry.CRC == 0);
-}
-
 int SetupFactory56::ParseScript(int64_t baseOffset)
 {
 	int foundFiles = 0;

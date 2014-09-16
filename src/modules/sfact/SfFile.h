@@ -23,10 +23,11 @@ struct SFFileEntry
 	uint32_t CRC;
 	time_t LastWriteTime;
 	time_t CreationTime;
+	bool IsXORed;
 
 	SFFileEntry() : UnpackedSize(0), PackedSize(0),
 		Compression(COMP_UNKNOWN), DataOffset(0), Attributes(0), CRC(0),
-		LastWriteTime(0), CreationTime(0)
+		LastWriteTime(0), CreationTime(0), IsXORed(false)
 	{
 		memset(LocalPath, 0, sizeof(LocalPath));
 	}
@@ -55,9 +56,9 @@ public:
 
 	virtual bool Open(CFileStream* inFile) = 0;
 	virtual int EnumFiles() = 0;
-	virtual bool ExtractFile(int index, AStream* outStream) = 0;
 
 	void Close();
+	bool ExtractFile(int index, AStream* outStream);
 
 	size_t GetCount() { return m_vFiles.size(); };
 	SFFileEntry GetFile(int index) { return m_vFiles[index]; }

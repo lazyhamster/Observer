@@ -13,7 +13,6 @@ public:
 
 	bool Open(CFileStream* inFile);
 	int EnumFiles();
-	bool ExtractFile(int index, AStream* outStream);
 };
 
 #endif // SetupFactory7_h__
