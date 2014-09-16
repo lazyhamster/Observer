@@ -7,6 +7,10 @@ class SetupFactory7 :
 	public SetupFactoryFile
 {
 private:
+	int ParseScript(int64_t baseOffset);
+	bool ReadSpecialFile(const char* fileName, bool isXORed);
+	uint32_t FindFileBlockInScript();
+
 public:
 	SetupFactory7(void);
 	~SetupFactory7(void);

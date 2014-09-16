@@ -3,22 +3,30 @@
 #include "Decomp.h"
 
 #include "SetupFactory56.h"
+#include "SetupFactory7.h"
 #include "SetupFactory8.h"
+
+template <typename T>
+static SetupFactoryFile* TryOpen(CFileStream* pFile)
+{
+	T* obj = new T();
+	if (obj->Open(pFile))
+		return obj;
+
+	delete obj;
+	return nullptr;
+}
+
+#define RNN(type, file) { auto sf = TryOpen<type>(file); if (sf) return sf; }
 
 SetupFactoryFile* OpenInstaller( const wchar_t* filePath )
 {
 	CFileStream* inFile = CFileStream::Open(filePath, true, false);
 	if (!inFile) return nullptr;
 
-	SetupFactory56* sf56 = new SetupFactory56();
-	if (sf56->Open(inFile))
-		return sf56;
-	delete sf56;
-
-	SetupFactory8* sf8 = new SetupFactory8();
-	if (sf8->Open(inFile))
-		return sf8;
-	delete sf8;
+	RNN(SetupFactory56, inFile);
+	RNN(SetupFactory7, inFile);
+	RNN(SetupFactory8, inFile);
 
 	delete inFile;
 	return nullptr;
