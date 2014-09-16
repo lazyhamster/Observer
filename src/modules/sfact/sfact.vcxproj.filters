@@ -54,6 +54,9 @@
     <ClCompile Include="..\..\depends\7zipSrc\C\Lzma2Dec.c">
       <Filter>Source Files\lzma</Filter>
     </ClCompile>
+    <ClCompile Include="SetupFactory7.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="sfact.def">
@@ -90,6 +93,9 @@
     </ClInclude>
     <ClInclude Include="..\..\depends\7zipSrc\C\Lzma2Dec.h">
       <Filter>Header Files\lzma</Filter>
+    </ClInclude>
+    <ClInclude Include="SetupFactory7.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -628,6 +628,7 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="SetupFactory56.cpp" />
+    <ClCompile Include="SetupFactory7.cpp" />
     <ClCompile Include="SetupFactory8.cpp" />
     <ClCompile Include="SfFile.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -656,6 +657,7 @@
     <ClInclude Include="..\..\depends\blast\blast.h" />
     <ClInclude Include="Decomp.h" />
     <ClInclude Include="SetupFactory56.h" />
+    <ClInclude Include="SetupFactory7.h" />
     <ClInclude Include="SetupFactory8.h" />
     <ClInclude Include="SfFile.h" />
     <ClInclude Include="stdafx.h" />
