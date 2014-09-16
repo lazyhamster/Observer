@@ -20,6 +20,7 @@ private:
 
 	wstring m_strName;
 	__int64 m_nSize;
+	__int64 m_nPackedSize;
 
 public:
 	int StorageIndex;
@@ -43,6 +44,7 @@ public:
 	bool IsDir() const { return (Attributes & FILE_ATTRIBUTE_DIRECTORY) > 0; }
 
 	__int64 Size() const {return IsDir() ? 0 : m_nSize; };
+	__int64 PackedSize() const {return IsDir() ? 0 : m_nPackedSize; };
 	const wchar_t* Name() const { return m_strName.c_str(); }
 	void SetName(const wchar_t* newName) { m_strName = newName; }
 
