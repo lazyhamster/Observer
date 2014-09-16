@@ -22,9 +22,11 @@ struct SFFileEntry
 	int8_t Attributes;
 	uint32_t CRC;
 	time_t LastWriteTime;
+	time_t CreationTime;
 
 	SFFileEntry() : UnpackedSize(0), PackedSize(0),
-		Compression(COMP_UNKNOWN), DataOffset(0), Attributes(0), CRC(0), LastWriteTime(0)
+		Compression(COMP_UNKNOWN), DataOffset(0), Attributes(0), CRC(0),
+		LastWriteTime(0), CreationTime(0)
 	{
 		memset(LocalPath, 0, sizeof(LocalPath));
 	}

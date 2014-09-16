@@ -68,6 +68,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		item_info->Size = fe.UnpackedSize;
 		item_info->Attributes = fe.Attributes;
 		if (fe.LastWriteTime != 0) UnixTimeToFileTime(fe.LastWriteTime, &item_info->ModificationTime);
+		if (fe.CreationTime != 0) UnixTimeToFileTime(fe.CreationTime, &item_info->CreationTime);
 		
 		return GET_ITEM_OK;
 	}
