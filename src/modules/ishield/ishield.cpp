@@ -100,7 +100,6 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			StorageItemInfo itemInfo = {0};
 			cabStorage->GetFileInfo(itemIndex, &itemInfo);
 			
-			SetFileAttributes(params.destFilePath, itemInfo.Attributes);
 			SetFileTime(pDestFile->GetHandle(), NULL, NULL, &itemInfo.ModificationTime);
 		}
 	}

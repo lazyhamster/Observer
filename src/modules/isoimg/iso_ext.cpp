@@ -171,10 +171,10 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 	free( buffer );
 	CloseHandle(hFile);
 
-	if (result == SER_SUCCESS)
-		SetFileAttributes(destPath, GetDirectoryAttributes(dir));
-	else
+	if (result != SER_SUCCESS)
+	{
 		DeleteFile(destPath);
+	}
 
 	return result;
 }
