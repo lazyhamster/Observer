@@ -61,6 +61,7 @@ int SetupFactory7::EnumFiles()
 	m_pInFile->SetPos(m_nStartOffset);
 
 	// Read embedded installer .exe
+	//TODO: some file do not have 1 byte shift, investigate
 	m_pInFile->Seek(1, STREAM_CURRENT);
 	ReadSpecialFile(FILENAME_EMBEDDED_INSTALLER, true);
 
