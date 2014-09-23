@@ -1,5 +1,8 @@
 Changes history:
 
+1.10.0
+- VDISK: Fixed issue with file listing of some FAT images.
+
 1.9.3
 - Added shortcuts for module selection menu.
 - MPQ: Updated StormLib library to version 9.0.

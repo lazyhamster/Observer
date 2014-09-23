@@ -162,8 +162,9 @@ static void PrepareFileList(VDisk* vdisk)
 			EnumFilesInVolume(vdisk, dfs->Root, volInfo, i);
 
 			// Replace volume name with label if present
+			// NOTE: C++/cli permits non-empty strings with 0 bytes inside, so we have to check for them too
 			String^ volLabel = dfs->VolumeLabel->Trim();
-			if (!String::IsNullOrEmpty(volLabel))
+			if (!String::IsNullOrEmpty(volLabel) && (volLabel->Length > 0) && (volLabel[0] != '\0'))
 			{
 				List<String^>^ labels = vdisk->vVolLabels;
 				labels[i] = volLabel;
