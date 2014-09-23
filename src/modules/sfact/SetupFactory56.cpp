@@ -145,6 +145,7 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 	uint8_t nIsCompressed;
 	uint32_t nDecompSize, nCompSize, nCrc;
 	uint8_t origAttr, useOrigAttr, forcedAttr;
+	int32_t modTime, createTime;
 
 	int64_t nextOffset = baseOffset;
 		
@@ -163,7 +164,10 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		m_pScriptData->Seek(1, STREAM_CURRENT);
 		m_pScriptData->ReadBuffer(&nDecompSize, sizeof(nDecompSize));
 		m_pScriptData->ReadBuffer(&origAttr, sizeof(origAttr)); // Attributes of the original source file
-		m_pScriptData->Seek(37, STREAM_CURRENT);
+		m_pScriptData->ReadBuffer(&createTime, sizeof(createTime));
+		m_pScriptData->Seek(4, STREAM_CURRENT);
+		m_pScriptData->ReadBuffer(&modTime, sizeof(modTime));
+		m_pScriptData->Seek(25, STREAM_CURRENT);
 		ReadString(m_pScriptData, strDestDir); // Destination directory
 		m_pScriptData->Seek(5, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Shortcut description
@@ -203,6 +207,8 @@ int SetupFactory56::ParseScript(int64_t baseOffset)
 		fe.DataOffset = nextOffset;
 		fe.CRC = nCrc;
 		fe.Attributes = useOrigAttr ? origAttr : forcedAttr;
+		fe.LastWriteTime = modTime;
+		fe.CreationTime = createTime;
 
 		strcpy_s(fe.LocalPath, MAX_PATH, strDestDir);
 		if (strDestDir[0] && (strDestDir[strlen(strDestDir)-1] != '\\'))
