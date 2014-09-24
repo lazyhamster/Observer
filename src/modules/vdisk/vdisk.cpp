@@ -201,6 +201,16 @@ const wchar_t* GetDiskType(VirtualDisk ^vdisk)
 	else if (vdisk->GetType() == Xva::Disk::typeid)
 		return L"Xen Virtual Appliance Disk";
 
+	switch(vdisk->DiskClass)
+	{
+	case VirtualDiskClass::FloppyDisk:
+		return L"Floppy Disk Image";
+	case VirtualDiskClass::OpticalDisk:
+		return L"Optical Disk Image";
+	case VirtualDiskClass::HardDisk:
+		return L"Hard Disk Image";
+	}
+
 	return L"Virtual Disk";
 }
 
