@@ -325,10 +325,21 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 	try
 	{
-		item_info->Attributes = (DWORD) fileInfo->Ref->Attributes;
-		item_info->Size = (fileInfo->Ref->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fileInfo->Ref)->Length : 0;;
-		item_info->CreationTime = DateTimeToFileTime(fileInfo->Ref->CreationTimeUtc);
-		item_info->ModificationTime = DateTimeToFileTime(fileInfo->Ref->LastWriteTimeUtc);
+		DiscFileSystemInfo^ fsData = fileInfo->Ref;
+		
+		item_info->Attributes = (DWORD) fsData->Attributes;
+		item_info->Size = (fsData->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fsData)->Length : 0;;
+
+		try
+		{
+			item_info->CreationTime = DateTimeToFileTime(fsData->CreationTimeUtc);
+			item_info->ModificationTime = DateTimeToFileTime(fsData->LastWriteTimeUtc);
+		}
+		catch (ArgumentOutOfRangeException^)
+		{
+			//Some times file has invalid date/time values
+			//This info is not very crucial so let's just ignore them
+		}
 	
 		return GET_ITEM_OK;
 	}
