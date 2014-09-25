@@ -337,8 +337,8 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		}
 		catch (ArgumentOutOfRangeException^)
 		{
-			//Some times file has invalid date/time values
-			//This info is not very crucial so let's just ignore them
+			//Sometimes file has invalid date/time values
+			//This info is not very crucial so let's just ignore the error
 		}
 	
 		return GET_ITEM_OK;
