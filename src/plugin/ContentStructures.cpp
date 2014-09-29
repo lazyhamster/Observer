@@ -1,33 +1,6 @@
 #include "StdAfx.h"
 #include "ContentStructures.h"
-
-/*
-static int GetStrHash(const wchar_t* src, size_t max_len = -1)
-{
-	if (!src) return 0;
-	
-	int h = 0;
-	size_t i = 0;
-	while (src[i] && ((i < max_len) || (max_len == -1)))
-	{
-		h += h * 31 + src[i];
-		i++;
-	}
-
-	return h;
-}
-*/
-
-const wchar_t* GetFileName(const wchar_t* fullPath)
-{
-	const wchar_t* lastSlash = wcsrchr(fullPath, '\\');
-	if (lastSlash)
-		return lastSlash + 1;
-	else
-		return fullPath;
-}
-
-//////////////////////////////////////////////////////
+#include "CommonFunc.h"
 
 ContentTreeNode::ContentTreeNode()
 {
@@ -56,7 +29,7 @@ void ContentTreeNode::Init( int item_index, StorageItemInfo* item_info )
 {
 	parent = NULL;
 	StorageIndex = item_index;
-	m_strName = GetFileName(item_info->Path);
+	m_strName = ExtractFileName(item_info->Path);
 	m_nSize = item_info->Size;
 	m_nPackedSize = 0;
 	Attributes = item_info->Attributes;
