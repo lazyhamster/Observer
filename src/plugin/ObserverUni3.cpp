@@ -404,7 +404,7 @@ static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, const wchar_t* 
 	int nNumButtons = ARRAY_SIZE(aButtons);
 	int fRememberChoice = 0;
 
-	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, GetLocMsg(MSG_TITLE_WARNING), NULL, FDLG_WARNING);
+	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, GetLocMsg(MSG_TITLE_WARNING), nullptr, nullptr, nullptr, FDLG_WARNING);
 
 	Builder.AddText(MSG_EXTRACT_OVERWRITE)->Flags = DIF_CENTERTEXT;
 	Builder.AddText(destPath);

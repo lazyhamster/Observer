@@ -2,6 +2,7 @@ Changes history:
 
 1.10.0
 - Fixed attributes setting for the extracted files for some modules.
+- Changed file overwrite dialog.
 - VDISK: Fixed issue with file listing of some FAT images.
 - Setup Factory: Added file creation/modification time reading.
 - Minor changes.
