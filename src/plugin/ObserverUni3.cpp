@@ -394,11 +394,11 @@ static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, const wchar_t* 
 	SystemTimeToTzSpecificLocalTime(NULL, &stNewUTC, &stNewLocal);
 	
 	static wchar_t szOldFileInfo[120] = {0};
-	swprintf_s(szOldFileInfo, ARRAY_SIZE(szOldFileInfo), L"%s %14u  %4u-%02u-%02u %02u:%02u",
-		GetLocMsg(MSG_DLG_OLDFILE_INFO), (UINT) nOldSize, stOldLocal.wYear, stOldLocal.wMonth, stOldLocal.wDay, stOldLocal.wHour, stOldLocal.wMinute);
+	swprintf_s(szOldFileInfo, ARRAY_SIZE(szOldFileInfo), L"%s %14u  %02u-%02u-%4u %02u:%02u",
+		GetLocMsg(MSG_DLG_OLDFILE_INFO), (UINT) nOldSize, stOldLocal.wDay, stOldLocal.wMonth, stOldLocal.wYear, stOldLocal.wHour, stOldLocal.wMinute);
 	static wchar_t szNewFileInfo[120] = {0};
-	swprintf_s(szNewFileInfo, ARRAY_SIZE(szNewFileInfo), L"%s %14u  %4u-%02u-%02u %02u:%02u",
-		GetLocMsg(MSG_DLG_NEWFILE_INFO), (UINT) nNewSize, stNewLocal.wYear, stNewLocal.wMonth, stNewLocal.wDay, stNewLocal.wHour, stNewLocal.wMinute);
+	swprintf_s(szNewFileInfo, ARRAY_SIZE(szNewFileInfo), L"%s %14u  %02u-%02u-%4u %02u:%02u",
+		GetLocMsg(MSG_DLG_NEWFILE_INFO), (UINT) nNewSize, stNewLocal.wDay, stNewLocal.wMonth, stNewLocal.wYear, stNewLocal.wHour, stNewLocal.wMinute);
 
 	int aButtons[] = {MSG_OVERWRITE, MSG_BTN_SKIP, MSG_BTN_RENAME, MSG_BTN_CANCEL};
 	int nNumButtons = ARRAY_SIZE(aButtons);
