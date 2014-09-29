@@ -173,7 +173,8 @@ class DialogBuilderBase
 		int NextY;
 		int Indent;
 		int SingleBoxIndex;
-		int OKButtonID;
+		int FirstButtonID;
+		int CancelButtonID;
 		int ColumnStartIndex;
 		int ColumnBreakIndex;
 		int ColumnStartY;
@@ -356,6 +357,16 @@ class DialogBuilderBase
 			return nullptr;
 		}
 
+		int FindFocusedItem()
+		{
+			for (int i = 0; i < DialogItemsCount; i++)
+			{
+				if (DialogItems[i].Flags & DIF_FOCUS)
+					return i;
+			}
+			return -1;
+		}
+
 		void SaveValues()
 		{
 			int RadioGroupIndex = 0;
@@ -393,7 +404,7 @@ class DialogBuilderBase
 
 		DialogBuilderBase()
 			: DialogItems(nullptr), Bindings(nullptr), DialogItemsCount(0), DialogItemsAllocated(0), NextY(2), Indent(0), SingleBoxIndex(-1),
-			  OKButtonID(-1),
+			  CancelButtonID(-1), FirstButtonID(-1),
 			  ColumnStartIndex(-1), ColumnBreakIndex(-1), ColumnStartY(-1), ColumnEndY(-1), ColumnMinWidth(0)
 		{
 		}
@@ -612,23 +623,44 @@ class DialogBuilderBase
 			if (Separator)
 				AddSeparator();
 
-			T *OKButton = AddDialogItem(DI_BUTTON, GetLangString(OKMessageId));
-			OKButton->Flags = DIF_CENTERGROUP|DIF_DEFAULTBUTTON;
-			OKButton->Y1 = OKButton->Y2 = NextY++;
-			OKButtonID = DialogItemsCount-1;
+			int MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
+			int NumButtons = (ExtraMessageId != -1) ? 3 : 2;
 
-			if(CancelMessageId != -1)
-			{
-				T *CancelButton = AddDialogItem(DI_BUTTON, GetLangString(CancelMessageId));
-				CancelButton->Flags = DIF_CENTERGROUP;
-				CancelButton->Y1 = CancelButton->Y2 = OKButton->Y1;
-			}
+			AddButtons(NumButtons, MsgIDs, 0, 1);
+		}
 
-			if(ExtraMessageId != -1)
+		// Добавляет линейку кнопок.
+		void AddButtons(int ButtonCount, const int MessageIDs[], int defaultButtonIndex = 0, int cancelButtonIndex = -1)
+		{
+			int LineY = NextY++;
+			T *PrevButton = nullptr;
+
+			for (int i = 0; i < ButtonCount; i++)
 			{
-				T *ExtraButton = AddDialogItem(DI_BUTTON, GetLangString(ExtraMessageId));
-				ExtraButton->Flags = DIF_CENTERGROUP;
-				ExtraButton->Y1 = ExtraButton->Y2 = OKButton->Y1;
+				T *NewButton = AddDialogItem(DI_BUTTON, GetLangString(MessageIDs[i]));
+				NewButton->Flags = DIF_CENTERGROUP;
+				NewButton->Y1 = NewButton->Y2 = LineY;
+				if (PrevButton)
+				{
+					NewButton->X1 = PrevButton->X2 + 1;
+				}
+				else
+				{
+					NewButton->X1 = 2 + Indent;
+					FirstButtonID = DialogItemsCount - 1;
+				}
+				NewButton->X2 = NewButton->X1 + ItemWidth(*NewButton);
+				
+				if (defaultButtonIndex == i)
+				{
+					NewButton->Flags |= DIF_DEFAULTBUTTON;
+					if (FindFocusedItem() == -1)
+						NewButton->Flags |= DIF_FOCUS;
+				}
+				if (cancelButtonIndex == i)
+					CancelButtonID = DialogItemsCount - 1;
+
+				PrevButton = NewButton;
 			}
 		}
 
@@ -637,14 +669,14 @@ class DialogBuilderBase
 			UpdateBorderSize();
 			UpdateSecondColumnPosition();
 			intptr_t Result = DoShowDialog();
-			if (Result == OKButtonID)
+			if (Result != CancelButtonID)
 			{
 				SaveValues();
 			}
 
-			if(Result >= OKButtonID)
+			if (FirstButtonID >= 0 && Result >= FirstButtonID)
 			{
-				Result -= OKButtonID;
+				Result -= FirstButtonID;
 			}
 			return Result;
 		}
@@ -845,7 +877,7 @@ public:
 	{
 		if (SelectedIndex)
 		{
-			*SelectedIndex = Info.SendDlgMessage(*DialogHandle, DM_LISTGETCURPOS, ID, 0);
+			*SelectedIndex = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_LISTGETCURPOS, ID, 0));
 		}
 		if (TextBuf)
 		{
@@ -868,6 +900,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		GUID Id;
 		FARWINDOWPROC DlgProc;
 		void* UserParam;
+		FARDIALOGFLAGS Flags;
 
 		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text)
 		{
@@ -889,7 +922,7 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		{
 			intptr_t Width = DialogItems [0].X2+4;
 			intptr_t Height = DialogItems [0].Y2+2;
-			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height, HelpTopic, DialogItems, DialogItemsCount, 0, 0, DlgProc, UserParam);
+			DialogHandle = Info.DialogInit(&PluginId, &Id, -1, -1, Width, Height, HelpTopic, DialogItems, DialogItemsCount, 0, Flags, DlgProc, UserParam);
 			return Info.DialogRun(DialogHandle);
 		}
 
@@ -953,14 +986,14 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		}
 
 public:
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
-			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, int TitleMessageID, const wchar_t *aHelpTopic, FARDIALOGFLAGS aFlags = FDLG_NONE, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
+			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
 		{
 			AddBorder(GetLangString(TitleMessageID));
 		}
 
-		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
-			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam)
+		PluginDialogBuilder(const PluginStartupInfo &aInfo, const GUID &aPluginId, const GUID &aId, const wchar_t *TitleMessage, const wchar_t *aHelpTopic, FARDIALOGFLAGS aFlags = FDLG_NONE, FARWINDOWPROC aDlgProc=nullptr, void* aUserParam=nullptr)
+			: Info(aInfo), DialogHandle(0), HelpTopic(aHelpTopic), PluginId(aPluginId), Id(aId), DlgProc(aDlgProc), UserParam(aUserParam), Flags(aFlags)
 		{
 			AddBorder(TitleMessage);
 		}
