@@ -20,7 +20,7 @@
 "Extract %d files(s) and %d folder(s) to"
 "Extract Error"
 "Unable to create directory"
-"File %s already exists. Overwrite?"
+"File already exists. Overwrite?"
 "Extracting failed for file:"
 "Extracting file"
 "Not enough space on target drive"
@@ -43,5 +43,13 @@
 "&Cancel"
 "E&xtract"
 "Abort"
+"Rename"
+
+"Warning"
+"Rename"
+"Remember choice"
+"New file name"
+"Old file:"
+"New file:"
 
 "ToCurr"
