@@ -380,7 +380,7 @@ enum FileOverwriteOptions
 	OverwriteRename = 5
 };
 
-static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, const wchar_t* destPath, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
+static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, wstring &destPath, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
 {
 	__int64 nOldSize = ((__int64) existingFile->nFileSizeHigh >> 32) + existingFile->nFileSizeLow;
 	__int64 nNewSize = newFile->Size();
@@ -407,7 +407,7 @@ static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, const wchar_t* 
 	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, GetLocMsg(MSG_TITLE_WARNING), nullptr, nullptr, nullptr, FDLG_WARNING);
 
 	Builder.AddText(MSG_EXTRACT_OVERWRITE)->Flags = DIF_CENTERTEXT;
-	Builder.AddText(destPath);
+	Builder.AddText(destPath.c_str());
 	
 	Builder.AddSeparator();
 	Builder.AddText(szNewFileInfo);
@@ -468,10 +468,10 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	WIN32_FIND_DATAW fdExistingFile = {0};
 	bool fAlreadyExists;
 
-	while (showMessages && (fAlreadyExists = FileExists(destPath.c_str(), &fdExistingFile)))
+	while (showMessages && (fAlreadyExists = FileExists(destPath, &fdExistingFile)))
 	{
 		if (doOverwrite == OverwriteAsk)
-			if (!AskExtractOverwrite(doOverwrite, destPath.c_str(), &fdExistingFile, item))
+			if (!AskExtractOverwrite(doOverwrite, destPath, &fdExistingFile, item))
 				return SER_USERABORT;
 		
 		// Check either ask result or present value

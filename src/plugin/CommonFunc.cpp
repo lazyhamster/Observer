@@ -18,11 +18,11 @@ bool CheckEsc()
 		return false;
 }
 
-bool FileExists(const wchar_t* path, LPWIN32_FIND_DATAW file_data)
+bool FileExists(wstring& path, LPWIN32_FIND_DATAW file_data)
 {
 	WIN32_FIND_DATAW fdata;
 
-	HANDLE sr = FindFirstFileW(path, &fdata);
+	HANDLE sr = FindFirstFileW(path.c_str(), &fdata);
 	if (sr != INVALID_HANDLE_VALUE)
 	{
 		if (file_data)

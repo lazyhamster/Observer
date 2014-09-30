@@ -425,12 +425,16 @@ static int ExtractError(int errorReason, HANDLE context)
 //-----------------------------------  Extract functions ----------------------------------------
 
 // Overwrite values
-#define EXTR_OVERWRITE_ASK 1
-#define EXTR_OVERWRITE_SILENT 2
-#define EXTR_OVERWRITE_SKIP 3
-#define EXTR_OVERWRITE_SKIPSILENT 4
+enum FileOverwriteOptions
+{
+	OverwriteAsk = 1,
+	OverwriteSilent = 2,
+	OverwriteSkip = 3,
+	OverwriteSkipSilent = 4,
+	OverwriteRename = 5
+};
 
-static bool AskExtractOverwrite(int &overwrite, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
+static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, wstring &destPath, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
 {
 	__int64 nOldSize = ((__int64) existingFile->nFileSizeHigh >> 32) + existingFile->nFileSizeLow;
 	__int64 nNewSize = newFile->Size();
@@ -442,43 +446,89 @@ static bool AskExtractOverwrite(int &overwrite, const WIN32_FIND_DATAW* existing
 	SYSTEMTIME stNewUTC, stNewLocal;
 	FileTimeToSystemTime(&newFile->LastModificationTime, &stNewUTC);
 	SystemTimeToTzSpecificLocalTime(NULL, &stNewUTC, &stNewLocal);
-	
-	static wchar_t szDialogLine1[120] = {0};
-	swprintf_s(szDialogLine1, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), GetLocMsg(MSG_EXTRACT_OVERWRITE), newFile->Name());
-	static wchar_t szDialogLine2[120] = {0};
-	swprintf_s(szDialogLine2, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), L"%21s  %s", L"Size", L"Last Modification");
-	static wchar_t szDialogLine3[120] = {0};
-	swprintf_s(szDialogLine3, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), L"Old file: %11u  %5u-%02u-%02u %02u:%02u",
-		(UINT) nOldSize, stOldLocal.wYear, stOldLocal.wMonth, stOldLocal.wDay, stOldLocal.wHour, stOldLocal.wMinute);
-	static wchar_t szDialogLine4[120] = {0};
-	swprintf_s(szDialogLine4, sizeof(szDialogLine1) / sizeof(szDialogLine1[0]), L"New file: %11u  %5u-%02u-%02u %02u:%02u",
-		(UINT) nNewSize, stNewLocal.wYear, stNewLocal.wMonth, stNewLocal.wDay, stNewLocal.wHour, stNewLocal.wMinute);
-	
-	static const wchar_t* DlgLines[10];
-	DlgLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
-	DlgLines[1] = szDialogLine1;
-	DlgLines[2] = szDialogLine2;
-	DlgLines[3] = szDialogLine3;
-	DlgLines[4] = szDialogLine4;
-	DlgLines[5] = GetLocMsg(MSG_OVERWRITE);
-	DlgLines[6] = GetLocMsg(MSG_OVERWRITE_ALL);
-	DlgLines[7] = GetLocMsg(MSG_BTN_SKIP);
-	DlgLines[8] = GetLocMsg(MSG_BTN_SKIP_ALL);
-	DlgLines[9] = GetLocMsg(MSG_BTN_CANCEL);
 
-	int nMsg = FarSInfo.Message(FarSInfo.ModuleNumber, FMSG_WARNING, NULL, DlgLines, sizeof(DlgLines) / sizeof(DlgLines[0]), 5);
-	
-	if ((nMsg == 4) // Cancel is pressed
-		|| (nMsg == -1)) //Escape is pressed
-		return false;
-	else
+	static wchar_t szOldFileInfo[120] = {0};
+	swprintf_s(szOldFileInfo, ARRAY_SIZE(szOldFileInfo), L"%s %14u  %02u-%02u-%4u %02u:%02u",
+		GetLocMsg(MSG_DLG_OLDFILE_INFO), (UINT) nOldSize, stOldLocal.wDay, stOldLocal.wMonth, stOldLocal.wYear, stOldLocal.wHour, stOldLocal.wMinute);
+	static wchar_t szNewFileInfo[120] = {0};
+	swprintf_s(szNewFileInfo, ARRAY_SIZE(szNewFileInfo), L"%s %14u  %02u-%02u-%4u %02u:%02u",
+		GetLocMsg(MSG_DLG_NEWFILE_INFO), (UINT) nNewSize, stNewLocal.wDay, stNewLocal.wMonth, stNewLocal.wYear, stNewLocal.wHour, stNewLocal.wMinute);
+
+	FarDialogItem DialogItems [] = {
+		/* 0*/{DI_DOUBLEBOX, 3, 1, 52,11, 0, 0, 0, 0, GetLocMsg(MSG_TITLE_WARNING)},
+		/* 1*/{DI_TEXT,	     5, 2,  0, 0, 0, 0, DIF_CENTERTEXT, 0, GetLocMsg(MSG_EXTRACT_OVERWRITE), 0},
+		/* 2*/{DI_TEXT,	     5, 3,  0, 0, 0, 0, 0, 0, destPath.c_str(), 0},
+		/* 3*/{DI_TEXT,	     3, 4,  0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
+		/* 4*/{DI_TEXT,	     5, 5,  0, 0, 0, 0, 0, 0, szNewFileInfo, 0},
+		/* 5*/{DI_TEXT,	     5, 6,  0, 0, 0, 0, 0, 0, szOldFileInfo, 0},
+		/* 6*/{DI_TEXT,	     3, 7,  0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
+		/* 7*/{DI_CHECKBOX,  5, 8,  0, 0, 1, 0, 0, 0, GetLocMsg(MSG_DLG_REMEMBER)},
+		/* 8*/{DI_TEXT,	     3, 9,  0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L"", 0},
+		/* 9*/{DI_BUTTON,	 0,10,  0, 0, 0, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_OVERWRITE), 0},
+		/*10*/{DI_BUTTON,    0,10,  0, 0, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_SKIP), 0},
+		/*11*/{DI_BUTTON,    0,10,  0, 0, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_RENAME), 0},
+		/*12*/{DI_BUTTON,    0,10,  0, 0, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
+	};
+
+	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 56, 13, NULL, DialogItems, ARRAY_SIZE(DialogItems), 0, FDLG_WARNING, FarSInfo.DefDlgProc, 0);
+
+	bool retVal = true;
+	if (hDlg != INVALID_HANDLE_VALUE)
 	{
-		overwrite = nMsg + 1;
-		return true;
+		int ExitCode = FarSInfo.DialogRun(hDlg);
+		int nRemember = DlgHlp_GetCheckBoxState(hDlg, 7);
+
+		switch (ExitCode)
+		{
+			case 9:
+				overwrite = nRemember ? OverwriteSilent : OverwriteAsk;
+				break;
+			case 10:
+				overwrite = nRemember ? OverwriteSkipSilent : OverwriteSkip;
+				break;
+			case 11:
+				overwrite = OverwriteRename;
+				break;
+			default:
+				retVal = false;
+				break;
+		}
+
+		FarSInfo.DialogFree(hDlg);
+	}
+
+	return retVal;
+}
+
+static void AskRename(wstring &filePath)
+{
+	wchar_t tmpBuf[MAX_PATH] = {0};
+	wcscpy_s(tmpBuf, MAX_PATH, ExtractFileName(filePath.c_str()));
+
+	FarDialogItem DialogItems [] = {
+		/*0*/{DI_DOUBLEBOX, 3, 1, 57, 5, 0, 0, 0, 0, GetLocMsg(MSG_TITLE_RENAME)},
+		/*1*/{DI_TEXT,	    5, 2,  0, 0, 0, 0, 0, 0, GetLocMsg(MSG_DLG_NEWFILENAME), 0},
+		/*2*/{DI_EDIT,	    5, 3, 55, 0, 1, 0, DIF_EDITPATH, 0, tmpBuf, 0},
+		/*3*/{DI_BUTTON,	0, 4,  0, 0, 0, 0, DIF_CENTERGROUP, 1, GetLocMsg(MSG_BTN_RENAME), 0},
+		/*4*/{DI_BUTTON,    0, 4,  0, 0, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
+	};
+
+	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 60, 7, NULL, DialogItems, ARRAY_SIZE(DialogItems), 0, 0, FarSInfo.DefDlgProc, 0);
+
+	if (hDlg != INVALID_HANDLE_VALUE)
+	{
+		int ExitCode = FarSInfo.DialogRun(hDlg);
+
+		if (ExitCode == 3)
+		{
+			filePath = GetDirectoryName(filePath, true) + tmpBuf;
+		}
+
+		FarSInfo.DialogFree(hDlg);
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, const wchar_t* destPath, bool showMessages, int &doOverwrite, bool &skipOnError, ProgressContext* pctx)
+static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, wstring &destPath, bool showMessages, FileOverwriteOptions &doOverwrite, bool &skipOnError, ProgressContext* pctx)
 {
 	if (!item || !storage || item->IsDir())
 		return SER_ERROR_READ;
@@ -488,23 +538,34 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 
 	// Ask about overwrite if needed
 	WIN32_FIND_DATAW fdExistingFile = {0};
-	bool fAlreadyExists = FileExists(destPath, &fdExistingFile);
+	bool fAlreadyExists;
 
-	if (showMessages && fAlreadyExists)
+	while (showMessages && (fAlreadyExists = FileExists(destPath, &fdExistingFile)))
 	{
-		if (doOverwrite == EXTR_OVERWRITE_ASK)
-			if (!AskExtractOverwrite(doOverwrite, &fdExistingFile, item))
+		if (doOverwrite == OverwriteAsk)
+			if (!AskExtractOverwrite(doOverwrite, destPath, &fdExistingFile, item))
 				return SER_USERABORT;
-		
+
 		// Check either ask result or present value
-		if (doOverwrite == EXTR_OVERWRITE_SKIP)
+		if (doOverwrite == OverwriteSkip)
 		{
-			doOverwrite = EXTR_OVERWRITE_ASK;
+			doOverwrite = OverwriteAsk;
 			return SER_SUCCESS;
 		}
-		else if (doOverwrite == EXTR_OVERWRITE_SKIPSILENT)
+		else if (doOverwrite == OverwriteSkipSilent)
 		{
 			return SER_SUCCESS;
+		}
+		else if (doOverwrite == OverwriteRename)
+		{
+			// Ask next time
+			doOverwrite = OverwriteAsk;
+			AskRename(destPath);
+		}
+		else
+		{
+			// This is one of the overwrite options
+			break;
 		}
 	}
 
@@ -527,7 +588,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	// Remove read-only attribute from target file if present
 	if (fAlreadyExists && (fdExistingFile.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
 	{
-		SetFileAttributes(destPath, fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
+		SetFileAttributes(destPath.c_str(), fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 	}
 
 	HANDLE hScreen;
@@ -539,7 +600,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		ExtractOperationParams params;
 		params.item = item->StorageIndex;
 		params.flags = 0;
-		params.destFilePath = destPath;
+		params.destFilePath = destPath.c_str();
 		params.callbacks.FileProgress = ExtractProgress;
 		params.callbacks.signalContext = pctx;
 
@@ -579,7 +640,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	// If extraction is successful set file attributes if present
 	if ((ret == SER_SUCCESS) && (item->Attributes != 0))
 	{
-		SetFileAttributes(destPath, item->Attributes);
+		SetFileAttributes(destPath.c_str(), item->Attributes);
 	}
 
 	return ret;
@@ -611,15 +672,15 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	int nExtractResult = SER_SUCCESS;
 	bool skipOnError = false;
 
-	int doOverwrite = EXTR_OVERWRITE_ASK;
+	FileOverwriteOptions doOverwrite = OverwriteAsk;
 	switch (extParams.nOverwriteExistingFiles)
 	{
-		case 0:
-			doOverwrite = EXTR_OVERWRITE_SKIPSILENT;
-			break;
-		case 1:
-			doOverwrite = EXTR_OVERWRITE_SILENT;
-			break;
+	case 0:
+		doOverwrite = OverwriteSkipSilent;
+		break;
+	case 1:
+		doOverwrite = OverwriteSilent;
+		break;
 	}
 
 	ProgressContext pctx;
@@ -656,7 +717,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 		}
 		else
 		{
-			nExtractResult = ExtractStorageItem(info, nextItem, strFullTargetPath.c_str(), !extParams.bSilent, doOverwrite, skipOnError, &pctx);
+			nExtractResult = ExtractStorageItem(info, nextItem, strFullTargetPath, !extParams.bSilent, doOverwrite, skipOnError, &pctx);
 		}
 
 		if (nExtractResult != SER_SUCCESS) break;
