@@ -456,9 +456,9 @@ static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, wstring &destPa
 
 	FarDialogItem DialogItems [] = {
 		/* 0*/{DI_DOUBLEBOX, 3, 1, 52,11, 0, 0, 0, 0, GetLocMsg(MSG_TITLE_WARNING)},
-		/* 1*/{DI_TEXT,	     5, 2,  0, 2, 0, 0, DIF_CENTERTEXT, 0, GetLocMsg(MSG_EXTRACT_OVERWRITE), 0},
-		/* 2*/{DI_TEXT,	     5, 3,  0, 3, 0, 0, 0, 0, destPath.c_str(), 0},
-		/* 3*/{DI_TEXT,	     3, 4,  0, 4, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
+		/* 1*/{DI_TEXT,	     5, 2, 50, 0, 0, 0, DIF_CENTERTEXT, 0, GetLocMsg(MSG_EXTRACT_OVERWRITE), 0},
+		/* 2*/{DI_TEXT,	     5, 3, 50, 0, 0, 0, 0, 0, destPath.c_str(), 0},
+		/* 3*/{DI_TEXT,	     3, 4,  0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
 		/* 4*/{DI_TEXT,	     5, 5,  0, 0, 0, 0, 0, 0, szNewFileInfo, 0},
 		/* 5*/{DI_TEXT,	     5, 6,  0, 0, 0, 0, 0, 0, szOldFileInfo, 0},
 		/* 6*/{DI_TEXT,	     3, 7,  0, 0, 0, 0, DIF_BOXCOLOR|DIF_SEPARATOR, 0, L""},
