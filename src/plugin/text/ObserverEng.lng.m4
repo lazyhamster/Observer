@@ -49,7 +49,7 @@
 "Rename"
 "Remember choice"
 "New file name"
-"Old file:"
-"New file:"
+"Existing"
+"New"
 
 "ToCurr"
