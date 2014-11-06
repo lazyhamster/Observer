@@ -250,9 +250,9 @@ class DialogBuilderBase
 		{
 			T *Title = &m_DialogItems[0];
 			intptr_t MaxWidth = MaxTextWidth();
+			intptr_t MaxHeight = 0;
 			Title->X2 = Title->X1 + MaxWidth + 3;
-			Title->Y2 = m_DialogItems [m_DialogItemsCount-1].Y2 + 1;
-
+			
 			for (int i=1; i<m_DialogItemsCount; i++)
 			{
 				if (m_DialogItems[i].Type == DI_SINGLEBOX)
@@ -264,9 +264,15 @@ class DialogBuilderBase
 				{//BUGBUG: two columns items are not supported
 					m_DialogItems[i].X2 = m_DialogItems[i].X1 + MaxWidth - 1;
 				}
+				
+				if (m_DialogItems[i].Y2 > MaxHeight)
+				{
+					MaxHeight = m_DialogItems[i].Y2;
+				}
 			}
 
 			Title->X2 += m_Indent;
+			Title->Y2 = MaxHeight + 1;
 			m_Indent = 0;
 		}
 
