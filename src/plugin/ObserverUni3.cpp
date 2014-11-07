@@ -146,7 +146,7 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 	return fRet;
 }
 
-void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
+static void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 {
 	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
 
@@ -222,6 +222,27 @@ static void CloseStorage(HANDLE hStorage)
 	delete sobj;
 }
 
+static bool GetCurrentPanelItemName(HANDLE hPanel, wstring& nameStr, bool canBeDir)
+{
+	bool fResult = false;
+	
+	size_t itemBufSize = FarSInfo.PanelControl(hPanel, FCTL_GETCURRENTPANELITEM, 0, NULL);
+	PluginPanelItem *PPI = (PluginPanelItem*) malloc(itemBufSize);
+	if (PPI)
+	{
+		FarGetPluginPanelItem FGPPI = {sizeof(FarGetPluginPanelItem), itemBufSize, PPI};
+		FarSInfo.PanelControl(hPanel, FCTL_GETCURRENTPANELITEM, 0, &FGPPI);
+		if (canBeDir || ((PPI->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0))
+		{
+			nameStr = PPI->FileName;
+			fResult = true;
+		}
+		free(PPI);
+	}
+
+	return fResult;
+}
+
 static bool GetSelectedPanelFilePath(wstring& nameStr)
 {
 	nameStr.clear();
@@ -237,19 +258,12 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 
 			wstring strNameBuffer = panelDir->Name;
 			IncludeTrailingPathDelim(strNameBuffer);
-			
-			size_t itemBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, NULL);
-			PluginPanelItem *PPI = (PluginPanelItem*)malloc(itemBufSize);
-			if (PPI)
+
+			wstring itemName;
+			if (GetCurrentPanelItemName(PANEL_ACTIVE, itemName, false))
 			{
-				FarGetPluginPanelItem FGPPI={sizeof(FarGetPluginPanelItem), itemBufSize, PPI};
-				FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETCURRENTPANELITEM, 0, &FGPPI);
-				if ((PPI->FileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
-				{
-					strNameBuffer.append(PPI->FileName);
-					nameStr = strNameBuffer;
-				}
-				free(PPI);
+				strNameBuffer.append(itemName);
+				nameStr = strNameBuffer;
 			}
 		}
 	
