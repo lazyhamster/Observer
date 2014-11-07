@@ -190,3 +190,14 @@ std::wstring FormatString(const std::wstring fmt_str, ...)
 
 	return std::wstring(formatted);
 }
+
+std::wstring FileTimeToString( FILETIME ft )
+{
+	if (ft.dwHighDateTime == 0 && ft.dwLowDateTime == 0)
+		return L"-";
+	
+	SYSTEMTIME stime = {0};
+	FileTimeToSystemTime(&ft, &stime);
+
+	return FormatString(L"%02d.%02d.%04d %02d:%02d:%02d", stime.wDay, stime.wMonth, stime.wYear, stime.wHour, stime.wMinute, stime.wSecond);
+}
