@@ -150,25 +150,26 @@ static void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 {
 	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
 
-	//TODO: show dialog
-/*
-	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_LOAD_ERROR, L"Loading Error", NULL);
-
-	Builder.AddText(szDialogLine1);
-	Builder.AddEditField(wszExtractPathBuf, MAX_PATH, 56);
-	Builder.AddSeparator();
-	Builder.AddCheckbox(MSG_EXTRACT_DEFOVERWRITE, &params.nOverwriteExistingFiles, 0, true);
-	Builder.AddCheckbox(MSG_EXTRACT_KEEPPATHS, &params.nPathProcessing, 0, true);
-
-	Builder.AddOKCancel(MSG_BTN_EXTRACT, MSG_BTN_CANCEL, -1, true);
-
-	if (Builder.ShowDialog())
+	size_t boxListSize = failedModules.size() * 2;
+	const wchar_t* *boxList = new const wchar_t*[boxListSize];
+	
+	size_t listIndex = 0;
+	for (size_t i = 0; i < failedModules.size(); i++)
 	{
-		params.strDestPath = ResolveFullPath(wszExtractPathBuf);
-
-		return true;
+		boxList[listIndex] = failedModules[i].ModuleName.c_str();
+		boxList[listIndex+1] = failedModules[i].ErrorMessage.c_str();
+		listIndex += 2;
 	}
-*/
+
+	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_LOAD_ERROR, L"Loading Error", nullptr, nullptr, nullptr, FDLG_WARNING);
+
+	Builder.AddText(L"Some modules failed to load");
+	Builder.AddListBox(nullptr, 50, 10, boxList, boxListSize, DIF_LISTNOBOX | DIF_LISTNOCLOSE);
+	Builder.AddOKCancel(MSG_BTN_OK, -1, -1, true);
+
+	Builder.ShowDialog();
+
+	delete [] boxList;
 }
 
 //-----------------------------------  Content functions ----------------------------------------
