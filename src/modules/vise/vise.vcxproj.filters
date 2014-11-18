@@ -24,6 +24,12 @@
     <ClCompile Include="vise.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ViseFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Unpack.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vise.def">
@@ -35,6 +41,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ViseFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Unpack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
