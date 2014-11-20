@@ -4,8 +4,8 @@
 #include "ModuleDef.h"
 
 class ContentTreeNode;
-typedef map<wstring, ContentTreeNode*> SubNodesMap;
-typedef vector<ContentTreeNode*> ContentNodeList;
+typedef std::map<std::wstring, ContentTreeNode*> SubNodesMap;
+typedef std::vector<ContentTreeNode*> ContentNodeList;
 
 class ContentTreeNode
 {
@@ -27,6 +27,7 @@ public:
 	DWORD Attributes;
 	FILETIME LastModificationTime;
 	FILETIME CreationTime;
+	WORD NumberOfHardlinks;
 
 	ContentTreeNode* parent;
 	SubNodesMap subdirs;

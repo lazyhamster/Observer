@@ -14,6 +14,7 @@ StorageObject::StorageObject( ModulesController *modules, PasswordQueryCallbackF
 	m_pCurrentDir = NULL;
 
 	m_nTotalSize = 0;
+	m_nTotalPackedSize = 0;
 	m_nNumFiles = 0;
 	m_nNumDirectories = 0;
 
@@ -88,12 +89,12 @@ void StorageObject::Close()
 
 	m_pCurrentDir = NULL;
 	m_nTotalSize = 0;
+	m_nTotalPackedSize;
 	m_nNumFiles = 0;
 	m_nNumDirectories = 0;
 
 	// Release all nodes
-	vector<ContentTreeNode*>::iterator iter;
-	for (iter = m_vItems.begin(); iter != m_vItems.end(); iter++)
+	for (auto iter = m_vItems.begin(); iter != m_vItems.end(); iter++)
 	{
 		ContentTreeNode* node = *iter;
 		delete node;
@@ -106,7 +107,7 @@ int StorageObject::ReadFileList(bool &aborted)
 	bool fListOK = true;
 	aborted = false;
 
-	__int64 nTotalSize = 0;
+	__int64 nTotalSize = 0, nTotalPackedSize = 0;
 	DWORD nNumFiles = 0, nNumDirs = 0;
 
 	const ExternalModule &module = m_pModules->GetModule(m_nModuleIndex);
@@ -135,6 +136,7 @@ int StorageObject::ReadFileList(bool &aborted)
 				{
 					nNumFiles++;
 					nTotalSize += child->Size();
+					nTotalPackedSize += child->PackedSize();
 				}
 				else
 				{
@@ -168,6 +170,7 @@ int StorageObject::ReadFileList(bool &aborted)
 		m_pCurrentDir = m_pRootDir;
 
 		m_nTotalSize = nTotalSize;
+		m_nTotalPackedSize = nTotalPackedSize;
 		m_nNumFiles = nNumFiles;
 		m_nNumDirectories = nNumDirs;
 

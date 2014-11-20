@@ -31,10 +31,12 @@ void ContentTreeNode::Init( int item_index, StorageItemInfo* item_info )
 	StorageIndex = item_index;
 	m_strName = ExtractFileName(item_info->Path);
 	m_nSize = item_info->Size;
+	m_nPackedSize = item_info->PackedSize;
 	m_nPackedSize = 0;
 	Attributes = item_info->Attributes;
 	LastModificationTime = item_info->ModificationTime;
 	CreationTime = item_info->CreationTime;
+	NumberOfHardlinks = item_info->NumHardlinks;
 }
 
 size_t ContentTreeNode::GetPath(wchar_t* dest, size_t destSize, ContentTreeNode* upRoot) const
