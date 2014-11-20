@@ -53,3 +53,11 @@
 "New"
 
 "ToCurr"
+
+"Path"
+"Is Folder"
+"Size"
+"Packed Size"
+"Attributes"
+"Created"
+"Modified"
