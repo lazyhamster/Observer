@@ -483,11 +483,15 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	WIN32_FIND_DATAW fdExistingFile = {0};
 	bool fAlreadyExists;
 
-	while (showMessages && (fAlreadyExists = FileExists(destPath, &fdExistingFile)))
+	while ((fAlreadyExists = FileExists(destPath, &fdExistingFile)))
 	{
 		if (doOverwrite == OverwriteAsk)
+		{
+			if (!showMessages) break;
+
 			if (!AskExtractOverwrite(doOverwrite, destPath, &fdExistingFile, item))
 				return SER_USERABORT;
+		}
 		
 		// Check either ask result or present value
 		if (doOverwrite == OverwriteSkip)
