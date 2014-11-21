@@ -95,6 +95,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	MultiByteToWideChar(CP_ACP, 0, ffd.cFileName, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
 	item_info->Size = ffd.dwFileSize;
+	item_info->PackedSize = ffd.dwCompSize;
 	item_info->ModificationTime.dwHighDateTime = ffd.dwFileTimeHi;
 	item_info->ModificationTime.dwLowDateTime = ffd.dwFileTimeLo;
 

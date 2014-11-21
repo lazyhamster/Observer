@@ -115,6 +115,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 			//nextItem.ModificationTime = header.FileTime;
 			nextItem.Attributes = header.FileAttr;
 			nextItem.Size = ((__int64) header.UnpSizeHigh << 32) | (__int64) header.UnpSize;
+			nextItem.PackedSize = ((__int64) header.PackSizeHigh << 32) | (__int64) header.PackSize;
 
 			FILETIME filetime;
 			DosDateTimeToFileTime ((WORD)((DWORD)header.FileTime >> 16), (WORD)header.FileTime, &filetime);

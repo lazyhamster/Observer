@@ -42,6 +42,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		memset(item_info, 0, sizeof(StorageItemInfo));
 		item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
 		item_info->Size = fileData.UnpackedSize;
+		item_info->PackedSize = fileData.PackedSize;
 
 		if (fileData.FileName[0])
 			wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fileData.FileName);

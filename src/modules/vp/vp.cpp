@@ -50,6 +50,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), frec.full_path);
 	item_info->Attributes = (frec.IsDir()) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
 	item_info->Size = frec.size;
+	item_info->PackedSize = frec.size;
 	item_info->ModificationTime = frec.timestamp;
 
 	return GET_ITEM_OK;

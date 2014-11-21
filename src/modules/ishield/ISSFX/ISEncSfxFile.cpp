@@ -122,6 +122,7 @@ bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo 
 	else
 		MultiByteToWideChar(CP_ACP, 0, fileEntry.Name, -1, itemInfo->Path, STRBUF_SIZE(itemInfo->Path));
 	itemInfo->Size = unpackedSize;
+	itemInfo->PackedSize = fileEntry.CompressedSize;
 		
 	return true;
 }

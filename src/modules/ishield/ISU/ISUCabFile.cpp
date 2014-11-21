@@ -70,6 +70,7 @@ bool ISUCabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 	// Fill result structure
 	wcscpy_s(itemInfo->Path, STRBUF_SIZE(itemInfo->Path), fullName);
 	itemInfo->Size = pFileDesc->cbExpanded;
+	itemInfo->PackedSize = pFileDesc->cbCompressed;
 	itemInfo->Attributes = pFileDesc->Attrs;
 	DosDateTimeToFileTime((WORD)pFileDesc->FatDate, (WORD)pFileDesc->FatTime, &itemInfo->ModificationTime);
 

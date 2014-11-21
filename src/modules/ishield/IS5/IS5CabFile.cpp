@@ -78,6 +78,7 @@ bool IS5CabFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo ) const
 	// Fill result structure
 	MultiByteToWideChar(CP_ACP, 0, fullName, -1, itemInfo->Path, STRBUF_SIZE(itemInfo->Path));
 	itemInfo->Size = pFileDesc->cbExpanded;
+	itemInfo->PackedSize = pFileDesc->cbCompressed;
 	itemInfo->Attributes = pFileDesc->Attrs;
 	DosDateTimeToFileTime((WORD)pFileDesc->FatDate, (WORD)pFileDesc->FatTime, &itemInfo->ModificationTime);
 

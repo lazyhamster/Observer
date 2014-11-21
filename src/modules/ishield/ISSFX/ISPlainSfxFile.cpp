@@ -77,6 +77,7 @@ bool ISSfx::ISPlainSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInf
 
 	wcscpy_s(itemInfo->Path, sizeof(itemInfo->Path) / sizeof(itemInfo->Path[0]), fileEntry.Path);
 	itemInfo->Size = fileEntry.Size;
+	itemInfo->PackedSize = fileEntry.Size;
 
 	return true;
 }
