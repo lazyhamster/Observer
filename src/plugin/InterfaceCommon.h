@@ -80,6 +80,23 @@ struct ExtractSelectedParams
 	}
 };
 
+enum InfoLines
+{
+	IL_FORMAT = 1,
+	IL_FILES = 2,
+	IL_DIRECTORIES = 3,
+	IL_SIZE = 4,
+	IL_PACKED = 5,
+	IL_COMPRESS = 6,
+	IL_COMMENT = 7,
+	IL_CREATED = 8,
+	IL_LAST = 9
+};
+
+#define ULTOW(num, wstr) _ultow_s(num, wstr, ARRAY_SIZE(wstr), 10);
+
+#define I64TOW_C(num, wstr) _i64tow_s(num, wstr, ARRAY_SIZE(wstr), 10); InsertCommas(wstr);
+
 int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 &totalSize, bool recursive);
 wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt);
 

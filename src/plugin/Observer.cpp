@@ -833,17 +833,6 @@ int WINAPI SetDirectory(HANDLE hPlugin, const char *Dir, int OpMode)
 	return info->ChangeCurrentDir(wzDirName);
 }
 
-enum InfoLines
-{
-	IL_FORMAT = 1,
-	IL_SIZE = 2,
-	IL_FILES = 3,
-	IL_DIRECTORIES = 4,
-	IL_COMPRESS = 5,
-	IL_COMMENT = 6,
-	IL_CREATED = 7
-};
-
 void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 {
 	Info->StructSize = sizeof(OpenPluginInfo);

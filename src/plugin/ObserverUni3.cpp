@@ -970,17 +970,6 @@ intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 	return info->ChangeCurrentDir(sdInfo->Dir);
 }
 
-enum InfoLines
-{
-	IL_FORMAT = 1,
-	IL_SIZE = 2,
-	IL_FILES = 3,
-	IL_DIRECTORIES = 4,
-	IL_COMPRESS = 5,
-	IL_COMMENT = 6,
-	IL_CREATED = 7
-};
-
 void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 {
 	opInfo->StructSize = sizeof(OpenPanelInfo);
@@ -992,7 +981,8 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 	static wchar_t wszTitle[512];
 	static KeyBarTitles KeyBar;
 	
-	static wchar_t wszStorageSizeInfo[32];
+	static wchar_t wszSizeInfo[32];
+	static wchar_t wszPackedSizeInfo[32];
 	static wchar_t wszNumFileInfo[16];
 	static wchar_t wszNumDirsInfo[16];
 	static wchar_t wszStorageCreatedInfo[32];
@@ -1011,11 +1001,11 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 	// FAR does not exit plug-in if root directory is "\"
 	if (wcslen(wszCurrentDir) == 1) wszCurrentDir[0] = 0;
 
-	_i64tow_s(info->TotalSize(), wszStorageSizeInfo, ARRAY_SIZE(wszStorageSizeInfo), 10);
-	InsertCommas(wszStorageSizeInfo);
+	I64TOW_C(info->TotalSize(), wszSizeInfo);
+	I64TOW_C(info->TotalPackedSize(), wszPackedSizeInfo);
 
-	_ultow_s(info->NumFiles(), wszNumFileInfo, sizeof(wszNumFileInfo)/sizeof(wszNumFileInfo[0]), 10);
-	_ultow_s(info->NumDirectories(), wszNumDirsInfo, sizeof(wszNumDirsInfo)/sizeof(wszNumDirsInfo[0]), 10);
+	ULTOW(info->NumFiles(), wszNumFileInfo);
+	ULTOW(info->NumDirectories(), wszNumDirsInfo);
 
 	SYSTEMTIME st;
 	if (info->GeneralInfo.Created.dwHighDateTime && FileTimeToSystemTime(&info->GeneralInfo.Created, &st))
@@ -1024,7 +1014,7 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 		wcscpy_s(wszStorageCreatedInfo, 32, L"-");
 	
 	// Fill info lines
-	static InfoPanelLine pInfoLinesData[8];
+	static InfoPanelLine pInfoLinesData[9];
 	memset(pInfoLinesData, 0, sizeof(pInfoLinesData));
 
 	pInfoLinesData[0].Text = ExtractFileName(info->StoragePath());
@@ -1033,14 +1023,17 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 	pInfoLinesData[IL_FORMAT].Text = GetLocMsg(MSG_INFOL_FORMAT);
 	pInfoLinesData[IL_FORMAT].Data = info->GeneralInfo.Format;
 
-	pInfoLinesData[IL_SIZE].Text = GetLocMsg(MSG_INFOL_SIZE);
-	pInfoLinesData[IL_SIZE].Data = wszStorageSizeInfo;
-	
 	pInfoLinesData[IL_FILES].Text = GetLocMsg(MSG_INFOL_FILES);
 	pInfoLinesData[IL_FILES].Data = wszNumFileInfo;
 	
 	pInfoLinesData[IL_DIRECTORIES].Text = GetLocMsg(MSG_INFOL_DIRS);
 	pInfoLinesData[IL_DIRECTORIES].Data = wszNumDirsInfo;
+
+	pInfoLinesData[IL_SIZE].Text = GetLocMsg(MSG_INFOL_SIZE);
+	pInfoLinesData[IL_SIZE].Data = wszSizeInfo;
+
+	pInfoLinesData[IL_PACKED].Text = GetLocMsg(MSG_INFOL_PACKEDSIZE);
+	pInfoLinesData[IL_PACKED].Data = wszPackedSizeInfo;
 	
 	pInfoLinesData[IL_COMPRESS].Text = GetLocMsg(MSG_INFOL_COMPRESSION);
 	pInfoLinesData[IL_COMPRESS].Data = info->GeneralInfo.Compression;

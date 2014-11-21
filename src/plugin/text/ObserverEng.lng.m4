@@ -15,6 +15,7 @@
 "Files"
 "Directories"
 "Total Size"
+"Packed Size"
 
 "Extract"
 "Extract %d files(s) and %d folder(s) to"
