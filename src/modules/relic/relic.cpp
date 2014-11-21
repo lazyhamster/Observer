@@ -52,6 +52,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), item.Name);
 		item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
 		item_info->Size = item.UncompressedSize;
+		item_info->PackedSize = item.CompressedSize;
 		UnixTimeToFileTime(item.ModTime, &item_info->ModificationTime);
 
 		return GET_ITEM_OK;

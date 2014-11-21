@@ -89,6 +89,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	item_info->Attributes = FILE_ATTRIBUTE_NORMAL;
 	item_info->Size = fileItem->GetSize();
+	item_info->PackedSize = fileItem->GetSizeOnDisk();
 
 	hlChar path[1024] = {0};
 	fileItem->GetPath(path, sizeof(path));
