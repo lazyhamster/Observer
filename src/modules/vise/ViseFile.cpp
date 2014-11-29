@@ -219,5 +219,14 @@ bool CViseFile::ReadViseScript( std::shared_ptr<AStream> inStream )
 
 bool CViseFile::ExtractFile( size_t fileIndex, AStream* dest )
 {
+	ViseFileEntry &entry = m_vFiles[fileIndex];
+	uint32_t crc;
+
+	m_pInFile->SetPos(entry.StartOffset);
+	if (zUnpackData(m_pInFile.get(), entry.PackedSize, dest, nullptr, &crc))
+	{
+		return true;
+	}
+
 	return false;
 }
