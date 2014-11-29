@@ -3,6 +3,6 @@
 
 #include "modulecrt/Streams.h"
 
-bool zUnpackData(AStream* inStream, uint32_t packedSize, AStream* outStream, uint32_t *outSize);
+bool zUnpackData(AStream* inStream, uint32_t packedSize, AStream* outStream, uint32_t *outSize, uint32_t *outCrc32);
 
 #endif // Unpack_h__

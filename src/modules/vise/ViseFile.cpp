@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ViseFile.h"
+#include "Unpack.h"
 
 #define VISE_SIGNATURE "ESIV"
 
@@ -78,8 +79,17 @@ bool CViseFile::Open( const wchar_t* filePath )
 
 const ViseFileEntry& CViseFile::GetFileInfo( size_t index )
 {
-	//TODO: Unpack file if needed
-	return m_vFiles[index];
+	ViseFileEntry& entry = m_vFiles.at(index);
+	if (entry.PackedSize > 0 && entry.UnpackedSize == 0)
+	{
+		uint32_t unpackedSize = 0;
+		m_pInFile->SetPos(entry.StartOffset);
+		if (zUnpackData(m_pInFile.get(), entry.PackedSize, nullptr, &unpackedSize, nullptr))
+		{
+			entry.UnpackedSize = unpackedSize;
+		}
+	}
+	return entry;
 }
 
 bool CViseFile::ReadServiceFiles( std::shared_ptr<AStream> inStream )
