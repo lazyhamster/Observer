@@ -403,7 +403,7 @@ static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, c
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, const wchar_t* destPath, bool silent, int &doOverwrite, bool &skipOnError, ProgressContext* pctx)
+static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, wstring& destPath, bool silent, int &doOverwrite, bool &skipOnError, ProgressContext* pctx)
 {
 	if (!item || !storage || item->IsDir()) return FALSE;
 
@@ -455,7 +455,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	// Remove read-only attribute from target file if present
 	if (fAlreadyExists && (fdExistingFile.dwFileAttributes & FILE_ATTRIBUTE_READONLY))
 	{
-		SetFileAttributes(destPath, fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
+		SetFileAttributes(destPath.c_str(), fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 	}
 
 	HANDLE hScreen;
@@ -467,7 +467,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 		ExtractOperationParams params;
 		params.item = item->StorageIndex;
 		params.flags = 0;
-		params.destFilePath = destPath;
+		params.destFilePath = destPath.c_str();
 		params.callbacks.FileProgress = ExtractProgress;
 		params.callbacks.signalContext = pctx;
 
@@ -507,7 +507,7 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, con
 	// If extraction is successful set file attributes if present
 	if ((ret == SER_SUCCESS) && (item->Attributes != 0))
 	{
-		SetFileAttributes(destPath, item->Attributes);
+		SetFileAttributes(destPath.c_str(), item->Attributes);
 	}
 
 	return (ret == SER_SUCCESS);
@@ -876,7 +876,7 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	Info->HostFile = szHostFile;
 
 	// Fill info lines
-	static InfoPanelLine pInfoLinesData[8];
+	static InfoPanelLine pInfoLinesData[IL_LAST];
 	size_t nInfoTextSize = sizeof(pInfoLinesData[0].Text) / sizeof(pInfoLinesData[0].Text[0]);
 	size_t nInfoDataSize = sizeof(pInfoLinesData[0].Data) / sizeof(pInfoLinesData[0].Data[0]);
 
@@ -890,15 +890,19 @@ void WINAPI GetOpenPluginInfo(HANDLE hPlugin, struct OpenPluginInfo *Info)
 	strcpy_s(pInfoLinesData[IL_FORMAT].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FORMAT));
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->GeneralInfo.Format, wcslen(info->GeneralInfo.Format), pInfoLinesData[IL_FORMAT].Data, nInfoDataSize, NULL, NULL);
 
-	strcpy_s(pInfoLinesData[IL_SIZE].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
-	_i64toa_s(info->TotalSize(), pInfoLinesData[IL_SIZE].Data, nInfoDataSize, 10);
-	InsertCommas(pInfoLinesData[IL_SIZE].Data);
-	
 	strcpy_s(pInfoLinesData[IL_FILES].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_FILES));
 	_ultoa_s(info->NumFiles(), pInfoLinesData[IL_FILES].Data, nInfoDataSize, 10);
 
 	strcpy_s(pInfoLinesData[IL_DIRECTORIES].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_DIRS));
 	_ultoa_s(info->NumDirectories(), pInfoLinesData[IL_DIRECTORIES].Data, nInfoDataSize, 10);
+
+	strcpy_s(pInfoLinesData[IL_SIZE].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_SIZE));
+	_i64toa_s(info->TotalSize(), pInfoLinesData[IL_SIZE].Data, nInfoDataSize, 10);
+	InsertCommas(pInfoLinesData[IL_SIZE].Data);
+
+	strcpy_s(pInfoLinesData[IL_PACKED].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_PACKEDSIZE));
+	_i64toa_s(info->TotalPackedSize(), pInfoLinesData[IL_PACKED].Data, nInfoDataSize, 10);
+	InsertCommas(pInfoLinesData[IL_PACKED].Data);
 
 	strcpy_s(pInfoLinesData[IL_COMPRESS].Text, nInfoTextSize, GetLocMsg(MSG_INFOL_COMPRESSION));
 	WideCharToMultiByte(CP_FAR_INTERNAL, 0, info->GeneralInfo.Compression, wcslen(info->GeneralInfo.Compression), pInfoLinesData[IL_COMPRESS].Data, nInfoDataSize, NULL, NULL);
@@ -1029,7 +1033,7 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		}
 		else
 		{
-			nExtractResult = ExtractStorageItem(info, nextItem, strFullPath.c_str(), extrParams.bSilent, doOverwrite, skipOnError, &pctx);
+			nExtractResult = ExtractStorageItem(info, nextItem, strFullPath, extrParams.bSilent, doOverwrite, skipOnError, &pctx);
 		}
 
 		if (!nExtractResult) break;

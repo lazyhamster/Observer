@@ -1114,7 +1114,7 @@ void WINAPI GetOpenPluginInfoW(HANDLE hPlugin, struct OpenPluginInfo *Info)
 		wcscpy_s(wszStorageCreatedInfo, 32, L"-");
 	
 	// Fill info lines
-	static InfoPanelLine pInfoLinesData[8];
+	static InfoPanelLine pInfoLinesData[IL_LAST];
 	memset(pInfoLinesData, 0, sizeof(pInfoLinesData));
 
 	pInfoLinesData[0].Text = ExtractFileName(info->StoragePath());
