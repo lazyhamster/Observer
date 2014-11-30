@@ -28,6 +28,8 @@ struct StorageOpenParams
 {
 	const wchar_t* FilePath;
 	const char* Password;
+	const void* Data;
+	size_t DataSize;
 };
 
 struct StorageItemInfo
