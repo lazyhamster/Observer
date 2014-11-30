@@ -138,6 +138,8 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 	StorageOpenParams openParams = {0};
 	openParams.FilePath = srcParams.path;
 	openParams.Password = srcParams.password;
+	openParams.Data = srcParams.dataBuffer;
+	openParams.DataSize = srcParams.dataSize;
 	
 	*moduleIndex = -1;
 	for (size_t i = 0; i < modules.size(); i++)

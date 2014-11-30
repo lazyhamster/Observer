@@ -38,6 +38,7 @@ public:
 	~StorageObject();
 
 	bool Open(const wchar_t* path, bool applyExtFilters, int openWithModule);
+	bool Open(const wchar_t* path, const void* data, size_t dataSize, bool applyExtFilters, int openWithModule);
 	int ReadFileList(bool &aborted);
 	void Close();
 

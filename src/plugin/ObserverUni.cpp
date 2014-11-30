@@ -243,10 +243,10 @@ void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 
 //-----------------------------------  Content functions ----------------------------------------
 
-static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleIndex)
+static HANDLE OpenStorage(const wchar_t* path, const void* data, size_t dataSize, bool applyExtFilters, int moduleIndex)
 {
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
-	if (!storage->Open(Name, applyExtFilters, moduleIndex))
+	if (!storage->Open(path, data, dataSize, applyExtFilters, moduleIndex))
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;
@@ -935,7 +935,7 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 		}
 	}
 
-	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
+	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), nullptr, 0, false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
 
 	if ( (hOpenResult != INVALID_HANDLE_VALUE) && (strSubPath.size() > 0) )
 		SetDirectoryW(hOpenResult, strSubPath.c_str(), 0);
@@ -948,8 +948,7 @@ HANDLE WINAPI OpenFilePluginW(const wchar_t *Name, const unsigned char *Data, in
 	if (!Name || !optEnabled)
 		return INVALID_HANDLE_VALUE;
 
-	HANDLE hOpenResult = OpenStorage(Name, optUseExtensionFilters != 0, -1);
-	return hOpenResult;
+	return OpenStorage(Name, Data, DataSize, optUseExtensionFilters != 0, -1);
 }
 
 int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int *pItemsNumber, int OpMode)

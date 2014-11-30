@@ -174,11 +174,11 @@ static void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 
 //-----------------------------------  Content functions ----------------------------------------
 
-static int AnalizeStorage(const wchar_t* Name, bool applyExtFilters)
+static int AnalizeStorage(const wchar_t* Name, bool applyExtFilters, void* startBuffer, size_t startBufferSize)
 {
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
 	
-	bool openOk = storage->Open(Name, applyExtFilters, -1);
+	bool openOk = storage->Open(Name, startBuffer, startBufferSize, applyExtFilters, -1);
 	int retVal = openOk ? storage->GetModuleIndex() : -1;
 
 	delete storage;
@@ -815,7 +815,7 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* AInfo)
 	if (!AInfo || !optEnabled || !AInfo->FileName)
 		return nullptr;
 
-	int nAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0);
+	int nAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0, AInfo->Buffer, AInfo->BufferSize);
 	// Do not forget to decrease value by 1 in OpenW
 	return (nAnalizeResult >= 0) ? (HANDLE)(nAnalizeResult + 1) : nullptr;
 }

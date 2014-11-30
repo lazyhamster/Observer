@@ -30,6 +30,11 @@ StorageObject::~StorageObject()
 
 bool StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWithModule )
 {
+	return Open(path, nullptr, 0, applyExtFilters, openWithModule);
+}
+
+bool StorageObject::Open( const wchar_t* path, const void* data, size_t dataSize, bool applyExtFilters, int openWithModule )
+{
 	Close();
 	
 	int moduleIndex = 0;
@@ -40,6 +45,8 @@ bool StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWit
 	srcParams.path = path;
 	srcParams.applyExtFilters = applyExtFilters;
 	srcParams.openWithModule = openWithModule;
+	srcParams.dataBuffer = data;
+	srcParams.dataSize = dataSize;
 	
 	int retVal = m_pModules->OpenStorageFile(srcParams, &moduleIndex, &storagePtr, &GeneralInfo);
 	

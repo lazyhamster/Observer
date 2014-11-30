@@ -46,6 +46,8 @@ struct OpenStorageFileInParams
 	const char* password;
 	bool applyExtFilters;
 	int openWithModule;  // set -1 to poll all modules
+	const void* dataBuffer;
+	size_t dataSize;
 };
 
 struct FailedModuleInfo 
