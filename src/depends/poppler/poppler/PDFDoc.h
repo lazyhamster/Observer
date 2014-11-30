@@ -298,7 +298,7 @@ private:
   void init();
   GBool setup(GooString *ownerPassword, GooString *userPassword);
   GBool checkFooter();
-  void checkHeader();
+  GBool checkHeader();
   GBool checkEncryption(GooString *ownerPassword, GooString *userPassword);
   // Get the offset of the start xref table.
   Goffset getStartXRef();

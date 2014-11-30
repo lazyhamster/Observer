@@ -1,0 +1,54 @@
+diff --git a/src/depends/poppler/poppler/PDFDoc.cc b/src/depends/poppler/poppler/PDFDoc.cc
+index 77a25ec..09977eb 100644
+--- a/src/depends/poppler/poppler/PDFDoc.cc
++++ b/src/depends/poppler/poppler/PDFDoc.cc
+@@ -254,7 +254,7 @@ GBool PDFDoc::setup(GooString *ownerPassword, GooString *userPassword) {
+ //  if (!checkFooter()) return gFalse;
+   
+   // check header
+-  checkHeader();
++  if (!checkHeader()) return gFalse;
+ 
+   GBool wasReconstructed = false;
+ 
+@@ -379,7 +379,7 @@ GBool PDFDoc::checkFooter() {
+   
+ // Check for a PDF header on this stream.  Skip past some garbage
+ // if necessary.
+-void PDFDoc::checkHeader() {
++GBool PDFDoc::checkHeader() {
+   char hdrBuf[headerSearchSize+1];
+   char *p;
+   char *tokptr;
+@@ -398,15 +398,16 @@ void PDFDoc::checkHeader() {
+   }
+   if (i >= headerSearchSize - 5) {
+     error(errSyntaxWarning, -1, "May not be a PDF file (continuing anyway)");
+-    return;
++    return gFalse;
+   }
+   str->moveStart(i);
+   if (!(p = strtok_r(&hdrBuf[i+5], " \t\n\r", &tokptr))) {
+     error(errSyntaxWarning, -1, "May not be a PDF file (continuing anyway)");
+-    return;
++    return gFalse;
+   }
+   sscanf(p, "%d.%d", &pdfMajorVersion, &pdfMinorVersion);
+   // We don't do the version check. Don't add it back in.
++  return gTrue;
+ }
+ 
+ GBool PDFDoc::checkEncryption(GooString *ownerPassword, GooString *userPassword) {
+diff --git a/src/depends/poppler/poppler/PDFDoc.h b/src/depends/poppler/poppler/PDFDoc.h
+index 0b4bb0c..ab75675 100644
+--- a/src/depends/poppler/poppler/PDFDoc.h
++++ b/src/depends/poppler/poppler/PDFDoc.h
+@@ -298,7 +298,7 @@ private:
+   void init();
+   GBool setup(GooString *ownerPassword, GooString *userPassword);
+   GBool checkFooter();
+-  void checkHeader();
++  GBool checkHeader();
+   GBool checkEncryption(GooString *ownerPassword, GooString *userPassword);
+   // Get the offset of the start xref table.
+   Goffset getStartXRef();
