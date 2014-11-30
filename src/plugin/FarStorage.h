@@ -37,7 +37,7 @@ public:
 	StorageObject(ModulesController *modules, PasswordQueryCallbackFunc PassCallback);
 	~StorageObject();
 
-	int Open(const wchar_t* path, bool applyExtFilters, int openWithModule);
+	bool Open(const wchar_t* path, bool applyExtFilters, int openWithModule);
 	int ReadFileList(bool &aborted);
 	void Close();
 
@@ -46,6 +46,7 @@ public:
 
 	ContentTreeNode* CurrentDir() const { return m_pCurrentDir; }
 	const wchar_t* GetModuleName() const { return (m_nModuleIndex >= 0) ? m_pModules->GetModule(m_nModuleIndex).Name() : NULL; }
+	int GetModuleIndex() const { return m_nModuleIndex; }
 	const wchar_t* StoragePath() const { return m_wszStoragePath; }
 	__int64 TotalSize() const { return m_nTotalSize; }
 	__int64 TotalPackedSize() const { return m_nTotalPackedSize; }

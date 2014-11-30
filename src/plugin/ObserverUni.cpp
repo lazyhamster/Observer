@@ -246,7 +246,7 @@ void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleIndex)
 {
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
-	if (storage->Open(Name, applyExtFilters, moduleIndex) != SOR_SUCCESS)
+	if (!storage->Open(Name, applyExtFilters, moduleIndex))
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;

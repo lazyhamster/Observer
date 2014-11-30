@@ -174,19 +174,21 @@ static void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 
 //-----------------------------------  Content functions ----------------------------------------
 
-static bool AnalizeStorage(const wchar_t* Name, bool applyExtFilters)
+static int AnalizeStorage(const wchar_t* Name, bool applyExtFilters)
 {
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
-	int openVal = storage->Open(Name, applyExtFilters, -1);
-	delete storage;
+	
+	bool openOk = storage->Open(Name, applyExtFilters, -1);
+	int retVal = openOk ? storage->GetModuleIndex() : -1;
 
-	return (openVal == SOR_SUCCESS);
+	delete storage;
+	return retVal;
 }
 
 static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleIndex)
 {
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
-	if (storage->Open(Name, applyExtFilters, moduleIndex) != SOR_SUCCESS)
+	if (!storage->Open(Name, applyExtFilters, moduleIndex))
 	{
 		delete storage;
 		return INVALID_HANDLE_VALUE;
@@ -813,8 +815,9 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* AInfo)
 	if (!AInfo || !optEnabled || !AInfo->FileName)
 		return nullptr;
 
-	bool fAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0);
-	return fAnalizeResult ? (HANDLE)1 : nullptr;
+	int nAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0);
+	// Do not forget to decrease value by 1 in OpenW
+	return (nAnalizeResult >= 0) ? (HANDLE)(nAnalizeResult + 1) : nullptr;
 }
 
 void WINAPI CloseAnalyseW(const CloseAnalyseInfo* info)
@@ -880,6 +883,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	{
 		const OpenAnalyseInfo* AInfo = (const OpenAnalyseInfo*) OInfo->Data;
 		strFullSourcePath = AInfo->Info->FileName;
+		nOpenModuleIndex = (int) AInfo->Handle - 1;
 	}
 	else if (OInfo->OpenFrom == OPEN_SHORTCUT)
 	{

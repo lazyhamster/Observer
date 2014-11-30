@@ -28,7 +28,7 @@ StorageObject::~StorageObject()
 	Close();
 }
 
-int StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWithModule )
+bool StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWithModule )
 {
 	Close();
 	
@@ -62,9 +62,11 @@ int StorageObject::Open( const wchar_t* path, bool applyExtFilters, int openWith
 		
 		m_pRootDir = new ContentTreeNode();
 		m_pCurrentDir = NULL;
+
+		return true;
 	}
 
-	return retVal;
+	return false;
 }
 
 void StorageObject::Close()
