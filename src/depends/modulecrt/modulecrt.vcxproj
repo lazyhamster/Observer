@@ -53,9 +53,6 @@
   <ItemGroup>
     <ClCompile Include="OptionsParser.cpp" />
     <ClCompile Include="PEHelper.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
     <ClCompile Include="Streams.cpp" />
   </ItemGroup>
   <ItemGroup>
