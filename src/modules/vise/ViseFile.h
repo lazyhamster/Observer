@@ -29,6 +29,7 @@ private:
 	std::shared_ptr<AStream> m_pInFile;
 	int64_t m_nDataStartOffset;
 	std::vector<ViseFileEntry> m_vFiles;
+	int64_t m_nScriptStartOffset;
 
 	bool ReadServiceFiles(std::shared_ptr<AStream> inStream);
 	bool ReadViseData1(std::shared_ptr<AStream> inStream);

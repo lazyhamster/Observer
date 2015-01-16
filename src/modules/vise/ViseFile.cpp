@@ -8,8 +8,7 @@
 
 CViseFile::CViseFile()
 {
-	m_pInFile = nullptr;
-	m_nDataStartOffset = 0;
+	Close();
 }
 
 CViseFile::~CViseFile()
@@ -22,6 +21,8 @@ void CViseFile::Close()
 	m_pInFile.reset();
 	m_sLocation.clear();
 	m_nDataStartOffset = 0;
+	m_nScriptStartOffset = 0;
+	m_vFiles.clear();
 }
 
 bool CViseFile::Open( const wchar_t* filePath )
@@ -161,6 +162,7 @@ bool CViseFile::ReadViseData1( std::shared_ptr<AStream> inStream )
 
 	for (int j = 0; j < numValues; j++)
 	{
+		// This value is not stable
 		inStream->Seek(103, STREAM_CURRENT);
 		RFIF(ReadViseString(inStream, strTmpBuf));
 		inStream->Seek(14, STREAM_CURRENT);
@@ -206,14 +208,181 @@ bool CViseFile::ReadViseString( std::shared_ptr<AStream> inStream, char* strBuf 
 	if (strSize > 0)
 	{
 		RFIF(inStream->ReadBuffer(strBuf, strSize));
-		strBuf[strSize] = '\0';
 	}
+	strBuf[strSize] = '\0';
 
 	return true;
 }
 
 bool CViseFile::ReadViseScript( std::shared_ptr<AStream> inStream )
 {
+	uint16_t setupTypeCount;
+	char strSetupType[256];
+	char strTmp[1024];
+
+	m_nScriptStartOffset = inStream->GetPos();
+
+	RFIF(inStream->Read(&setupTypeCount));
+	for (uint16_t i = 0; i < setupTypeCount; i++)
+	{
+		uint32_t typeIndex;
+		
+		RFIF(ReadViseString(inStream, strSetupType));
+		RFIF(inStream->Seek(2, STREAM_CURRENT));
+		RFIF(ReadViseString(inStream, strTmp));
+		inStream->Seek(34, STREAM_CURRENT);
+		RFIF(inStream->Read(&typeIndex));
+		inStream->Seek(40, STREAM_CURRENT);
+		// Magic numbers are not stable
+	}
+
+	uint32_t objectCount;
+	uint16_t objectType;
+	
+	char filename[MAX_PATH];
+	char directory[MAX_PATH];
+	uint32_t originalSize, packedSize, offset;
+
+	RFIF(inStream->Read(&objectCount));
+	for (uint32_t i = 0; i < objectCount; i++)
+	{
+		RFIF(inStream->Read(&objectType));
+
+		switch (objectType)
+		{
+			case 0x02:
+				{
+					RFIF(inStream->Seek(0x65, STREAM_CURRENT));
+					RFIF(ReadViseString(inStream, filename));
+					RFIF(inStream->Seek(4, STREAM_CURRENT));  // cam be FatTime and FatDate, 2 bytes each
+					RFIF(inStream->Read(&originalSize));
+					RFIF(inStream->Read(&packedSize));
+					RFIF(inStream->Seek(4, STREAM_CURRENT));
+					RFIF(inStream->Read(&offset));
+					RFIF(inStream->Seek(0x25, STREAM_CURRENT));
+					RFIF(ReadViseString(inStream, directory));
+					RFIF(inStream->Seek(0x28, STREAM_CURRENT));
+
+					ViseFileEntry fe;
+					fe.Name = directory;
+					fe.PackedSize = packedSize;
+					fe.UnpackedSize = originalSize;
+					fe.StartOffset = offset;
+
+					m_vFiles.push_back(fe);
+				}
+				break;
+			case 0x05:
+				{
+					int8_t unknown;
+
+					RFIF(inStream->Seek(0x66, STREAM_CURRENT));
+					RFIF(ReadViseString(inStream, strTmp));
+
+					RFIF(inStream->Read(&unknown));
+					if (2 != unknown)
+					{
+						return false;
+					}
+
+					for (int j = 0; j < 3; j++)
+					{
+						RFIF(ReadViseString(inStream, strTmp));
+					}
+
+					RFIF(inStream->Seek(0x5, STREAM_CURRENT));
+				}
+				break;
+			case 0x10:
+				{
+					int8_t unknown;
+
+					RFIF(inStream->Seek(0x66, STREAM_CURRENT));
+										
+					RFIF(ReadViseString(inStream, strTmp)); // key
+					RFIF(inStream->Read(&unknown));
+					if (unknown)
+					{
+						return false;
+					}
+					RFIF(ReadViseString(inStream, strTmp)); // value
+
+					RFIF(inStream->Seek(0x7, STREAM_CURRENT));
+				}
+				break;
+			case 0x11:
+				{
+					RFIF(inStream->Seek(0x65, STREAM_CURRENT));
+					for (int j = 0; j < 2; j++)
+					{
+						RFIF(ReadViseString(inStream, strTmp));
+					}
+					RFIF(inStream->Seek(0x5, STREAM_CURRENT));
+				}
+				break;
+			case 0x1f:
+				RFIF(inStream->Seek(0x65, STREAM_CURRENT));
+				break;
+			case 0x24:
+				{
+					int string_count = -1;
+					int8_t values[6];
+
+					RFIF(inStream->Seek(0x65, STREAM_CURRENT));
+					RFIF(inStream->ReadBuffer(values, sizeof(values)));
+
+					switch (values[0])
+					{
+						case 1+2:
+							switch (values[4])
+							{
+							case 0:
+								string_count = 5;
+								break;
+							case 1:
+								string_count = 1;
+								break;
+							default:
+								return false;
+							}
+							break;
+
+						case 2+4:
+							string_count = 3;
+							break;
+
+						case 1+8:
+							string_count = 6;
+							break;
+
+						case 1+4+8:
+							string_count = 1;
+							break;
+
+						case 16:
+							/* this is not correct */
+							string_count = 1;
+							break;
+
+						default:
+							return false;
+					}
+
+					for (int j = 0; j < string_count; j++)
+					{
+						RFIF(ReadViseString(inStream, strTmp));
+					}
+				}
+				break;
+			case 0x25:
+				RFIF(inStream->Seek(0x67, STREAM_CURRENT));
+				break;
+			default:
+				// Unknown object type
+				return false;
+		}
+	}
+	
 	return true;
 }
 
