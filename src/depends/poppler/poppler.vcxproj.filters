@@ -1,0 +1,504 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source Files\poppler">
+      <UniqueIdentifier>{e4b4282a-60e3-48ce-825b-1b660225a71b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\fofi">
+      <UniqueIdentifier>{39f6ff7b-c866-43f1-88e3-05cff305c126}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\goo">
+      <UniqueIdentifier>{cf60cb19-f9b4-4688-b29a-97708d335611}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\utils">
+      <UniqueIdentifier>{cc2a5388-44c4-45ec-85b4-49a83bce25e6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\fofi">
+      <UniqueIdentifier>{76b54e47-c79f-4c82-9d08-19eb5cb009cd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\goo">
+      <UniqueIdentifier>{58c8eef2-16ee-49ef-bc9a-fe7d4767574c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\poppler">
+      <UniqueIdentifier>{942d95c4-c5cf-4a83-ba8c-0d90b4a69865}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\utils">
+      <UniqueIdentifier>{7a922ccc-056d-40ba-9474-9d9948005f2f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="poppler\Annot.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Array.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\BuiltinFont.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\BuiltinFontTables.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\CachedFile.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Catalog.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\CharCodeToUnicode.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\CMap.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\DateInfo.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Decrypt.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Dict.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Error.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\FileSpec.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\FlateStream.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\FontEncodingTables.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Form.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Function.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Gfx.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\GfxFont.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\GfxState.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\GlobalParams.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Hints.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\JArithmeticDecoder.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\JBIG2Stream.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\JPXStream.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Lexer.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Linearization.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Link.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\MarkedContentOutputDev.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Movie.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\NameToCharCode.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Object.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\OptionalContent.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Outline.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\OutputDev.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Page.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\PageLabelInfo.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Parser.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\PDFDoc.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\PDFDocEncoding.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\PopplerCache.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\ProfileData.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\PSTokenizer.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Rendition.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\SecurityHandler.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Sound.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\Stream.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\StructElement.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\StructTreeRoot.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\UnicodeMap.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\UnicodeTypeTable.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\UTF.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\ViewerPreferences.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\XRef.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiBase.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiEncodings.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiIdentifier.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiTrueType.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiType1.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiType1C.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\gfile.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\gmem.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\GooHash.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\GooList.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\GooString.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\GooTimer.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\grandom.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\gstrtod.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\JSInfo.cc">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="utils\JSInfo.h">
+      <Filter>Header Files\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\gfile.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\gmem.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooHash.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooLikely.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooList.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooMutex.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooString.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooTimer.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\grandom.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\gstrtod.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\gtypes.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="fofi\FoFiBase.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="fofi\FoFiEncodings.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="fofi\FoFiIdentifier.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="fofi\FoFiTrueType.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="fofi\FoFiType1.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="fofi\FoFiType1C.h">
+      <Filter>Header Files\fofi</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Annot.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Array.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\BuiltinFont.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\BuiltinFontTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\CachedFile.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Catalog.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\CharCodeToUnicode.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\CharTypes.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\CMap.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\DateInfo.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Decrypt.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Dict.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Error.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\ErrorCodes.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\FileSpec.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\FlateStream.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\FontEncodingTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Form.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Function.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Gfx.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\GfxFont.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\GfxState.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\GfxState_helpers.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\GlobalParams.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Hints.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\JArithmeticDecoder.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\JBIG2Stream.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\JPXStream.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Lexer.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Linearization.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Link.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\MarkedContentOutputDev.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Movie.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\NameToCharCode.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\NameToUnicodeTable.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Object.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\OptionalContent.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Outline.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\OutputDev.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Page.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PageLabelInfo.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PageLabelInfo_p.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Parser.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PDFDoc.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PDFDocEncoding.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PopplerCache.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\ProfileData.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PSTokenizer.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Rendition.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\SecurityHandler.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Sound.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Stream.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\Stream-CCITT.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\StructElement.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\StructTreeRoot.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\TextOutputDev.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\UnicodeCClassTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\UnicodeCompTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\UnicodeDecompTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\UnicodeMap.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\UnicodeMapTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\UnicodeTypeTable.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\UTF.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\UTF8.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\ViewerPreferences.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\XRef.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

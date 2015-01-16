@@ -50,64 +50,221 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="fofi\FoFiBase.cc" />
+    <ClCompile Include="fofi\FoFiEncodings.cc" />
+    <ClCompile Include="fofi\FoFiIdentifier.cc" />
+    <ClCompile Include="fofi\FoFiTrueType.cc" />
+    <ClCompile Include="fofi\FoFiType1.cc" />
+    <ClCompile Include="fofi\FoFiType1C.cc" />
+    <ClCompile Include="goo\gfile.cc" />
+    <ClCompile Include="goo\gmem.cc" />
+    <ClCompile Include="goo\GooHash.cc" />
+    <ClCompile Include="goo\GooList.cc" />
+    <ClCompile Include="goo\GooString.cc" />
+    <ClCompile Include="goo\GooTimer.cc" />
+    <ClCompile Include="goo\grandom.cc" />
+    <ClCompile Include="goo\gstrtod.cc" />
+    <ClCompile Include="poppler\Annot.cc" />
+    <ClCompile Include="poppler\Array.cc" />
+    <ClCompile Include="poppler\BuiltinFont.cc" />
+    <ClCompile Include="poppler\BuiltinFontTables.cc" />
+    <ClCompile Include="poppler\CachedFile.cc" />
+    <ClCompile Include="poppler\Catalog.cc" />
+    <ClCompile Include="poppler\CharCodeToUnicode.cc" />
+    <ClCompile Include="poppler\CMap.cc" />
+    <ClCompile Include="poppler\DateInfo.cc" />
+    <ClCompile Include="poppler\Decrypt.cc" />
+    <ClCompile Include="poppler\Dict.cc" />
+    <ClCompile Include="poppler\Error.cc" />
+    <ClCompile Include="poppler\FileSpec.cc" />
+    <ClCompile Include="poppler\FlateStream.cc" />
+    <ClCompile Include="poppler\FontEncodingTables.cc" />
+    <ClCompile Include="poppler\Form.cc" />
+    <ClCompile Include="poppler\Function.cc" />
+    <ClCompile Include="poppler\Gfx.cc" />
+    <ClCompile Include="poppler\GfxFont.cc" />
+    <ClCompile Include="poppler\GfxState.cc" />
+    <ClCompile Include="poppler\GlobalParams.cc" />
+    <ClCompile Include="poppler\Hints.cc" />
+    <ClCompile Include="poppler\JArithmeticDecoder.cc" />
+    <ClCompile Include="poppler\JBIG2Stream.cc" />
+    <ClCompile Include="poppler\JPXStream.cc" />
+    <ClCompile Include="poppler\Lexer.cc" />
+    <ClCompile Include="poppler\Linearization.cc" />
+    <ClCompile Include="poppler\Link.cc" />
+    <ClCompile Include="poppler\MarkedContentOutputDev.cc" />
+    <ClCompile Include="poppler\Movie.cc" />
+    <ClCompile Include="poppler\NameToCharCode.cc" />
+    <ClCompile Include="poppler\Object.cc" />
+    <ClCompile Include="poppler\OptionalContent.cc" />
+    <ClCompile Include="poppler\Outline.cc" />
+    <ClCompile Include="poppler\OutputDev.cc" />
+    <ClCompile Include="poppler\Page.cc" />
+    <ClCompile Include="poppler\PageLabelInfo.cc" />
+    <ClCompile Include="poppler\Parser.cc" />
+    <ClCompile Include="poppler\PDFDoc.cc" />
+    <ClCompile Include="poppler\PDFDocEncoding.cc" />
+    <ClCompile Include="poppler\PopplerCache.cc" />
+    <ClCompile Include="poppler\ProfileData.cc" />
+    <ClCompile Include="poppler\PSTokenizer.cc" />
+    <ClCompile Include="poppler\Rendition.cc" />
+    <ClCompile Include="poppler\SecurityHandler.cc" />
+    <ClCompile Include="poppler\Sound.cc" />
+    <ClCompile Include="poppler\Stream.cc" />
+    <ClCompile Include="poppler\StructElement.cc" />
+    <ClCompile Include="poppler\StructTreeRoot.cc" />
+    <ClCompile Include="poppler\UnicodeMap.cc" />
+    <ClCompile Include="poppler\UnicodeTypeTable.cc" />
+    <ClCompile Include="poppler\UTF.cc" />
+    <ClCompile Include="poppler\ViewerPreferences.cc" />
+    <ClCompile Include="poppler\XRef.cc" />
+    <ClCompile Include="utils\JSInfo.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="fofi\FoFiBase.h" />
+    <ClInclude Include="fofi\FoFiEncodings.h" />
+    <ClInclude Include="fofi\FoFiIdentifier.h" />
+    <ClInclude Include="fofi\FoFiTrueType.h" />
+    <ClInclude Include="fofi\FoFiType1.h" />
+    <ClInclude Include="fofi\FoFiType1C.h" />
+    <ClInclude Include="goo\gfile.h" />
+    <ClInclude Include="goo\gmem.h" />
+    <ClInclude Include="goo\GooHash.h" />
+    <ClInclude Include="goo\GooLikely.h" />
+    <ClInclude Include="goo\GooList.h" />
+    <ClInclude Include="goo\GooMutex.h" />
+    <ClInclude Include="goo\GooString.h" />
+    <ClInclude Include="goo\GooTimer.h" />
+    <ClInclude Include="goo\grandom.h" />
+    <ClInclude Include="goo\gstrtod.h" />
+    <ClInclude Include="goo\gtypes.h" />
+    <ClInclude Include="poppler\Annot.h" />
+    <ClInclude Include="poppler\Array.h" />
+    <ClInclude Include="poppler\BuiltinFont.h" />
+    <ClInclude Include="poppler\BuiltinFontTables.h" />
+    <ClInclude Include="poppler\CachedFile.h" />
+    <ClInclude Include="poppler\Catalog.h" />
+    <ClInclude Include="poppler\CharCodeToUnicode.h" />
+    <ClInclude Include="poppler\CharTypes.h" />
+    <ClInclude Include="poppler\CMap.h" />
+    <ClInclude Include="poppler\DateInfo.h" />
+    <ClInclude Include="poppler\Decrypt.h" />
+    <ClInclude Include="poppler\Dict.h" />
+    <ClInclude Include="poppler\Error.h" />
+    <ClInclude Include="poppler\ErrorCodes.h" />
+    <ClInclude Include="poppler\FileSpec.h" />
+    <ClInclude Include="poppler\FlateStream.h" />
+    <ClInclude Include="poppler\FontEncodingTables.h" />
+    <ClInclude Include="poppler\Form.h" />
+    <ClInclude Include="poppler\Function.h" />
+    <ClInclude Include="poppler\Gfx.h" />
+    <ClInclude Include="poppler\GfxFont.h" />
+    <ClInclude Include="poppler\GfxState.h" />
+    <ClInclude Include="poppler\GfxState_helpers.h" />
+    <ClInclude Include="poppler\GlobalParams.h" />
+    <ClInclude Include="poppler\Hints.h" />
+    <ClInclude Include="poppler\JArithmeticDecoder.h" />
+    <ClInclude Include="poppler\JBIG2Stream.h" />
+    <ClInclude Include="poppler\JPXStream.h" />
+    <ClInclude Include="poppler\Lexer.h" />
+    <ClInclude Include="poppler\Linearization.h" />
+    <ClInclude Include="poppler\Link.h" />
+    <ClInclude Include="poppler\MarkedContentOutputDev.h" />
+    <ClInclude Include="poppler\Movie.h" />
+    <ClInclude Include="poppler\NameToCharCode.h" />
+    <ClInclude Include="poppler\NameToUnicodeTable.h" />
+    <ClInclude Include="poppler\Object.h" />
+    <ClInclude Include="poppler\OptionalContent.h" />
+    <ClInclude Include="poppler\Outline.h" />
+    <ClInclude Include="poppler\OutputDev.h" />
+    <ClInclude Include="poppler\Page.h" />
+    <ClInclude Include="poppler\PageLabelInfo.h" />
+    <ClInclude Include="poppler\PageLabelInfo_p.h" />
+    <ClInclude Include="poppler\Parser.h" />
+    <ClInclude Include="poppler\PDFDoc.h" />
+    <ClInclude Include="poppler\PDFDocEncoding.h" />
+    <ClInclude Include="poppler\PopplerCache.h" />
+    <ClInclude Include="poppler\ProfileData.h" />
+    <ClInclude Include="poppler\PSTokenizer.h" />
+    <ClInclude Include="poppler\Rendition.h" />
+    <ClInclude Include="poppler\SecurityHandler.h" />
+    <ClInclude Include="poppler\Sound.h" />
+    <ClInclude Include="poppler\Stream-CCITT.h" />
+    <ClInclude Include="poppler\Stream.h" />
+    <ClInclude Include="poppler\StructElement.h" />
+    <ClInclude Include="poppler\StructTreeRoot.h" />
+    <ClInclude Include="poppler\TextOutputDev.h" />
+    <ClInclude Include="poppler\UnicodeCClassTables.h" />
+    <ClInclude Include="poppler\UnicodeCompTables.h" />
+    <ClInclude Include="poppler\UnicodeDecompTables.h" />
+    <ClInclude Include="poppler\UnicodeMap.h" />
+    <ClInclude Include="poppler\UnicodeMapTables.h" />
+    <ClInclude Include="poppler\UnicodeTypeTable.h" />
+    <ClInclude Include="poppler\UTF.h" />
+    <ClInclude Include="poppler\UTF8.h" />
+    <ClInclude Include="poppler\ViewerPreferences.h" />
+    <ClInclude Include="poppler\XRef.h" />
+    <ClInclude Include="utils\JSInfo.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{823E5DCD-8385-48F1-8225-EF9F6BF137FC}</ProjectGuid>
-    <RootNamespace>pdf</RootNamespace>
+    <ProjectGuid>{A9013E8A-A631-4CC5-8EE6-1099A667D157}</ProjectGuid>
+    <RootNamespace>poppler</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
-    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -164,42 +321,30 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(FAR_DBG)\Observer\modules\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\bin\$(Configuration)\modules\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Platform)\$(Configuration)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(FAR2_DBG)\Observer\modules\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(FAR3_DBG)\Observer\modules\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(FAR2_DBG)\Observer\modules\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(FAR2_DBG)\Observer\modules\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(SolutionDir)..\bin\$(Configuration)\modules\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(SolutionDir)..\bin\$(Configuration)\modules\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">false</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">false</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(SolutionDir)..\bin\$(Configuration)-$(Platform)\modules\</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(SolutionDir)..\bin\$(Configuration)-$(Platform)\modules\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">false</LinkIncremental>
-    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">false</LinkIncremental>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'" />
@@ -236,40 +381,21 @@
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">.so</TargetExt>
-    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.so</TargetExt>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Midl>
@@ -277,48 +403,32 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Midl>
@@ -327,69 +437,45 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">
     <Midl>
@@ -397,24 +483,17 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">
     <Midl>
@@ -422,72 +501,47 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX86</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">
     <Midl>
@@ -496,25 +550,16 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">
     <Midl>
@@ -523,98 +568,17 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..\..\common\;..\..\depends\zlib\;..\..\depends\poppler\;..\..\depends\poppler\goo\;..\..\depends\poppler\poppler\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;PDF_EXPORTS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
-      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>.;.\poppler;.\goo;..\zlib;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4244;4996;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
-    <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
-      <ModuleDefinitionFile>pdf.def</ModuleDefinitionFile>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
-      <SubSystem>Windows</SubSystem>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
-      <TargetMachine>MachineX64</TargetMachine>
-    </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">false</CompileAsManaged>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">false</CompileAsManaged>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">false</CompileAsManaged>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">
-      </PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">false</CompileAsManaged>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</CompileAsManaged>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-      </PrecompiledHeader>
-      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</CompileAsManaged>
-    </ClCompile>
-    <ClCompile Include="PdfInfo.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="pdf.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="pdf.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="PdfInfo.h" />
-    <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\depends\poppler\poppler.vcxproj">
-      <Project>{a9013e8a-a631-4cc5-8ee6-1099a667d157}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
-      <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
