@@ -64,7 +64,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{CEBDD3F1-0D8A-4D3C-B5A9-1FDF98B8507F}</ProjectGuid>
-    <RootNamespace>gmime</RootNamespace>
+    <RootNamespace>modulecrt</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
