@@ -52,9 +52,19 @@ struct ExtractOperationParams
 };
 
 typedef int (MODULE_EXPORT *OpenStorageFunc)(StorageOpenParams, HANDLE*, StorageGeneralInfo*);
+typedef int (MODULE_EXPORT *PrepareFilesFunc)(HANDLE);
 typedef void (MODULE_EXPORT *CloseStorageFunc)(HANDLE);
 typedef int (MODULE_EXPORT *GetItemFunc)(HANDLE, int, StorageItemInfo*);
 typedef int (MODULE_EXPORT *ExtractFunc)(HANDLE, ExtractOperationParams params);
+
+struct module_cbs
+{
+	OpenStorageFunc OpenStorage;
+	CloseStorageFunc CloseStorage;
+	GetItemFunc GetItem;
+	ExtractFunc ExtractItem;
+	PrepareFilesFunc PrepareFiles;
+};
 
 struct ModuleLoadParameters
 {
@@ -63,10 +73,7 @@ struct ModuleLoadParameters
 	//OUT
 	DWORD ModuleVersion;
 	DWORD ApiVersion;
-	OpenStorageFunc OpenStorage;
-	CloseStorageFunc CloseStorage;
-	GetItemFunc GetItem;
-	ExtractFunc ExtractItem;
+	module_cbs ApiFuncs;
 };
 
 // Function that should be exported from modules

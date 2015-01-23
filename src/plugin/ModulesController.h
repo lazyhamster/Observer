@@ -9,12 +9,9 @@ struct ExternalModule
 	ExternalModule(const wchar_t* Name, const wchar_t* Library)
 		: m_sModuleName(Name), m_sLibraryFile(Library), ModuleHandle(0), ModuleVersion(0)
 	{
-		LoadModule = NULL;
-		UnloadModule = NULL;
-		OpenStorage = NULL;
-		CloseStorage = NULL;
-		GetNextItem = NULL;
-		Extract = NULL;
+		LoadModule = nullptr;
+		UnloadModule = nullptr;
+		memset(&ModuleFunctions, 0, sizeof(ModuleFunctions));
 		ShortCut = '\0';
 	}
 	
@@ -25,10 +22,7 @@ struct ExternalModule
 	UnloadSubModuleFunc UnloadModule;
 
 	DWORD ModuleVersion;
-	OpenStorageFunc OpenStorage;
-	CloseStorageFunc CloseStorage;
-	GetItemFunc GetNextItem;
-	ExtractFunc Extract;
+	module_cbs ModuleFunctions;
 
 	wchar_t ShortCut;
 
@@ -62,6 +56,7 @@ private:
 	vector<ExternalModule> modules;
 	
 	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, wstring &errorMsg);
+	bool IsValidModuleLoaded(ModuleLoadParameters &params);
 
 public:
 	ModulesController(void) {};

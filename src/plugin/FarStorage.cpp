@@ -111,7 +111,7 @@ void StorageObject::Close()
 	m_vItems.clear();
 }
 
-int StorageObject::ReadFileList(bool &aborted)
+bool StorageObject::ReadFileList(bool &aborted)
 {
 	bool fListOK = true;
 	aborted = false;
@@ -124,10 +124,13 @@ int StorageObject::ReadFileList(bool &aborted)
 	DWORD item_index = 0;
 	StorageItemInfo item_info;
 
+	if (!module.ModuleFunctions.PrepareFiles(m_pStoragePtr))
+		return false;
+
 	do
 	{
 		memset(&item_info, 0, sizeof(item_info));
-		int res = module.GetNextItem(m_pStoragePtr, item_index, &item_info);
+		int res = module.ModuleFunctions.GetItem(m_pStoragePtr, item_index, &item_info);
 
 		if (res == GET_ITEM_NOMOREITEMS)
 		{
@@ -187,15 +190,16 @@ int StorageObject::ReadFileList(bool &aborted)
 		if (m_nNumDirectories == 0)
 			m_nNumDirectories = (int) m_pRootDir->GetSubDirectoriesNum(true);
 
-		return TRUE;
+		return true;
 	}
 	
-	return FALSE;
+	return false;
 }
 
 int StorageObject::Extract( ExtractOperationParams &params )
 {
-	return m_pModules->GetModule(m_nModuleIndex).Extract(m_pStoragePtr, params);
+	const ExternalModule &module = m_pModules->GetModule(m_nModuleIndex);
+	return module.ModuleFunctions.ExtractItem(m_pStoragePtr, params);
 }
 
 int StorageObject::ChangeCurrentDir( const wchar_t* path )

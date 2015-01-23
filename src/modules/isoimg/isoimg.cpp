@@ -84,6 +84,11 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
+int MODULE_EXPORT PrepareFiles(HANDLE storage)
+{
+	return TRUE;
+}
+
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	IsoImage* image = (IsoImage*) storage;
@@ -142,10 +147,11 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 2);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
-	LoadParams->OpenStorage = OpenStorage;
-	LoadParams->CloseStorage = CloseStorage;
-	LoadParams->GetItem = GetStorageItem;
-	LoadParams->ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.OpenStorage = OpenStorage;
+	LoadParams->ApiFuncs.CloseStorage = CloseStorage;
+	LoadParams->ApiFuncs.GetItem = GetStorageItem;
+	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
 	OptionsList opts(LoadParams->Settings);
 	opts.GetValue(L"Charset", g_DefaultCharser);

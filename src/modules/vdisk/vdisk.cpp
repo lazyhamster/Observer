@@ -71,7 +71,6 @@ struct VDisk
 	gcroot<VirtualDisk^> pVdiskObj;
 	gcroot< List<VDFileInfo^>^ > vItems;
 	gcroot< List<String^>^ > vVolLabels; // Cache for volume labels
-	bool filesEnumComplete;
 };
 
 static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex)
@@ -253,7 +252,6 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 			vdObj->pVdiskObj = vdisk;
 			vdObj->vItems = gcnew List<VDFileInfo^>();
 			vdObj->vVolLabels = gcnew List<String^>();
-			vdObj->filesEnumComplete = false;
 
 			*storage = vdObj;
 
@@ -293,16 +291,20 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
+int MODULE_EXPORT PrepareFiles(HANDLE storage)
+{
+	VDisk* vdObj = (VDisk*) storage;
+	if (vdObj == NULL) return FALSE;
+
+	PrepareFileList(vdObj);
+	
+	return TRUE;
+}
+
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	VDisk* vdObj = (VDisk*) storage;
 	if (vdObj == NULL || item_index < 0) return GET_ITEM_ERROR;
-
-	if (!vdObj->filesEnumComplete)
-	{
-		PrepareFileList(vdObj);
-		vdObj->filesEnumComplete = true;
-	}
 
 	if (item_index >= vdObj->vItems->Count)
 		return GET_ITEM_NOMOREITEMS;
@@ -423,10 +425,11 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 1);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
-	LoadParams->OpenStorage = OpenStorage;
-	LoadParams->CloseStorage = CloseStorage;
-	LoadParams->GetItem = GetStorageItem;
-	LoadParams->ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.OpenStorage = OpenStorage;
+	LoadParams->ApiFuncs.CloseStorage = CloseStorage;
+	LoadParams->ApiFuncs.GetItem = GetStorageItem;
+	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
 	OptionsList opts(LoadParams->Settings);
 	opts.GetValue(L"DefaultCodepage", optDefaultCodepage);

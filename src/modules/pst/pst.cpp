@@ -73,20 +73,15 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		objInfo->HideEmptyFolders = optHideEmptyFolders;
 		objInfo->ExpandEmlFile = optExpandEmlFile;
 
-		folder pRoot = storeObj->open_root_folder();
-		if (process_folder(pRoot, objInfo, L""))
-		{
-			*storage = objInfo;
+		*storage = objInfo;
 
-			memset(info, 0, sizeof(StorageGeneralInfo));
-			wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Outlook DB");
-			wcsncpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, strDbName.c_str(), _TRUNCATE);
-			wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
+		memset(info, 0, sizeof(StorageGeneralInfo));
+		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Outlook DB");
+		wcsncpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, strDbName.c_str(), _TRUNCATE);
+		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"-");
 
-			return SOR_SUCCESS;
-		}
+		return SOR_SUCCESS;
 
-		delete objInfo;
 	}
 	catch(...)
 	{
@@ -103,6 +98,15 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	{
 		delete file;
 	}
+}
+
+int MODULE_EXPORT PrepareFiles(HANDLE storage)
+{
+	PstFileInfo* file = (PstFileInfo*) storage;
+	if (!file) return FALSE;
+
+	folder pRoot = file->PstObject->open_root_folder();
+	return process_folder(pRoot, file, L"") ? TRUE : FALSE;
 }
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
@@ -216,10 +220,11 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
-	LoadParams->OpenStorage = OpenStorage;
-	LoadParams->CloseStorage = CloseStorage;
-	LoadParams->GetItem = GetStorageItem;
-	LoadParams->ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.OpenStorage = OpenStorage;
+	LoadParams->ApiFuncs.CloseStorage = CloseStorage;
+	LoadParams->ApiFuncs.GetItem = GetStorageItem;
+	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
 	OptionsList opts(LoadParams->Settings);
 	opts.GetValue(L"HideEmptyFolders", optHideEmptyFolders);

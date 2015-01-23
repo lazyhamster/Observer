@@ -52,6 +52,11 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	delete pdbInfo;
 }
 
+int MODULE_EXPORT PrepareFiles(HANDLE storage)
+{
+	return TRUE;
+}
+
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	PdbFileInfo* pdbInfo = (PdbFileInfo*)storage;
@@ -138,10 +143,11 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
-	LoadParams->OpenStorage = OpenStorage;
-	LoadParams->CloseStorage = CloseStorage;
-	LoadParams->GetItem = GetStorageItem;
-	LoadParams->ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.OpenStorage = OpenStorage;
+	LoadParams->ApiFuncs.CloseStorage = CloseStorage;
+	LoadParams->ApiFuncs.GetItem = GetStorageItem;
+	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
 	return TRUE;
 }

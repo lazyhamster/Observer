@@ -21,10 +21,9 @@ struct WcxStorage
 	HANDLE ArcHandle;
 	int AtItem;
 	
-	bool ListingComplete;
 	std::vector<StorageItemInfo> Items;
 	
-	WcxStorage() : ArcHandle(NULL), Module(NULL), ListingComplete(false), AtItem(0) {}
+	WcxStorage() : ArcHandle(NULL), Module(NULL), AtItem(0) {}
 };
 
 static void GetDefaultWcxLocation()
@@ -64,7 +63,6 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		storeObj->Module = procModule;
 		storeObj->ArcHandle = hArchive;
 		storeObj->AtItem = 0;
-		storeObj->ListingComplete = false;
 		storeObj->FilePath = params.FilePath;
 
 		*storage = storeObj;
@@ -93,45 +91,48 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	delete storeObj;
 }
 
+int MODULE_EXPORT PrepareFiles(HANDLE storage)
+{
+	WcxStorage* storeObj = (WcxStorage*) storage;
+	if (storeObj == NULL) return FALSE;
+
+	IWcxModule* module = storeObj->Module;
+	tHeaderDataExW header;
+
+	do 
+	{
+		int headRet = module->ReadHeader(storeObj->ArcHandle, &header);
+		if (headRet == E_END_ARCHIVE) break;
+		if (headRet != 0) return GET_ITEM_ERROR;
+
+		StorageItemInfo nextItem = {0};
+		wcscpy_s(nextItem.Path, sizeof(nextItem.Path) / sizeof(nextItem.Path[0]), header.FileName);
+		//nextItem.ModificationTime = header.FileTime;
+		nextItem.Attributes = header.FileAttr;
+		nextItem.Size = ((__int64) header.UnpSizeHigh << 32) | (__int64) header.UnpSize;
+		nextItem.PackedSize = ((__int64) header.PackSizeHigh << 32) | (__int64) header.PackSize;
+
+		FILETIME filetime;
+		DosDateTimeToFileTime ((WORD)((DWORD)header.FileTime >> 16), (WORD)header.FileTime, &filetime);
+		LocalFileTimeToFileTime (&filetime, &nextItem.ModificationTime);
+
+		storeObj->Items.push_back(nextItem);
+
+		int procRet = module->ProcessFile(storeObj->ArcHandle, PK_SKIP, NULL, NULL);
+		if (procRet != 0 && procRet != E_END_ARCHIVE) return GET_ITEM_ERROR;
+
+	} while (true);
+
+	// Skip pointer past last item to ensure reopen on extract
+	storeObj->AtItem = (int) storeObj->Items.size();
+	
+	return TRUE;
+}
+
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	WcxStorage* storeObj = (WcxStorage*) storage;
 	if (storeObj == NULL) return GET_ITEM_ERROR;
-
-	// Prepare files list
-	if (!storeObj->ListingComplete)
-	{
-		IWcxModule* module = storeObj->Module;
-		tHeaderDataExW header;
-
-		do 
-		{
-			int headRet = module->ReadHeader(storeObj->ArcHandle, &header);
-			if (headRet == E_END_ARCHIVE) break;
-			if (headRet != 0) return GET_ITEM_ERROR;
-
-			StorageItemInfo nextItem = {0};
-			wcscpy_s(nextItem.Path, sizeof(nextItem.Path) / sizeof(nextItem.Path[0]), header.FileName);
-			//nextItem.ModificationTime = header.FileTime;
-			nextItem.Attributes = header.FileAttr;
-			nextItem.Size = ((__int64) header.UnpSizeHigh << 32) | (__int64) header.UnpSize;
-			nextItem.PackedSize = ((__int64) header.PackSizeHigh << 32) | (__int64) header.PackSize;
-
-			FILETIME filetime;
-			DosDateTimeToFileTime ((WORD)((DWORD)header.FileTime >> 16), (WORD)header.FileTime, &filetime);
-			LocalFileTimeToFileTime (&filetime, &nextItem.ModificationTime);
-
-			storeObj->Items.push_back(nextItem);
-
-			int procRet = module->ProcessFile(storeObj->ArcHandle, PK_SKIP, NULL, NULL);
-			if (procRet != 0 && procRet != E_END_ARCHIVE) return GET_ITEM_ERROR;
-
-		} while (true);
-
-		// Skip pointer past last item to ensure reopen on extract
-		storeObj->AtItem = (int) storeObj->Items.size();
-		storeObj->ListingComplete = true;
-	}
 
 	if (item_index < (int) storeObj->Items.size())
 	{
@@ -147,8 +148,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	WcxStorage* storeObj = (WcxStorage*) storage;
-	if (storeObj == NULL || !storeObj->ListingComplete)
-		return SER_ERROR_SYSTEM;
+	if (storeObj == NULL) return SER_ERROR_SYSTEM;
 
 	if (params.item < 0 || params.item >= (int)storeObj->Items.size())
 		return SER_ERROR_SYSTEM;
@@ -193,10 +193,11 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
-	LoadParams->OpenStorage = OpenStorage;
-	LoadParams->CloseStorage = CloseStorage;
-	LoadParams->GetItem = GetStorageItem;
-	LoadParams->ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.OpenStorage = OpenStorage;
+	LoadParams->ApiFuncs.CloseStorage = CloseStorage;
+	LoadParams->ApiFuncs.GetItem = GetStorageItem;
+	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
 	OptionsList opts(LoadParams->Settings);
 	opts.GetValue(L"WcxLocation", optWcxLocation, sizeof(optWcxLocation) / sizeof(optWcxLocation[0]));

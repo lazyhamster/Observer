@@ -152,7 +152,7 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 				int openRes;
 				__try
 				{
-					openRes = modulePtr.OpenStorage(openParams, storage, sinfo);
+					openRes = modulePtr.ModuleFunctions.OpenStorage(openParams, storage, sinfo);
 				}
 				__except (EXCEPTION_EXECUTE_HANDLER)
 				{
@@ -177,7 +177,7 @@ void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
 	if ((moduleIndex >= 0) && (moduleIndex < (int) modules.size()))
 	{
 		const ExternalModule &modulePtr = modules[moduleIndex];
-		modulePtr.CloseStorage(storage);
+		modulePtr.ModuleFunctions.CloseStorage(storage);
 	}
 }
 
@@ -204,18 +204,13 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 
 			__try
 			{
-				if (module.LoadModule(&loadParams))
-					if ((loadParams.ApiVersion == ACTUAL_API_VERSION) && (loadParams.OpenStorage != NULL)
-						&& (loadParams.CloseStorage != NULL) && (loadParams.GetItem != NULL) && (loadParams.ExtractItem != NULL))
-					{
-						module.ModuleVersion = loadParams.ModuleVersion;
-						module.OpenStorage = loadParams.OpenStorage;
-						module.CloseStorage = loadParams.CloseStorage;
-						module.GetNextItem = loadParams.GetItem;
-						module.Extract = loadParams.ExtractItem;
+				if (module.LoadModule(&loadParams) && IsValidModuleLoaded(loadParams))
+				{
+					module.ModuleFunctions = loadParams.ApiFuncs;
+					module.ModuleVersion = loadParams.ModuleVersion;
 
-						return true;
-					}
+					return true;
+				}
 			}
 			__except (EXCEPTION_EXECUTE_HANDLER)
 			{
@@ -254,4 +249,11 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 	}
 	
 	return false;
+}
+
+bool ModulesController::IsValidModuleLoaded( ModuleLoadParameters &params )
+{
+	return (params.ApiVersion == ACTUAL_API_VERSION)
+		&& (params.ApiFuncs.OpenStorage != nullptr) && (params.ApiFuncs.CloseStorage != nullptr) && (params.ApiFuncs.PrepareFiles != nullptr)
+		&& (params.ApiFuncs.GetItem != nullptr) && (params.ApiFuncs.ExtractItem != nullptr);
 }

@@ -13,7 +13,6 @@ struct MoPaQ_File
 	HANDLE hMpq;
 	bool isEncrypted;
 	std::vector<SFILE_FIND_DATA> vFiles;
-	bool fFilesPrepared;
 };
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
@@ -43,7 +42,6 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	MoPaQ_File* file = new MoPaQ_File();
 	file->hMpq = hMpq;
 	file->isEncrypted = fEncrypted;
-	file->fFilesPrepared = false;
 
 	*storage = file;
 
@@ -66,26 +64,29 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
+int MODULE_EXPORT PrepareFiles(HANDLE storage)
+{
+	MoPaQ_File* fileObj = (MoPaQ_File*) storage;
+	if (fileObj == NULL) return FALSE;
+	
+	SFILE_FIND_DATA ffd = {0};
+	HANDLE hSearch = SFileFindFirstFile(fileObj->hMpq, "*", &ffd, NULL);
+	if (hSearch == NULL) return FALSE;
+
+	do 
+	{
+		fileObj->vFiles.push_back(ffd);
+	} while (SFileFindNextFile(hSearch, &ffd) != 0);
+
+	SFileFindClose(hSearch);
+	
+	return TRUE;
+}
+
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	MoPaQ_File* fileObj = (MoPaQ_File*) storage;
 	if (fileObj == NULL || item_index < 0) return GET_ITEM_ERROR;
-
-	// Enumerate content, if needed
-	if (!fileObj->fFilesPrepared)
-	{
-		SFILE_FIND_DATA ffd = {0};
-		HANDLE hSearch = SFileFindFirstFile(fileObj->hMpq, "*", &ffd, NULL);
-		if (hSearch == NULL) return GET_ITEM_ERROR;
-
-		do 
-		{
-			fileObj->vFiles.push_back(ffd);
-		} while (SFileFindNextFile(hSearch, &ffd) != 0);
-
-		SFileFindClose(hSearch);
-		fileObj->fFilesPrepared = true;
-	}
 
 	if (item_index >= (int) fileObj->vFiles.size())
 		return GET_ITEM_NOMOREITEMS;
@@ -164,10 +165,11 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 1);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
-	LoadParams->OpenStorage = OpenStorage;
-	LoadParams->CloseStorage = CloseStorage;
-	LoadParams->GetItem = GetStorageItem;
-	LoadParams->ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.OpenStorage = OpenStorage;
+	LoadParams->ApiFuncs.CloseStorage = CloseStorage;
+	LoadParams->ApiFuncs.GetItem = GetStorageItem;
+	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
+	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
 	return TRUE;
 }
