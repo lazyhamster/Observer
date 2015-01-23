@@ -1,11 +1,13 @@
 Changes history:
 
 1.10.0
+- Changes in modules API.
+- Total compressed size is displayed now.
 - Fixed attributes setting for the extracted files for some modules.
 - Changed file overwrite dialog.
 - VDISK: Fixed issue with file listing of some FAT images.
 - Setup Factory: Added file creation/modification time reading.
-- Minor changes.
+- Other changes.
 
 1.9.3
 - Added shortcuts for module selection menu.
