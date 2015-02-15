@@ -55,6 +55,7 @@
 
 "ToCurr"
 
+"Properties"
 "Path"
 "Is Folder"
 "Size"

@@ -58,6 +58,7 @@ enum
 	// Key bar
 	MSG_ALTF6,
 	// Node Properties
+	MSG_PROPS_HEADER,
 	MSG_PROPS_PATH,
 	MSG_PROPS_ISFOLDER,
 	MSG_PROPS_SIZE,
