@@ -13,6 +13,25 @@ const uint8_t SIGNATURE[SIGNATURE_SIZE] = {0xe0,0xe0,0xe1,0xe1,0xe2,0xe2,0xe3,0x
 
 #define STRBUF_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
 
+static bool GetVersionFromManifest(const char* manifest, int *major, int *minor)
+{
+	const char* identStart = strstr(manifest, "<assemblyIdentity");
+	if (!identStart) return false;
+
+	const char* versStart = strstr(identStart, "version=");
+	if (!versStart) return false;
+
+	int nMajor, nMinor, nRev, nBuild;
+	if (sscanf_s(versStart + 9, "%d.%d.%d.%d", &nMajor, &nMinor, &nRev, &nBuild) == 4)
+	{
+		if (major) *major = nMajor;
+		if (minor) *minor = nMinor;
+		return true;
+	}
+
+	return false;
+}
+
 SetupFactory8::SetupFactory8( void )
 {
 	Init();
@@ -45,14 +64,14 @@ bool SetupFactory8::Open( CFileStream* inFile )
 		m_pInFile = inFile;
 		m_nStartOffset = inFile->GetPos();
 		m_nVersion = 8;
+		m_nMinorVersion = 0;
 		return true;
 	}
 	if (manifestText.find("<description>Setup Factory 9 Run-time</description>") != std::string::npos)
 	{
 		m_pInFile = inFile;
 		m_nStartOffset = inFile->GetPos();
-		m_nVersion = 9;
-		return true;
+		return GetVersionFromManifest(manifestText.c_str(), &m_nVersion, &m_nMinorVersion) && (m_nVersion == 9);
 	}
 
 	return false;
@@ -202,7 +221,10 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		m_pScriptData->ReadBuffer(&modTime, sizeof(modTime));
 		m_pScriptData->Seek(25, STREAM_CURRENT);
 		ReadString(m_pScriptData, strDestDir); // Destination directory
-		m_pScriptData->Seek(10, STREAM_CURRENT);
+		if (m_nVersion == 9 && m_nMinorVersion >= 3)  // From version 9.3 script format slightly changed
+			m_pScriptData->Seek(11, STREAM_CURRENT);
+		else
+			m_pScriptData->Seek(10, STREAM_CURRENT);
 		SkipString(m_pScriptData); // Custom shortcut location
 		SkipString(m_pScriptData); // Shortcut comment
 		SkipString(m_pScriptData); // Shortcut description

@@ -7,6 +7,7 @@ Changes history:
 - Changed file overwrite dialog.
 - VDISK: Fixed issue with file listing of some FAT images.
 - Setup Factory: Added file creation/modification time reading.
+- Setup Factory: Fixed reading of files created with SF 9.3+.
 - Other changes.
 
 1.9.3

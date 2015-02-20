@@ -7,6 +7,8 @@ class SetupFactory8 :
 	public SetupFactoryFile
 {
 private:
+	int m_nMinorVersion;
+	
 	int ParseScript(int64_t baseOffset);
 	bool ReadSpecialFile(const char* fileName, bool isXORed);
 	bool DetectCompression(EntryCompression &value);
