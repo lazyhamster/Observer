@@ -136,11 +136,11 @@ static string ResolveFullPath(const char* input)
 	return strVal;
 }
 
-static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const char* errorItem)
+static void DisplayMessage(bool isError, bool isInteractive, const char* headerMsg, const char* textMsg, const char* errorItem)
 {
 	static const char* MsgLines[3];
-	MsgLines[0] = GetLocMsg(headerMsgID);
-	MsgLines[1] = GetLocMsg(textMsgID);
+	MsgLines[0] = headerMsg;
+	MsgLines[1] = textMsg;
 	MsgLines[2] = errorItem;
 
 	int linesNum = (errorItem) ? 3 : 2;
@@ -149,6 +149,11 @@ static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, in
 	if (isInteractive) flags |= FMSG_MB_OK;
 	
 	FarSInfo.Message(FarSInfo.ModuleNumber, flags, NULL, MsgLines, linesNum, 0);
+}
+
+static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const char* errorItem)
+{
+	DisplayMessage(isError, isInteractive, GetLocMsg(headerMsgID), GetLocMsg(textMsgID), errorItem);
 }
 
 static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
@@ -195,8 +200,13 @@ static HANDLE OpenStorage(const char* Name, bool applyExtFilters, int moduleInde
 		return INVALID_HANDLE_VALUE;
 	}
 
+	char szDialogText[100] = {0};
+	char szModuleName[50] = {0};
+	WideCharToMultiByte(CP_FAR_INTERNAL, 0, storage->GetModuleName(), -1, szModuleName, ARRAY_SIZE(szModuleName), NULL, NULL);
+	sprintf_s(szDialogText, ARRAY_SIZE(szDialogText), GetLocMsg(MSG_OPEN_LIST), szModuleName);
+
 	HANDLE hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
-	DisplayMessage(false, false, MSG_PLUGIN_NAME, MSG_OPEN_LIST, NULL);
+	DisplayMessage(false, false, GetLocMsg(MSG_PLUGIN_NAME), szDialogText, NULL);
 
 	HANDLE hResult = INVALID_HANDLE_VALUE;
 	bool listAborted;

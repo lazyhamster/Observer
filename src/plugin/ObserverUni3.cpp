@@ -94,19 +94,24 @@ static wstring ResolveFullPath(const wchar_t* input)
 	return strFull;
 }
 
-static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const wchar_t* errorItem)
+static void DisplayMessage(bool isError, bool isInteractive, const wchar_t* headerMsg, const wchar_t* textMsg, const wchar_t* errorItem)
 {
 	static const wchar_t* MsgLines[3];
-	MsgLines[0] = GetLocMsg(headerMsgID);
-	MsgLines[1] = GetLocMsg(textMsgID);
+	MsgLines[0] = headerMsg;
+	MsgLines[1] = textMsg;
 	MsgLines[2] = errorItem;
 
 	int linesNum = (errorItem) ? 3 : 2;
 	int flags = 0;
 	if (isError) flags |= FMSG_WARNING;
 	if (isInteractive) flags |= FMSG_MB_OK;
-	
+
 	FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_MESSAGE_BOX, flags, NULL, MsgLines, linesNum, 0);
+}
+
+static void DisplayMessage(bool isError, bool isInteractive, int headerMsgID, int textMsgID, const wchar_t* errorItem)
+{
+	DisplayMessage(isError, isInteractive, GetLocMsg(headerMsgID), GetLocMsg(textMsgID), errorItem);
 }
 
 static int SelectModuleToOpenFileAs()
@@ -194,8 +199,15 @@ static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleI
 		return INVALID_HANDLE_VALUE;
 	}
 
+	wchar_t wszDialogText[100] = {0};
+	wchar_t wszConTitleText[100] = {0};
+
+	swprintf_s(wszDialogText, ARRAY_SIZE(wszDialogText), GetLocMsg(MSG_OPEN_LIST), storage->GetModuleName());
+	swprintf_s(wszConTitleText, ARRAY_SIZE(wszConTitleText), L"%s: %s", GetLocMsg(MSG_PLUGIN_NAME), wszDialogText);
+
 	HANDLE hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
-	DisplayMessage(false, false, MSG_PLUGIN_NAME, MSG_OPEN_LIST, NULL);
+	DisplayMessage(false, false, GetLocMsg(MSG_PLUGIN_NAME), wszDialogText, NULL);
+	SaveConsoleTitle ct(wszConTitleText);
 
 	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, TBPS_INDETERMINATE, NULL);
 

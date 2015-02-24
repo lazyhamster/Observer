@@ -28,7 +28,7 @@
 "&Overwrite existing file"
 "Keep &paths"
 
-"Reading files list"
+"Reading files list (%s)"
 "Content Error"
 "Invalid item returned during listing"
 "Select Module"

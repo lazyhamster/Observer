@@ -93,6 +93,33 @@ enum InfoLines
 	IL_LAST = 9
 };
 
+class SaveConsoleTitle
+{
+private:
+	wchar_t m_OldTitle[512];
+
+	SaveConsoleTitle() { /* hidden */ }
+
+public:
+	SaveConsoleTitle(const wchar_t *newTitle) { memset(m_OldTitle, 0, sizeof(m_OldTitle)); SetNewTitle(newTitle); }
+	~SaveConsoleTitle() { Restore(); }
+
+	void SetNewTitle(const wchar_t* newTitle)
+	{
+		GetConsoleTitle(m_OldTitle, ARRAY_SIZE(m_OldTitle));
+		SetConsoleTitle(newTitle);
+	}
+
+	void Restore()
+	{
+		if (m_OldTitle[0])
+		{
+			SetConsoleTitle(m_OldTitle);
+			m_OldTitle[0] = 0;
+		}
+	}
+};
+
 #define ULTOW(num, wstr) _ultow_s(num, wstr, ARRAY_SIZE(wstr), 10);
 
 #define I64TOW_C(num, wstr) _i64tow_s(num, wstr, ARRAY_SIZE(wstr), 10); InsertCommas(wstr);
