@@ -538,7 +538,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="DiscUtils, Version=0.11.0.0, Culture=neutral, PublicKeyToken=null">
-      <HintPath>Lib\DiscUtils.dll</HintPath>
+      <HintPath>..\..\depends\DiscUtils\DiscUtils.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <CopyLocalSatelliteAssemblies>true</CopyLocalSatelliteAssemblies>
