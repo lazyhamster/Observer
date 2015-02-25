@@ -84,6 +84,9 @@ static int VerifyMpqTablePositions(TMPQArchive * ha, ULONGLONG FileSize)
     if(pHeader->wHashTablePosHi || pHeader->dwHashTablePos)
     {
         ByteOffset = ha->MpqPos + MAKE_OFFSET64(pHeader->wHashTablePosHi, pHeader->dwHashTablePos);
+        if((pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1) && (ha->dwFlags & MPQ_FLAG_MALFORMED))
+            ByteOffset = (DWORD)ha->MpqPos + pHeader->dwHashTablePos;
+
         if(ByteOffset > FileSize)
             return ERROR_BAD_FORMAT;
     }
@@ -91,18 +94,12 @@ static int VerifyMpqTablePositions(TMPQArchive * ha, ULONGLONG FileSize)
     // Check the begin of block table
     if(pHeader->wBlockTablePosHi || pHeader->dwBlockTablePos)
     {
+        ByteOffset = ha->MpqPos + MAKE_OFFSET64(pHeader->wBlockTablePosHi, pHeader->dwBlockTablePos);
         if((pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1) && (ha->dwFlags & MPQ_FLAG_MALFORMED))
-        {
             ByteOffset = (DWORD)ha->MpqPos + pHeader->dwBlockTablePos;
-            if(ByteOffset > FileSize)
-                return ERROR_BAD_FORMAT;
-        }
-        else
-        {
-            ByteOffset = ha->MpqPos + MAKE_OFFSET64(pHeader->wBlockTablePosHi, pHeader->dwBlockTablePos);
-            if(ByteOffset > FileSize)
-                return ERROR_BAD_FORMAT;
-        }
+
+        if(ByteOffset > FileSize)
+            return ERROR_BAD_FORMAT;
     }
 
     // Check the begin of hi-block table
@@ -199,6 +196,7 @@ bool WINAPI SFileOpenArchive(
     if(nError == ERROR_SUCCESS)
     {
         ULONGLONG SearchOffset = 0;
+        ULONGLONG EndOfSearch = FileSize;
         DWORD dwStreamFlags = 0;
         DWORD dwHeaderSize;
         DWORD dwHeaderID;
@@ -216,10 +214,13 @@ bool WINAPI SFileOpenArchive(
         if(dwFlags & MPQ_OPEN_CHECK_SECTOR_CRC)
             ha->dwFlags |= MPQ_FLAG_CHECK_SECTOR_CRC;
 
-		const ULONGLONG MaxSearchOffset = 1 * 1024 * 1024;
+        // Limit the header searching to about 1 MB of data
+		const ULONGLONG MaxSearch = 1 * 1024 * 1024;
+        if(EndOfSearch > MaxSearch)
+            EndOfSearch = MaxSearch;
 
         // Find the offset of MPQ header within the file
-        while(SearchOffset < FileSize && SearchOffset < MaxSearchOffset)
+        while(SearchOffset < EndOfSearch)
         {
             DWORD dwBytesAvailable = MPQ_HEADER_SIZE_V4;
 
@@ -388,7 +389,7 @@ bool WINAPI SFileOpenArchive(
     // Load the internal listfile and include it to the file table
     if(nError == ERROR_SUCCESS && (dwFlags & MPQ_OPEN_NO_LISTFILE) == 0)
     {
-        // Save the flags for (listfile)
+        // Quick check for (listfile)
         pFileEntry = GetFileEntryLocale(ha, LISTFILE_NAME, LANG_NEUTRAL);
         if(pFileEntry != NULL)
         {
@@ -401,13 +402,26 @@ bool WINAPI SFileOpenArchive(
     // Load the "(attributes)" file and merge it to the file table
     if(nError == ERROR_SUCCESS && (dwFlags & MPQ_OPEN_NO_ATTRIBUTES) == 0)
     {
-        // Save the flags for (attributes)
+        // Quick check for (attributes)
         pFileEntry = GetFileEntryLocale(ha, ATTRIBUTES_NAME, LANG_NEUTRAL);
         if(pFileEntry != NULL)
         {
             // Ignore result of the operation. (attributes) is optional.
             SAttrLoadAttributes(ha);
             ha->dwFileFlags2 = pFileEntry->dwFlags;
+        }
+    }
+
+    // Remember whether the archive has weak signature. Only for MPQs format 1.0.
+    if(nError == ERROR_SUCCESS)
+    {
+        // Quick check for (signature)
+        pFileEntry = GetFileEntryLocale(ha, SIGNATURE_NAME, LANG_NEUTRAL);
+        if(pFileEntry != NULL)
+        {
+            // Just remember that the archive is weak-signed
+            assert(pFileEntry->dwFlags == MPQ_FILE_EXISTS);
+            ha->dwFileFlags3 = pFileEntry->dwFlags;
         }
     }
 
@@ -469,6 +483,14 @@ bool WINAPI SFileFlushArchive(HANDLE hMpq)
     // Indicate that we are saving MPQ internal structures
     ha->dwFlags |= MPQ_FLAG_SAVING_TABLES;
 
+    // If the (signature) has been invalidated, save it
+    if(ha->dwFlags & MPQ_FLAG_SIGNATURE_INVALID)
+    {
+        nError = SSignFileCreate(ha);
+        if(nError != ERROR_SUCCESS)
+            nResultError = nError;
+    }
+
     // If the (listfile) has been invalidated, save it
     if(ha->dwFlags & MPQ_FLAG_LISTFILE_INVALID)
     {
@@ -488,9 +510,18 @@ bool WINAPI SFileFlushArchive(HANDLE hMpq)
     // Save HET table, BET table, hash table, block table, hi-block table
     if(ha->dwFlags & MPQ_FLAG_CHANGED)
     {
+        // Save all MPQ tables first
         nError = SaveMPQTables(ha);
         if(nError != ERROR_SUCCESS)
             nResultError = nError;
+
+        // If the archive has weak signature, we need to finish it
+        if(ha->dwFileFlags3 != 0)
+        {
+            nError = SSignFileFinish(ha);
+            if(nError != ERROR_SUCCESS)
+                nResultError = nError;
+        }
     }
 
     // We are no longer saving internal MPQ structures

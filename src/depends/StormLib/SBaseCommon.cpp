@@ -651,7 +651,8 @@ TMPQHash * AllocateHashEntry(
 
 // Finds a free space in the MPQ where to store next data
 // The free space begins beyond the file that is stored at the fuhrtest
-// position in the MPQ.
+// position in the MPQ. (listfile), (attributes) and (signature) are ignored,
+// unless the MPQ is being flushed.
 ULONGLONG FindFreeMpqSpace(TMPQArchive * ha)
 {
     TMPQHeader * pHeader = ha->pHeader;
@@ -666,6 +667,10 @@ ULONGLONG FindFreeMpqSpace(TMPQArchive * ha)
         // Only take existing files with nonzero size
         if((pFileEntry->dwFlags & MPQ_FILE_EXISTS) && (pFileEntry->dwCmpSize != 0))
         {
+            // If we are not saving MPQ tables, ignore internal MPQ files
+            if((ha->dwFlags & MPQ_FLAG_SAVING_TABLES) == 0 && IsInternalMpqFileName(pFileEntry->szFileName))
+                continue;
+
             // If the end of the file is bigger than current MPQ table pos, update it
             if((pFileEntry->ByteOffset + pFileEntry->dwCmpSize) > FreeSpacePos)
             {
@@ -708,6 +713,8 @@ TMPQFile * CreateFileHandle(TMPQArchive * ha, TFileEntry * pFileEntry)
         {
             // Set the raw position and MPQ position
             hf->RawFilePos = ha->MpqPos + pFileEntry->ByteOffset;
+            if(ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
+                hf->RawFilePos = (DWORD)ha->MpqPos + (DWORD)pFileEntry->ByteOffset;
             hf->MpqFilePos = pFileEntry->ByteOffset;
 
             // Set the data size
@@ -732,7 +739,6 @@ void * LoadMpqTable(
     LPBYTE pbMpqTable;
     LPBYTE pbToRead;
     DWORD dwBytesToRead = dwCompressedSize;
-    DWORD dwValidLength = dwTableSize;
     int nError = ERROR_SUCCESS;
 
     // Allocate the MPQ table
@@ -748,6 +754,22 @@ void * LoadMpqTable(
             {
                 STORM_FREE(pbMpqTable);
                 return NULL;
+            }
+        }
+
+        // On archives v 1.0, Storm.dll does not actually check
+        // if the hash table was read entirely. Abused by Spazzler map protector
+        // which sets hash table size to 0x00100000
+        if(ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1 && (ha->dwFlags & MPQ_FLAG_MALFORMED))
+        {
+            ULONGLONG FileSize = 0;
+
+            // Cut the table size
+            FileStream_GetSize(ha->pStream, &FileSize);
+            if((ByteOffset + dwBytesToRead) > FileSize)
+            {
+                dwBytesToRead = (DWORD)(FileSize - ByteOffset);
+                memset(pbMpqTable + dwBytesToRead, 0, (dwTableSize - dwBytesToRead));
             }
         }
 
@@ -774,10 +796,6 @@ void * LoadMpqTable(
 
             // Make sure that the table is properly byte-swapped
             BSWAP_ARRAY32_UNSIGNED(pbMpqTable, dwTableSize);
-
-            // If the table was not fully readed, fill the rest with zeros
-            if(dwValidLength < dwTableSize)
-                memset(pbMpqTable + dwValidLength, 0, (dwTableSize - dwValidLength));
         }
         else
         {
@@ -805,25 +823,22 @@ void CalculateRawSectorOffset(
     TMPQFile * hf,
     DWORD dwSectorOffset)
 {
+    // Must be used for files within a MPQ
+    assert(hf->ha != NULL);
+    assert(hf->ha->pHeader != NULL);
+    
     //
     // Some MPQ protectors place the sector offset table after the actual file data.
     // Sector offsets in the sector offset table are negative. When added
     // to MPQ file offset from the block table entry, the result is a correct
     // position of the file data in the MPQ.
     //
-    // The position of sector table must be always within the MPQ, however.
-    // When a negative sector offset is found, we make sure that we make the addition
-    // just in 32-bits, and then add the MPQ offset.
+    // For MPQs version 1.0, the offset is purely 32-bit
     //
 
-    if(dwSectorOffset & 0x80000000)
-    {
-        RawFilePos = hf->ha->MpqPos + ((DWORD)hf->pFileEntry->ByteOffset + dwSectorOffset);
-    }
-    else
-    {
-        RawFilePos = hf->RawFilePos + dwSectorOffset;
-    }
+    RawFilePos = hf->RawFilePos + dwSectorOffset;
+    if(hf->ha->pHeader->wFormatVersion == MPQ_FORMAT_VERSION_1)
+        RawFilePos = (DWORD)hf->ha->MpqPos + (DWORD)hf->pFileEntry->ByteOffset + dwSectorOffset;
 
     // We also have to add patch header size, if patch header is present
     if(hf->pPatchInfo != NULL)
@@ -1044,11 +1059,13 @@ int AllocateSectorOffsets(TMPQFile * hf, bool bLoadFromFile)
                 }
 
                 // The sector size must not be bigger than compressed file size
-                if((dwSectorOffset1 - dwSectorOffset0) > pFileEntry->dwCmpSize)
-                {
-                    bSectorOffsetTableCorrupt = true;
-                    break;
-                }
+                // Edit: Yes, but apparently, in original Storm.dll, the compressed
+                // size is not checked anywhere
+//              if((dwSectorOffset1 - dwSectorOffset0) > pFileEntry->dwCmpSize)
+//              {
+//                  bSectorOffsetTableCorrupt = true;
+//                  break;
+//              }
             }
 
             // If data corruption detected, free the sector offset table
