@@ -69,6 +69,23 @@ size_t ContentTreeNode::GetPath(wchar_t* dest, size_t destSize, ContentTreeNode*
 	return ret;
 }
 
+std::wstring ContentTreeNode::GetPath(ContentTreeNode* upRoot) const
+{
+	if (m_strName.length() == 0)
+		return L"";
+
+	if (parent && (parent != upRoot))
+	{
+		std::wstring strUp = parent->GetPath(upRoot);
+		if (strUp.length() > 0) strUp += L"\\";
+		strUp += Name();
+
+		return strUp;
+	}
+
+	return m_strName;
+}
+
 bool ContentTreeNode::AddChild(wchar_t* path, ContentTreeNode* child)
 {
 	wchar_t* slash = wcschr(path, '\\');

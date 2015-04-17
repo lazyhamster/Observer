@@ -38,6 +38,7 @@ public:
 	~ContentTreeNode();
 
 	size_t GetPath(wchar_t* dest, size_t destSize, ContentTreeNode* upRoot = NULL) const;
+	std::wstring GetPath(ContentTreeNode* upRoot = NULL) const;
 	bool AddChild(wchar_t* path, ContentTreeNode* child);
 
 	size_t GetChildCount() { return subdirs.size() + files.size(); };
