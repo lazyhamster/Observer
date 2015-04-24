@@ -2,12 +2,13 @@ Changes history:
 
 1.10.0
 - Changes in modules API.
-- Total compressed size is displayed now.
+- Total compressed size is displayed now (where available).
 - Fixed attributes setting for the extracted files for some modules.
 - Changed file overwrite dialog.
 - VDISK: Fixed issue with file listing of some FAT images.
 - Setup Factory: Added file creation/modification time reading.
 - Setup Factory: Fixed reading of files created with SF 9.3+.
+- MPQ: Updated StormLib library to version 9.10.
 - Other changes.
 
 1.9.3
