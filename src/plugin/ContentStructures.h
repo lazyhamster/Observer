@@ -22,13 +22,13 @@ private:
 	__int64 m_nSize;
 	__int64 m_nPackedSize;
 	DWORD m_nAttributes;
+	WORD m_nNumberOfHardlinks;
 
 public:
 	int StorageIndex;
 	FILETIME LastModificationTime;
 	FILETIME CreationTime;
-	WORD NumberOfHardlinks;
-
+	
 	ContentTreeNode* parent;
 	SubNodesMap subdirs;
 	SubNodesMap files;
@@ -48,6 +48,7 @@ public:
 	__int64 GetSize() const { return IsDir() ? 0 : m_nSize; }
 	__int64 GetPackedSize() const { return IsDir() ? 0 : m_nPackedSize; }
 	DWORD GetAttributes() const { return m_nAttributes; }
+	WORD GetNumberOfHardLinks() const { return m_nNumberOfHardlinks; }
 
 	const wchar_t* Name() const { return m_strName.c_str(); }
 	void SetName(const wchar_t* newName) { m_strName = newName; }
