@@ -293,7 +293,7 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
 
 	context->nCurrentFileNumber++;
-	context->nCurrentFileSize = item->Size();
+	context->nCurrentFileSize = item->GetSize();
 	context->nProcessedFileBytes = 0;
 	context->nCurrentProgress = -1;
 
@@ -365,7 +365,7 @@ static int ExtractError(int errorReason, HANDLE context)
 static bool AskExtractOverwrite(int &overwrite, WIN32_FIND_DATAW existingFile, const ContentTreeNode* newFile)
 {
 	__int64 nOldSize = ((__int64) existingFile.nFileSizeHigh >> 32) + existingFile.nFileSizeLow;
-	__int64 nNewSize = newFile->Size();
+	__int64 nNewSize = newFile->GetSize();
 	
 	SYSTEMTIME stOldUTC, stOldLocal;
 	FileTimeToSystemTime(&existingFile.ftLastWriteTime, &stOldUTC);
@@ -515,9 +515,9 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, wst
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
 	// If extraction is successful set file attributes if present
-	if ((ret == SER_SUCCESS) && (item->Attributes != 0))
+	if ((ret == SER_SUCCESS) && (item->GetAttributes() != 0))
 	{
-		SetFileAttributes(destPath.c_str(), item->Attributes);
+		SetFileAttributes(destPath.c_str(), item->GetAttributes());
 	}
 
 	return (ret == SER_SUCCESS);
@@ -752,11 +752,11 @@ int WINAPI GetFindData(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int 
 		const ContentTreeNode* node = (cit->second);
 
 		WideCharToMultiByte(CP_FAR_INTERNAL, 0, node->Name(), -1, panelItem->FindData.cFileName, MAX_PATH, NULL, NULL);
-		panelItem->FindData.dwFileAttributes = node->Attributes;
+		panelItem->FindData.dwFileAttributes = node->GetAttributes();
 		panelItem->FindData.ftCreationTime = node->CreationTime;
 		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
-		panelItem->FindData.nFileSizeHigh = (node->Size() >> 32);
-		panelItem->FindData.nFileSizeLow = (DWORD) node->Size();
+		panelItem->FindData.nFileSizeHigh = (node->GetSize() >> 32);
+		panelItem->FindData.nFileSizeLow = (DWORD) node->GetSize();
 
 		panelItem++;
 	}
@@ -769,11 +769,11 @@ int WINAPI GetFindData(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int 
 		const ContentTreeNode* node = (cit->second);
 
 		WideCharToMultiByte(CP_FAR_INTERNAL, 0, node->Name(), -1, panelItem->FindData.cFileName, MAX_PATH, NULL, NULL);
-		panelItem->FindData.dwFileAttributes = node->Attributes;
+		panelItem->FindData.dwFileAttributes = node->GetAttributes();
 		panelItem->FindData.ftCreationTime = node->CreationTime;
 		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
-		panelItem->FindData.nFileSizeHigh = (node->Size() >> 32);
-		panelItem->FindData.nFileSizeLow = (DWORD) node->Size();
+		panelItem->FindData.nFileSizeHigh = (node->GetSize() >> 32);
+		panelItem->FindData.nFileSizeLow = (DWORD) node->GetSize();
 
 		panelItem++;
 	}

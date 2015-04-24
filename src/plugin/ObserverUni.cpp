@@ -369,7 +369,7 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
 
 	context->nCurrentFileNumber++;
-	context->nCurrentFileSize = item->Size();
+	context->nCurrentFileSize = item->GetSize();
 	context->nProcessedFileBytes = 0;
 	context->nCurrentProgress = -1;
 	
@@ -449,7 +449,7 @@ enum FileOverwriteOptions
 static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, wstring &destPath, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
 {
 	__int64 nOldSize = ((__int64) existingFile->nFileSizeHigh >> 32) + existingFile->nFileSizeLow;
-	__int64 nNewSize = newFile->Size();
+	__int64 nNewSize = newFile->GetSize();
 	
 	SYSTEMTIME stOldUTC, stOldLocal;
 	FileTimeToSystemTime(&existingFile->ftLastWriteTime, &stOldUTC);
@@ -654,9 +654,9 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
 	// If extraction is successful set file attributes if present
-	if ((ret == SER_SUCCESS) && (item->Attributes != 0))
+	if ((ret == SER_SUCCESS) && (item->GetAttributes() != 0))
 	{
-		SetFileAttributes(destPath.c_str(), item->Attributes);
+		SetFileAttributes(destPath.c_str(), item->GetAttributes());
 	}
 
 	return ret;
@@ -985,10 +985,10 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 		ContentTreeNode* node = (cit->second);
 
 		panelItem->FindData.lpwszFileName = node->Name();
-		panelItem->FindData.dwFileAttributes = node->Attributes;
+		panelItem->FindData.dwFileAttributes = node->GetAttributes();
 		panelItem->FindData.ftCreationTime = node->CreationTime;
 		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
-		panelItem->FindData.nFileSize = node->Size();
+		panelItem->FindData.nFileSize = node->GetSize();
 
 		panelItem++;
 	}
@@ -1001,10 +1001,10 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 		ContentTreeNode* node = (cit->second);
 
 		panelItem->FindData.lpwszFileName = node->Name();
-		panelItem->FindData.dwFileAttributes = node->Attributes;
+		panelItem->FindData.dwFileAttributes = node->GetAttributes();
 		panelItem->FindData.ftCreationTime = node->CreationTime;
 		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
-		panelItem->FindData.nFileSize = node->Size();
+		panelItem->FindData.nFileSize = node->GetSize();
 
 		panelItem++;
 	}

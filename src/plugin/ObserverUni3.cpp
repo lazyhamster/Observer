@@ -332,7 +332,7 @@ static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* c
 	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
 
 	context->nCurrentFileNumber++;
-	context->nCurrentFileSize = item->Size();
+	context->nCurrentFileSize = item->GetSize();
 	context->nProcessedFileBytes = 0;
 	context->nCurrentProgress = -1;
 	
@@ -412,7 +412,7 @@ enum FileOverwriteOptions
 static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, wstring &destPath, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
 {
 	__int64 nOldSize = ((__int64) existingFile->nFileSizeHigh >> 32) + existingFile->nFileSizeLow;
-	__int64 nNewSize = newFile->Size();
+	__int64 nNewSize = newFile->GetSize();
 	
 	SYSTEMTIME stOldUTC, stOldLocal;
 	FileTimeToSystemTime(&existingFile->ftLastWriteTime, &stOldUTC);
@@ -600,9 +600,9 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
 	// If extraction is successful set file attributes if present
-	if ((ret == SER_SUCCESS) && (item->Attributes != 0))
+	if ((ret == SER_SUCCESS) && (item->GetAttributes() != 0))
 	{
-		SetFileAttributes(destPath.c_str(), item->Attributes);
+		SetFileAttributes(destPath.c_str(), item->GetAttributes());
 	}
 
 	return ret;
@@ -941,10 +941,10 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 		ContentTreeNode* node = (cit->second);
 
 		panelItem->FileName = node->Name();
-		panelItem->FileAttributes = node->Attributes;
+		panelItem->FileAttributes = node->GetAttributes();
 		panelItem->CreationTime = node->CreationTime;
 		panelItem->LastWriteTime = node->LastModificationTime;
-		panelItem->FileSize = node->Size();
+		panelItem->FileSize = node->GetSize();
 
 		panelItem++;
 	}
@@ -957,10 +957,10 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 		ContentTreeNode* node = (cit->second);
 
 		panelItem->FileName = node->Name();
-		panelItem->FileAttributes = node->Attributes;
+		panelItem->FileAttributes = node->GetAttributes();
 		panelItem->CreationTime = node->CreationTime;
 		panelItem->LastWriteTime = node->LastModificationTime;
-		panelItem->FileSize = node->Size();
+		panelItem->FileSize = node->GetSize();
 
 		panelItem++;
 	}

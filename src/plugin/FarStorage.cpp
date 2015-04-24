@@ -147,8 +147,8 @@ bool StorageObject::ReadFileList(bool &aborted)
 				if (!child->IsDir())
 				{
 					nNumFiles++;
-					nTotalSize += child->Size();
-					nTotalPackedSize += child->PackedSize();
+					nTotalSize += child->GetSize();
+					nTotalPackedSize += child->GetPackedSize();
 				}
 				else
 				{

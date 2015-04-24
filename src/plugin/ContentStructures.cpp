@@ -32,7 +32,7 @@ void ContentTreeNode::Init( int item_index, StorageItemInfo* item_info )
 	m_strName = ExtractFileName(item_info->Path);
 	m_nSize = item_info->Size;
 	m_nPackedSize = item_info->PackedSize;
-	Attributes = item_info->Attributes;
+	m_nAttributes = item_info->Attributes;
 	LastModificationTime = item_info->ModificationTime;
 	CreationTime = item_info->CreationTime;
 	NumberOfHardlinks = item_info->NumHardlinks;
@@ -138,7 +138,7 @@ ContentTreeNode* ContentTreeNode::insertDummyDirectory(const wchar_t *name)
 	dummyDir->parent = this;
 	dummyDir->StorageIndex = -1;
 	dummyDir->m_strName = name;
-	dummyDir->Attributes = FILE_ATTRIBUTE_DIRECTORY;
+	dummyDir->m_nAttributes = FILE_ATTRIBUTE_DIRECTORY;
 
 	this->subdirs.insert(pair<wstring, ContentTreeNode*> (name, dummyDir));
 	m_dummyFolders.push_back(dummyDir);
