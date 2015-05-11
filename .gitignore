@@ -6,3 +6,4 @@ ipch/
 *.suo
 Observer_*.rar
 plug_version.h
+Observer.rc
