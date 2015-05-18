@@ -29,7 +29,10 @@ IS5CabFile::~IS5CabFile()
 
 bool IS5CabFile::IsVersionCompatible( DWORD version )
 {
-	return GetMajorVersion(version) == 5;
+	//NOTE: Some archives have version == 0, not sure why.
+	//But they can be opened as version 5.
+	DWORD nVer = GetMajorVersion(version);
+	return (nVer == 5) || (nVer == 0);
 }
 
 int IS5CabFile::GetTotalFiles() const
