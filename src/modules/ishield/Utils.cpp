@@ -101,7 +101,7 @@ void DecryptBuffer(BYTE* buf, DWORD bufSize, DWORD* seed)
 	}
 }
 
-bool UnpackBuffer( BYTE* inBuf, size_t inSize, BYTE* outBuf, size_t* outBufferSize, size_t* outDataSize )
+bool UnpackBuffer( BYTE* inBuf, size_t inSize, BYTE* outBuf, size_t* outBufferSize, size_t* outDataSize, bool blockStyle )
 {
 	int ret;
 	z_stream strm = {0};
@@ -120,10 +120,13 @@ bool UnpackBuffer( BYTE* inBuf, size_t inSize, BYTE* outBuf, size_t* outBufferSi
 		strm.avail_out = (uInt) nextOutSize;
 		strm.next_out = bufPtr;
 		
-		ret = inflate(&strm, Z_FINISH);
+		ret = inflate(&strm, blockStyle ? Z_BLOCK : Z_FINISH);
 		if (ret == Z_NEED_DICT)
 			ret = Z_DATA_ERROR;
 		if (ret < 0) break;
+
+		if (blockStyle && ret == Z_OK)
+			ret = Z_STREAM_END;
 
 		*outDataSize += nextOutSize - strm.avail_out;
 
@@ -140,4 +143,23 @@ bool UnpackBuffer( BYTE* inBuf, size_t inSize, BYTE* outBuf, size_t* outBufferSi
 
 	inflateEnd(&strm);
 	return (ret == Z_STREAM_END);
+}
+
+uint8_t* find_bytes(const uint8_t* buffer, size_t bufferSize, const uint8_t* pattern, size_t patternSize)
+{
+	const uint8_t *p = buffer;
+	size_t buffer_left = bufferSize;
+	while ((p = (const uint8_t*) memchr(p, pattern[0], buffer_left)) != NULL)
+	{
+		if (patternSize > buffer_left)
+			break;
+
+		if (memcmp(p, pattern, patternSize) == 0)
+			return (uint8_t*)p;
+
+		++p;
+		--buffer_left;
+	}
+
+	return NULL;
 }

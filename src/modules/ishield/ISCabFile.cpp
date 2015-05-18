@@ -101,7 +101,7 @@ int ISCabFile::TransferFile( CFileStream* src, CFileStream* dest, __int64 fileSi
 	return CAB_EXTRACT_OK;
 }
 
-int ISCabFile::UnpackFile( CFileStream* src, CFileStream* dest, __int64 fileSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
+int ISCabFile::UnpackFile( CFileStream* src, CFileStream* dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
 {
 	MD5_CTX md5;
 	MD5Init(&md5);
@@ -112,7 +112,7 @@ int ISCabFile::UnpackFile( CFileStream* src, CFileStream* dest, __int64 fileSize
 	BYTE* outputBuffer = (BYTE*) malloc(outputBufferSize);
 
 	size_t outputDataSize;
-	__int64 bytesLeft = fileSize;
+	__int64 bytesLeft = unpackedSize;
 	while (bytesLeft > 0)
 	{
 		WORD blockSize;
@@ -122,7 +122,7 @@ int ISCabFile::UnpackFile( CFileStream* src, CFileStream* dest, __int64 fileSize
 		if (!src->ReadBuffer(inputBuffer, blockSize))
 			break;
 
-		if (!UnpackBuffer(inputBuffer, blockSize, outputBuffer, &outputBufferSize, &outputDataSize))
+		if (!UnpackBuffer(inputBuffer, blockSize, outputBuffer, &outputBufferSize, &outputDataSize, false))
 			break;
 
 		bytesLeft -= outputDataSize;
@@ -150,4 +150,78 @@ int ISCabFile::UnpackFile( CFileStream* src, CFileStream* dest, __int64 fileSize
 		MD5Final(hashBuf, &md5);
 	}
 	return CAB_EXTRACT_OK;
+}
+
+int ISCabFile::UnpackFileOld( CFileStream* src, DWORD packedSize, CFileStream* dest, DWORD unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
+{
+	static const uint8_t END_OF_CHUNK[4] = { 0x00, 0x00, 0xff, 0xff };
+	
+	MD5_CTX md5;
+	MD5Init(&md5);
+
+	BYTE* pInputBuffer = (BYTE*) malloc(packedSize);
+	BYTE* pOutputBuffer = (BYTE*) malloc(unpackedSize);
+	int result = CAB_EXTRACT_OK;
+
+	if (!src->ReadBuffer(pInputBuffer, packedSize))
+	{
+		result = CAB_EXTRACT_READ_ERR;
+		goto exit;
+	}
+	
+	int bytesLeft = packedSize;
+	BYTE* pBufPtr = pInputBuffer;
+	size_t outputDataSize;
+	size_t outputBufferSize = unpackedSize;
+	
+	while (bytesLeft > 0)
+	{
+		BYTE* pMatch = find_bytes(pBufPtr, bytesLeft, END_OF_CHUNK, sizeof(END_OF_CHUNK));
+		if (!pMatch)
+		{
+			result = CAB_EXTRACT_READ_ERR;
+			goto exit;
+		}
+
+		size_t chunkSize = pMatch - pBufPtr;
+
+		if (!UnpackBuffer(pBufPtr, chunkSize, pOutputBuffer, &outputBufferSize, &outputDataSize, true))
+		{
+			result = CAB_EXTRACT_READ_ERR;
+			goto exit;
+		}
+
+		if (!dest->WriteBuffer(pOutputBuffer, (DWORD) outputDataSize))
+		{
+			result = CAB_EXTRACT_WRITE_ERR;
+			goto exit;
+		}
+
+		if (progress && progress->FileProgress && progress->signalContext)
+		{
+			if (!progress->FileProgress(progress->signalContext, outputDataSize))
+			{
+				result = CAB_EXTRACT_USER_ABORT;
+				goto exit;
+			}
+		}
+
+		MD5Update(&md5, pOutputBuffer, (unsigned int) outputDataSize);
+
+		pBufPtr += chunkSize;
+		pBufPtr += sizeof(END_OF_CHUNK);
+
+		bytesLeft -= chunkSize;
+		bytesLeft -= sizeof(END_OF_CHUNK);
+	}
+
+	if (hashBuf != NULL)
+	{
+		MD5Final(hashBuf, &md5);
+	}
+
+exit:
+	free(pInputBuffer);
+	free(pOutputBuffer);
+	return result;
 }

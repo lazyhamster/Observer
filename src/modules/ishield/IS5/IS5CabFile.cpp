@@ -348,8 +348,7 @@ int IS5CabFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProc
 				extractResult = UnpackFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
 				break;
 			case Old:
-				//TODO: implement and find sample to test
-				extractResult = CAB_EXTRACT_READ_ERR;
+				extractResult = UnpackFileOld(volume->FileHandle, pFileDesc->cbCompressed, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
 				break;
 			default:
 				return CAB_EXTRACT_READ_ERR;
