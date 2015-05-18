@@ -3,10 +3,14 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
+#include "ModuleCRT.h"
 #include "WiseFile.h"
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
+	if (SignatureNotMatch(params.Data, params.DataSize, FILE_SIGNATURE_EXE))
+		return SOR_INVALID_FILE;
+	
 	CWiseFile* arc = new CWiseFile();
 	if (!arc->Open(params.FilePath))
 	{

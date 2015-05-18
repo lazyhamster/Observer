@@ -8,6 +8,9 @@
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
+	if (SignatureNotMatch(params.Data, params.DataSize, FILE_SIGNATURE_EXE))
+		return SOR_INVALID_FILE;
+	
 	SetupFactoryFile* sfInst = OpenInstaller(params.FilePath);
 	if ((sfInst != nullptr) && (sfInst->EnumFiles() > 0))
 	{

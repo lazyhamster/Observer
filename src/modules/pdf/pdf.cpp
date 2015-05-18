@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
+#include "ModuleCRT.h"
 
 #include "PdfInfo.h"
 #include "poppler/GlobalParams.h"
@@ -11,6 +12,9 @@ static bool optOpenAllFiles = false;
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
+	if (SignatureNotMatch(params.Data, params.DataSize, FILE_SIGNATURE_PDF))
+		return SOR_INVALID_FILE;
+	
 	PDFDoc* doc = new PDFDoc(params.FilePath, (int) wcslen(params.FilePath));
 	if (doc->isOk())
 	{

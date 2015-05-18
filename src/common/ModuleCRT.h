@@ -33,8 +33,8 @@ static inline void RenameInvalidPathChars(wchar_t* input)
 
 static __int64 GetFileSize(const wchar_t* path)
 {
-	WIN32_FIND_DATA fd = {0};
-	HANDLE hFind = FindFirstFile(path, &fd);
+	WIN32_FIND_DATAW fd = {0};
+	HANDLE hFind = FindFirstFileW(path, &fd);
 	if (hFind != INVALID_HANDLE_VALUE)
 	{
 		FindClose(hFind);
@@ -68,6 +68,24 @@ static void TrimStr(wchar_t* str)
 		memmove(str, str + 1, strLen - 1);
 		strLen--;
 	}
+}
+
+#define FILE_SIGNATURE_EXE "MZ"
+#define FILE_SIGNATURE_PDF "PDF"
+
+static inline bool SignatureNotMatch(const void* pBuf, size_t nBufSize, char* pSig)
+{
+	size_t nSigLen = strlen(pSig);
+	if (pBuf && (nBufSize >= nSigLen))
+	{
+		const char* cData = (const char*) pBuf;
+		for (size_t i = 0; i < nSigLen; i++)
+		{
+			if (cData[i] != pSig[i]) return true;
+		}
+		return (cData[0] != 0x4D) || (cData[1] != 0x5A);
+	}
+	return false;
 }
 
 #endif // ModuleCRT_h__
