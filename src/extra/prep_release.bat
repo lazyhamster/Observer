@@ -30,6 +30,8 @@ ECHO Recoding lang files
 pushd ..\..\bin\Release
 @iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.hlf > ObserverRus.tmp
 @move /Y ObserverRus.tmp ObserverRus.hlf > nul
+@iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.lng > ObserverRus.tmp
+@move /Y ObserverRus.tmp ObserverRus.lng > nul
 popd
 
 ECHO Packing release
