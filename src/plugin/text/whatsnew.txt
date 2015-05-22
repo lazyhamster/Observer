@@ -1,6 +1,7 @@
 Changes history:
 
 1.10.1
+- Added Spanish translation (from Mauro72).
 - Improved Install Shield 5 support.
 
 1.10.0

@@ -757,6 +757,7 @@
     <M4_Macro Include="text\ObserverEng.lng.m4" />
     <M4_Macro Include="text\ObserverRus.hlf.m4" />
     <M4_Macro Include="text\ObserverRus.lng.m4" />
+    <M4_Macro Include="text\ObserverSpa.lng.m4" />
   </ItemGroup>
   <ItemGroup>
     <DText Include="text\license.txt" />

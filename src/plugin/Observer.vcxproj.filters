@@ -151,6 +151,9 @@
     <M4_Macro Include="text\ObserverRus.lng.m4">
       <Filter>Support Files</Filter>
     </M4_Macro>
+    <M4_Macro Include="text\ObserverSpa.lng.m4">
+      <Filter>Support Files</Filter>
+    </M4_Macro>
   </ItemGroup>
   <ItemGroup>
     <DText Include="text\license.txt">
