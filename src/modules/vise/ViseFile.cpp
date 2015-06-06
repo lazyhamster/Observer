@@ -98,8 +98,10 @@ bool CViseFile::ReadServiceFiles( std::shared_ptr<AStream> inStream )
 	int16_t fileCount = 0;
 	int32_t unknown;
 	int32_t compressedSize;
-	BYTE fileNameSize;
+	uint8_t fileNameSize;
 	char fileNameBuf[MAX_PATH];
+	WORD wFatDate, wFatTime;
+	FILETIME localTime, lastWriteTime;
 
 	RFIF(inStream->Read(&fileCount) && fileCount > 0);
 	
@@ -112,15 +114,20 @@ bool CViseFile::ReadServiceFiles( std::shared_ptr<AStream> inStream )
 
 		fileNameBuf[fileNameSize] = '\0';
 
-		RFIF(inStream->Read(&unknown));
+		RFIF(inStream->Read(&wFatDate));
+		RFIF(inStream->Read(&wFatTime));
 		RFIF(inStream->Read(&unknown));
 		RFIF(inStream->Read(&unknown));
 
 		RFIF(inStream->Read(&compressedSize));
 
+		DosDateTimeToFileTime(wFatDate, wFatTime, &localTime);
+		LocalFileTimeToFileTime(&localTime, &lastWriteTime);
+
 		entry.Name = fileNameBuf;
 		entry.PackedSize = compressedSize;
 		entry.UnpackedSize = 0;
+		entry.LastWriteTime = lastWriteTime;
 		entry.StartOffset = inStream->GetPos();
 
 		inStream->Seek(compressedSize, STREAM_CURRENT);
@@ -226,18 +233,30 @@ bool CViseFile::ReadViseScript( std::shared_ptr<AStream> inStream )
 	for (uint16_t i = 0; i < setupTypeCount; i++)
 	{
 		uint32_t typeIndex;
+		uint16_t num16;
 		
 		RFIF(ReadViseString(inStream, strSetupType));
-		RFIF(inStream->Seek(2, STREAM_CURRENT));
+		RFIF(inStream->Skip(2));
 		RFIF(ReadViseString(inStream, strTmp));
-		inStream->Seek(34, STREAM_CURRENT);
+		RFIF(inStream->Skip(3)); // 2 + 1
+		RFIF(ReadViseString(inStream, strTmp));
+
+		RFIF(inStream->Skip(10));
+		RFIF(inStream->Skip(16));
+		
+		RFIF(inStream->Skip(4));
 		RFIF(inStream->Read(&typeIndex));
-		inStream->Seek(40, STREAM_CURRENT);
+		RFIF(inStream->Skip(36)); // Filled with FF, blocks by 4
+		RFIF(inStream->Skip(1));
+		RFIF(inStream->Read(&num16));
+		RFIF(inStream->Skip(num16 * 5));
+		RFIF(inStream->Skip(2));
+		RFIF(ReadViseString(inStream, strTmp));
 		// Magic numbers are not stable
 	}
 
 	uint32_t objectCount;
-	uint16_t objectType;
+	uint32_t objectType;
 	
 	char filename[MAX_PATH];
 	char directory[MAX_PATH];
@@ -297,7 +316,7 @@ bool CViseFile::ReadViseScript( std::shared_ptr<AStream> inStream )
 				{
 					int8_t unknown;
 
-					RFIF(inStream->Seek(0x66, STREAM_CURRENT));
+					RFIF(inStream->Skip(0x65));
 										
 					RFIF(ReadViseString(inStream, strTmp)); // key
 					RFIF(inStream->Read(&unknown));
@@ -306,8 +325,10 @@ bool CViseFile::ReadViseScript( std::shared_ptr<AStream> inStream )
 						return false;
 					}
 					RFIF(ReadViseString(inStream, strTmp)); // value
-
-					RFIF(inStream->Seek(0x7, STREAM_CURRENT));
+					RFIF(inStream->Skip(1));
+					RFIF(ReadViseString(inStream, strTmp));
+					RFIF(ReadViseString(inStream, strTmp));
+					RFIF(ReadViseString(inStream, strTmp));
 				}
 				break;
 			case 0x11:

@@ -8,7 +8,16 @@ struct ViseFileEntry
 	std::string Name;
 	uint32_t PackedSize;
 	uint32_t UnpackedSize;
+	FILETIME LastWriteTime;
 	int64_t StartOffset;
+
+	ViseFileEntry()
+	{
+		Name = "";
+		PackedSize = UnpackedSize = 0;
+		StartOffset = 0;
+		memset(&LastWriteTime, 0, sizeof(LastWriteTime));
+	}
 };
 
 class CViseFile

@@ -48,6 +48,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		MultiByteToWideChar(CP_ACP, 0, entry.Name.c_str(), -1, item_info->Path, STRBUF_SIZE(item_info->Path));
 		item_info->Size = entry.UnpackedSize;
 		item_info->PackedSize = entry.PackedSize;
+		item_info->ModificationTime = entry.LastWriteTime;
 		
 		return GET_ITEM_OK;
 	}
