@@ -12,6 +12,7 @@ public:
 	
 	virtual int64_t GetPos();
 	virtual bool SetPos(int64_t newPos);
+	bool Skip(int64_t numBytes) { return Seek(numBytes, STREAM_CURRENT); }
 
 	virtual int64_t GetSize() = 0;
 	virtual bool Seek(int64_t seekPos, int8_t seekOrigin) = 0;
