@@ -214,8 +214,8 @@ bool WINAPI SFileOpenArchive(
         if(dwFlags & MPQ_OPEN_CHECK_SECTOR_CRC)
             ha->dwFlags |= MPQ_FLAG_CHECK_SECTOR_CRC;
 
-        // Limit the header searching to about 1 MB of data
-		const ULONGLONG MaxSearch = 1 * 1024 * 1024;
+        // Limit the header searching to about 3 MB of data
+		const ULONGLONG MaxSearch = 3 * 1024 * 1024;
         if(EndOfSearch > MaxSearch)
             EndOfSearch = MaxSearch;
 
