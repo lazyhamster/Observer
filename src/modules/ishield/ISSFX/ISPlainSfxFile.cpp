@@ -37,7 +37,8 @@ bool ISSfx::ISPlainSfxFile::InternalOpen( CFileStream* headerFile )
 	int nFilesLeft = fIsUnicode ? (int) numFiles : -1;
 	if (!fIsUnicode) headerFile->SetPos(nOverlayStart);
 
-	while (nBytesRemain > 0 && nFilesLeft != 0)
+	// Some times there are padding \x0 bytes left after all files
+	while (nBytesRemain > 1 && nFilesLeft != 0)
 	{
 		SfxFilePlainEntry entry = {0};
 		__int64 entrySize = fIsUnicode ? ReadUnicodeEntry(headerFile, &entry) : ReadAnsiEntry(headerFile, &entry);
