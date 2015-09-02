@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Label="UserMacros">
-    <FAR_DBG>C:\Tools\FarDBG\Plugins\Personal</FAR_DBG>
-    <FAR2_DBG>C:\Tools\Far2DBG\Plugins\!Personal</FAR2_DBG>
-    <FAR3_DBG>C:\Tools\Far3DBG\Plugins\!Personal</FAR3_DBG>
-    <FAR3_DBG_x64>C:\Tools\Far3DBG-x64\Plugins\!Personal</FAR3_DBG_x64>
+    <FAR_DBG>C:\Tools\Far-DBG\Far\Plugins\Personal</FAR_DBG>
+    <FAR2_DBG>C:\Tools\Far-DBG\Far2\Plugins\!Personal</FAR2_DBG>
+    <FAR3_DBG>C:\Tools\Far-DBG\Far3\Plugins\!Personal</FAR3_DBG>
+    <FAR3_DBG_x64>C:\Tools\Far-DBG\Far3-x64\Plugins\!Personal</FAR3_DBG_x64>
   </PropertyGroup>
   <PropertyGroup>
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
