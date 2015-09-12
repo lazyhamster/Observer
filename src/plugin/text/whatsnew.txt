@@ -1,6 +1,7 @@
 Changes history:
 
 1.10.2
+- VSIDK: Fixed files listing for DMG images.
 - Minor changes.
 
 1.10.1

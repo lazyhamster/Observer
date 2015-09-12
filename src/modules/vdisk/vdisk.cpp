@@ -81,7 +81,7 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 		for (int i = 0; i < subDirList->Length; i++)
 		{
 			DiscDirectoryInfo^ subDir = subDirList[i];
-			if (subDir->Name != "." && subDir->Name != "..")
+			if (subDir->Name != "." && subDir->Name != ".." && subDir->Name->Length > 0 && subDir->Name[0] != 0)
 			{
 				vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex));
 				EnumFilesInVolume(vdObj, subDir, vol, volIndex);
@@ -330,7 +330,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		DiscFileSystemInfo^ fsData = fileInfo->Ref;
 		
 		item_info->Attributes = (DWORD) fsData->Attributes;
-		item_info->Size = (fsData->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fsData)->Length : 0;;
+		item_info->Size = (fsData->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fsData)->Length : 0;
+
+		if (fsData->GetType() == DiscDirectoryInfo::typeid)
+			item_info->Attributes |= FILE_ATTRIBUTE_DIRECTORY;
 
 		try
 		{
