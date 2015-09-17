@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="gea.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LZGE\lzge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LZGE\match.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="memory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Huffman\huffman.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PPMD\endeppmd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PPMD\PPMd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PPMD\PPMdCmn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="LZGE\delzge.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LZGE\enlzge.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LZGE\lzge.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LZGE\match.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="memory.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Huffman\dehuffman.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Huffman\enhuffman.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Huffman\huffman.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gea.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PPMD\deppmd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PPMD\enppmd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PPMD\ppmd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PPMD\PPMdCmn.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PPMD\PPMdDec.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PPMD\PPMdEnc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

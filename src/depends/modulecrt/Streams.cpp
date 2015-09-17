@@ -13,12 +13,12 @@ bool AStream::SetPos( int64_t newPos )
 	return Seek(newPos, &resultPos, STREAM_BEGIN) && (resultPos == newPos);
 }
 
-int64_t AStream::CopyFrom( AStream* src )
+int64_t AStream::CopyFrom( AStream* src, int64_t maxBytes )
 {
 	const size_t copyBufSize = 32 * 1024;
 	uint8_t copyBuf[copyBufSize];
 	
-	int64_t totalDataSize = src->GetSize() - src->GetPos();
+	int64_t totalDataSize = min(src->GetSize() - src->GetPos(), maxBytes);
 	int64_t bytesLeft = totalDataSize;
 	while (bytesLeft > 0)
 	{
@@ -144,6 +144,13 @@ bool CFileStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
 	return fWriteResult && (dwBytes == bufferSize);
 }
 
+bool CFileStream::Clear()
+{
+	if (m_fReadOnly || !IsValid()) return false;
+	
+	return SetPos(0) && (SetEndOfFile(m_hFile) != 0);
+}
+
 CFileStream* CFileStream::Open( const wchar_t* filePath, bool readOnly, bool createIfNotExists )
 {
 	CFileStream* pStream = new CFileStream(filePath, readOnly, createIfNotExists);
@@ -161,6 +168,11 @@ bool CNullStream::ReadBufferAny( LPVOID buffer, size_t bufferSize, size_t *readS
 }
 
 bool CNullStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
+{
+	return true;
+}
+
+bool CNullStream::Clear()
 {
 	return true;
 }
@@ -211,7 +223,7 @@ bool CMemoryStream::Seek( int64_t seekPos, int64_t* newPos, int8_t seekOrigin )
 		m_pCurrPtr = m_pDataBuffer + seekPos;
 		break;
 	case STREAM_CURRENT:
-		if ((currPos + seekPos >= m_nDataSize) || (currPos + seekPos < 0)) return false;
+		if ((currPos + seekPos > m_nDataSize) || (currPos + seekPos < 0)) return false;
 		m_pCurrPtr += seekPos;
 		break;
 	case STREAM_END:
@@ -271,7 +283,125 @@ bool CMemoryStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
 	return true;
 }
 
+bool CMemoryStream::Clear()
+{
+	m_nDataSize = 0;
+	m_pCurrPtr = m_pDataBuffer;
+
+	return true;
+}
+
+bool CMemoryStream::Delete( size_t delSize )
+{
+	size_t bytesLeftFromPos = m_nDataSize - (m_pCurrPtr - m_pDataBuffer);
+	size_t actualDelSize = min(delSize, bytesLeftFromPos);
+	if (actualDelSize > 0)
+	{
+		memmove(m_pCurrPtr, m_pCurrPtr + actualDelSize, actualDelSize);
+	}
+	return true;
+}
+
 int64_t CMemoryStream::GetSize()
 {
 	return (int64_t) m_nDataSize;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+CPartialStream::CPartialStream( AStream* parentStream, int64_t partStartOffset, int64_t partSize )
+{
+	m_pParentStream = parentStream;
+	m_nStartOffset = max(partStartOffset, 0);
+	m_nSize = max(partSize, 0);
+	m_nCurrentPos = 0;
+}
+
+int64_t CPartialStream::GetSize()
+{
+	return m_nSize;
+}
+
+bool CPartialStream::Seek( int64_t seekPos, int8_t seekOrigin )
+{
+	return Seek(seekPos, nullptr, seekOrigin);
+}
+
+bool CPartialStream::Seek( int64_t seekPos, int64_t* newPos, int8_t seekOrigin )
+{
+	int64_t nextLocalPos = -1;
+	
+	switch (seekOrigin)
+	{
+	case STREAM_BEGIN:
+		nextLocalPos = seekPos;
+		break;
+	case STREAM_CURRENT:
+		nextLocalPos = nextLocalPos + seekPos;
+		break;
+	case STREAM_END:
+		nextLocalPos = m_nSize - 1 + seekPos;
+		break;
+	}
+
+	if (nextLocalPos < 0 || nextLocalPos >= m_nSize)
+		return false;
+
+	int64_t storedParentPos = m_pParentStream->GetPos();
+	bool rval = m_pParentStream->SetPos(m_nStartOffset + nextLocalPos);
+	m_pParentStream->SetPos(storedParentPos);
+
+	if (rval)
+	{
+		m_nCurrentPos = nextLocalPos;
+		if (newPos) *newPos = nextLocalPos;
+	}
+
+	return rval;
+}
+
+bool CPartialStream::ReadBufferAny( LPVOID buffer, size_t bufferSize, size_t *readSize )
+{
+	if ((nullptr == buffer) || (UINT32_MAX < bufferSize)) return false;
+	if (bufferSize == 0) return true;
+
+	int64_t storedParentPos = m_pParentStream->GetPos();
+	size_t actualReadSize = 0;
+
+	size_t copySize = min(bufferSize, (size_t) (m_nSize - m_nCurrentPos));
+	m_pParentStream->SetPos(m_nStartOffset + m_nCurrentPos);
+	bool rval = m_pParentStream->ReadBufferAny(buffer, copySize, &actualReadSize);
+	if (rval)
+	{
+		m_nCurrentPos += actualReadSize;
+		if (readSize) *readSize = actualReadSize;
+	}
+
+	m_pParentStream->SetPos(storedParentPos);
+	return rval;
+}
+
+bool CPartialStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
+{
+	if (!buffer) return false;
+	if (bufferSize == 0) return true;
+	if (bufferSize > (m_nSize - m_nCurrentPos)) return false;
+	
+	int64_t storedParentPos = m_pParentStream->GetPos();
+	
+	m_pParentStream->SetPos(m_nStartOffset + m_nCurrentPos);
+	bool rval = m_pParentStream->WriteBuffer(buffer, bufferSize);
+	if (rval)
+	{
+		m_nCurrentPos += bufferSize;
+	}
+
+	m_pParentStream->SetPos(storedParentPos);
+	return rval;
+}
+
+bool CPartialStream::Clear()
+{
+	//TODO: implement
+	return false;
 }

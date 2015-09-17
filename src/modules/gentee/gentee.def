@@ -1,0 +1,5 @@
+LIBRARY	"gentee.so"
+
+EXPORTS
+	LoadSubModule
+	UnloadSubModule

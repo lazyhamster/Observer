@@ -5,6 +5,8 @@
 #define STREAM_CURRENT FILE_CURRENT
 #define STREAM_END FILE_END
 
+#define MAX_SIZE_INFINITE ULONG_MAX
+
 class AStream
 {
 public:
@@ -19,10 +21,11 @@ public:
 	virtual bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin) = 0;
 	virtual bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize) = 0;
 	virtual bool WriteBuffer(LPCVOID buffer, size_t bufferSize) = 0;
+	virtual bool Clear() = 0;
 
 	bool ReadBuffer(LPVOID buffer, size_t bufferSize);
 
-	int64_t CopyFrom(AStream* src);
+	int64_t CopyFrom(AStream* src, int64_t maxBytes = MAX_SIZE_INFINITE);
 	
 	template <typename T>
 	bool Read(T* val)
@@ -62,6 +65,7 @@ public:
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
 	bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize);
 	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
+	bool Clear();
 
 	const wchar_t* FilePath() const { return m_strPath; }
 	HANDLE GetHandle() { return m_hFile; }
@@ -90,8 +94,10 @@ public:
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
 	bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize);
 	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
+	bool Clear();
 
-	const char* DataPtr() { return m_pDataBuffer; }
+	bool Delete(size_t delSize);
+	const char* CDataPtr() const { return m_pDataBuffer; }
 };
 
 class CNullStream : public AStream
@@ -104,6 +110,28 @@ public:
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
 	bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize);
 	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
+	bool Clear();
+};
+
+class CPartialStream : public AStream
+{
+private:
+	AStream* m_pParentStream;
+	int64_t m_nStartOffset;
+	int64_t m_nSize;
+	int64_t m_nCurrentPos;
+
+public:
+	CPartialStream(AStream* parentStream, int64_t partStartOffset, int64_t partSize);
+
+	int64_t GetSize();
+	bool Seek(int64_t seekPos, int8_t seekOrigin);
+	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
+	bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize);
+	bool WriteBuffer(LPCVOID buffer, size_t bufferSize);
+	bool Clear();
+
+	AStream* GetParentStream() { return m_pParentStream; }
 };
 
 #endif // FileStream_h__

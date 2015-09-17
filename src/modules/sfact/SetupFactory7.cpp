@@ -243,7 +243,7 @@ bool SetupFactory7::ReadSpecialFile( const char* fileName, bool isXORed )
 
 uint32_t SetupFactory7::FindFileBlockInScript()
 {
-	const char* srcStart = m_pScriptData->DataPtr();
+	const char* srcStart = m_pScriptData->CDataPtr();
 	const char* srcEnd = srcStart + m_pScriptData->GetSize();
 	const char* ptrnStart = "CSetupFileData";
 	const char* ptrnEnd = ptrnStart + strlen(ptrnStart);
