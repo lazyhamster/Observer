@@ -100,12 +100,4 @@ typedef void (MODULE_EXPORT *UnloadSubModuleFunc)(void);
 #define SER_ERROR_SYSTEM 3
 #define SER_USERABORT 4
 
-// Extract error reactions
-#define EEN_ABORT 1
-#define EEN_RETRY 2
-#define EEN_SKIP 3
-#define EEN_SKIPALL 4
-#define EEN_CONTINUE 5
-#define EEN_CONTINUESILENT 6
-
 #endif

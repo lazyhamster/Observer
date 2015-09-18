@@ -120,6 +120,14 @@ public:
 	}
 };
 
+// Extract error reactions
+#define EEN_ABORT 1
+#define EEN_RETRY 2
+#define EEN_SKIP 3
+#define EEN_SKIPALL 4
+#define EEN_CONTINUE 5
+#define EEN_CONTINUESILENT 6
+
 #define ULTOW(num, wstr) _ultow_s(num, wstr, ARRAY_SIZE(wstr), 10);
 
 #define I64TOW_C(num, wstr) _i64tow_s(num, wstr, ARRAY_SIZE(wstr), 10); InsertCommas(wstr);
