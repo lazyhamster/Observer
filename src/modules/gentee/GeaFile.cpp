@@ -321,12 +321,12 @@ bool GeaFile::ExtractFile( int index, AStream* dest )
 			pm.order = corder;
 			ppmd_decode(inBuf, gd.size, outBuf, osize, &pm);
 			break;
+		default:
+			free(inBuf);
+			return false;
 		}
 
-		if (outBuf)
-		{
-			crc = crc32(crc, outBuf, osize);
-		}
+		crc = crc32(crc, outBuf, osize);
 
 		gd.size -= isize;
 		if (dest && outBuf)
