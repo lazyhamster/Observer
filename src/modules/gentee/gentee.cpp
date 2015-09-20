@@ -106,6 +106,8 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		return SER_ERROR_WRITE;
 	case AbortedByUser:
 		return SER_USERABORT;
+	case PasswordRequired:
+		return Failure; //TODO: return proper code
 	}
 
 	return SER_SUCCESS;
