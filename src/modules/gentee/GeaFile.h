@@ -38,7 +38,7 @@ private:
 	size_t m_nOutBufferDataSize;
 
 	std::string ReadGeaString(AStream* data);
-	bool CheckPassword(uint32_t idpass, const char* password);
+	bool CheckPassword(uint32_t passIndex, const char* password);
 
 public:
 	GeaFile();

@@ -257,10 +257,10 @@ GenteeExtractResult GeaFile::ExtractFile( int index, AStream* dest, const char* 
 
 	if (gf.idpass)
 	{
-		filePass = m_vPasswords[gf.idpass];
+		filePass = m_vPasswords[gf.idpass-1];
 		if (filePass.length() == 0)
 		{
-			if (CheckPassword(gf.idpass, password))
+			if (CheckPassword(gf.idpass-1, password))
 				filePass = password;
 			else
 				return PasswordRequired;
@@ -389,15 +389,15 @@ std::string GeaFile::ReadGeaString( AStream* data )
 	return str;
 }
 
-bool GeaFile::CheckPassword( uint32_t idpass, const char* password )
+bool GeaFile::CheckPassword( uint32_t passIndex, const char* password )
 {
 	if (!password || !*password) return false;
-	if (m_vPasswordCRC.size() <= idpass) return false;
+	if (m_vPasswordCRC.size() <= passIndex) return false;
 	
 	uint32_t passCrc = crc((pubyte) password, strlen(password), CRC_SEED);
-	if (m_vPasswordCRC[idpass] == passCrc)
+	if (m_vPasswordCRC[passIndex] == passCrc)
 	{
-		m_vPasswords[idpass] = password;
+		m_vPasswords[passIndex] = password;
 		return true;
 	}
 
