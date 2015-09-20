@@ -51,6 +51,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="common\crc.h" />
+    <ClInclude Include="common\types.h" />
     <ClInclude Include="gea.h" />
     <ClInclude Include="Huffman\huffman.h" />
     <ClInclude Include="LZGE\lzge.h" />
@@ -61,6 +63,7 @@
     <ClInclude Include="PPMD\PPMdCmn.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="common\crc.c" />
     <ClCompile Include="gea.c" />
     <ClCompile Include="Huffman\dehuffman.c" />
     <ClCompile Include="Huffman\enhuffman.c" />

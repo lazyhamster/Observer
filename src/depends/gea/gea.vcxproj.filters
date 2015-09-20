@@ -39,6 +39,12 @@
     <ClInclude Include="PPMD\PPMdCmn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="common\crc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common\types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="LZGE\delzge.c">
@@ -84,6 +90,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PPMD\PPMdEnc.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="common\crc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

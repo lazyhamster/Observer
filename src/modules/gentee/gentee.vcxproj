@@ -609,9 +609,6 @@
     <ProjectReference Include="..\..\depends\modulecrt\modulecrt.vcxproj">
       <Project>{cebdd3f1-0d8a-4d3c-b5a9-1fdf98b8507f}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
-      <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

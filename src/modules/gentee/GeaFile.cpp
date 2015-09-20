@@ -3,7 +3,7 @@
 #include "gea.h"
 #include "gea/LZGE/lzge.h"
 #include "gea/PPMD/endeppmd.h"
-#include "zlib/zlib.h"
+#include "gea/common/crc.h"
 
 extern "C"
 {
@@ -241,8 +241,7 @@ bool GeaFile::ExtractFile( int index, AStream* dest )
 
 	geadata gd = {0};
 	uint32_t ctype, corder;
-	uint32_t crc = 0xFFFFFFFF;
-	//uint32_t crc = crc32(0, Z_NULL, 0);
+	uint32_t fileCrc = 0xFFFFFFFF;
 	
 	if (!m_pStream->SetPos(gf.offset)) return false;
 
@@ -326,7 +325,7 @@ bool GeaFile::ExtractFile( int index, AStream* dest )
 			return false;
 		}
 
-		crc = crc32(crc, outBuf, osize);
+		fileCrc = crc(outBuf, osize, fileCrc);
 
 		gd.size -= isize;
 		if (dest && outBuf)
@@ -339,10 +338,7 @@ bool GeaFile::ExtractFile( int index, AStream* dest )
 
 	m_nLastSolid = index;
 
-	//TODO: use crc
-	//return (bytesLeft == 0) && ((crc == gf.crc) || (gf.crc == 0));
-
-	return (bytesLeft == 0);
+	return (bytesLeft == 0) && ((fileCrc == gf.crc) || (gf.crc == 0));
 }
 
 void GeaFile::GetFileTypeName( wchar_t* buf, size_t bufSize )

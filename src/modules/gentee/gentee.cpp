@@ -8,6 +8,8 @@
 #include "InstallerNewFile.h"
 #include "InstallerOldFile.h"
 
+#include "gea/common/crc.h"
+
 BaseGenteeFile* TryOpenFile(const wchar_t* path, const char* sample, size_t sampleSize)
 {
 	// To avoid opening of file
@@ -112,6 +114,8 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.GetItem = GetStorageItem;
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
+
+	crc_init();
 
 	return TRUE;
 }
