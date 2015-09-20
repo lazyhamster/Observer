@@ -42,7 +42,7 @@ public:
 	virtual int GetFilesCount() { return 0; }
 	virtual bool GetFileDesc(int index, StorageItemInfo* desc);
 
-	virtual bool ExtractFile(int index, AStream* dest);
+	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password);
 
 	virtual void GetFileTypeName(wchar_t* buf, size_t bufSize);
 	virtual void GetCompressionName(wchar_t* buf, size_t bufSize);

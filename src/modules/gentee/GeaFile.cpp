@@ -5,10 +5,17 @@
 #include "gea/PPMD/endeppmd.h"
 #include "gea/common/crc.h"
 
+#define CRC_SEED 0xFFFFFFFF
+
 extern "C"
 {
 dword STDCALL ppmd_decode( pbyte in, dword size, pbyte out, dword outsize, psppmd ppmd );
 };
+
+static void gea_protect(uint8_t* buf, size_t size, const char* passwd)
+{
+	//TODO: implement
+}
 
 GeaFile::GeaFile()
 {
@@ -68,6 +75,7 @@ bool GeaFile::Open( AStream* inStream )
 		{
 			inStream->Read(&passCrc);
 			m_vPasswordCRC.push_back(passCrc);
+			m_vPasswords.push_back("");
 		}
 	}
 
@@ -202,6 +210,7 @@ void GeaFile::Close()
 	m_vFiles.clear();
 	m_sPattern.clear();
 	m_vPasswordCRC.clear();
+	m_vPasswords.clear();
 	m_vVolSizes.clear();
 	m_vVolOffs.clear();
 }
@@ -226,24 +235,37 @@ bool GeaFile::GetFileDesc( int index, StorageItemInfo* desc )
 	return false;
 }
 
-bool GeaFile::ExtractFile( int index, AStream* dest )
+GenteeExtractResult GeaFile::ExtractFile( int index, AStream* dest, const char* password )
 {
 	if (index < 0 || index >= (int)m_vFiles.size())
-		return false;
+		return Failure;
 
 	const geafiledesc& gf = m_vFiles[index];
 	
 	if ((gf.flags & GEAF_SOLID) && (index - 1 != m_nLastSolid))
 	{
-		if (!ExtractFile(index - 1, nullptr))
-			return false;
+		if (!ExtractFile(index - 1, nullptr, password))
+			return FailedRead;
 	}
 
 	geadata gd = {0};
 	uint32_t ctype, corder;
-	uint32_t fileCrc = 0xFFFFFFFF;
+	uint32_t fileCrc = CRC_SEED;
+	std::string filePass;
 	
-	if (!m_pStream->SetPos(gf.offset)) return false;
+	if (!m_pStream->SetPos(gf.offset)) return FailedRead;
+
+	if (gf.idpass)
+	{
+		filePass = m_vPasswords[gf.idpass];
+		if (filePass.length() == 0)
+		{
+			if (CheckPassword(gf.idpass, password))
+				filePass = password;
+			else
+				return PasswordRequired;
+		}
+	}
 
 	int64_t bytesLeft = gf.size;
 	while (bytesLeft > 0)
@@ -294,8 +316,9 @@ bool GeaFile::ExtractFile( int index, AStream* dest )
 		if (gf.idpass)
 		{
 			//TODO: implement
+			//gea_protect(inBuf, isize, filePass.c_str());
 			free(inBuf);
-			return false;
+			return Failure;
 		}
 
 		BYTE* outBuf = nullptr;
@@ -322,7 +345,7 @@ bool GeaFile::ExtractFile( int index, AStream* dest )
 			break;
 		default:
 			free(inBuf);
-			return false;
+			return FailedRead;
 		}
 
 		fileCrc = crc(outBuf, osize, fileCrc);
@@ -330,7 +353,11 @@ bool GeaFile::ExtractFile( int index, AStream* dest )
 		gd.size -= isize;
 		if (dest && outBuf)
 		{
-			dest->WriteBuffer(outBuf, osize);
+			if (!dest->WriteBuffer(outBuf, osize))
+			{
+				free(inBuf);
+				return FailedWrite;
+			}
 		}
 		bytesLeft -= osize;
 		free(inBuf);
@@ -338,7 +365,7 @@ bool GeaFile::ExtractFile( int index, AStream* dest )
 
 	m_nLastSolid = index;
 
-	return (bytesLeft == 0) && ((fileCrc == gf.crc) || (gf.crc == 0));
+	return (bytesLeft == 0) && ((fileCrc == gf.crc) || (gf.crc == 0)) ? Success : FailedRead;
 }
 
 void GeaFile::GetFileTypeName( wchar_t* buf, size_t bufSize )
@@ -360,4 +387,19 @@ std::string GeaFile::ReadGeaString( AStream* data )
 		str += c;
 	}
 	return str;
+}
+
+bool GeaFile::CheckPassword( uint32_t idpass, const char* password )
+{
+	if (!password || !*password) return false;
+	if (m_vPasswordCRC.size() <= idpass) return false;
+	
+	uint32_t passCrc = crc((pubyte) password, strlen(password), CRC_SEED);
+	if (m_vPasswordCRC[idpass] == passCrc)
+	{
+		m_vPasswords[idpass] = password;
+		return true;
+	}
+
+	return false;
 }

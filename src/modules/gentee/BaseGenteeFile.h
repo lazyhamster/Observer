@@ -3,6 +3,16 @@
 
 #include "ModuleDef.h"
 
+enum GenteeExtractResult
+{
+	Success,
+	Failure,
+	FailedRead,
+	FailedWrite,
+	PasswordRequired,
+	AbortedByUser
+};
+
 class BaseGenteeFile
 {
 protected:
@@ -17,7 +27,7 @@ public:
 	virtual int GetFilesCount() = 0;
 	virtual bool GetFileDesc(int index, StorageItemInfo* desc) = 0;
 
-	virtual bool ExtractFile(int index, AStream* dest) = 0;
+	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password) = 0;
 
 	virtual void GetFileTypeName(wchar_t* buf, size_t bufSize) = 0;
 	virtual void GetCompressionName(wchar_t* buf, size_t bufSize) = 0;

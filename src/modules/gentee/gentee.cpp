@@ -89,15 +89,25 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	AStream* destStream = CFileStream::Open(params.destFilePath, false, true);
 	if (!destStream) return SER_ERROR_WRITE;
 
-	bool success = filePtr->ExtractFile(params.item, destStream);
+	//TODO: supply password from outside
+	GenteeExtractResult extResult = filePtr->ExtractFile(params.item, destStream, nullptr);
 	delete destStream;
 
-	if (!success)
-	{
+	if (extResult != Success)
 		DeleteFile(params.destFilePath);
+
+	switch(extResult)
+	{
+	case Failure:
+		return SER_ERROR_SYSTEM;
+	case FailedRead:
 		return SER_ERROR_READ;
+	case FailedWrite:
+		return SER_ERROR_WRITE;
+	case AbortedByUser:
+		return SER_USERABORT;
 	}
-	
+
 	return SER_SUCCESS;
 }
 

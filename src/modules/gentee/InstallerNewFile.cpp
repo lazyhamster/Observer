@@ -230,10 +230,10 @@ bool InstallerNewFile::GetFileDesc( int index, StorageItemInfo* desc )
 	return false;
 }
 
-bool InstallerNewFile::ExtractFile( int index, AStream* dest )
+GenteeExtractResult InstallerNewFile::ExtractFile( int index, AStream* dest, const char* password )
 {
 	if (index < 0 || index >= (int)m_vFiles.size())
-		return false;
+		return Failure;
 
 	InstallerFileDesc* fd = m_vFiles[index];
 
@@ -241,14 +241,14 @@ bool InstallerNewFile::ExtractFile( int index, AStream* dest )
 	{
 		fd->Content->SetPos(0);
 		dest->CopyFrom(fd->Content);
-		return true;
+		return Success;
 	}
 	else if (fd->ParentFile && (fd->ParentFileIndex >= 0))
 	{
-		return fd->ParentFile->ExtractFile(fd->ParentFileIndex, dest);
+		return fd->ParentFile->ExtractFile(fd->ParentFileIndex, dest, password);
 	}
 	
-	return false;
+	return Failure;
 }
 
 void InstallerNewFile::GetFileTypeName( wchar_t* buf, size_t bufSize )

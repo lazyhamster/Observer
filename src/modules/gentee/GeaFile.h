@@ -27,6 +27,7 @@ class GeaFile : public BaseGenteeFile
 private:
 	std::vector<geafiledesc> m_vFiles;
 	std::vector<uint32_t> m_vPasswordCRC;
+	std::vector<std::string> m_vPasswords;
 	std::string m_sPattern;
 	uint32_t m_nBlockSize;
 	uint32_t m_nSolidSize;
@@ -37,6 +38,7 @@ private:
 	size_t m_nOutBufferDataSize;
 
 	std::string ReadGeaString(AStream* data);
+	bool CheckPassword(uint32_t idpass, const char* password);
 
 public:
 	GeaFile();
@@ -48,7 +50,7 @@ public:
 	virtual int GetFilesCount() { return (int) m_vFiles.size(); }
 	virtual bool GetFileDesc(int index, StorageItemInfo* desc);
 
-	virtual bool ExtractFile(int index, AStream* dest);
+	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password);
 
 	virtual void GetFileTypeName(wchar_t* buf, size_t bufSize);
 	virtual void GetCompressionName(wchar_t* buf, size_t bufSize);
