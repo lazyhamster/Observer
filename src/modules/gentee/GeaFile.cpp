@@ -230,6 +230,9 @@ bool GeaFile::GetFileDesc( int index, StorageItemInfo* desc )
 		desc->Size = gf.size;
 		desc->PackedSize = gf.compsize;
 
+		if (gf.idpass > 0)
+			desc->Attributes |= FILE_ATTRIBUTE_ENCRYPTED;
+
 		return true;
 	}
 	return false;
