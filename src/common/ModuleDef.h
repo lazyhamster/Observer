@@ -12,7 +12,7 @@ struct ExtractProcessCallbacks
 	ExtractProgressFunc FileProgress;
 };
 
-#define ACTUAL_API_VERSION 4
+#define ACTUAL_API_VERSION 5
 #define STORAGE_FORMAT_NAME_MAX_LEN 32
 #define STORAGE_PARAM_MAX_LEN 64
 
@@ -45,10 +45,11 @@ struct StorageItemInfo
 
 struct ExtractOperationParams 
 {
-	int item;
-	int flags;
-	const wchar_t* destFilePath;
-	ExtractProcessCallbacks callbacks;
+	int ItemIndex;
+	int Flags;
+	const wchar_t* DestPath;
+	const char* Password;
+	ExtractProcessCallbacks Callbacks;
 };
 
 typedef int (MODULE_EXPORT *OpenStorageFunc)(StorageOpenParams, HANDLE*, StorageGeneralInfo*);
@@ -99,5 +100,6 @@ typedef void (MODULE_EXPORT *UnloadSubModuleFunc)(void);
 #define SER_ERROR_READ 2
 #define SER_ERROR_SYSTEM 3
 #define SER_USERABORT 4
+#define SER_PASSWORD_REQUIRED 5
 
 #endif

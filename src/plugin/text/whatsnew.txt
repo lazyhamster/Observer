@@ -1,6 +1,7 @@
 Changes history:
 
-1.10.2
+1.11.0
+- Changes in modules API.
 - VSIDK: Fixed files listing for DMG images.
 - Minor changes.
 
