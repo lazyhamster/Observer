@@ -2,6 +2,7 @@ Changes history:
 
 1.11.0
 - Changes in modules API.
+- New module: Support for installers made by CreateInstall (aka Gentee Installer).
 - VSIDK: Fixed files listing for DMG images.
 - Minor changes.
 

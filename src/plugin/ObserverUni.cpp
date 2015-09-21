@@ -614,11 +614,11 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	{
 		// Set extract params
 		ExtractOperationParams params;
-		params.item = item->StorageIndex;
-		params.flags = 0;
-		params.destFilePath = destPath.c_str();
-		params.callbacks.FileProgress = ExtractProgress;
-		params.callbacks.signalContext = pctx;
+		params.ItemIndex = item->StorageIndex;
+		params.Flags = 0;
+		params.DestPath = destPath.c_str();
+		params.Callbacks.FileProgress = ExtractProgress;
+		params.Callbacks.signalContext = pctx;
 
 		ExtractStart(item, pctx, hScreen);
 		ret = storage->Extract(params);
