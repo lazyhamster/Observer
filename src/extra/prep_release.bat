@@ -22,21 +22,21 @@ ECHO.
 
 SET PACKER_CMD=@rar.exe a -y -r -ep1 -apObserver -x*.metagen
 
-ECHO Building version for Far 1 x86
-%DEVENV_EXE_PATH% /Rebuild "Release|Win32" "..\Observer.VS2010.sln"
-if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
+REM ECHO Building version for Far 1 x86
+REM %DEVENV_EXE_PATH% /Rebuild "Release|Win32" "..\Observer.VS2010.sln"
+REM if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
-ECHO Recoding lang files
-pushd ..\..\bin\Release
-@iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.hlf > ObserverRus.tmp
-@move /Y ObserverRus.tmp ObserverRus.hlf > nul
-@iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.lng > ObserverRus.tmp
-@move /Y ObserverRus.tmp ObserverRus.lng > nul
-popd
+REM ECHO Recoding lang files
+REM pushd ..\..\bin\Release
+REM @iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.hlf > ObserverRus.tmp
+REM @move /Y ObserverRus.tmp ObserverRus.hlf > nul
+REM @iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.lng > ObserverRus.tmp
+REM @move /Y ObserverRus.tmp ObserverRus.lng > nul
+REM popd
 
-ECHO Packing release
-%PACKER_CMD% -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
-if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
+REM ECHO Packing release
+REM %PACKER_CMD% -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
+REM if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x86
 %DEVENV_EXE_PATH% /Rebuild "Release-Unicode|Win32" "..\Observer.VS2010.sln"
