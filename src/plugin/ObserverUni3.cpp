@@ -553,6 +553,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	}
 
 	HANDLE hScreen;
+	string strFilePassword;
 
 	int ret;
 	do
@@ -562,6 +563,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		params.ItemIndex = item->StorageIndex;
 		params.Flags = 0;
 		params.DestPath = destPath.c_str();
+		params.Password = (strFilePassword.length() > 0) ? strFilePassword.c_str() : nullptr;
 		params.Callbacks.FileProgress = ExtractProgress;
 		params.Callbacks.signalContext = pctx;
 
@@ -595,6 +597,14 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		{
 			if (showMessages)
 				DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_FAILED, pctx->wszFilePath);
+		}
+		else if (ret == SER_PASSWORD_REQUIRED)
+		{
+			char passBuffer[100] = {0};
+			if (StoragePasswordQuery(passBuffer, sizeof(passBuffer)))
+				strFilePassword = passBuffer;
+			else
+				ret = SER_USERABORT;
 		}
 
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
