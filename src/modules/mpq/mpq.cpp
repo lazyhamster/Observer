@@ -108,10 +108,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	MoPaQ_File* fileObj = (MoPaQ_File*) storage;
 	if (!fileObj) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= (int) fileObj->vFiles.size())
+	if (params.ItemIndex < 0 || params.ItemIndex >= (int) fileObj->vFiles.size())
 		return SER_ERROR_SYSTEM;
 
-	const SFILE_FIND_DATA &ffd = fileObj->vFiles[params.item];
+	const SFILE_FIND_DATA &ffd = fileObj->vFiles[params.ItemIndex];
 
 	HANDLE hInFile = NULL;
 	HANDLE hOutFile;
@@ -120,7 +120,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	if (!SFileOpenFileEx(fileObj->hMpq, ffd.cFileName, fIsListfile ? SFILE_OPEN_ANY_LOCALE : SFILE_OPEN_FROM_MPQ, &hInFile))
 		return SER_ERROR_READ;
 	
-	hOutFile = CreateFileW(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	hOutFile = CreateFileW(params.DestPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (hOutFile == INVALID_HANDLE_VALUE)
 	{
 		SFileCloseFile(hInFile);
@@ -141,7 +141,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 		if (dwBytes > 0)
 		{
-			params.callbacks.FileProgress(params.callbacks.signalContext, dwBytes);
+			params.Callbacks.FileProgress(params.Callbacks.signalContext, dwBytes);
 
 			if (!WriteFile(hOutFile, copyBuf, dwBytes, &dwBytes, NULL))
 			{

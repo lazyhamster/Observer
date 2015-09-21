@@ -106,26 +106,28 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	PdfInfo* pData = (PdfInfo*) storage;
-	if (pData == nullptr || params.item < 0) return SER_ERROR_SYSTEM;
+	if (pData == nullptr || params.ItemIndex < 0) return SER_ERROR_SYSTEM;
 
-	if (params.item == 0)
+	if (params.ItemIndex == 0)
 	{
 		DWORD dwBytes;
-		HANDLE hf = CreateFileW(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+		HANDLE hf = CreateFileW(params.DestPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+		if (hf == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
+
 		WriteFile(hf, pData->metadata.c_str(), (DWORD) pData->metadata.size(), &dwBytes, NULL);
 		CloseHandle(hf);
 
 		return SER_SUCCESS;
 	}
-	else if (params.item < (int) pData->embFiles.size() + 1)
+	else if (params.ItemIndex < (int) pData->embFiles.size() + 1)
 	{
-		FileSpec* fsp = pData->embFiles[params.item - 1];
+		FileSpec* fsp = pData->embFiles[params.ItemIndex - 1];
 		EmbFile* embFileInfo = fsp->getEmbeddedFile();
 
 		if (!embFileInfo->isOk())
 			return SER_ERROR_READ;
 
-		GBool ret = embFileInfo->save(params.destFilePath);
+		GBool ret = embFileInfo->save(params.DestPath);
 		return ret ? SER_SUCCESS : SER_ERROR_WRITE;
 	}
 	

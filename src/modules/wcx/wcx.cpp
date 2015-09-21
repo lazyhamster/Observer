@@ -107,7 +107,6 @@ int MODULE_EXPORT PrepareFiles(HANDLE storage)
 
 		StorageItemInfo nextItem = {0};
 		wcscpy_s(nextItem.Path, sizeof(nextItem.Path) / sizeof(nextItem.Path[0]), header.FileName);
-		//nextItem.ModificationTime = header.FileTime;
 		nextItem.Attributes = header.FileAttr;
 		nextItem.Size = ((__int64) header.UnpSizeHigh << 32) | (__int64) header.UnpSize;
 		nextItem.PackedSize = ((__int64) header.PackSizeHigh << 32) | (__int64) header.PackSize;
@@ -150,11 +149,11 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	WcxStorage* storeObj = (WcxStorage*) storage;
 	if (storeObj == NULL) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= (int)storeObj->Items.size())
+	if (params.ItemIndex < 0 || params.ItemIndex >= (int)storeObj->Items.size())
 		return SER_ERROR_SYSTEM;
 
 	// Reopen archive if arch pointer later then requested file
-	if (params.item < storeObj->AtItem)
+	if (params.ItemIndex < storeObj->AtItem)
 	{
 		storeObj->Module->CloseArchive(storeObj->ArcHandle);
 		storeObj->ArcHandle = storeObj->Module->OpenArchive(storeObj->FilePath.c_str(), PK_OM_EXTRACT);
@@ -165,7 +164,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	// Skip until required item
 	tHeaderDataExW header = {0};
-	while (storeObj->AtItem < params.item)
+	while (storeObj->AtItem < params.ItemIndex)
 	{
 		storeObj->Module->ReadHeader(storeObj->ArcHandle, &header);
 		storeObj->Module->ProcessFile(storeObj->ArcHandle, PK_SKIP, NULL, NULL);
@@ -174,7 +173,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	// Do extraction
 	storeObj->Module->ReadHeader(storeObj->ArcHandle, &header);
-	int retVal = storeObj->Module->ProcessFile(storeObj->ArcHandle, PK_EXTRACT, NULL, const_cast<wchar_t*>(params.destFilePath));
+	int retVal = storeObj->Module->ProcessFile(storeObj->ArcHandle, PK_EXTRACT, NULL, const_cast<wchar_t*>(params.DestPath));
 	storeObj->AtItem++;
 	
 	if (retVal == 0)

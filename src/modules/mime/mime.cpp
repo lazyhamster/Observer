@@ -249,17 +249,17 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	MimeFileInfo *minfo = (MimeFileInfo*) storage;
 	if (minfo == NULL) return SER_ERROR_SYSTEM;
 
-	if ( (params.item < 0) || (params.item > (int) minfo->messageParts.size()) )
+	if ( (params.ItemIndex < 0) || (params.ItemIndex > (int) minfo->messageParts.size()) )
 		return SER_ERROR_SYSTEM;
 
 	FILE* dfh;
-	if (_wfopen_s(&dfh, params.destFilePath, L"wb") != 0)
+	if (_wfopen_s(&dfh, params.DestPath, L"wb") != 0)
 		return SER_ERROR_WRITE;
 
-	GMimeObject* pObj = params.item > 0 ? minfo->messageParts[params.item-1] : NULL;
+	GMimeObject* pObj = params.ItemIndex > 0 ? minfo->messageParts[params.ItemIndex-1] : nullptr;
 
 	int retVal = SER_ERROR_READ;
-	if (params.item == 0)
+	if (params.ItemIndex == 0)
 	{
 		GMimeStream* destStream = g_mime_stream_file_new(dfh);
 		g_mime_stream_file_set_owner((GMimeStreamFile*) destStream, FALSE);
@@ -306,7 +306,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	fclose(dfh);
 	if (retVal != SER_SUCCESS)
-		DeleteFile(params.destFilePath);
+		DeleteFile(params.DestPath);
 
 	return retVal;
 }

@@ -135,13 +135,13 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	PstFileInfo* file = (PstFileInfo*) storage;
 	if (!file) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= (int) file->Entries.size())
+	if (params.ItemIndex < 0 || params.ItemIndex >= (int) file->Entries.size())
 		return SER_ERROR_SYSTEM;
 
-	HANDLE hOutFile = CreateFile(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE hOutFile = CreateFile(params.DestPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (hOutFile == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
 
-	const PstFileEntry &fentry = file->Entries[params.item];
+	const PstFileEntry &fentry = file->Entries[params.ItemIndex];
 
 	wstring strBodyText;
 	DWORD nNumWritten, nWriteSize;
@@ -207,7 +207,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	
 	if (!fWriteResult) ErrCode = SER_ERROR_WRITE;
 	if (ErrCode != SER_SUCCESS)
-		DeleteFile(params.destFilePath);
+		DeleteFile(params.DestPath);
 
 	return ErrCode;
 }

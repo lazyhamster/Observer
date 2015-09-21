@@ -80,25 +80,25 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	ISCabFile* cabStorage = (ISCabFile*) storage;
-	if (cabStorage == NULL || params.item < 0) return SER_ERROR_SYSTEM;
+	if (cabStorage == NULL || params.ItemIndex < 0) return SER_ERROR_SYSTEM;
 
-	CFileStream* pDestFile = CFileStream::Open(params.destFilePath, false, true);
+	CFileStream* pDestFile = CFileStream::Open(params.DestPath, false, true);
 	if (pDestFile == nullptr) return SER_ERROR_WRITE;
 
 	int status = SER_SUCCESS;
-	if (params.item == 0 && cabStorage->HasInfoData())
+	if (params.ItemIndex == 0 && cabStorage->HasInfoData())
 	{
 		// Dump info file
 		const std::wstring infoData = cabStorage->GetCabInfo();
 		pDestFile->WriteBuffer(BOM, strlen(BOM));
 		pDestFile->WriteBuffer(infoData.c_str(), (infoData.size() * sizeof(wchar_t)));
 	}
-	else if (params.item < cabStorage->GetTotalFiles())
+	else if (params.ItemIndex < cabStorage->GetTotalFiles())
 	{
-		int itemIndex = cabStorage->HasInfoData() ? params.item - 1 : params.item;
+		int itemIndex = cabStorage->HasInfoData() ? params.ItemIndex - 1 : params.ItemIndex;
 		
 		// Dump archive file
-		status = cabStorage->ExtractFile(itemIndex, pDestFile, params.callbacks);
+		status = cabStorage->ExtractFile(itemIndex, pDestFile, params.Callbacks);
 
 		if (status == SER_SUCCESS)
 		{
@@ -112,7 +112,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	delete pDestFile;
 	if (status != SER_SUCCESS)
 	{
-		DeleteFile(params.destFilePath);
+		DeleteFile(params.DestPath);
 	}
 	return status;
 }

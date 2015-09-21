@@ -85,10 +85,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	IMailReader* reader = (IMailReader*) storage;
 	if (!reader) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= reader->GetItemsCount())
+	if (params.ItemIndex < 0 || params.ItemIndex >= reader->GetItemsCount())
 		return SER_ERROR_SYSTEM;
 
-	return reader->Extract(params.item, params.destFilePath);
+	return reader->Extract(params.ItemIndex, params.DestPath);
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -214,22 +214,22 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
-	if ((storage == NULL) || (params.item < 0))
+	if ((storage == NULL) || (params.ItemIndex < 0))
 		return SER_ERROR_SYSTEM;
 
 	XStorage* xst = (XStorage*) storage;
 	if (xst->IsCatalog)
 	{
-		if (params.item >= (int) xst->Catalog->size())
-			return GET_ITEM_NOMOREITEMS;
+		if (params.ItemIndex >= (int) xst->Catalog->size())
+			return SER_ERROR_SYSTEM;
 
-		x2catentry* entry = GetCatEntryByIndex(xst->Catalog, params.item);
+		x2catentry* entry = GetCatEntryByIndex(xst->Catalog, params.ItemIndex);
 		if (entry == NULL) return GET_ITEM_ERROR;
 
 		X2FILE hInput = X2FD_OpenFileInCatalog(xst->Catalog, entry, X2FD_FILETYPE_PLAIN);
 		if (hInput == 0) return SER_ERROR_READ;
 
-		X2FILE hOutput = X2FD_OpenFile(params.destFilePath, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
+		X2FILE hOutput = X2FD_OpenFile(params.DestPath, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0)
 		{
 			X2FD_CloseFile(hInput);
@@ -243,13 +243,13 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 		if (res) return SER_SUCCESS;
 	}
-	else if (params.item == 0)
+	else if (params.ItemIndex == 0)
 	{
 		// Append name
 		X2FILEINFO finfo = {0};
 		X2FD_FileStatByHandle(xst->FilePtr, &finfo);
 		
-		X2FILE hOutput = X2FD_OpenFile(params.destFilePath, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
+		X2FILE hOutput = X2FD_OpenFile(params.DestPath, X2FD_WRITE, X2FD_CREATE_NEW, X2FD_FILETYPE_PLAIN);
 		if (hOutput == 0) return SER_ERROR_WRITE;
 
 		bool res = X2FD_CopyFile(xst->FilePtr, hOutput);

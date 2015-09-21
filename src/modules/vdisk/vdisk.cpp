@@ -357,11 +357,11 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	VDisk* vdObj = (VDisk*) storage;
-	if (vdObj == NULL || params.item < 0 || params.item >= vdObj->vItems->Count || !params.destFilePath)
+	if (vdObj == NULL || params.ItemIndex < 0 || params.ItemIndex >= vdObj->vItems->Count || !params.DestPath)
 		return SER_ERROR_SYSTEM;
 
 	List<VDFileInfo^> ^fileList = vdObj->vItems;
-	VDFileInfo^ fileInfo = fileList[params.item];
+	VDFileInfo^ fileInfo = fileList[params.ItemIndex];
 	
 	// We do not extract directories
 	if (fileInfo->Ref->GetType() != DiscFileInfo::typeid)
@@ -370,7 +370,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	DiscFileInfo^ dfi = (DiscFileInfo^) fileInfo->Ref;
 	if (!dfi->Exists) return SER_ERROR_READ;
 
-	String^ strDestFile = gcnew String(params.destFilePath);
+	String^ strDestFile = gcnew String(params.DestPath);
 	int result = SER_SUCCESS;
 	
 	try
@@ -396,8 +396,8 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			outStr->Write(copyBuf, 0, readNum);
 			bytesLeft -= readNum;
 			
-			if (params.callbacks.FileProgress)
-				if (!params.callbacks.FileProgress(params.callbacks.signalContext, readNum))
+			if (params.Callbacks.FileProgress)
+				if (!params.Callbacks.FileProgress(params.Callbacks.signalContext, readNum))
 				{
 					result = SER_USERABORT;
 					break;

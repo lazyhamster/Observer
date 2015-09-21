@@ -65,7 +65,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	CNsisArchive* arc = (CNsisArchive *) storage;
 	if (!arc) return SER_ERROR_SYSTEM;
 	
-	return arc->ExtractArcItem(params.item, params.destFilePath, &(params.callbacks));
+	return arc->ExtractArcItem(params.ItemIndex, params.DestPath, &(params.Callbacks));
 }
 
 //////////////////////////////////////////////////////////////////////////

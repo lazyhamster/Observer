@@ -96,18 +96,18 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	PdbFileInfo* pdbInfo = (PdbFileInfo*)storage;
-	if (pdbInfo == NULL || params.item < 0) return GET_ITEM_ERROR;
+	if (pdbInfo == NULL || params.ItemIndex < 0) return GET_ITEM_ERROR;
 
 	std::string buf;
-	if (params.item == 0)
+	if (params.ItemIndex == 0)
 	{
 		// Info file
 		GenerateInfoFileContent(pdbInfo, buf);
 	}
-	else if (params.item-1 < (int) pdbInfo->pdbModules.size())
+	else if (params.ItemIndex-1 < (int) pdbInfo->pdbModules.size())
 	{
 		// Module file
-		IPdbModule* pdbModule = pdbInfo->pdbModules[params.item - 1];
+		IPdbModule* pdbModule = pdbInfo->pdbModules[params.ItemIndex - 1];
 		GenerateModuleFileContent(pdbModule, buf);
 	}
 	else
@@ -115,7 +115,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		return SER_ERROR_SYSTEM;
 	}
 
-	HANDLE hOut = CreateFile(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	HANDLE hOut = CreateFile(params.DestPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 	if (hOut == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
 
 	DWORD nWritten;

@@ -76,10 +76,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	CMsiViewer *view = (CMsiViewer *) storage;
 	if (!view) return SER_ERROR_SYSTEM;
 
-	FileNode *file = view->GetFile(params.item);
+	FileNode *file = view->GetFile(params.ItemIndex);
 	if (!file) return SER_ERROR_SYSTEM;
 
-	int nDumpResult = view->DumpFileContent(file, params.destFilePath, params.callbacks);
+	int nDumpResult = view->DumpFileContent(file, params.DestPath, params.Callbacks);
 	return nDumpResult;
 }
 

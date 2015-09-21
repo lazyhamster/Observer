@@ -122,9 +122,9 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	UdfStorage *storageRec = (UdfStorage*) storage;
-	if (!storageRec || (params.item < 0)) return SER_ERROR_SYSTEM;
+	if (!storageRec || (params.ItemIndex < 0)) return SER_ERROR_SYSTEM;
 
-	const CRef2 &ref2 = storageRec->refs2[params.item];
+	const CRef2 &ref2 = storageRec->refs2[params.ItemIndex];
 	const CLogVol &vol = storageRec->arc.LogVols[ref2.Vol];
 	const CRef &ref = vol.FileSets[ref2.Fs].Refs[ref2.Ref];
 	const CFile &file = storageRec->arc.Files[ref.FileIndex];
@@ -132,7 +132,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	if (!item.IsDir())
 	{
-		int res = storageRec->arc.DumpFileContent(file.ItemIndex, ref.FileIndex, params.destFilePath, &(params.callbacks));
+		int res = storageRec->arc.DumpFileContent(file.ItemIndex, ref.FileIndex, params.DestPath, &(params.Callbacks));
 
 		return res;
 	}

@@ -71,17 +71,17 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	CHWAbstractStorage* fileObj = (CHWAbstractStorage*) storage;
 	if (!fileObj) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= fileObj->NumFiles())
+	if (params.ItemIndex < 0 || params.ItemIndex >= fileObj->NumFiles())
 		return SER_ERROR_SYSTEM;
 
 	HWStorageItem item = {0};
-	if (fileObj->GetFileInfo(params.item, &item))
+	if (fileObj->GetFileInfo(params.ItemIndex, &item))
 	{
-		HANDLE hOutputFile = CreateFile(params.destFilePath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+		HANDLE hOutputFile = CreateFile(params.DestPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
 		if (hOutputFile == INVALID_HANDLE_VALUE)
 			return SER_ERROR_WRITE;
 
-		bool fOpRes = fileObj->ExtractFile(params.item, hOutputFile);
+		bool fOpRes = fileObj->ExtractFile(params.ItemIndex, hOutputFile);
 
 		if (fOpRes && item.ModTime)
 		{
@@ -94,7 +94,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 		if (!fOpRes)
 		{
-			DeleteFile(params.destFilePath);
+			DeleteFile(params.DestPath);
 			return SER_ERROR_READ;
 		}
 

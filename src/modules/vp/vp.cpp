@@ -66,10 +66,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	CVPFile* file = (CVPFile*) storage;
 	if (!file) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= (int) file->ItemCount())
+	if (params.ItemIndex < 0 || params.ItemIndex >= (int) file->ItemCount())
 		return SER_ERROR_SYSTEM;
 
-	return file->ExtractSingleFile(params.item, params.destFilePath, &(params.callbacks));
+	return file->ExtractSingleFile(params.ItemIndex, params.DestPath, &(params.Callbacks));
 }
 
 //////////////////////////////////////////////////////////////////////////

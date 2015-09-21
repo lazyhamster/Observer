@@ -69,10 +69,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	CWiseFile* arc = (CWiseFile *) storage;
 	if (!arc) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= arc->NumFiles())
-		return SER_ERROR_READ;
+	if (params.ItemIndex < 0 || params.ItemIndex >= arc->NumFiles())
+		return SER_ERROR_SYSTEM;
 
-	bool rval = arc->ExtractFile(params.item, params.destFilePath);
+	bool rval = arc->ExtractFile(params.ItemIndex, params.DestPath);
 	return rval ? SER_SUCCESS : SER_ERROR_WRITE;
 }
 

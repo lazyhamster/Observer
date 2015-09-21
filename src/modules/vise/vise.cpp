@@ -59,17 +59,17 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	CViseFile* arc = (CViseFile *) storage;
-	if (!arc || (params.item < 0) || (params.item >= (int) arc->GetFilesCount())) return SER_ERROR_SYSTEM;
+	if (!arc || (params.ItemIndex < 0) || (params.ItemIndex >= (int) arc->GetFilesCount())) return SER_ERROR_SYSTEM;
 	
-	CFileStream* outStream = CFileStream::Open(params.destFilePath, false, true);
+	CFileStream* outStream = CFileStream::Open(params.DestPath, false, true);
 	if (!outStream)	return SER_ERROR_WRITE;
 
-	bool extractResult = arc->ExtractFile(params.item, outStream);
+	bool extractResult = arc->ExtractFile(params.ItemIndex, outStream);
 	delete outStream;
 
 	if (!extractResult)
 	{
-		DeleteFile(params.destFilePath);
+		DeleteFile(params.DestPath);
 		return SER_ERROR_READ;
 	}
 

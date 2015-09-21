@@ -86,15 +86,14 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	BaseGenteeFile* filePtr = (BaseGenteeFile*) storage;
 	if (filePtr == nullptr) return SER_ERROR_SYSTEM;
 
-	AStream* destStream = CFileStream::Open(params.destFilePath, false, true);
+	AStream* destStream = CFileStream::Open(params.DestPath, false, true);
 	if (!destStream) return SER_ERROR_WRITE;
 
-	//TODO: supply password from outside
-	GenteeExtractResult extResult = filePtr->ExtractFile(params.item, destStream, nullptr);
+	GenteeExtractResult extResult = filePtr->ExtractFile(params.ItemIndex, destStream, params.Password);
 	delete destStream;
 
 	if (extResult != Success)
-		DeleteFile(params.destFilePath);
+		DeleteFile(params.DestPath);
 
 	switch(extResult)
 	{
@@ -107,7 +106,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	case AbortedByUser:
 		return SER_USERABORT;
 	case PasswordRequired:
-		return Failure; //TODO: return proper code
+		return SER_PASSWORD_REQUIRED;
 	}
 
 	return SER_SUCCESS;

@@ -88,17 +88,17 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	SetupFactoryFile* sfInst = (SetupFactoryFile*) storage;
-	if (sfInst == NULL || params.item < 0 || params.item >= (int) sfInst->GetCount()) return SER_ERROR_SYSTEM;
+	if (sfInst == NULL || params.ItemIndex < 0 || params.ItemIndex >= (int) sfInst->GetCount()) return SER_ERROR_SYSTEM;
 
-	CFileStream* outStream = CFileStream::Open(params.destFilePath, false, true);
+	CFileStream* outStream = CFileStream::Open(params.DestPath, false, true);
 	if (!outStream)	return SER_ERROR_WRITE;
 	
-	bool extractResult = sfInst->ExtractFile(params.item, outStream);
+	bool extractResult = sfInst->ExtractFile(params.ItemIndex, outStream);
 	delete outStream;
 
 	if (!extractResult)
 	{
-		DeleteFile(params.destFilePath);
+		DeleteFile(params.DestPath);
 		return SER_ERROR_READ;
 	}
 	

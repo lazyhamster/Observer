@@ -108,11 +108,11 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	ValvePackage* vp = (ValvePackage*) storage;
 	if (vp == NULL) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= (int) vp->vItems.size())
+	if (params.ItemIndex < 0 || params.ItemIndex >= (int) vp->vItems.size())
 		return SER_ERROR_SYSTEM;
 
-	CDirectoryFile* fileItem = vp->vItems[params.item];
-	if (fileItem->Extract(params.destFilePath) == hlTrue)
+	CDirectoryFile* fileItem = vp->vItems[params.ItemIndex];
+	if (fileItem->Extract(params.DestPath) == hlTrue)
 		return SER_SUCCESS;
 	
 	return SER_ERROR_READ;

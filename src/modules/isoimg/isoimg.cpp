@@ -125,13 +125,13 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	IsoImage* image = (IsoImage*) storage;
 	if (!image) return SER_ERROR_SYSTEM;
 
-	if (params.item < 0 || params.item >= (int) image->DirectoryCount)
+	if (params.ItemIndex < 0 || params.ItemIndex >= (int) image->DirectoryCount)
 		return SER_ERROR_SYSTEM;
 
-	Directory dir = image->DirectoryList[params.item];
+	Directory dir = image->DirectoryList[params.ItemIndex];
 	if (!IsDirectory(&dir))
 	{
-		int nExtractRes = ExtractFile(image, &dir, params.destFilePath, &(params.callbacks));
+		int nExtractRes = ExtractFile(image, &dir, params.DestPath, &(params.Callbacks));
 
 		return nExtractRes;
 	}
