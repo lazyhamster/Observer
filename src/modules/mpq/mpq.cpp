@@ -15,6 +15,14 @@ struct MoPaQ_File
 	std::vector<SFILE_FIND_DATA> vFiles;
 };
 
+static inline UINT get_lcid_codepage( LCID lcid )
+{
+	UINT ret;
+	if (!GetLocaleInfo( lcid, LOCALE_IDEFAULTANSICODEPAGE|LOCALE_RETURN_NUMBER, (WCHAR *)&ret, sizeof(ret)/sizeof(WCHAR) ))
+		ret = 0;
+	return ret;
+}
+
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	HANDLE hMpq = NULL;
@@ -93,8 +101,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 	const SFILE_FIND_DATA &ffd = fileObj->vFiles[item_index];
 
+	UINT itemCP = get_lcid_codepage(ffd.lcLocale);
+
 	memset(item_info, 0, sizeof(StorageItemInfo));
-	MultiByteToWideChar(CP_ACP, 0, ffd.cFileName, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
+	MultiByteToWideChar(itemCP, 0, ffd.cFileName, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
 	item_info->Size = ffd.dwFileSize;
 	item_info->PackedSize = ffd.dwCompSize;
 	item_info->ModificationTime.dwHighDateTime = ffd.dwFileTimeHi;
