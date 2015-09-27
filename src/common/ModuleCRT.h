@@ -71,19 +71,15 @@ static void TrimStr(wchar_t* str)
 }
 
 #define FILE_SIGNATURE_EXE "MZ"
-#define FILE_SIGNATURE_PDF "PDF"
 
-static inline bool SignatureNotMatch(const void* pBuf, size_t nBufSize, char* pSig)
+static inline bool SignatureMatchOrNull(const void* pBuf, size_t nBufSize, char* pSig)
 {
+	if (!pBuf) return true;
+	
 	size_t nSigLen = strlen(pSig);
-	if (pBuf && (nBufSize >= nSigLen))
+	if (nBufSize >= nSigLen)
 	{
-		const char* cData = (const char*) pBuf;
-		for (size_t i = 0; i < nSigLen; i++)
-		{
-			if (cData[i] != pSig[i]) return true;
-		}
-		return (cData[0] != 0x4D) || (cData[1] != 0x5A);
+		return memcmp(pBuf, pSig, nSigLen) == 0;
 	}
 	return false;
 }

@@ -10,9 +10,11 @@
 
 static bool optOpenAllFiles = false;
 
+#define FILE_SIGNATURE_PDF "%PDF-"
+
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	if (SignatureNotMatch(params.Data, params.DataSize, FILE_SIGNATURE_PDF))
+	if (!SignatureMatchOrNull(params.Data, params.DataSize, FILE_SIGNATURE_PDF))
 		return SOR_INVALID_FILE;
 	
 	PDFDoc* doc = new PDFDoc(params.FilePath, (int) wcslen(params.FilePath));
