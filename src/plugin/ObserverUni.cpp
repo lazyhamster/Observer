@@ -664,9 +664,12 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	} while ((ret != SER_SUCCESS) && (ret != SER_ERROR_SYSTEM) && (ret != SER_USERABORT));
 
 	// If extraction is successful set file attributes if present
-	if ((ret == SER_SUCCESS) && (item->GetAttributes() != 0))
+	if (ret == SER_SUCCESS)
 	{
-		SetFileAttributes(destPath.c_str(), item->GetAttributes());
+		if (item->GetAttributes() != 0)
+			SetFileAttributes(destPath.c_str(), item->GetAttributes());
+
+		UpdateFileTime(destPath.c_str(), &item->CreationTime, &item->LastModificationTime);
 	}
 
 	return ret;
