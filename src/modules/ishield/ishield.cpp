@@ -99,14 +99,6 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		
 		// Dump archive file
 		status = cabStorage->ExtractFile(itemIndex, pDestFile, params.Callbacks);
-
-		if (status == SER_SUCCESS)
-		{
-			StorageItemInfo itemInfo = {0};
-			cabStorage->GetFileInfo(itemIndex, &itemInfo);
-			
-			SetFileTime(pDestFile->GetHandle(), NULL, NULL, &itemInfo.ModificationTime);
-		}
 	}
 
 	delete pDestFile;

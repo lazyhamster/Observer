@@ -162,12 +162,6 @@ int ExtractFile(IsoImage *image, Directory *dir, const wchar_t *destPath, const 
 		}
 	} //for
 
-	if(!xbox && (result == SER_SUCCESS))
-	{
-		FILETIME ftime = VolumeDateTimeToFileTime(dir->Record.RecordingDateAndTime);
-		SetFileTime( hFile, &ftime, NULL, &ftime );
-	}
-
 	free( buffer );
 	CloseHandle(hFile);
 

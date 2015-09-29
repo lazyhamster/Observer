@@ -83,13 +83,6 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 		bool fOpRes = fileObj->ExtractFile(params.ItemIndex, hOutputFile);
 
-		if (fOpRes && item.ModTime)
-		{
-			FILETIME ft = {0};
-			UnixTimeToFileTime(item.ModTime, &ft);
-			SetFileTime(hOutputFile, NULL, NULL, &ft);
-		}
-
 		CloseHandle(hOutputFile);
 
 		if (!fOpRes)

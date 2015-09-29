@@ -1131,11 +1131,6 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 			free(buf);
 		} // if inline
 
-		FILETIME ft;
-		itemObj.MTime.GetFileTime(ft);
-		if (ft.dwHighDateTime)
-			SetFileTime(hFile, NULL, NULL, &ft);
-
 		CloseHandle(hFile);
 
 		if (result != SER_SUCCESS)
