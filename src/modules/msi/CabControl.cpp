@@ -324,23 +324,6 @@ bool CCabControl::ExtractFile( const wchar_t* cabName, const wchar_t* cabPath, c
 	}
 		
 	free(szAnsiDestName);
-
-	// Reopen destination file to set required attributes
-	if (cabfile && result)
-	{
-		HANDLE hFile = CreateFile(destFilePath, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
-		if (hFile != INVALID_HANDLE_VALUE)
-		{
-			FILETIME ft = CabTimeToFileTime(cabfile);
-			SetFileTime(hFile, NULL, NULL, &ft);
-			CloseHandle(hFile);
-
-			DWORD attr;
-			DecodeCabAttributes(cabfile, attr);
-			if (attr != 0) SetFileAttributes(destFilePath, attr);
-		}
-	}
-
 	return result;
 }
 

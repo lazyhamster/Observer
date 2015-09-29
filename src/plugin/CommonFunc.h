@@ -26,4 +26,6 @@ void InsertCommas(char *Dest);
 std::wstring FormatString(const std::wstring fmt, ...);
 std::wstring FileTimeToString(FILETIME ft);
 
+void UpdateFileTime(const wchar_t* path, const FILETIME* createTime, const FILETIME* modTime);
+
 #endif // CommonFunc_h__

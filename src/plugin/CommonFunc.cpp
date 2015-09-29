@@ -201,3 +201,24 @@ std::wstring FileTimeToString( FILETIME ft )
 
 	return FormatString(L"%02d.%02d.%04d %02d:%02d:%02d", stime.wDay, stime.wMonth, stime.wYear, stime.wHour, stime.wMinute, stime.wSecond);
 }
+
+bool IsTimeSet(const FILETIME* ft)
+{
+	return ft && (ft->dwHighDateTime != 0 || ft->dwLowDateTime != 0);
+}
+
+void UpdateFileTime(const wchar_t* path, const FILETIME* createTime, const FILETIME* modTime)
+{
+	const FILETIME* pCreationTime = IsTimeSet(createTime) ? createTime : NULL;
+	const FILETIME* pModificationTime = IsTimeSet(modTime) ? modTime : NULL;
+
+	if (pCreationTime || pModificationTime)
+	{
+		HANDLE hTmp = CreateFile(path, FILE_WRITE_ATTRIBUTES, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, 0);
+		if (hTmp != INVALID_HANDLE_VALUE)
+		{
+			SetFileTime(hTmp, pCreationTime, NULL, pModificationTime);
+			CloseHandle(hTmp);
+		}
+	}
+}
