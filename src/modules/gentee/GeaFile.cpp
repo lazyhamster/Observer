@@ -253,7 +253,6 @@ GenteeExtractResult GeaFile::ExtractFile( int index, AStream* dest, const char* 
 	}
 
 	geadata gd = {0};
-	uint32_t ctype, corder;
 	uint32_t fileCrc = CRC_SEED;
 	std::string filePass;
 	
@@ -289,8 +288,8 @@ GenteeExtractResult GeaFile::ExtractFile( int index, AStream* dest, const char* 
 
 			//off += long( sizeof( geadata ))
 
-			ctype = gd.order >> 4;
-			corder = (gd.order & 0x0F) + 1;
+			uint32_t ctype = gd.order >> 4;
+			uint32_t corder = (gd.order & 0x0F) + 1;
 
 			if ( ctype != GEA_LZGE || corder > 1 )
 			{
