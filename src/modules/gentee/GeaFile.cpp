@@ -247,8 +247,9 @@ GenteeExtractResult GeaFile::ExtractFile( int index, AStream* dest, const char* 
 	
 	if ((gf.flags & GEAF_SOLID) && (index - 1 != m_nLastSolid))
 	{
-		if (!ExtractFile(index - 1, nullptr, password))
-			return FailedRead;
+		GenteeExtractResult prevResult = ExtractFile(index - 1, nullptr, password);
+		if (prevResult != Success)
+			return prevResult;
 	}
 
 	geadata gd = {0};
