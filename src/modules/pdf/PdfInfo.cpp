@@ -60,6 +60,20 @@ bool PdfInfo::LoadInfo( PDFDoc* doc )
 		}
 	}
 
+	for (int i = 0; i < cat->numJS(); i++)
+	{
+		GooString* jsName = cat->getJSName(i);
+		GooString* jsText = cat->getJS(i);
+		if (jsText)
+		{
+			PdfScriptData scriptData;
+			scriptData.Name = jsName && jsName->getLength() ? jsName->getCString() : "";
+			scriptData.Text = jsText->getCString();
+
+			scripts.push_back(scriptData);
+		}
+	}
+
 	// Generate info
 	LoadMetaData(doc, metadata);
 		
@@ -76,6 +90,8 @@ void PdfInfo::Cleanup()
 	
 	std::for_each(embFiles.begin(), embFiles.end(), [] (FileSpec* spec) { delete spec; });
 	embFiles.clear();
+
+	scripts.clear();
 }
 
 static void PrintEntry(Dict* dict, const char* key, const char* header, std::stringstream& output)

@@ -12,6 +12,22 @@ static bool optOpenAllFiles = false;
 
 #define FILE_SIGNATURE_PDF "%PDF-"
 
+static int DumpStringToFile(const wchar_t* destPath, const std::string &content)
+{
+	DWORD dwBytes;
+	HANDLE hf = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	if (hf == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
+
+	int rval = SER_SUCCESS;
+	if (!WriteFile(hf, content.c_str(), (DWORD) content.size(), &dwBytes, NULL))
+		rval = SER_ERROR_WRITE;
+
+	CloseHandle(hf);
+	return rval;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	if (!SignatureMatchOrNull(params.Data, params.DataSize, FILE_SIGNATURE_PDF))
@@ -21,7 +37,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	if (doc->isOk())
 	{
 		PdfInfo* pData = new PdfInfo();
-		if (pData->LoadInfo(doc) && (optOpenAllFiles || (pData->embFiles.size() > 0)))
+		if (pData->LoadInfo(doc) && (optOpenAllFiles || pData->HasFiles()))
 		{
 			*storage = pData;
 
@@ -68,6 +84,8 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	}
 	else if (item_index < (int) pData->embFiles.size() + 1)
 	{
+		// File is embedded file
+		
 		FileSpec* fsp = pData->embFiles[item_index - 1];
 		GooString* strName = fsp->getFileName();
 		EmbFile* embFileInfo = fsp->getEmbeddedFile();
@@ -101,6 +119,30 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 		return GET_ITEM_OK;
 	}
+	else if (item_index < (int) (pData->embFiles.size() + pData->scripts.size() + 1))
+	{
+		// File is script file
+		size_t scriptIndex = item_index - pData->embFiles.size() - 1;
+		const PdfScriptData& scriptData = pData->scripts[scriptIndex];
+
+		std::string scriptName(scriptData.Name);
+		for (size_t i = 0; i < scriptName.length(); i++)
+		{
+			if (!IsValidPathChar(scriptName[i]))
+				scriptName[i] = '_';
+		}
+		
+		char fileNameBuf[MAX_PATH] = {0};
+		if (scriptName.length() == 0)
+			sprintf_s(fileNameBuf, "{scripts}\\script%04d", scriptIndex);
+		else
+			sprintf_s(fileNameBuf, "{scripts}\\script%s", scriptName.c_str());
+
+		MultiByteToWideChar(CP_ACP, 0, fileNameBuf, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
+		item_info->Size = scriptData.Text.length();
+
+		return GET_ITEM_OK;
+	}
 	
 	return GET_ITEM_NOMOREITEMS;
 }
@@ -112,14 +154,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	if (params.ItemIndex == 0)
 	{
-		DWORD dwBytes;
-		HANDLE hf = CreateFileW(params.DestPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-		if (hf == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
-
-		WriteFile(hf, pData->metadata.c_str(), (DWORD) pData->metadata.size(), &dwBytes, NULL);
-		CloseHandle(hf);
-
-		return SER_SUCCESS;
+		return DumpStringToFile(params.DestPath, pData->metadata);
 	}
 	else if (params.ItemIndex < (int) pData->embFiles.size() + 1)
 	{
@@ -132,6 +167,13 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		GBool ret = embFileInfo->save(params.DestPath);
 		return ret ? SER_SUCCESS : SER_ERROR_WRITE;
 	}
+	else if (params.ItemIndex < (int) (pData->embFiles.size() + pData->scripts.size() + 1))
+	{
+		size_t scriptIndex = params.ItemIndex - pData->embFiles.size() - 1;
+		const PdfScriptData& scriptData = pData->scripts[scriptIndex];
+
+		return DumpStringToFile(params.DestPath, scriptData.Text);
+	}
 	
 	return SER_ERROR_SYSTEM;
 }
@@ -142,7 +184,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
-	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
+	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 1);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
 	LoadParams->ApiFuncs.OpenStorage = OpenStorage;
 	LoadParams->ApiFuncs.CloseStorage = CloseStorage;

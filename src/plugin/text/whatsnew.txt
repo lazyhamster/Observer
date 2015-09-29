@@ -5,6 +5,7 @@ Changes history:
 - New module: Support for installers made by CreateInstall (aka Gentee Installer).
 - Centralized updating of creation and last modification time for extracted files.
 - VSIDK: Fixed files listing for DMG images.
+- PDF: Now embedded JS scripts are available.
 - Other changes.
 
 1.10.1

@@ -16,6 +16,11 @@ static inline bool IsValidPathChar(wchar_t ch)
 	return (wcschr(L":*?\"<>|\\/", ch) == NULL);
 }
 
+static inline bool IsValidPathChar(char ch)
+{
+	return (strchr(":*?\"<>|\\/", ch) == NULL);
+}
+
 static inline void RenameInvalidPathChars(wchar_t* input, wchar_t substChar)
 {
 	size_t inputLen = wcslen(input);
