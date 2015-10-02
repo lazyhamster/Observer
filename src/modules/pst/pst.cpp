@@ -175,7 +175,11 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 					if (rsize == -1) break; //EOF
 					
 					fWriteResult = WriteFile(hOutFile, inbuf, (DWORD) rsize, &nNumWritten, NULL);
-					if (!fWriteResult) break;
+					if (!fWriteResult)
+					{
+						ErrCode = SER_ERROR_WRITE;
+						break;
+					}
 				}
 
 				nstream->close();

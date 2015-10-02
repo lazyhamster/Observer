@@ -16,7 +16,7 @@ BaseGenteeFile* TryOpenFile(const wchar_t* path, const char* sample, size_t samp
 	if (sample && sampleSize > 3)
 	{
 		if ((strncmp(sample, "GEA", 3) != 0) && (strncmp(sample, "MZ", 2) != 0))
-			return false;
+			return nullptr;
 	}
 	
 	AStream* inFile = CFileStream::Open(path, true, false);
