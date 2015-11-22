@@ -68,6 +68,7 @@
 #include "DateInfo.h"
 #include "Link.h"
 #include <string.h>
+#include <algorithm>
 
 #if MULTITHREADED
 #  define annotLocker()   MutexLocker locker(&mutex)
