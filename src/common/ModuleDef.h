@@ -6,6 +6,8 @@
 // Extract progress callbacks
 typedef int (CALLBACK *ExtractProgressFunc)(HANDLE, __int64);
 
+#pragma pack(push, 1)
+
 struct ExtractProcessCallbacks
 {
 	HANDLE signalContext;
@@ -76,6 +78,8 @@ struct ModuleLoadParameters
 	DWORD ApiVersion;
 	module_cbs ApiFuncs;
 };
+
+#pragma pack(pop)
 
 // Function that should be exported from modules
 typedef int (MODULE_EXPORT *LoadSubModuleFunc)(ModuleLoadParameters*);
