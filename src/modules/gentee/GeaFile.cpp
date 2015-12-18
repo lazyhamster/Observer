@@ -9,7 +9,8 @@
 
 extern "C"
 {
-dword STDCALL ppmd_decode( pbyte in, dword size, pbyte out, dword outsize, psppmd ppmd );
+	dword STDCALL ppmd_start( dword memory );
+	dword STDCALL ppmd_decode( pbyte in, dword size, pbyte out, dword outsize, psppmd ppmd );
 };
 
 static void gea_protect(uint8_t* buf, size_t size, const char* passwd)
@@ -160,7 +161,12 @@ bool GeaFile::Open( AStream* inStream )
 		m_vFiles.push_back(gf);
 	}
 
+	inStream->SetPos(head.size);
 	if (head.movedsize)
+	{
+		m_pMovedData.CopyFrom(inStream, head.movedsize);
+	}
+	else
 	{
 		//TODO: implement
 	}
@@ -182,6 +188,11 @@ bool GeaFile::Open( AStream* inStream )
 
 		volOffs += volSize;
 	}
+	if (head.movedsize)
+	{
+		m_vVolSizes.push_back(head.movedsize);
+		m_vVolOffs.push_back(volOffs);
+	}
 
 	m_pStream = inStream;
 	m_nBlockSize = head.blocksize * 0x40000;
@@ -189,6 +200,7 @@ bool GeaFile::Open( AStream* inStream )
 	m_nLastSolid = 0xFFFFFFFF;
 	m_pOutBuffer = (BYTE*) malloc(m_nBlockSize + m_nSolidSize + 64);
 	m_nOutBufferDataSize = 0;
+	ppmd_start(head.memory);
 	return true;
 }
 
@@ -213,6 +225,8 @@ void GeaFile::Close()
 	m_vPasswords.clear();
 	m_vVolSizes.clear();
 	m_vVolOffs.clear();
+	
+	m_pMovedData.Clear();
 }
 
 bool GeaFile::GetFileDesc( int index, StorageItemInfo* desc )

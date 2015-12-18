@@ -36,6 +36,7 @@ private:
 	std::vector<int64_t> m_vVolSizes;
 	BYTE* m_pOutBuffer;
 	size_t m_nOutBufferDataSize;
+	CMemoryStream m_pMovedData;
 
 	std::string ReadGeaString(AStream* data);
 	bool CheckPassword(uint32_t passIndex, const char* password);
