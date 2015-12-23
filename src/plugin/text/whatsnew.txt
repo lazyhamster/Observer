@@ -6,6 +6,7 @@ Changes history:
 - Centralized updating of creation and last modification time for extracted files.
 - VSIDK: Fixed files listing for DMG images.
 - PDF: Now embedded JS scripts are available.
+- Setup Factory: Fixed reading of files created with SF 9.5+.
 - Other changes.
 
 1.10.1

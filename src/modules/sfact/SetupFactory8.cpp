@@ -67,7 +67,8 @@ bool SetupFactory8::Open( CFileStream* inFile )
 		m_nMinorVersion = 0;
 		return true;
 	}
-	if (manifestText.find("<description>Setup Factory 9 Run-time</description>") != std::string::npos)
+	if ((manifestText.find("<description>Setup Factory 9 Run-time</description>") != std::string::npos) ||
+		(manifestText.find("<description>Setup Factory Run-time</description>") != std::string::npos)) // For SF >= 9.5
 	{
 		m_pInFile = inFile;
 		m_nStartOffset = inFile->GetPos();
