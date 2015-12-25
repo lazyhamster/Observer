@@ -1,17 +1,9 @@
 #ifndef WiseFile_h__
 #define WiseFile_h__
 
-struct WiseFileRec
-{
-	wchar_t FileName[MAX_PATH];
-	int StartOffset;
-	int EndOffset;
-	int PackedSize;
-	int UnpackedSize;
-	unsigned long CRC32;
-};
+#include "BaseWiseFile.h"
 
-class CWiseFile
+class CWiseFile : public CBaseWiseFile
 {
 private:
 	HANDLE m_hSourceFile;
@@ -39,6 +31,9 @@ public:
 	bool GetFileInfo(int index, WiseFileRec* infoBuf, bool &noMoreItems);
 
 	bool ExtractFile(int index, const wchar_t* destPath);
+
+	const wchar_t* GetFormatName() { return L"Wise Installer"; }
+	const wchar_t* GetCompression() { return L"zlib"; }
 };
 
 #endif // WiseFile_h__

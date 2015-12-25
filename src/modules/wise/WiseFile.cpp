@@ -75,7 +75,7 @@ bool CWiseFile::GetFileInfo( int index, WiseFileRec* infoBuf, bool &noMoreItems 
 	{
 		int nFilePos = m_nFilesStartPos;
 		if (i > 0)
-			nFilePos = m_vFileList[i-1].EndOffset + 1;
+			nFilePos = (int) m_vFileList[i-1].EndOffset + 1;
 
 		if (SetFilePointer(m_hSourceFile, nFilePos, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 			return false;
@@ -345,7 +345,7 @@ bool CWiseFile::ExtractFile( int index, const wchar_t* destPath )
 	WiseFileRec &fileInfo = m_vFileList[index];
 	InflatedDataInfo inflateInfo;
 
-	if (SetFilePointer(m_hSourceFile, fileInfo.StartOffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
+	if (SetFilePointer(m_hSourceFile, (LONG) fileInfo.StartOffset, NULL, FILE_BEGIN) == INVALID_SET_FILE_POINTER)
 		return false;
 
 	if (m_fIsPkZip)
@@ -411,14 +411,14 @@ bool CWiseFile::TryResolveFileName( WiseFileRec *infoBuf )
 
 	int scriptOffset = 0;
 	if (m_nScriptOffsetBaseFileIndex > 0)
-		scriptOffset = infoBuf->StartOffset - m_vFileList[m_nScriptOffsetBaseFileIndex].StartOffset;
+		scriptOffset = (int) (infoBuf->StartOffset - m_vFileList[m_nScriptOffsetBaseFileIndex].StartOffset);
 	
 	size_t pos = 0;
 	while (pos < m_nScriptBufSize - 30)
 	{
 		ScriptFileRec* rec = (ScriptFileRec*) (m_pScriptBuf + pos);
 		if ( (rec->opCode == 0) && (rec->unpackedSize == infoBuf->UnpackedSize)
-			&& (rec->endOffset - rec->startOffset) == (infoBuf->EndOffset - infoBuf->StartOffset + 1) && (scriptOffset == 0 || scriptOffset == rec->startOffset) )
+			&& (rec->endOffset - rec->startOffset) == (int) (infoBuf->EndOffset - infoBuf->StartOffset + 1) && (scriptOffset == 0 || scriptOffset == rec->startOffset) )
 		{
 			if (rec->fileCRC == infoBuf->CRC32 || rec->fileCRC == 0)
 			{

@@ -4,33 +4,55 @@
 #include "stdafx.h"
 #include "ModuleDef.h"
 #include "ModuleCRT.h"
+
 #include "WiseFile.h"
+#include "WiseSfxFile.h"
+
+CBaseWiseFile* TryOpenStorage(const wchar_t* path)
+{
+	CBaseWiseFile* arc = new CWiseFile();
+	if (arc->Open(path))
+	{
+		return arc;
+	}
+	delete arc;
+
+	arc = new CWiseSfxFile();
+	if (arc->Open(path))
+	{
+		return arc;
+	}
+	delete arc;
+
+	return nullptr;
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	if (!SignatureMatchOrNull(params.Data, params.DataSize, FILE_SIGNATURE_EXE))
 		return SOR_INVALID_FILE;
 	
-	CWiseFile* arc = new CWiseFile();
-	if (!arc->Open(params.FilePath))
+	CBaseWiseFile* arc = TryOpenStorage(params.FilePath);
+	if (!arc)
 	{
-		delete arc;
 		return SOR_INVALID_FILE;
 	}
 
 	*storage = arc;
 
-	wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Wise");
-	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, L"zlib");
+	memset(info, 0, sizeof(StorageGeneralInfo));
+	wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, arc->GetFormatName());
+	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, arc->GetCompression());
 	wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
-	memset(&info->Created, 0, sizeof(info->Created));
 
 	return SOR_SUCCESS;
 }
 
 void MODULE_EXPORT CloseStorage(HANDLE storage)
 {
-	CWiseFile* arc = (CWiseFile *) storage;
+	CBaseWiseFile* arc = (CBaseWiseFile *) storage;
 	if (arc) delete arc;
 }
 
@@ -41,7 +63,7 @@ int MODULE_EXPORT PrepareFiles(HANDLE storage)
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
-	CWiseFile* arc = (CWiseFile *) storage;
+	CBaseWiseFile* arc = (CBaseWiseFile *) storage;
 	if (!arc || (item_index < 0)) return GET_ITEM_ERROR;
 
 	WiseFileRec fileData = {0};
@@ -66,7 +88,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
-	CWiseFile* arc = (CWiseFile *) storage;
+	CBaseWiseFile* arc = (CBaseWiseFile *) storage;
 	if (!arc) return SER_ERROR_SYSTEM;
 
 	if (params.ItemIndex < 0 || params.ItemIndex >= arc->NumFiles())
