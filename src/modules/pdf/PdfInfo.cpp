@@ -1,35 +1,44 @@
 #include "stdafx.h"
 #include "PdfInfo.h"
 #include "poppler/DateInfo.h"
+#include "poppler/UTF.h"
+#include "poppler/UTF8.h"
 #include "utils/JSInfo.h"
 
 #define ENDL "\r\n"
 
-bool TryParseDateTime( GooString* strDate, FILETIME *fTime )
+static bool TryParseDateTime(GooString* strDate, SYSTEMTIME *sTime)
 {
 	if (strDate == nullptr)
 		return false;
-	
+
 	int year, month, day;
 	int hour, minute, sec;
 	int tzhour, tzmin;
 	char tz;
-	
+
 	//TODO: deal with timezone
 	if (parseDateString(strDate->getCString(), &year, &month, &day, &hour, &minute, &sec, &tz, &tzhour, &tzmin))
 	{
-		SYSTEMTIME stime = {0};
-		stime.wYear = year;
-		stime.wMonth = month;
-		stime.wDay = day;
-		stime.wHour = hour;
-		stime.wMinute = minute;
-		stime.wSecond = sec;
+		memset(sTime, 0, sizeof(SYSTEMTIME));
+		sTime->wYear = year;
+		sTime->wMonth = month;
+		sTime->wDay = day;
+		sTime->wHour = hour;
+		sTime->wMinute = minute;
+		sTime->wSecond = sec;
 
-		return SystemTimeToFileTime(&stime, fTime);
+		return true;
 	}
 
 	return false;
+}
+
+bool TryParseDateTime( GooString* strDate, FILETIME *fTime )
+{
+	SYSTEMTIME stime = {0};
+	return TryParseDateTime(strDate, &stime)
+		&& SystemTimeToFileTime(&stime, fTime);
 }
 
 bool PdfInfo::LoadInfo( PDFDoc* doc )
@@ -99,7 +108,43 @@ static void PrintEntry(Dict* dict, const char* key, const char* header, std::str
 	Object obj;
 	if (dict->lookup(key, &obj) && obj.isString())
 	{
-		output << header << obj.getString()->getCString() << ENDL;
+		GooString* gstr = obj.getString();
+		Unicode *u;
+		char buf[8];
+		
+		output << header;
+		int len = TextStringToUCS4(gstr, &u);
+		for (int i = 0; i < len; i++)
+		{
+			int n = mapUTF8(u[i], buf, sizeof(buf));
+			buf[n] = 0; // Buffer will be not 0-terminated from prev function
+			output << buf;
+		}
+		output  << ENDL;
+	}
+	obj.free();
+}
+
+static void PrintDateEntry(Dict* dict, const char* key, const char* header, std::stringstream& output)
+{
+	Object obj;
+	if (dict->lookup(key, &obj) && obj.isString())
+	{
+		GooString* gstr = obj.getString();
+		SYSTEMTIME stime;
+		
+		output << header;
+		if (TryParseDateTime(gstr, &stime))
+		{
+			GooString* timeStr = GooString::format("{0:-0d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}", stime.wYear, stime.wMonth, stime.wDay, stime.wHour, stime.wMinute, stime.wSecond);
+			output << timeStr->getCString();
+			delete timeStr;
+		}
+		else
+		{
+			output << gstr->getCString();
+		}
+		output << ENDL;
 	}
 	obj.free();
 }
@@ -120,8 +165,8 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 		PrintEntry(infoDict, "Author",       "Author:         ", sstr);
 		PrintEntry(infoDict, "Creator",      "Creator:        ", sstr);
 		PrintEntry(infoDict, "Producer",     "Producer:       ", sstr);
-		PrintEntry(infoDict, "CreationDate", "CreationDate:   ", sstr);
-		PrintEntry(infoDict, "ModDate",      "ModDate:        ", sstr);
+		PrintDateEntry(infoDict, "CreationDate", "CreationDate:   ", sstr);
+		PrintDateEntry(infoDict, "ModDate",      "ModDate:        ", sstr);
 	}
 	info.free();
 
@@ -155,7 +200,13 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 
 	// print page count
 	sstr << "Pages:          " << doc->getNumPages() << ENDL;
-
+	
+	if (doc->getNumPages() > 0)
+	{
+		sstr << "Page Size:      " << doc->getPageMediaWidth(1) << " x " << doc->getPageMediaHeight(1) << ENDL;
+		sstr << "Page Rotate:    " << doc->getPageRotate(1) << ENDL;
+	}
+	
 	// print encryption info
 	sstr << "Encrypted:      ";
 	if (doc->isEncrypted())
