@@ -21,13 +21,15 @@ struct PdfInfo
 	PdfInfo() : docRef(nullptr) {}
 
 	bool LoadInfo(PDFDoc* doc);
-	void LoadMetaData(PDFDoc *doc, std::string &output);
 	void Cleanup();
 
 	bool HasFiles()
 	{
 		return (embFiles.size() + scripts.size()) > 0;
 	}
+
+private:
+	void LoadMetaData(PDFDoc *doc, std::string &output);
 };
 
 bool TryParseDateTime(GooString* strDate, FILETIME *fTime);

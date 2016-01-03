@@ -231,7 +231,7 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 		}
 
 		char tmpBuf[512] = {0};
-		sprintf_s(tmpBuf, 512, "yes (print:%s copy:%s change:%s addNotes:%s algorithm:%s)",
+		sprintf_s(tmpBuf, sizeof(tmpBuf), "yes (print:%s copy:%s change:%s addNotes:%s algorithm:%s)",
 			doc->okToPrint(gTrue) ? "yes" : "no",
 			doc->okToCopy(gTrue) ? "yes" : "no",
 			doc->okToChange(gTrue) ? "yes" : "no",
