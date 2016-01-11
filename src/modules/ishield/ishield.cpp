@@ -55,7 +55,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		item_info->Size = cabStorage->GetCabInfo().size() * sizeof(wchar_t) + strlen(BOM);
 		return GET_ITEM_OK;
 	}
-	else if (item_index < cabStorage->GetTotalFiles())
+	else if (item_index < cabStorage->GetTotalFiles() + (cabStorage->HasInfoData() ? 1 : 0))
 	{
 		if (cabStorage->GetFileInfo(cabStorage->HasInfoData() ? item_index - 1 : item_index, item_info))
 		{
@@ -93,7 +93,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		pDestFile->WriteBuffer(BOM, strlen(BOM));
 		pDestFile->WriteBuffer(infoData.c_str(), (infoData.size() * sizeof(wchar_t)));
 	}
-	else if (params.ItemIndex < cabStorage->GetTotalFiles())
+	else if (params.ItemIndex < cabStorage->GetTotalFiles() + (cabStorage->HasInfoData() ? 1 : 0))
 	{
 		int itemIndex = cabStorage->HasInfoData() ? params.ItemIndex - 1 : params.ItemIndex;
 		

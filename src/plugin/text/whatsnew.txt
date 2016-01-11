@@ -8,6 +8,7 @@ Changes history:
 - PDF: Now embedded JS scripts are available.
 - PDF: Fixed issue with Unicode text in the info file.
 - Setup Factory: Fixed reading of files created with SF 9.5+.
+- IShield: Fixed bug when 1 file was missing in listing for some installer versions.
 - Other changes.
 
 1.10.1
