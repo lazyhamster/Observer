@@ -19,9 +19,9 @@ protected:
 	virtual void GenerateInfoFile() = 0;
 	virtual bool InternalOpen(CFileStream* headerFile) = 0;
 
-	int TransferFile(CFileStream* src, CFileStream* dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress);
-	int UnpackFile(CFileStream* src, CFileStream* dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress);
-	int UnpackFileOld(CFileStream* src, DWORD packedSize, CFileStream* dest, DWORD unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress);
+	int TransferFile(CFileStream* src, AStream* dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress);
+	int UnpackFile(std::vector<CFileStream*> &src, std::vector<__int64> &srcOffsets, AStream* dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress);
+	int UnpackFileOld(CFileStream* src, DWORD packedSize, AStream* dest, DWORD unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress);
 
 public:	
 	virtual ~ISCabFile() {}

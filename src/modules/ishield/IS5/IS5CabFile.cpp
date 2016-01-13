@@ -307,24 +307,45 @@ int IS5CabFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProc
 	if (firstSearchVolume < 0 || lastSearchVolume < 0)
 		return CAB_EXTRACT_READ_ERR;
 
-	// Search for target volume
-	DataVolume* volume = NULL;
+	// Search for target volumes
+	std::vector<DataVolume*> volumes;
 	for (int i = firstSearchVolume; i <= lastSearchVolume; i++)
 	{
-		volume = OpenVolume((DWORD) i);
+		DataVolume* volume = OpenVolume((DWORD) i);
 		if (volume == NULL)	break;
 
-		if (fileIndex >= (int) volume->Header.FirstFile && fileIndex <= (int) volume->Header.LastFile)
-			break;
-		volume = NULL;
+		if (fileIndex >= volume->Header.FirstFile && fileIndex <= volume->Header.LastFile)
+		{
+			volumes.push_back(volume);
+			if (fileIndex < volume->Header.LastFile)
+				break;
+		}
 	}
 
 	// Can not find proper volume file
-	if (volume == NULL)
+	if (volumes.size() == 0)
 		return CAB_EXTRACT_READ_ERR;
 
-	if (!volume->FileHandle->SetPos(pFileDesc->ofsData))
+	DataVolume* firstFileVolume = volumes[0];
+	
+	if (!firstFileVolume->FileHandle->SetPos(pFileDesc->ofsData))
 		return CAB_EXTRACT_READ_ERR;
+
+	std::vector<__int64> volumeOffsets;
+	std::vector<CFileStream*> volumeStreams;
+
+	volumeOffsets.push_back(pFileDesc->ofsData);
+	volumeStreams.push_back(firstFileVolume->FileHandle);
+	for (size_t i = 1; i < volumes.size(); i++)
+	{
+		DataVolume* nextVol = volumes[i];
+		// Some times if FirstFile == LastFile valid offset and sizes are stored in last file fields only
+		if ((nextVol->Header.FirstFile == nextVol->Header.LastFile) && (nextVol->Header.ofsFirstFile == 0))
+			volumeOffsets.push_back(nextVol->Header.ofsLastFile);
+		else
+			volumeOffsets.push_back(nextVol->Header.ofsFirstFile);
+		volumeStreams.push_back(nextVol->FileHandle);
+	}
 
 	BYTE md5Sig[16] = {0};
 	int extractResult = CAB_EXTRACT_OK;
@@ -338,17 +359,17 @@ int IS5CabFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProc
 
 		if (m_eCompression == Unknown)
 		{
-			DetectCompression(pFileDesc, volume);
-			volume->FileHandle->SetPos(pFileDesc->ofsData);
+			DetectCompression(pFileDesc, firstFileVolume);
+			firstFileVolume->FileHandle->SetPos(pFileDesc->ofsData);
 		}
 
 		switch(m_eCompression)
 		{
 			case New:
-				extractResult = UnpackFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
+				extractResult = UnpackFile(volumeStreams, volumeOffsets, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
 				break;
 			case Old:
-				extractResult = UnpackFileOld(volume->FileHandle, pFileDesc->cbCompressed, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
+				extractResult = UnpackFileOld(firstFileVolume->FileHandle, pFileDesc->cbCompressed, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
 				break;
 			default:
 				return CAB_EXTRACT_READ_ERR;
@@ -356,7 +377,7 @@ int IS5CabFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProc
 	}
 	else
 	{
-		extractResult = TransferFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, (pFileDesc->DescStatus & DESC_ENCRYPTED) != 0, md5Sig, &progressCtx);
+		extractResult = TransferFile(firstFileVolume->FileHandle, targetFile, pFileDesc->cbExpanded, (pFileDesc->DescStatus & DESC_ENCRYPTED) != 0, md5Sig, &progressCtx);
 	}
 
 	return extractResult;
@@ -400,9 +421,16 @@ DataVolume* IS5CabFile::OpenVolume( DWORD volumeIndex )
 	return volume;
 }
 
-void IS5CabFile::DetectCompression( FILEDESC* fileDesc, DataVolume* fileVolume )
+bool IS5CabFile::DetectCompression( FILEDESC* fileDesc, DataVolume* fileVolume )
 {
-	if (!fileVolume || !fileDesc) return;
+	if (!fileVolume || !fileDesc) return false;
+
+	// This check will work only on multi-volume packed files
+	if ((fileDesc->cbCompressed + fileDesc->ofsData) > fileVolume->FileHandle->GetSize())
+	{
+		m_eCompression = New;
+		return true;
+	}
 
 	DWORD totalLen = 0;
 	DWORD nextOfs = fileDesc->ofsData;
@@ -410,9 +438,11 @@ void IS5CabFile::DetectCompression( FILEDESC* fileDesc, DataVolume* fileVolume )
 
 	while (totalLen < fileDesc->cbCompressed)
 	{
-		if (!fileVolume->FileHandle->SetPos(nextOfs)) return;
+		if (!fileVolume->FileHandle->SetPos(nextOfs))
+			return false;
 
-		if (!fileVolume->FileHandle->ReadBuffer(&blockSize, sizeof(blockSize))) return;
+		if (!fileVolume->FileHandle->ReadBuffer(&blockSize, sizeof(blockSize)))
+			return false;
 
 		blockSize += sizeof(blockSize);
 		nextOfs += blockSize;
@@ -420,6 +450,7 @@ void IS5CabFile::DetectCompression( FILEDESC* fileDesc, DataVolume* fileVolume )
 	}
 
 	m_eCompression = (totalLen == fileDesc->cbCompressed) ? New : Old;
+	return true;
 }
 
 } // namespace IS5

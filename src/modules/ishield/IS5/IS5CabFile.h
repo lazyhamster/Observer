@@ -45,7 +45,7 @@ protected:
 
 	DataVolume* OpenVolume(DWORD volumeIndex);
 
-	void DetectCompression(FILEDESC* fileDesc, DataVolume* fileVolume);
+	bool DetectCompression(FILEDESC* fileDesc, DataVolume* fileVolume);
 
 public:	
 	IS5CabFile();

@@ -67,7 +67,7 @@ bool ISCabFile::Open( CFileStream* headerFile )
 
 #define EXTRACT_BUFFER_SIZE 64*1024
 
-int ISCabFile::TransferFile( CFileStream* src, CFileStream* dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress )
+int ISCabFile::TransferFile( CFileStream* src, AStream* dest, __int64 fileSize, bool decrypt, BYTE* hashBuf, ExtractProcessCallbacks* progress )
 {
 	MD5_CTX md5;
 	MD5Init(&md5);
@@ -101,58 +101,91 @@ int ISCabFile::TransferFile( CFileStream* src, CFileStream* dest, __int64 fileSi
 	return CAB_EXTRACT_OK;
 }
 
-int ISCabFile::UnpackFile( CFileStream* src, CFileStream* dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
+int ISCabFile::UnpackFile( std::vector<CFileStream*> &src, std::vector<__int64> &srcOffsets, AStream* dest, __int64 unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
 {
+	if (src.size() == 0 || src.size() != srcOffsets.size())
+		return CAB_EXTRACT_READ_ERR;
+	
 	MD5_CTX md5;
 	MD5Init(&md5);
 	
 	BYTE inputBuffer[EXTRACT_BUFFER_SIZE] = {0};
+	int retVal = CAB_EXTRACT_OK;
+	size_t srcIndex = 0;
+	
+	CFileStream* currStream = src[srcIndex];
+	if (!currStream->SetPos(srcOffsets[srcIndex]))
+		return CAB_EXTRACT_READ_ERR;
 
 	size_t outputBufferSize = EXTRACT_BUFFER_SIZE;
 	BYTE* outputBuffer = (BYTE*) malloc(outputBufferSize);
-
+	
 	size_t outputDataSize;
 	__int64 bytesLeft = unpackedSize;
 	while (bytesLeft > 0)
 	{
 		WORD blockSize;
-		if (!src->ReadBuffer(&blockSize, sizeof(blockSize)) || !blockSize)
-			break;
+		if (!currStream->ReadBuffer(&blockSize, sizeof(blockSize)) || !blockSize || (currStream->GetPos() + blockSize) > currStream->GetSize())
+		{
+			// Try to switch stream to next one
+			srcIndex++;
+			if (srcIndex < src.size())
+			{
+				currStream = src[srcIndex];
+				if (!currStream->SetPos(srcOffsets[srcIndex]))
+				{
+					retVal = CAB_EXTRACT_READ_ERR;
+					break;
+				}
+				continue;
+			}
+			else
+			{
+				retVal = CAB_EXTRACT_READ_ERR;
+				break;
+			}
+		}
 
-		if (!src->ReadBuffer(inputBuffer, blockSize))
+		if (!currStream->ReadBuffer(inputBuffer, blockSize))
+		{
+			retVal = CAB_EXTRACT_READ_ERR;
 			break;
+		}
 
 		if (!UnpackBuffer(inputBuffer, blockSize, outputBuffer, &outputBufferSize, &outputDataSize, false))
+		{
+			retVal = CAB_EXTRACT_READ_ERR;
 			break;
+		}
 
 		bytesLeft -= outputDataSize;
 		MD5Update(&md5, outputBuffer, (unsigned int) outputDataSize);
 
 		if (!dest->WriteBuffer(outputBuffer, (DWORD) outputDataSize))
 		{
-			free(outputBuffer);
-			return CAB_EXTRACT_WRITE_ERR;
+			retVal = CAB_EXTRACT_WRITE_ERR;
+			break;
 		}
 
 		if (progress && progress->FileProgress && progress->signalContext)
 		{
 			if (!progress->FileProgress(progress->signalContext, outputDataSize))
 			{
-				free(outputBuffer);
-				return CAB_EXTRACT_USER_ABORT;
+				retVal = CAB_EXTRACT_USER_ABORT;
+				break;
 			}
 		}
 	}
 
 	free(outputBuffer);
-	if (hashBuf != NULL)
+	if ((hashBuf != NULL) && (retVal == CAB_EXTRACT_OK))
 	{
 		MD5Final(hashBuf, &md5);
 	}
-	return CAB_EXTRACT_OK;
+	return retVal;
 }
 
-int ISCabFile::UnpackFileOld( CFileStream* src, DWORD packedSize, CFileStream* dest, DWORD unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
+int ISCabFile::UnpackFileOld( CFileStream* src, DWORD packedSize, AStream* dest, DWORD unpackedSize, BYTE* hashBuf, ExtractProcessCallbacks* progress )
 {
 	static const uint8_t END_OF_CHUNK[4] = { 0x00, 0x00, 0xff, 0xff };
 	

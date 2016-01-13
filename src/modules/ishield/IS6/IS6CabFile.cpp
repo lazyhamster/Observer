@@ -308,7 +308,10 @@ int IS6CabFile::ExtractFile( int itemIndex, CFileStream* targetFile, ExtractProc
 		if (pFileDesc->DescStatus & DESC_ENCRYPTED)
 			return CAB_EXTRACT_READ_ERR;
 
-		extractResult = UnpackFile(volume->FileHandle, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
+		std::vector<CFileStream*> streams; streams.push_back(volume->FileHandle);
+		std::vector<__int64> offsets; offsets.push_back(pFileDesc->ofsData);
+
+		extractResult = UnpackFile(streams, offsets, targetFile, pFileDesc->cbExpanded, md5Sig, &progressCtx);
 	}
 	else
 	{
