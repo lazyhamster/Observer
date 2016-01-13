@@ -8,23 +8,23 @@
 
 struct CABHEADER
 {
-	DWORD Signature;		// 0
-	DWORD Version;			// 4
-	BYTE NextVol;			// 5
-	BYTE junk2;				// 6
-	WORD junk3;				// 8
-	DWORD ofsCabDesc;		// c
-	DWORD cbCabDesc;		// 10
-	DWORD ofsCompData;		// 14
-	DWORD junk1;			// 18
-	DWORD FirstFile;		// 1c
-	DWORD LastFile;			// 20
-	DWORD ofsFirstData;		// 24
-	DWORD cbFirstExpanded;	// 28
-	DWORD cbFirstHere;		// 2c
-	DWORD ofsLastData;		// 30
-	DWORD cbLastExpanded;	// 34
-	DWORD cbLastHere;		// 38
+	DWORD Signature;			// 0
+	DWORD Version;				// 4
+	BYTE NextVol;				// 5
+	BYTE junk2;					// 6
+	WORD junk3;					// 8
+	DWORD ofsCabDesc;			// c
+	DWORD cbCabDesc;			// 10
+	DWORD ofsCompData;			// 14
+	DWORD junk1;				// 18
+	DWORD FirstFile;			// 1c
+	DWORD LastFile;				// 20
+	DWORD ofsFirstFile;			// 24
+	DWORD cbFirstFileExpSize;	// 28
+	DWORD cbFirstFileCompSize;	// 2c
+	DWORD ofsLastFile;			// 30
+	DWORD cbLastFileExpSize;	// 34
+	DWORD cbLastFileCompSize;	// 38
 };	// size=3c
 
 struct CABDESC
