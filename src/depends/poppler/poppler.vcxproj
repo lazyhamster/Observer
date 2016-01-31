@@ -122,6 +122,7 @@
     <ClCompile Include="utils\JSInfo.cc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="config.h" />
     <ClInclude Include="fofi\FoFiBase.h" />
     <ClInclude Include="fofi\FoFiEncodings.h" />
     <ClInclude Include="fofi\FoFiIdentifier.h" />
@@ -139,6 +140,7 @@
     <ClInclude Include="goo\grandom.h" />
     <ClInclude Include="goo\gstrtod.h" />
     <ClInclude Include="goo\gtypes.h" />
+    <ClInclude Include="poppler-config.h" />
     <ClInclude Include="poppler\Annot.h" />
     <ClInclude Include="poppler\Array.h" />
     <ClInclude Include="poppler\BuiltinFont.h" />
