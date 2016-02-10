@@ -22,12 +22,12 @@ BaseGenteeFile* TryOpenFile(const wchar_t* path, const char* sample, size_t samp
 	AStream* inFile = CFileStream::Open(path, true, false);
 	if (!inFile) return nullptr;
 
-	GeaFile* geaFile = new GeaFile();
+	BaseGenteeFile* geaFile = new GeaFile();
 	if (geaFile->Open(inFile))
 		return geaFile;
 	delete geaFile;
 
-	InstallerNewFile* instNewFile = new InstallerNewFile();
+	BaseGenteeFile* instNewFile = new InstallerNewFile();
 	if (instNewFile->Open(inFile))
 		return instNewFile;
 	delete instNewFile;

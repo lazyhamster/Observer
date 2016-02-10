@@ -37,15 +37,19 @@ private:
 	BYTE* m_pOutBuffer;
 	size_t m_nOutBufferDataSize;
 	CMemoryStream m_pMovedData;
+	uint32_t m_nHeadSize;
+
+	int64_t m_nStartOffset;
 
 	std::string ReadGeaString(AStream* data);
+	bool ReadCompressedBlock(int64_t offs, uint32_t size, BYTE* buf);
 	bool CheckPassword(uint32_t passIndex, const char* password);
 
 public:
 	GeaFile();
-	~GeaFile();
+	virtual ~GeaFile();
 
-	virtual bool Open(AStream* inStream);
+	virtual bool Open(AStream* inStream, int64_t startOffset, bool ownStream);
 	virtual void Close();
 
 	virtual int GetFilesCount() { return (int) m_vFiles.size(); }

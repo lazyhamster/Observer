@@ -91,7 +91,7 @@ InstallerNewFile::~InstallerNewFile()
 	Close();
 }
 
-bool InstallerNewFile::Open( AStream* inStream )
+bool InstallerNewFile::Open( AStream* inStream, int64_t startOffset, bool ownStream )
 {
 	CFileStream* src = dynamic_cast<CFileStream*>(inStream);
 	if (!src) return false;
@@ -118,7 +118,7 @@ bool InstallerNewFile::Open( AStream* inStream )
 	AStream* resStream = new CMemoryStream();
 	if (LoadPEResource(src->FilePath(), L"SETUP_TEMP", RT_RCDATA, resStream))
 	{
-		GeaFile* embFiles = new GeaFile();
+		BaseGenteeFile* embFiles = new GeaFile();
 		if (embFiles->Open(resStream))
 		{
 			m_pEmbedFiles = embFiles;
@@ -148,9 +148,8 @@ bool InstallerNewFile::Open( AStream* inStream )
 
 		inStream->SetPos(extOffset);
 
-		AStream* partStream = new CPartialStream(inStream, extOffset, lh.extsize[i]);
 		GeaFile* partFile = new GeaFile();
-		if (partFile->Open(partStream))
+		if (partFile->Open(inStream, extOffset, false))
 		{
 			m_pMainFiles = partFile;
 			for (int i = 0; i < partFile->GetFilesCount(); i++)
@@ -165,13 +164,13 @@ bool InstallerNewFile::Open( AStream* inStream )
 		else
 		{
 			delete partFile;
-			delete partStream;
 		}
 
 		extOffset += lh.extsize[i];
 	}
 	
 	m_pStream = inStream;
+	m_fStreamOwned = ownStream;
 	return true;
 }
 
@@ -189,17 +188,13 @@ void InstallerNewFile::Close()
 		m_pEmbedFiles = nullptr;
 	}
 
-	if (m_pStream)
-	{
-		delete m_pStream;
-		m_pStream = nullptr;
-	}
-
 	for (auto it = m_vFiles.begin(); it != m_vFiles.end(); it++)
 	{
 		delete *it;
 	}
 	m_vFiles.clear();
+
+	BaseClose();
 }
 
 bool InstallerNewFile::GetFileDesc( int index, StorageItemInfo* desc )

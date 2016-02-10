@@ -17,12 +17,24 @@ class BaseGenteeFile
 {
 protected:
 	AStream* m_pStream;
+	bool m_fStreamOwned;
+
+	void BaseClose()
+	{
+		if (m_pStream)
+		{
+			if (m_fStreamOwned) delete m_pStream;
+			m_pStream = nullptr;
+		}
+	}
 
 public:
 	virtual ~BaseGenteeFile() {}
 	
-	virtual bool Open(AStream* inStream) = 0;
+	virtual bool Open(AStream* inStream, int64_t startOffset, bool ownStream) = 0;
 	virtual void Close() = 0;
+
+	bool Open(AStream* inStream) { return Open(inStream, 0, true); }
 
 	virtual int GetFilesCount() = 0;
 	virtual bool GetFileDesc(int index, StorageItemInfo* desc) = 0;

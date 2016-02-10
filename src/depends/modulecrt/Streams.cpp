@@ -267,11 +267,7 @@ bool CMemoryStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
 	if (newSize > m_nCapacity)
 	{
 		size_t newCapacity = ((newSize / MEM_EXPAND_CHUNK_SIZE) + 1) * MEM_EXPAND_CHUNK_SIZE;
-		size_t currPos = m_pCurrPtr - m_pDataBuffer;
-
-		m_pDataBuffer = (char*) realloc(m_pDataBuffer, newCapacity);
-		m_pCurrPtr = m_pDataBuffer + currPos;
-		m_nCapacity = newCapacity;
+		SetCapacity(newCapacity);
 	}
 
 	memcpy(m_pCurrPtr, buffer, bufferSize);
@@ -300,6 +296,27 @@ bool CMemoryStream::Delete( size_t delSize )
 		memmove(m_pCurrPtr, m_pCurrPtr + actualDelSize, actualDelSize);
 	}
 	return true;
+}
+
+bool CMemoryStream::SetCapacity(size_t newCapacity)
+{
+	if (newCapacity != m_nCapacity)
+	{
+		size_t pos = min((size_t) (m_pCurrPtr - m_pDataBuffer), newCapacity);
+
+		char* newBufferPtr = (char*) realloc(m_pDataBuffer, newCapacity);
+		if (newBufferPtr != nullptr)
+		{
+			m_pDataBuffer = newBufferPtr;
+			m_pCurrPtr = m_pDataBuffer + pos;
+			m_nCapacity = newCapacity;
+			m_nDataSize = min(m_nDataSize, m_nCapacity);
+			
+			return true;
+		}
+	}
+
+	return false;
 }
 
 int64_t CMemoryStream::GetSize()

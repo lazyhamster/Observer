@@ -12,7 +12,7 @@ struct InstallerFileDesc
 
 	// Content and ParentFile are mutually exclusive
 	AStream* Content;
-	GeaFile* ParentFile;
+	BaseGenteeFile* ParentFile;
 	int ParentFileIndex;
 
 	InstallerFileDesc() : PackedSize(0), Content(nullptr), ParentFile(nullptr), ParentFileIndex(-1)	{}
@@ -27,16 +27,16 @@ class InstallerNewFile : public BaseGenteeFile
 {
 private:
 	std::vector<InstallerFileDesc*> m_vFiles;
-	GeaFile* m_pEmbedFiles;
-	GeaFile* m_pMainFiles;
+	BaseGenteeFile* m_pEmbedFiles;
+	BaseGenteeFile* m_pMainFiles;
 
 	bool ReadPESectionFiles(AStream* inStream, uint32_t scriptPackedSize, uint32_t dllPackedSize);
 
 public:
 	InstallerNewFile();
-	~InstallerNewFile();
+	virtual ~InstallerNewFile();
 	
-	virtual bool Open(AStream* inStream);
+	virtual bool Open(AStream* inStream, int64_t startOffset, bool ownStream);
 	virtual void Close();
 
 	virtual int GetFilesCount() { return 0; }

@@ -97,6 +97,7 @@ public:
 	bool Clear();
 
 	bool Delete(size_t delSize);
+	bool SetCapacity(size_t newCapacity);
 	const char* CDataPtr() const { return m_pDataBuffer; }
 };
 
