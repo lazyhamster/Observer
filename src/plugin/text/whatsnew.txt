@@ -1,5 +1,8 @@
 Changes history:
 
+1.11.1
+- Gentee: Fixed extraction issues for some installers.
+
 1.11.0
 - Changes in modules API.
 - New module: Support for installers made by CreateInstall (aka Gentee Installer).
