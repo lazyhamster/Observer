@@ -57,8 +57,10 @@ public:
 
 	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password);
 
-	virtual void GetFileTypeName(wchar_t* buf, size_t bufSize);
-	virtual void GetCompressionName(wchar_t* buf, size_t bufSize);
+	virtual const wchar_t* GetFileTypeName() { return L"Gentee Archive (GEA)"; }
+	virtual const wchar_t* GetCompressionName() { return L"LZGE"; }
+
+	//TODO: get real compression name
 };
 
 #endif // GeaFile_h__

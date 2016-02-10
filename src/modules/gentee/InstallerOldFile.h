@@ -18,7 +18,7 @@ public:
 	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password);
 
 	virtual const wchar_t* GetFileTypeName() { return L"Gentee Installer"; }
-	virtual void GetCompressionName(wchar_t* buf, size_t bufSize);
+	virtual const wchar_t* GetCompressionName() { return L"Unknown"; }
 };
 
 #endif // InstallerOldFile_h__

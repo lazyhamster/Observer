@@ -39,13 +39,15 @@ public:
 	virtual bool Open(AStream* inStream, int64_t startOffset, bool ownStream);
 	virtual void Close();
 
-	virtual int GetFilesCount() { return 0; }
+	virtual int GetFilesCount() { return (int) m_vFiles.size(); }
 	virtual bool GetFileDesc(int index, StorageItemInfo* desc);
 
 	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password);
 
-	virtual void GetFileTypeName(wchar_t* buf, size_t bufSize);
-	virtual void GetCompressionName(wchar_t* buf, size_t bufSize);
+	virtual const wchar_t* GetFileTypeName() { return L"CreateInstall Installer"; }
+	virtual const wchar_t* GetCompressionName() { return L"LZGE/PPMD"; }
+
+	//TODO: get real compression name
 };
 
 #endif // InstallerNewFile_h__

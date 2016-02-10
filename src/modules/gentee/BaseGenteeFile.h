@@ -41,8 +41,8 @@ public:
 
 	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password) = 0;
 
-	virtual void GetFileTypeName(wchar_t* buf, size_t bufSize) = 0;
-	virtual void GetCompressionName(wchar_t* buf, size_t bufSize) = 0;
+	virtual const wchar_t* GetFileTypeName() = 0;
+	virtual const wchar_t* GetCompressionName() = 0;
 };
 
 #endif // BaseGenteeFile_h__

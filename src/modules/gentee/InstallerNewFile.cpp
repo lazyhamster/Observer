@@ -246,16 +246,6 @@ GenteeExtractResult InstallerNewFile::ExtractFile( int index, AStream* dest, con
 	return Failure;
 }
 
-void InstallerNewFile::GetFileTypeName( wchar_t* buf, size_t bufSize )
-{
-	wcscpy_s(buf, bufSize, L"CreateInstall Installer");
-}
-
-void InstallerNewFile::GetCompressionName( wchar_t* buf, size_t bufSize )
-{
-	wcscpy_s(buf, bufSize, L"LZGE/PPMD");
-}
-
 bool InstallerNewFile::ReadPESectionFiles( AStream* inStream, uint32_t scriptPackedSize, uint32_t dllPackedSize )
 {
 	int64_t sectionStart, sectionSize;

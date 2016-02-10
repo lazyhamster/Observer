@@ -399,16 +399,6 @@ GenteeExtractResult GeaFile::ExtractFile( int index, AStream* dest, const char* 
 	return (bytesLeft == 0) && ((fileCrc == gf.crc) || (gf.crc == 0)) ? Success : FailedRead;
 }
 
-void GeaFile::GetFileTypeName( wchar_t* buf, size_t bufSize )
-{
-	wcscpy_s(buf, bufSize, L"Gentee Archive (GEA)");
-}
-
-void GeaFile::GetCompressionName( wchar_t* buf, size_t bufSize )
-{
-	wcscpy_s(buf, bufSize, L"LZGE");
-}
-
 std::string GeaFile::ReadGeaString( AStream* data )
 {
 	std::string str;

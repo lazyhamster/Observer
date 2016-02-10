@@ -30,8 +30,3 @@ GenteeExtractResult InstallerOldFile::ExtractFile(int index, AStream* dest, cons
 {
 	return Failure;
 }
-
-void InstallerOldFile::GetCompressionName(wchar_t* buf, size_t bufSize)
-{
-	//
-}

@@ -46,8 +46,8 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		*storage = gFile;
 
 		memset(info, 0, sizeof(StorageGeneralInfo));
-		gFile->GetFileTypeName(info->Format, STORAGE_FORMAT_NAME_MAX_LEN);
-		gFile->GetCompressionName(info->Compression, STORAGE_PARAM_MAX_LEN);
+		wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, gFile->GetFileTypeName());
+		wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, gFile->GetCompressionName());
 
 		return SOR_SUCCESS;
 	}
