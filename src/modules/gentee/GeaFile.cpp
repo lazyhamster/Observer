@@ -2,17 +2,10 @@
 #include "GeaFile.h"
 #include "gea.h"
 #include "gea/LZGE/lzge.h"
-#include "gea/PPMD/endeppmd.h"
 #include "gea/common/crc.h"
+#include "ppmd_def.h"
 
 #define CRC_SEED 0xFFFFFFFF
-
-extern "C"
-{
-	dword STDCALL ppmd_start( dword memory );
-	dword STDCALL ppmd_decode( pbyte in, dword size, pbyte out, dword outsize, psppmd ppmd );
-	void STDCALL ppmd_stop( void );
-};
 
 static void gea_protect(uint8_t* buf, size_t size, const char* passwd)
 {
