@@ -29,6 +29,7 @@ private:
 	std::vector<InstallerFileDesc*> m_vFiles;
 	BaseGenteeFile* m_pEmbedFiles;
 	BaseGenteeFile* m_pMainFiles;
+	std::wstring m_sCompressionName;
 
 	bool ReadPESectionFiles(AStream* inStream, uint32_t scriptPackedSize, uint32_t dllPackedSize);
 
@@ -45,9 +46,7 @@ public:
 	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password);
 
 	virtual const wchar_t* GetFileTypeName() { return L"CreateInstall Installer"; }
-	virtual const wchar_t* GetCompressionName() { return L"LZGE/PPMD"; }
-
-	//TODO: get real compression name
+	virtual const wchar_t* GetCompressionName() { return m_sCompressionName.c_str(); }
 };
 
 #endif // InstallerNewFile_h__

@@ -168,6 +168,13 @@ bool InstallerNewFile::Open( AStream* inStream, int64_t startOffset, bool ownStr
 
 		extOffset += lh.extsize[i];
 	}
+
+	m_sCompressionName = m_pMainFiles->GetCompressionName();
+	if (wcsstr(m_pMainFiles->GetCompressionName(), m_pEmbedFiles->GetCompressionName()) == nullptr)
+	{
+		m_sCompressionName += L"/";
+		m_sCompressionName += m_pEmbedFiles->GetCompressionName();
+	}
 	
 	m_pStream = inStream;
 	m_fStreamOwned = ownStream;
