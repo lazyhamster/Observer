@@ -24,8 +24,9 @@ Supported file formats:
 - Install Shield 3+ packages
 - Setup Factory 5-9 packages
 - PDF files (embedded files)
+- CreateInstall packages
 
-(c) 2009-2015, Ariman
+(c) 2009-2016, Ariman
 -----------------------------------------
 Web-site: http://sourceforge.net/projects/far-observer/
 E-mail for suggestions, bug reports, etc: ariman@inbox.ru

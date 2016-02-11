@@ -1,6 +1,6 @@
 Observer
 Plug-in for FAR Manager 1.75+ / 2.0+ / 3.0+
-Copyright: 2009-2014, Ariman
+Copyright: 2009-2016, Ariman
 
 -------------------------------------------------------------------
 
@@ -17,6 +17,7 @@ Add/Delete/Change operations are not planned.
   - Installation packages made with Wise Installer
   - Install Shield packages.
   - Setup Factory packages.
+  - CreateInstall packages.
 
 - Образы оптических дисков (CD/DVD/Blu-ray)
   - ISO-images. Following formats are supported:
