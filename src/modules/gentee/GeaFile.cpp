@@ -210,6 +210,7 @@ bool GeaFile::Open( AStream* inStream, int64_t startOffset, bool ownStream )
 	m_pOutBuffer = (BYTE*) malloc(m_nBlockSize + m_nSolidSize + 64);
 	m_nOutBufferDataSize = 0;
 	m_nHeadSize = head.size;
+	m_sCompressionName.clear();
 	ppmd_start(head.memory);
 
 	return true;
@@ -259,6 +260,44 @@ bool GeaFile::GetFileDesc( int index, StorageItemInfo* desc )
 		return true;
 	}
 	return false;
+}
+
+const wchar_t* GeaFile::GetCompressionName()
+{
+	if (m_sCompressionName.length() == 0)
+	{
+		for (int i = 0; i < (int) m_vFiles.size(); i++)
+		{
+			const geafiledesc& gf = m_vFiles[i];
+			
+			geadata gd = {0};
+			if (ReadCompressedBlock(gf.offset, sizeof(geadata), (BYTE*) &gd))
+			{
+				uint8_t order = gd.order & ~0x80;
+				uint32_t ctype = order >> 4;
+				switch (ctype)
+				{
+				case GEA_STORE:
+					break;
+				case GEA_LZGE:
+					m_sCompressionName = L"LZGE";
+					break;
+				case GEA_PPMD:
+					m_sCompressionName = L"PPMD";
+					break;
+				default:
+					m_sCompressionName = L"Unknown";
+					break;
+				}
+
+				if (m_sCompressionName.length() > 0)
+					break;
+			}
+		}
+		if (m_sCompressionName.length() == 0)
+			m_sCompressionName = L"None";
+	}
+	return m_sCompressionName.c_str();
 }
 
 GenteeExtractResult GeaFile::ExtractFile( int index, AStream* dest, const char* password )

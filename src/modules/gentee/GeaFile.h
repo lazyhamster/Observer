@@ -38,6 +38,7 @@ private:
 	size_t m_nOutBufferDataSize;
 	CMemoryStream m_pMovedData;
 	uint32_t m_nHeadSize;
+	std::wstring m_sCompressionName;
 
 	int64_t m_nStartOffset;
 
@@ -58,9 +59,7 @@ public:
 	virtual GenteeExtractResult ExtractFile(int index, AStream* dest, const char* password);
 
 	virtual const wchar_t* GetFileTypeName() { return L"Gentee Archive (GEA)"; }
-	virtual const wchar_t* GetCompressionName() { return L"LZGE"; }
-
-	//TODO: get real compression name
+	virtual const wchar_t* GetCompressionName();
 };
 
 #endif // GeaFile_h__
