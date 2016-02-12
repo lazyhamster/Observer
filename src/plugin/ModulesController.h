@@ -57,12 +57,13 @@ private:
 	
 	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, wstring &errorMsg);
 	bool IsValidModuleLoaded(ModuleLoadParameters &params);
+	bool GetExceptionMessage(unsigned long exceptionCode, std::wstring &errorText);
 
 public:
 	ModulesController(void) {};
 	~ModulesController(void) { this->Cleanup(); };
 
-	int Init(const wchar_t* basePath, Config* cfg, vector<FailedModuleInfo> &failed);
+	int Init(const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed);
 	void Cleanup();
 	
 	size_t NumModules() { return modules.size(); }

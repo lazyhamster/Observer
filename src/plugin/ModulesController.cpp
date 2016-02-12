@@ -215,19 +215,7 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 			__except (EXCEPTION_EXECUTE_HANDLER)
 			{
 				//Nothing to do here. Module unload code is below.
-
-				wchar_t* msgBuffer = NULL;
-				if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, GetModuleHandle(L"NTDLL.dll"), _exception_code(), 0, msgBuffer, 0, NULL) == 0)
-				{
-					const size_t kMsgBufferSize = 256;
-					msgBuffer = (wchar_t*) LocalAlloc(LPTR, kMsgBufferSize * sizeof(wchar_t));
-					if (_exception_code() == 0xE0434352)
-						swprintf_s(msgBuffer, kMsgBufferSize, L".NET code has thrown an exception");
-					else
-						swprintf_s(msgBuffer, kMsgBufferSize, L"Unrecognized exception: %u", _exception_code());
-				}
-				errorMsg = msgBuffer;
-				LocalFree(msgBuffer);
+				GetExceptionMessage(_exception_code(), errorMsg);
 			}
 		}
 
@@ -256,4 +244,25 @@ bool ModulesController::IsValidModuleLoaded( ModuleLoadParameters &params )
 	return (params.ApiVersion == ACTUAL_API_VERSION)
 		&& (params.ApiFuncs.OpenStorage != nullptr) && (params.ApiFuncs.CloseStorage != nullptr) && (params.ApiFuncs.PrepareFiles != nullptr)
 		&& (params.ApiFuncs.GetItem != nullptr) && (params.ApiFuncs.ExtractItem != nullptr);
+}
+
+bool ModulesController::GetExceptionMessage(unsigned long exceptionCode, std::wstring &errorText)
+{
+	bool rval = true;
+	
+	wchar_t* msgBuffer = NULL;
+	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, GetModuleHandle(L"NTDLL.dll"), exceptionCode, 0, msgBuffer, 0, NULL) == 0)
+	{
+		const size_t kMsgBufferSize = 256;
+		msgBuffer = (wchar_t*) LocalAlloc(LPTR, kMsgBufferSize * sizeof(wchar_t));
+		if (exceptionCode == 0xE0434352)
+			swprintf_s(msgBuffer, kMsgBufferSize, L".NET code has thrown an exception (%u)", exceptionCode);
+		else
+			swprintf_s(msgBuffer, kMsgBufferSize, L"Unrecognized exception: %u", exceptionCode);
+		rval = false;
+	}
+	errorText = msgBuffer;
+	LocalFree(msgBuffer);
+
+	return rval;
 }
