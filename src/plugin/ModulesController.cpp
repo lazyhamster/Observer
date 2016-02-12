@@ -157,6 +157,11 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 				__except (EXCEPTION_EXECUTE_HANDLER)
 				{
 					//NOTE: Maybe module that produced exception should be unloaded
+#ifdef _DEBUG
+					wchar_t buf[1024] = {0};
+					GetExceptionMessage(_exception_code(), buf, ARRAY_SIZE(buf));
+					MessageBox(0, buf, L"Open file error", MB_OK);
+#endif
 					continue;
 				}
 
@@ -264,5 +269,13 @@ bool ModulesController::GetExceptionMessage(unsigned long exceptionCode, std::ws
 	errorText = msgBuffer;
 	LocalFree(msgBuffer);
 
+	return rval;
+}
+
+bool ModulesController::GetExceptionMessage(unsigned long exceptionCode, wchar_t* errTextBuf, size_t errTextBufSize)
+{
+	std::wstring str;
+	bool rval = GetExceptionMessage(exceptionCode, str);
+	wcscpy_s(errTextBuf, errTextBufSize, str.c_str());
 	return rval;
 }
