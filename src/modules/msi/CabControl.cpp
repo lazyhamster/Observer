@@ -3,8 +3,8 @@
 
 extern "C"
 {
-#include "cab/mspack.h"
-#include "cab/system.h"
+#include "mspack\mspack.h"
+#include "mspack\system.h"
 };
 
 struct CabCacheItem

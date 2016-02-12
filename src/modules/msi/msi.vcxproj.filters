@@ -5,15 +5,9 @@
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
     </Filter>
-    <Filter Include="Source Files\libmspack">
-      <UniqueIdentifier>{3484996b-5803-405c-b3c5-f5378265b239}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
-    </Filter>
-    <Filter Include="Header Files\libmspack">
-      <UniqueIdentifier>{38eae1fc-0064-46d5-a165-005f3d41ed11}</UniqueIdentifier>
     </Filter>
     <Filter Include="Resource Files">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
@@ -39,21 +33,6 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="cab\cabd.c">
-      <Filter>Source Files\libmspack</Filter>
-    </ClCompile>
-    <ClCompile Include="cab\lzxd.c">
-      <Filter>Source Files\libmspack</Filter>
-    </ClCompile>
-    <ClCompile Include="cab\mszipd.c">
-      <Filter>Source Files\libmspack</Filter>
-    </ClCompile>
-    <ClCompile Include="cab\qtmd.c">
-      <Filter>Source Files\libmspack</Filter>
-    </ClCompile>
-    <ClCompile Include="cab\system.c">
-      <Filter>Source Files\libmspack</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="msi.def">
@@ -78,30 +57,6 @@
     </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="cab\cab.h">
-      <Filter>Header Files\libmspack</Filter>
-    </ClInclude>
-    <ClInclude Include="cab\lzx.h">
-      <Filter>Header Files\libmspack</Filter>
-    </ClInclude>
-    <ClInclude Include="cab\mspack.h">
-      <Filter>Header Files\libmspack</Filter>
-    </ClInclude>
-    <ClInclude Include="cab\mszip.h">
-      <Filter>Header Files\libmspack</Filter>
-    </ClInclude>
-    <ClInclude Include="cab\qtm.h">
-      <Filter>Header Files\libmspack</Filter>
-    </ClInclude>
-    <ClInclude Include="cab\readbits.h">
-      <Filter>Header Files\libmspack</Filter>
-    </ClInclude>
-    <ClInclude Include="cab\readhuff.h">
-      <Filter>Header Files\libmspack</Filter>
-    </ClInclude>
-    <ClInclude Include="cab\system.h">
-      <Filter>Header Files\libmspack</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
