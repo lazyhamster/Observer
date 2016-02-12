@@ -2,6 +2,7 @@ Changes history:
 
 1.11.1
 - Gentee: Fixed extraction issues for some installers.
+- MSI: Updated libmspack library to 0.5alpha.
 
 1.11.0
 - Changes in modules API.
