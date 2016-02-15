@@ -1220,7 +1220,8 @@ int WINAPI GetFilesW(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Item
 	if (vcExtractItems.size() == 0)
 		return 0;
 
-	ExtractSelectedParams extParams(*DestPath);
+	ExtractSelectedParams extParams;
+	extParams.strDestPath = *DestPath;
 	extParams.bSilent = (OpMode & OPM_SILENT) != 0;
 	extParams.bShowProgress = (OpMode & OPM_FIND) == 0;
 
@@ -1270,7 +1271,8 @@ int WINAPI ProcessKeyW(HANDLE hPlugin, int Key, unsigned int ControlState)
 		wchar_t *wszTargetDir = _wcsdup(info->StoragePath());
 		CutFileNameFromPath(wszTargetDir, true);
 		
-		ExtractSelectedParams extParams(wszTargetDir);
+		ExtractSelectedParams extParams;
+		extParams.strDestPath = wszTargetDir;
 		extParams.bSilent = true;
 
 		BatchExtract(info, vcExtractItems, nTotalExtractSize, extParams);

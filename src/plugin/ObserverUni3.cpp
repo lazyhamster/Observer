@@ -1126,7 +1126,8 @@ intptr_t WINAPI GetFilesW(GetFilesInfo *gfInfo)
 	if (vcExtractItems.size() == 0)
 		return 0;
 
-	ExtractSelectedParams extParams(gfInfo->DestPath);
+	ExtractSelectedParams extParams;
+	extParams.strDestPath = gfInfo->DestPath;
 	extParams.bSilent = (gfInfo->OpMode & OPM_SILENT) != 0;
 	extParams.bShowProgress = (gfInfo->OpMode & OPM_FIND) == 0;
 
@@ -1136,6 +1137,16 @@ intptr_t WINAPI GetFilesW(GetFilesInfo *gfInfo)
 		IncludeTrailingPathDelim(extParams.strDestPath);
 		if (!ConfirmExtract(nExtNumFiles, nExtNumDirs, extParams))
 			return -1;
+	}
+
+	// Support batch operations on Shift-F2 and Shift-F3
+	static ExtractSelectedParams batchParams;
+	if (gfInfo->OpMode & OPM_TOPLEVEL)
+	{
+		if (gfInfo->OpMode & OPM_SILENT)
+			extParams = batchParams;
+		else
+			batchParams = extParams;
 	}
 
 	return BatchExtract(info, vcExtractItems, nTotalExtractSize, extParams);
@@ -1181,7 +1192,8 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 		wchar_t *wszTargetDir = _wcsdup(info->StoragePath());
 		CutFileNameFromPath(wszTargetDir, true);
 		
-		ExtractSelectedParams extParams(wszTargetDir);
+		ExtractSelectedParams extParams;
+		extParams.strDestPath = wszTargetDir;
 		extParams.bSilent = true;
 
 		BatchExtract(info, vcExtractItems, nTotalExtractSize, extParams);

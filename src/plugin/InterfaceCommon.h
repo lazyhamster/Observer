@@ -67,12 +67,11 @@ struct ExtractSelectedParams
 	bool bSilent;
 
 #if FARMANAGERVERSION_MAJOR == 1
-	ExtractSelectedParams(const char* dstPath)
+	ExtractSelectedParams()
 #else	
-	ExtractSelectedParams(const wchar_t* dstPath)
+	ExtractSelectedParams()
 #endif
 	{
-		strDestPath = dstPath;
 		nPathProcessing = KPV_PARTIAL;
 		nOverwriteExistingFiles = 2;
 		bShowProgress = true;
