@@ -533,6 +533,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CabControl.cpp" />
+    <ClCompile Include="CabDirectSystem.cpp" />
+    <ClCompile Include="CabFakeSystem.cpp" />
     <ClCompile Include="ContentStructs.cpp" />
     <ClCompile Include="dllmain.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
@@ -594,6 +596,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CabControl.h" />
+    <ClInclude Include="CabSystem.h" />
     <ClInclude Include="ContentStructs.h" />
     <ClInclude Include="MsiViewer.h" />
     <ClInclude Include="PackageStruct.h" />
