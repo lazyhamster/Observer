@@ -63,8 +63,17 @@ in installation package, is unwanted for some reason.
 Structure of the observer_user.ini is the same as for observer.ini. Values from user file
 take precedence over main configutration file.
 
-Mail plugin options are in [General] section.
+Values from observer_user.ini extend and override values from observer.ini.
+Comments are ignored for both files. Commenting value in observer_user.ini will not
+remove same value from observer.ini.
+
+Main plugin options are in [General] section.
 Settings for each individual module will reside with section with module name.
+
+List of loadable modules is in [Modules] section.
+Modules are loaded in order in which they are listed here. For new module to be loaded it must be listed in this section.
+
+To disable particular module in observer_user.ini you need to set "-" (without quotes) instead of module path.
 
 Note: For per-user plugin settings you can manualy create value in registry
 branch with plugin settings. It must have same name as in .ini file.
