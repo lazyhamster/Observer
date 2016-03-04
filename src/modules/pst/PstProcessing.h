@@ -10,6 +10,7 @@ enum EntryType
 	ETYPE_EML,
 	ETYPE_MESSAGE_BODY,
 	ETYPE_MESSAGE_HTML,
+	ETYPE_MESSAGE_RTF,
 	ETYPE_ATTACHMENT,
 	ETYPE_HEADER,
 	ETYPE_PROPERTIES
@@ -26,7 +27,7 @@ struct PstFileEntry
 {
 	EntryType Type;
 	std::wstring Name;
-	std::wstring FullPath;
+	std::wstring Folder;
 	__int64 Size;
 	FILETIME CreationTime;
 	FILETIME LastModificationTime;
@@ -48,7 +49,7 @@ struct PstFileEntry
 	{
 		Type = other.Type;
 		Name = other.Name;
-		FullPath = other.FullPath;
+		Folder = other.Folder;
 		Size = other.Size;
 		msgRef = other.msgRef ? new message(*other.msgRef) : NULL;
 		attachRef = other.attachRef ? new attachment(*other.attachRef) : NULL;
@@ -60,6 +61,14 @@ struct PstFileEntry
 	{
 		if (msgRef) delete msgRef;
 		if (attachRef) delete attachRef;
+	}
+
+	std::wstring GetFullPath() const
+	{
+		if (Folder.size() > 0)
+			return Folder + L"\\" + Name;
+		else
+			return Name;
 	}
 };
 

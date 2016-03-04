@@ -127,5 +127,8 @@
     <ClInclude Include="pstsdk\util\util.h">
       <Filter>pstsdk\util</Filter>
     </ClInclude>
+    <ClInclude Include="pstsdk\util\mapi.h">
+      <Filter>pstsdk\util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

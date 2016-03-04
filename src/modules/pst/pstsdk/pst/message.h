@@ -18,6 +18,8 @@
 #include "pstsdk/ltp/propbag.h"
 #include "pstsdk/ltp/table.h"
 
+#include "pstsdk/util/mapi.h"
+
 namespace pstsdk
 {
 
@@ -268,7 +270,7 @@ public:
     //! \brief Get the body of this message
     //! \returns The message body as a string
     std::wstring get_body() const
-        { return m_bag.read_prop<std::wstring>(0x1000); }
+        { return m_bag.read_prop<std::wstring>(PropMessageBodyPlainText); }
     //! \brief Get the body of this message
     //! 
     //! The returned stream device can be used to construct a proper stream:
@@ -279,19 +281,19 @@ public:
     //! Which can then be used as any iostream would be.
     //! \returns The message body as a stream
     hnid_stream_device open_body_stream()
-        { return m_bag.open_prop_stream(0x1000); }
+        { return m_bag.open_prop_stream(PropMessageBodyPlainText); }
     //! \brief Size of the body, in bytes
     //! \returns The size of the body
     size_t body_size() const
-        { return m_bag.size(0x1000); }
+        { return m_bag.size(PropMessageBodyPlainText); }
     //! \brief Checks to see if this message has a body
     //! \returns true if the body prop exists
     bool has_body() const
-        { return m_bag.prop_exists(0x1000); }
+        { return m_bag.prop_exists(PropMessageBodyPlainText); }
     //! \brief Get the HTML body of this message
     //! \returns The HTML message body as a string
     std::wstring get_html_body() const
-        { return m_bag.read_prop<std::wstring>(0x1013); }
+        { return m_bag.read_prop<std::wstring>(PropMessageBodyHTML); }
     //! \brief Get the HTML body of this message
     //! 
     //! The returned stream device can be used to construct a proper stream:
@@ -302,15 +304,38 @@ public:
     //! Which can then be used as any iostream would be.
     //! \returns The message body as a stream
     hnid_stream_device open_html_body_stream()
-        { return m_bag.open_prop_stream(0x1013); }
+        { return m_bag.open_prop_stream(PropMessageBodyHTML); }
     //! \brief Size of the HTML body, in bytes
     //! \returns The size of the HTML body
     size_t html_body_size() const
-        { return m_bag.size(0x1013); }
+        { return m_bag.size(PropMessageBodyHTML); }
     //! \brief Checks to see if this message has a HTML body
     //! \returns true if the HTML body property exists
     bool has_html_body() const
-        { return m_bag.prop_exists(0x1013); }
+        { return m_bag.prop_exists(PropMessageBodyHTML); }
+	//! \brief Get the RTF body of this message
+	//! \returns The RTF message body as a string
+	std::wstring get_rtf_body() const
+		{ return m_bag.read_prop<std::wstring>(PropMessageBodyCompressedRTF); }
+	//! \brief Get the RTF body of this message
+	//! 
+	//! The returned stream device can be used to construct a proper stream:
+	//! \code
+	//! message m = ...;
+	//! prop_stream rtfbody(a.open_rtf_body_stream());
+	//! \endcode
+	//! Which can then be used as any iostream would be.
+	//! \returns The message RTF body as a stream
+	hnid_stream_device open_rtf_body_stream()
+		{ return m_bag.open_prop_stream(PropMessageBodyCompressedRTF); }
+	//! \brief Size of the RTF body, in bytes
+	//! \returns The size of the RTF body
+	size_t rtf_body_size() const
+		{ return m_bag.size(PropMessageBodyCompressedRTF); }
+	//! \brief Checks to see if this message has a RTF body
+	//! \returns true if the RTF body property exists
+	bool has_rtf_body() const
+		{ return m_bag.prop_exists(PropMessageBodyCompressedRTF); }
     // \brief Get the total size of this message
     //! \returns The message size
     size_t size() const

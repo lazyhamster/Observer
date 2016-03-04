@@ -1,5 +1,8 @@
 Changes history:
 
+1.11.2
+- PST: Fix invalid path characters in folder names.
+
 1.11.1
 - Added support for batch extract operations on Shift+F2.
 - Gentee: Fixed extraction issues for some installers.

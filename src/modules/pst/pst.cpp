@@ -57,6 +57,34 @@ static wstring DumpProperties(const PstFileEntry &entry)
 	return result;
 }
 
+static int dump_stream(hnid_stream_device &input, HANDLE output)
+{
+	prop_stream nstream(input);
+	nstream->seek(0, ios_base::beg);
+
+	int ErrCode = SER_SUCCESS;
+	streamsize rsize;
+	DWORD nNumWritten;
+
+	const size_t inbuf_size = 16 * 1024;
+	char inbuf[inbuf_size];
+	while (ErrCode == SER_SUCCESS)
+	{
+		rsize = nstream->read(inbuf, inbuf_size);
+		if (rsize == -1) break; //EOF
+
+		BOOL fWriteResult = WriteFile(output, inbuf, (DWORD) rsize, &nNumWritten, NULL);
+		if (!fWriteResult)
+		{
+			ErrCode = SER_ERROR_WRITE;
+			break;
+		}
+	}
+
+	nstream->close();
+	return ErrCode;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
@@ -121,7 +149,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	const PstFileEntry &fentry = file->Entries[item_index];
 	
 	memset(item_info, 0, sizeof(StorageItemInfo));
-	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fentry.FullPath.c_str());
+	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fentry.GetFullPath().c_str());
 	item_info->Attributes = (fentry.Type == ETYPE_FOLDER) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
 	item_info->Size = fentry.Size;
 	item_info->ModificationTime = fentry.LastModificationTime;
@@ -160,29 +188,15 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
 			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
 			break;
+		case ETYPE_MESSAGE_RTF:
+			strBodyText = fentry.msgRef->get_rtf_body();
+			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
+			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
+			break;
 		case ETYPE_ATTACHMENT:
 			if (fentry.attachRef)
 			{
-				prop_stream nstream(fentry.attachRef->open_byte_stream());
-				nstream->seek(0, ios_base::beg);
-
-				streamsize rsize;
-				const size_t inbuf_size = 16 * 1024;
-				char inbuf[inbuf_size];
-				while (ErrCode == SER_SUCCESS)
-				{
-					rsize = nstream->read(inbuf, inbuf_size);
-					if (rsize == -1) break; //EOF
-					
-					fWriteResult = WriteFile(hOutFile, inbuf, (DWORD) rsize, &nNumWritten, NULL);
-					if (!fWriteResult)
-					{
-						ErrCode = SER_ERROR_WRITE;
-						break;
-					}
-				}
-
-				nstream->close();
+				ErrCode = dump_stream(fentry.attachRef->open_byte_stream(), hOutFile);
 			}
 			else
 			{

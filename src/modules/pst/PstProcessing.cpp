@@ -20,10 +20,6 @@ static void RenameInvalidPathChars(wstring& input)
 bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &parentPath, int &NoNameCounter)
 {
 	try {
-		wstring strSubPath(parentPath);
-		if (strSubPath.length() > 0)
-			strSubPath.append(L"\\");
-
 		// Set same creation/modification time for all message files.
 		FILETIME ftCreated = {0};
 		FILETIME ftModified = {0};
@@ -33,6 +29,8 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			ftCreated = msgPropBag.read_prop<FILETIME>(PR_CLIENT_SUBMIT_TIME);
 		if (msgPropBag.prop_exists(PR_MESSAGE_DELIVERY_TIME))
 			ftModified = msgPropBag.read_prop<FILETIME>(PR_MESSAGE_DELIVERY_TIME);
+
+		wstring emlDirPath;
 
 		// Create entry for message itself (file or folder depending on options)
 		{
@@ -46,7 +44,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			else
 			{
 				wchar_t buf[50] = {0};
-				swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L"Message%d.eml", ++NoNameCounter);
+				swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L"Message%04d.eml", ++NoNameCounter);
 				strFileName = buf;
 			}
 			RenameInvalidPathChars(strFileName);
@@ -54,15 +52,17 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			PstFileEntry fentry;
 			fentry.Type = fileInfoObj->ExpandEmlFile ? ETYPE_FOLDER : ETYPE_EML;
 			fentry.Name = strFileName;
-			fentry.FullPath = strSubPath + strFileName;
+			fentry.Folder = parentPath;
 			fentry.msgRef = new message(m);
 			fentry.CreationTime = ftCreated;
 			fentry.LastModificationTime = ftModified;
 
 			fileInfoObj->Entries.push_back(fentry);
 
-			strSubPath.append(strFileName);
-			strSubPath.append(L"\\");
+			emlDirPath = parentPath;
+			if (emlDirPath.length() > 0)
+				emlDirPath.append(L"\\");
+			emlDirPath.append(strFileName);
 		}
 
 		// Create fake files for each part of the message
@@ -73,7 +73,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				PstFileEntry fentry;
 				fentry.Type = ETYPE_MESSAGE_BODY;
 				fentry.Name = L"{Message}.txt";
-				fentry.FullPath = strSubPath + fentry.Name;
+				fentry.Folder = emlDirPath;
 				fentry.Size = m.body_size();
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
@@ -87,8 +87,22 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				PstFileEntry fentry;
 				fentry.Type = ETYPE_MESSAGE_HTML;
 				fentry.Name = L"{Message}.html";
-				fentry.FullPath = strSubPath + fentry.Name;
+				fentry.Folder = emlDirPath;
 				fentry.Size = m.html_body_size();
+				fentry.msgRef = new message(m);
+				fentry.CreationTime = ftCreated;
+				fentry.LastModificationTime = ftModified;
+
+				fileInfoObj->Entries.push_back(fentry);
+			}
+
+			if (m.has_rtf_body())
+			{
+				PstFileEntry fentry;
+				fentry.Type = ETYPE_MESSAGE_RTF;
+				fentry.Name = L"{Message}.rtf";
+				fentry.Folder = emlDirPath;
+				fentry.Size = m.rtf_body_size();
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
@@ -102,7 +116,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				PstFileEntry fentry;
 				fentry.Type = ETYPE_HEADER;
 				fentry.Name = L"{Msg-Header}.txt";
-				fentry.FullPath = strSubPath + fentry.Name;
+				fentry.Folder = emlDirPath;
 				fentry.Size = msgPropBag.size(PR_TRANSPORT_MESSAGE_HEADERS);
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
@@ -142,7 +156,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 					{
 						fentry.Name = L"noname.dat";
 					}
-					fentry.FullPath = strSubPath + fentry.Name;
+					fentry.Folder = emlDirPath;
 					fentry.Size = attach.content_size();
 					fentry.msgRef = new message(m);
 					fentry.attachRef = new attachment(attach);
@@ -173,16 +187,18 @@ bool process_folder(const folder& f, PstFileInfo *fileInfoObj, const wstring &pa
 	wstring strSubPath(parentPath);
 	wstring strFolderName = f.get_name();
 
+	RenameInvalidPathChars(strFolderName);
+
 	if (strFolderName.length() > 0)
 	{
 		if (strSubPath.length() > 0)
 			strSubPath.append(L"\\");
 		strSubPath.append(strFolderName);
-
+		
 		PstFileEntry entry;
 		entry.Type = ETYPE_FOLDER;
 		entry.Name = strFolderName;
-		entry.FullPath = strSubPath;
+		entry.Folder = parentPath;
 
 		fileInfoObj->Entries.push_back(entry);
 	}
