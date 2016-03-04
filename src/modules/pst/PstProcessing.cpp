@@ -17,6 +17,16 @@ static void RenameInvalidPathChars(wstring& input)
 	}
 }
 
+static wstring GetDupTestFilename(wstring &baseName, int dupCounter)
+{
+	wchar_t testName[MAX_PATH] = {0};
+	if (dupCounter > 0)
+		swprintf_s(testName, MAX_PATH, L"%s[%d].eml", baseName.c_str(), dupCounter);
+	else
+		swprintf_s(testName, MAX_PATH, L"%s.eml", baseName.c_str());
+	return testName;
+}
+
 bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &parentPath, int &NoNameCounter)
 {
 	try {
@@ -34,21 +44,41 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 
 		// Create entry for message itself (file or folder depending on options)
 		{
-			wstring strFileName;
+			wstring strBaseFileName;
 			if (m.has_subject())
 			{
 				wstring subj = m.get_subject();
 				if (subj.length() > 200) subj.erase(200);
-				strFileName = subj + L".eml";
+				strBaseFileName = subj;
 			}
 			else
 			{
 				wchar_t buf[50] = {0};
-				swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L"Message%04d.eml", ++NoNameCounter);
-				strFileName = buf;
+				swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L"Message%05d", ++NoNameCounter);
+				strBaseFileName = buf;
 			}
-			RenameInvalidPathChars(strFileName);
+			RenameInvalidPathChars(strBaseFileName);
 
+			int dupCounter = 0;
+			while (true)
+			{
+				bool dupFound = false;
+				wstring testName = GetDupTestFilename(strBaseFileName, dupCounter);
+				for (auto it = fileInfoObj->Entries.begin(); it != fileInfoObj->Entries.end(); it++)
+				{
+					const PstFileEntry& prevEntry = *it;
+					if ((prevEntry.Folder == parentPath) && (prevEntry.Name == testName))
+					{
+						dupFound = true;
+					}
+				}
+				if (!dupFound) break;
+				
+				dupCounter++;
+			}
+
+			wstring strFileName = GetDupTestFilename(strBaseFileName, dupCounter);
+			
 			PstFileEntry fentry;
 			fentry.Type = fileInfoObj->ExpandEmlFile ? ETYPE_FOLDER : ETYPE_EML;
 			fentry.Name = strFileName;

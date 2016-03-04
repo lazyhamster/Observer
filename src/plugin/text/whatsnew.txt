@@ -1,7 +1,8 @@
 Changes history:
 
 1.11.2
-- PST: Fix invalid path characters in folder names.
+- PST: Fixed invalid path characters in folder names.
+- PST: Fixed merging of messages with same subject.
 
 1.11.1
 - Added support for batch extract operations on Shift+F2.
