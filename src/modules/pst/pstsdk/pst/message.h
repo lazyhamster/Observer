@@ -315,7 +315,7 @@ public:
         { return m_bag.prop_exists(PropMessageBodyHTML); }
 	//! \brief Get the RTF body of this message
 	//! \returns The RTF message body as a string
-	std::wstring get_rtf_body() const
+	std::wstring get_compressed_rtf_body() const
 		{ return m_bag.read_prop<std::wstring>(PropMessageBodyCompressedRTF); }
 	//! \brief Get the RTF body of this message
 	//! 
@@ -326,15 +326,15 @@ public:
 	//! \endcode
 	//! Which can then be used as any iostream would be.
 	//! \returns The message RTF body as a stream
-	hnid_stream_device open_rtf_body_stream()
+	hnid_stream_device open_compressed_rtf_body_stream()
 		{ return m_bag.open_prop_stream(PropMessageBodyCompressedRTF); }
 	//! \brief Size of the RTF body, in bytes
 	//! \returns The size of the RTF body
-	size_t rtf_body_size() const
+	size_t compressed_rtf_body_size() const
 		{ return m_bag.size(PropMessageBodyCompressedRTF); }
 	//! \brief Checks to see if this message has a RTF body
 	//! \returns true if the RTF body property exists
-	bool has_rtf_body() const
+	bool has_compressed_rtf_body() const
 		{ return m_bag.prop_exists(PropMessageBodyCompressedRTF); }
     // \brief Get the total size of this message
     //! \returns The message size

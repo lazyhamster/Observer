@@ -151,7 +151,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fentry.GetFullPath().c_str());
 	item_info->Attributes = (fentry.Type == ETYPE_FOLDER) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
-	item_info->Size = fentry.Size;
+	item_info->Size = fentry.GetSize();
 	item_info->ModificationTime = fentry.LastModificationTime;
 	item_info->CreationTime = fentry.CreationTime;
 
@@ -189,9 +189,13 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
 			break;
 		case ETYPE_MESSAGE_RTF:
-			strBodyText = fentry.msgRef->get_rtf_body();
-			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
-			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
+			{
+				std::string strData;
+				if (fentry.GetRTFBody(strData))
+					fWriteResult = WriteFile(hOutFile, strData.c_str(), strData.size(), &nNumWritten, NULL);
+				else
+					ErrCode = SER_ERROR_READ;
+			}
 			break;
 		case ETYPE_ATTACHMENT:
 			if (fentry.attachRef)

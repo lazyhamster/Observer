@@ -45,6 +45,9 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rtfcomp.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="pst.def">
@@ -129,6 +132,9 @@
     </ClInclude>
     <ClInclude Include="pstsdk\util\mapi.h">
       <Filter>pstsdk\util</Filter>
+    </ClInclude>
+    <ClInclude Include="rtfcomp.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

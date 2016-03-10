@@ -28,7 +28,6 @@ struct PstFileEntry
 	EntryType Type;
 	std::wstring Name;
 	std::wstring Folder;
-	__int64 Size;
 	FILETIME CreationTime;
 	FILETIME LastModificationTime;
 
@@ -38,7 +37,6 @@ struct PstFileEntry
 	PstFileEntry()
 	{
 		Type = ETYPE_UNKNOWN;
-		Size = 0;
 		msgRef = NULL;
 		attachRef = NULL;
 		memset(&CreationTime, 0, sizeof(CreationTime));
@@ -50,7 +48,6 @@ struct PstFileEntry
 		Type = other.Type;
 		Name = other.Name;
 		Folder = other.Folder;
-		Size = other.Size;
 		msgRef = other.msgRef ? new message(*other.msgRef) : NULL;
 		attachRef = other.attachRef ? new attachment(*other.attachRef) : NULL;
 		CreationTime = other.CreationTime;
@@ -70,6 +67,11 @@ struct PstFileEntry
 		else
 			return Name;
 	}
+
+	__int64 GetSize() const;
+
+	bool GetRTFBody(std::string &dest) const;
+	DWORD GetRTFBodySize() const;
 };
 
 struct PstFileInfo

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "PstProcessing.h"
+#include "rtfcomp.h"
 
 using namespace std;
 
@@ -104,7 +105,6 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.Type = ETYPE_MESSAGE_BODY;
 				fentry.Name = L"{Message}.txt";
 				fentry.Folder = emlDirPath;
-				fentry.Size = m.body_size();
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
@@ -118,7 +118,6 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.Type = ETYPE_MESSAGE_HTML;
 				fentry.Name = L"{Message}.html";
 				fentry.Folder = emlDirPath;
-				fentry.Size = m.html_body_size();
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
@@ -126,13 +125,12 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fileInfoObj->Entries.push_back(fentry);
 			}
 
-			if (m.has_rtf_body())
+			if (m.has_compressed_rtf_body())
 			{
 				PstFileEntry fentry;
 				fentry.Type = ETYPE_MESSAGE_RTF;
 				fentry.Name = L"{Message}.rtf";
 				fentry.Folder = emlDirPath;
-				fentry.Size = m.rtf_body_size();
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
@@ -147,7 +145,6 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.Type = ETYPE_HEADER;
 				fentry.Name = L"{Msg-Header}.txt";
 				fentry.Folder = emlDirPath;
-				fentry.Size = msgPropBag.size(PR_TRANSPORT_MESSAGE_HEADERS);
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
@@ -170,7 +167,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			*/
 
 			if (m.get_attachment_count() > 0)
-				for (message::attachment_iterator att_iter = m.attachment_begin(); att_iter != m.attachment_end(); att_iter++)
+				for (auto att_iter = m.attachment_begin(); att_iter != m.attachment_end(); att_iter++)
 				{
 					const attachment &attach = *att_iter;
 
@@ -187,7 +184,6 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 						fentry.Name = L"noname.dat";
 					}
 					fentry.Folder = emlDirPath;
-					fentry.Size = attach.content_size();
 					fentry.msgRef = new message(m);
 					fentry.attachRef = new attachment(attach);
 					fentry.CreationTime = ftCreated;
@@ -234,17 +230,90 @@ bool process_folder(const folder& f, PstFileInfo *fileInfoObj, const wstring &pa
 	}
 
 	int nNoNameCnt = 0;
-	for(folder::message_iterator iter = f.message_begin(); iter != f.message_end(); ++iter)
+	for(auto iter = f.message_begin(); iter != f.message_end(); iter++)
 	{
-		if (!process_message(*iter, fileInfoObj, strSubPath, nNoNameCnt)) // *iter is a message in this folder
+		const message& m = *iter;
+		if (!process_message(m, fileInfoObj, strSubPath, nNoNameCnt)) // *iter is a message in this folder
 			return false;
 	}
 
-	for(folder::folder_iterator iter = f.sub_folder_begin(); iter != f.sub_folder_end(); ++iter)
+	for(auto iter = f.sub_folder_begin(); iter != f.sub_folder_end(); iter++)
 	{
-		if (!process_folder(*iter, fileInfoObj, strSubPath))
+		const folder& f = *iter;
+		if (!process_folder(f, fileInfoObj, strSubPath))
 			return false;
 	}
 
 	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+__int64 PstFileEntry::GetSize() const
+{
+	switch (Type)
+	{
+	case ETYPE_MESSAGE_BODY:
+		return msgRef->body_size();
+	case ETYPE_MESSAGE_HTML:
+		return msgRef->html_body_size();
+	case ETYPE_MESSAGE_RTF:
+		return GetRTFBodySize();
+	case ETYPE_ATTACHMENT:
+		return attachRef->content_size();
+	case ETYPE_HEADER:
+		{
+			const property_bag &msgPropBag = msgRef->get_property_bag();
+			return msgPropBag.size(PR_TRANSPORT_MESSAGE_HEADERS);
+		}
+	default:
+		return 0;
+	}
+}
+
+bool PstFileEntry::GetRTFBody(std::string &dest) const
+{
+	prop_stream nstream(msgRef->open_compressed_rtf_body_stream());
+	nstream->seek(0, ios_base::beg);
+
+	LZFUHDR hdr = {0};
+	nstream->read((char*) &hdr, sizeof(hdr));
+
+	DWORD dataSize = hdr.cbSize - 12;
+	char* compData = (char*) malloc(dataSize);
+
+	nstream->read(compData, dataSize);
+	
+	if (hdr.dwMagic == dwMagicUncompressedRTF)
+	{
+		dest.assign(compData);
+	}
+	else if (hdr.dwMagic == dwMagicCompressedRTF)
+	{
+		DWORD bufCrc = calculateWeakCrc32((uint8_t*)compData, dataSize);
+		if (bufCrc == hdr.dwCRC)
+		{
+			char* decompData = (char*) malloc(hdr.cbRawSize);
+			if (lzfu_decompress((uint8_t*)compData, dataSize, (uint8_t*)decompData, hdr.cbRawSize))
+			{
+				dest = decompData;
+			}
+			free(decompData);
+		}
+	}
+
+	free(compData);
+	
+	return dest.size() > 0;
+}
+
+DWORD PstFileEntry::GetRTFBodySize() const
+{
+	prop_stream nstream(msgRef->open_compressed_rtf_body_stream());
+	nstream->seek(0, ios_base::beg);
+
+	LZFUHDR hdr = {0};
+	nstream->read((char*) &hdr, sizeof(hdr));
+	
+	return hdr.cbRawSize;
 }
