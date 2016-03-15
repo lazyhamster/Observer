@@ -46,7 +46,7 @@ public:
     //! is too large for your tastes.
     //! \returns A vector of bytes
     std::vector<byte> get_bytes() const
-        { return m_bag.read_prop<std::vector<byte> >(0x3701); }
+        { return m_bag.read_prop<std::vector<byte> >(PropAttachmentDataObject); }
     //! \brief Open a stream of the attachment data
     //! 
     //! The returned stream device can be used to construct a proper stream:
@@ -57,7 +57,7 @@ public:
     //! Which can then be used as any iostream would be.
     //! \returns A stream device for the attachment data
     hnid_stream_device open_byte_stream()
-        { return m_bag.open_prop_stream(0x3701); }
+        { return m_bag.open_prop_stream(PropAttachmentDataObject); }
     //! \brief Read the size of this attachment
     //!
     //! The size returned here includes metadata, and as such will be
@@ -65,13 +65,13 @@ public:
     //! \sa attachment::content_size()
     //! \returns The size of the attachment object, in bytes
     size_t size() const
-        { return m_bag.read_prop<uint>(0xe20); }
+        { return m_bag.read_prop<uint>(PropMessageAttachmentSize); }
     //! \brief Read the size of the content in this attachment
     //!
     //! The size here is just for the binary data of the attachment.
     //! \returns The size of the data stream of the attachment, in bytes
     size_t content_size() const
-        { return m_bag.size(0x3701); }
+        { return m_bag.size(PropAttachmentDataObject); }
     //! \brief Returns if this attachment is actually an embedded message
     //!
     //! If an attachment is a message, one should use open_as_message() to
@@ -266,7 +266,7 @@ public:
     //! \brief Check to see if a subject is set on this message
     //! \returns true if a subject is set on this message
     bool has_subject() const
-        { return m_bag.prop_exists(0x37); }
+        { return m_bag.prop_exists(PropMessageSubject); }
     //! \brief Get the body of this message
     //! \returns The message body as a string
     std::wstring get_body() const
@@ -339,7 +339,7 @@ public:
     // \brief Get the total size of this message
     //! \returns The message size
     size_t size() const
-        { return m_bag.read_prop<slong>(0xe08); }
+        { return m_bag.read_prop<slong>(PropMessageSize); }
     //! \brief Get the number of attachments on this message
     //! \returns The number of attachments
     size_t get_attachment_count() const;
@@ -409,11 +409,11 @@ inline std::wstring pstsdk::attachment::get_filename() const
 {
     try
     {
-        return m_bag.read_prop<std::wstring>(0x3707);
+        return m_bag.read_prop<std::wstring>(PropAttachmentFilenameLong);
     } 
     catch(key_not_found<prop_id>&)
     {
-        return m_bag.read_prop<std::wstring>(0x3704);
+        return m_bag.read_prop<std::wstring>(PropAttachmentFilenameShort);
     }
 }
 
@@ -489,11 +489,11 @@ inline size_t pstsdk::message::get_recipient_count() const
 
 inline std::wstring pstsdk::message::get_subject() const
 {
-    std::wstring buffer = m_bag.read_prop<std::wstring>(0x37);
+    std::wstring buffer = m_bag.read_prop<std::wstring>(PropMessageSubject);
 
     if(buffer.size() && buffer[0] == message_subject_prefix_lead_byte)
     {
-        // Skip the second chracter as well
+        // Skip the second character as well
         return buffer.substr(2);
     }
     else
