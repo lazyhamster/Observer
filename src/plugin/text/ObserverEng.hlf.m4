@@ -9,7 +9,7 @@ m4_include(`version.m4i')m4_dnl
  All formats support files listing and extraction.
 
  Supported file formats:
- - Installation packages (#MSI#, #NSIS#, #WISE#, #Install Shield#, #Setup Factory#)
+ - Installation packages (#MSI#, #NSIS#, #WISE#, #Install Shield#, #Setup Factory#, #CreateInstall#)
  - Optical disk images (#ISO-9660# (incl. Joliet), #CUE/BIN#, #MDF/MDS#, #UDF#)
  - #MIME# containers
  - Mail containers (#MBox#, The Bat!, #MS Outlook#)
@@ -23,7 +23,7 @@ m4_include(`version.m4i')m4_dnl
 
  For additional information look in supplied readme.txt
 
- (c) 2009-2014, Ariman
+ (c) 2009-2016, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
  Download link: ~https://sourceforge.net/projects/far-observer~@https://sourceforge.net/projects/far-observer@

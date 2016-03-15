@@ -9,7 +9,7 @@
  Все поддерживаемые форматы допускают просмотр списков файлов и их извлечение.
 
  Список поддерживаемых форматов:
- - Установочные пакеты (#MSI#, #NSIS#, #WISE#, #Install Shield#, #Setup Factory#)
+ - Установочные пакеты (#MSI#, #NSIS#, #WISE#, #Install Shield#, #Setup Factory#, #CreateInstall#)
  - Образы оптических дисков (#ISO-9660# (incl. Joliet), #CUE/BIN#, #MDF/MDS#, #UDF#)
  - #MIME# контейнеры
  - Почтовые контейнеры (#MBox#, The Bat!, #MS Outlook#)
@@ -23,7 +23,7 @@
 
  Для дополнительной информации смотрите файл readme_ru.txt
 
- (c) 2009-2014, Ariman
+ (c) 2009-2016, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
  Download link: ~https://sourceforge.net/projects/far-observer~@https://sourceforge.net/projects/far-observer@
