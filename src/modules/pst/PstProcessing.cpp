@@ -296,7 +296,7 @@ bool PstFileEntry::GetRTFBody(std::string &dest) const
 			char* decompData = (char*) malloc(hdr.cbRawSize);
 			if (lzfu_decompress((uint8_t*)compData, dataSize, (uint8_t*)decompData, hdr.cbRawSize))
 			{
-				dest = decompData;
+				dest.assign(decompData, hdr.cbRawSize);
 			}
 			free(decompData);
 		}
