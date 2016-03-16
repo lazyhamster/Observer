@@ -4,6 +4,7 @@ Changes history:
 - PST: Fixed invalid path characters in folder names.
 - PST: Fixed merging of messages with same subject.
 - PST: Exposed RTF message body if present.
+- MSI: Fixed CAB unpacking problem in new libmspack.
 
 1.11.1
 - Added support for batch extract operations on Shift+F2.
