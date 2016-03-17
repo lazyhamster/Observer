@@ -202,7 +202,7 @@ int ISCabFile::UnpackFileOld( CFileStream* src, DWORD packedSize, AStream* dest,
 		goto exit;
 	}
 	
-	int bytesLeft = packedSize;
+	size_t bytesLeft = packedSize;
 	BYTE* pBufPtr = pInputBuffer;
 	size_t outputDataSize;
 	size_t outputBufferSize = unpackedSize;

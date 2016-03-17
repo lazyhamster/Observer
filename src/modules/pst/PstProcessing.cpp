@@ -328,7 +328,7 @@ ExtractResult PstFileEntry::ExtractContent(HANDLE hOut) const
 		{
 			std::string strData;
 			if (GetRTFBody(strData))
-				fWriteResult = WriteFile(hOut, strData.c_str(), strData.size(), &nNumWritten, NULL);
+				fWriteResult = WriteFile(hOut, strData.c_str(), (DWORD) strData.size(), &nNumWritten, NULL);
 			else
 				return ER_ERROR_READ;
 		}

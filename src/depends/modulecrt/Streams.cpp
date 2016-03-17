@@ -402,7 +402,7 @@ bool CPartialStream::WriteBuffer( LPCVOID buffer, size_t bufferSize )
 {
 	if (!buffer) return false;
 	if (bufferSize == 0) return true;
-	if (bufferSize > (m_nSize - m_nCurrentPos)) return false;
+	if (bufferSize > (size_t) (m_nSize - m_nCurrentPos)) return false;
 	
 	int64_t storedParentPos = m_pParentStream->GetPos();
 	

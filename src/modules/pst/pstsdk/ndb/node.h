@@ -996,7 +996,7 @@ inline void pstsdk::block::touch()
 
 inline std::streamsize pstsdk::node_stream_device::read(char* pbuffer, std::streamsize n)
 {
-    size_t read = m_pnode->read_raw(reinterpret_cast<byte*>(pbuffer), static_cast<size_t>(n), static_cast<size_t>(m_pos));
+    size_t read = m_pnode->read_raw(reinterpret_cast<byte*>(pbuffer), static_cast<size_t>(n), static_cast<ulong>(m_pos));
     m_pos += read;
 
     if(read)
@@ -1008,7 +1008,7 @@ inline std::streamsize pstsdk::node_stream_device::read(char* pbuffer, std::stre
 //! \cond write_api
 inline std::streamsize pstsdk::node_stream_device::write(const char* pbuffer, std::streamsize n)
 {
-    size_t written = m_pnode->write_raw(reinterpret_cast<const byte*>(pbuffer), static_cast<size_t>(n), static_cast<size_t>(m_pos));
+    size_t written = m_pnode->write_raw(reinterpret_cast<const byte*>(pbuffer), static_cast<size_t>(n), static_cast<ulong>(m_pos));
     m_pos += written;
     return written;
 }
@@ -1118,18 +1118,18 @@ void pstsdk::data_block::write(const T& buffer, ulong offset, std::tr1::shared_p
 inline pstsdk::uint pstsdk::extended_block::get_page_count() const
 {
     assert(m_child_max_total_size % m_child_max_page_count == 0);
-    uint page_size = m_child_max_total_size / m_child_max_page_count;
-    uint page_count = (get_total_size() / page_size) + ((get_total_size() % page_size) != 0 ? 1 : 0);
+    size_t page_size = m_child_max_total_size / m_child_max_page_count;
+    size_t page_count = (get_total_size() / page_size) + ((get_total_size() % page_size) != 0 ? 1 : 0);
     assert(get_level() == 2 || page_count == m_block_info.size());
 
-    return page_count;
+    return static_cast<uint>(page_count);
 }
 
 //! \cond write_api
 inline pstsdk::extended_block::extended_block(const shared_db_ptr& db, ushort level, size_t total_size, size_t child_max_total_size, ulong page_max_count, ulong child_page_max_count)
 : data_block(db, block_info(), total_size), m_child_max_total_size(child_max_total_size), m_child_max_page_count(child_page_max_count), m_max_page_count(page_max_count), m_level(level)
 {
-    int total_subblocks = total_size / m_child_max_total_size;
+    size_t total_subblocks = total_size / m_child_max_total_size;
     if(total_size % m_child_max_total_size != 0)
         total_subblocks++;
 

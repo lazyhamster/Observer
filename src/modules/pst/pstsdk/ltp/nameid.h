@@ -232,7 +232,7 @@ inline pstsdk::ulong pstsdk::name_id_map::compute_hash_base(const named_prop& n)
     if(n.is_string())
     {
         std::vector<byte> bytes(wstring_to_bytes(n.get_name()));
-        return disk::compute_crc(&bytes[0], bytes.size());
+        return disk::compute_crc(&bytes[0], static_cast<ulong>(bytes.size()));
     }
     else
     {
