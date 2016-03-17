@@ -3,6 +3,8 @@
 
 using namespace pstsdk;
 
+const uint16_t UTF16_BOM = 0xFEFF;
+
 enum EntryType
 {
 	ETYPE_UNKNOWN,
@@ -16,12 +18,15 @@ enum EntryType
 	ETYPE_PROPERTIES
 };
 
-#define PR_TRANSPORT_MESSAGE_HEADERS 0x007D
+enum ExtractResult
+{
+	ER_SUCCESS,
+	ER_ERROR_READ,
+	ER_ERROR_WRITE
+};
+
 #define PR_CLIENT_SUBMIT_TIME 0x0039
 #define PR_MESSAGE_DELIVERY_TIME 0x0E06
-
-#define PR_CREATION_TIME 0x3007
-#define PR_LAST_MODIFICATION_TIME 0x3008
 
 struct PstFileEntry 
 {
@@ -69,9 +74,14 @@ struct PstFileEntry
 	}
 
 	__int64 GetSize() const;
+	ExtractResult ExtractContent(HANDLE hOut) const;
 
 	bool GetRTFBody(std::string &dest) const;
+
+private:
 	DWORD GetRTFBodySize() const;
+	std::wstring DumpMessageProperties() const;
+	ExtractResult DumpProp(prop_id id, HANDLE hOut) const;
 };
 
 struct PstFileInfo
@@ -88,5 +98,7 @@ struct PstFileInfo
 
 bool process_message(const message& m, PstFileInfo *fileInfoObj, const std::wstring &parentPath);
 bool process_folder(const folder& f, PstFileInfo *fileInfoObj, const std::wstring &parentPath);
+
+std::wstring DumpMessageProperties(const PstFileEntry &entry);
 
 #endif // PstProcessing_h__

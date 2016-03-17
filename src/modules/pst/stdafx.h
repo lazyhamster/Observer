@@ -14,4 +14,6 @@
 #define _SCL_SECURE_NO_WARNINGS 1
 
 // Additional headers
+#include <sstream>
+
 #include "pstsdk/pst.h"

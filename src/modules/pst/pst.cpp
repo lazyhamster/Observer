@@ -2,7 +2,6 @@
 //
 
 #include "stdafx.h"
-#include <sstream>
 #include "ModuleDef.h"
 #include "modulecrt/OptionsParser.h"
 #include "PstProcessing.h"
@@ -11,81 +10,6 @@ using namespace std;
 
 static bool optExpandEmlFile = true;
 static bool optHideEmptyFolders = false;
-
-//////////////////////////////////////////////////////////////////////////
-
-static wstring DumpProperties(const PstFileEntry &entry)
-{
-	wstringstream wss;
-				
-	const property_bag &propBag = entry.msgRef->get_property_bag();
-	vector<prop_id> propList = propBag.get_prop_list();
-	for (vector<prop_id>::const_iterator citer = propList.begin(); citer != propList.end(); citer++)
-	{
-		prop_id pid = *citer;
-		prop_type ptype = propBag.get_prop_type(pid);
-		
-		wss << L"[" << pid << L"] -> ";
-		switch (ptype)
-		{
-			case prop_type_string:
-			case prop_type_wstring:
-				wss << propBag.read_prop<wstring>(pid) << endl;
-				break;
-			case prop_type_longlong:
-				wss << propBag.read_prop<long long>(pid) << endl;
-				break;
-			case prop_type_long:
-				wss << propBag.read_prop<long>(pid) << endl;
-				break;
-			case prop_type_short:
-				wss << propBag.read_prop<short>(pid) << endl;
-				break;
-			case prop_type_systime:
-				{
-					FILETIME timeVal = propBag.read_prop<FILETIME>(pid);
-					wss << L"[Time Value]" << endl;
-				}
-				break;
-			default:
-				wss << L"Unknown Type (" << ptype << L")" << endl;
-				break;
-		}
-	}
-
-	wstring result = wss.str();
-	return result;
-}
-
-static int dump_stream(hnid_stream_device &input, HANDLE output)
-{
-	prop_stream nstream(input);
-	nstream->seek(0, ios_base::beg);
-
-	int ErrCode = SER_SUCCESS;
-	streamsize rsize;
-	DWORD nNumWritten;
-
-	const size_t inbuf_size = 16 * 1024;
-	char inbuf[inbuf_size];
-	while (ErrCode == SER_SUCCESS)
-	{
-		rsize = nstream->read(inbuf, inbuf_size);
-		if (rsize == -1) break; //EOF
-
-		BOOL fWriteResult = WriteFile(output, inbuf, (DWORD) rsize, &nNumWritten, NULL);
-		if (!fWriteResult)
-		{
-			ErrCode = SER_ERROR_WRITE;
-			break;
-		}
-	}
-
-	nstream->close();
-	return ErrCode;
-}
-
-//////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
@@ -170,68 +94,23 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	if (hOutFile == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
 
 	const PstFileEntry &fentry = file->Entries[params.ItemIndex];
-
-	wstring strBodyText;
-	DWORD nNumWritten, nWriteSize;
-	int ErrCode = SER_SUCCESS;
-	BOOL fWriteResult = TRUE;
-
-	switch (fentry.Type)
-	{
-		case ETYPE_MESSAGE_BODY:
-			strBodyText = fentry.msgRef->get_body();
-			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
-			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
-			break;
-		case ETYPE_MESSAGE_HTML:
-			strBodyText = fentry.msgRef->get_html_body();
-			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
-			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
-			break;
-		case ETYPE_MESSAGE_RTF:
-			{
-				std::string strData;
-				if (fentry.GetRTFBody(strData))
-					fWriteResult = WriteFile(hOutFile, strData.c_str(), strData.size(), &nNumWritten, NULL);
-				else
-					ErrCode = SER_ERROR_READ;
-			}
-			break;
-		case ETYPE_ATTACHMENT:
-			if (fentry.attachRef)
-			{
-				ErrCode = dump_stream(fentry.attachRef->open_byte_stream(), hOutFile);
-			}
-			else
-			{
-				ErrCode = SER_ERROR_READ;
-			}
-			break;
-		case ETYPE_PROPERTIES:
-			strBodyText = DumpProperties(fentry);
-			nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
-			fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
-			break;
-		case ETYPE_HEADER:
-			{
-				const property_bag &propBag = fentry.msgRef->get_property_bag();
-				strBodyText = propBag.read_prop<wstring>(PR_TRANSPORT_MESSAGE_HEADERS);
-				nWriteSize = (DWORD) (strBodyText.size() * sizeof(wchar_t));
-				fWriteResult = WriteFile(hOutFile, strBodyText.c_str(), nWriteSize, &nNumWritten, NULL);
-			}
-			break;
-		default:
-			ErrCode = SER_ERROR_READ;
-			break;
-	}
-
+	ExtractResult nWriteResult = fentry.ExtractContent(hOutFile);
 	CloseHandle(hOutFile);
 	
-	if (!fWriteResult) ErrCode = SER_ERROR_WRITE;
-	if (ErrCode != SER_SUCCESS)
+	if (nWriteResult != ER_SUCCESS)
 		DeleteFile(params.DestPath);
 
-	return ErrCode;
+	switch(nWriteResult)
+	{
+	case ER_SUCCESS:
+		return SER_SUCCESS;
+	case ER_ERROR_READ:
+		return SER_ERROR_READ;
+	case ER_ERROR_WRITE:
+		return SER_ERROR_WRITE;
+	}
+
+	return SER_ERROR_SYSTEM;
 }
 
 //////////////////////////////////////////////////////////////////////////

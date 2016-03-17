@@ -346,6 +346,14 @@ public:
     //! \brief Get the number of recipients on this message
     //! \returns The number of recipients
     size_t get_recipient_count() const;
+	//! \brief Size of the transport headers, in bytes
+	//! \returns The size of the transport headers
+	size_t transport_headers_size() const
+		{ return m_bag.size(PropMessageTransportHeaders); }
+	//! \brief Checks to see if this message has transport headers
+	//! \returns true if the headers property exists
+	bool has_transport_headers() const
+		{ return m_bag.prop_exists(PropMessageTransportHeaders); }
 
     // lower layer access
     //! \brief Get the property bag backing this message

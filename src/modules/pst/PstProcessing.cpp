@@ -139,7 +139,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			}
 
 			// Fake file with mail headers
-			if (msgPropBag.prop_exists(PR_TRANSPORT_MESSAGE_HEADERS))
+			if (m.has_transport_headers())
 			{
 				PstFileEntry fentry;
 				fentry.Type = ETYPE_HEADER;
@@ -247,6 +247,50 @@ bool process_folder(const folder& f, PstFileInfo *fileInfoObj, const wstring &pa
 	return true;
 }
 
+static ExtractResult dump_stream(hnid_stream_device &input, HANDLE output)
+{
+	prop_stream nstream(input);
+	nstream->seek(0, ios_base::beg);
+
+	ExtractResult ErrCode = ER_SUCCESS;
+	streamsize rsize;
+	DWORD nNumWritten;
+
+	const size_t inbuf_size = 16 * 1024;
+	char inbuf[inbuf_size];
+	while (ErrCode == ER_SUCCESS)
+	{
+		rsize = nstream->read(inbuf, inbuf_size);
+		if (rsize == -1) break; //EOF
+
+		BOOL fWriteResult = WriteFile(output, inbuf, (DWORD) rsize, &nNumWritten, NULL);
+		if (!fWriteResult)
+		{
+			ErrCode = ER_ERROR_WRITE;
+			break;
+		}
+	}
+
+	nstream->close();
+	return ErrCode;
+}
+
+static BOOL DumpWString(std::wstring &str, HANDLE hOut, bool includeBOM = true)
+{
+	DWORD nNumWritten;
+	BOOL fWriteResult;
+
+	if (includeBOM)
+	{
+		fWriteResult = WriteFile(hOut, &UTF16_BOM, sizeof(UTF16_BOM), &nNumWritten, NULL);
+		if (!fWriteResult) return fWriteResult;
+	}
+	DWORD nWriteSize = (DWORD) (str.size() * sizeof(wchar_t));
+	fWriteResult = WriteFile(hOut, str.c_str(), nWriteSize, &nNumWritten, NULL);
+	
+	return fWriteResult;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 __int64 PstFileEntry::GetSize() const
@@ -262,13 +306,51 @@ __int64 PstFileEntry::GetSize() const
 	case ETYPE_ATTACHMENT:
 		return attachRef->content_size();
 	case ETYPE_HEADER:
-		{
-			const property_bag &msgPropBag = msgRef->get_property_bag();
-			return msgPropBag.size(PR_TRANSPORT_MESSAGE_HEADERS);
-		}
+		return msgRef->transport_headers_size();
 	default:
 		return 0;
 	}
+}
+
+ExtractResult PstFileEntry::ExtractContent(HANDLE hOut) const
+{
+	DWORD nNumWritten;
+	BOOL fWriteResult = TRUE;
+	const property_bag &propBag = msgRef->get_property_bag();
+	
+	switch (Type)
+	{
+	case ETYPE_MESSAGE_BODY:
+		return DumpProp(PropMessageBodyPlainText, hOut);
+	case ETYPE_MESSAGE_HTML:
+		return DumpProp(PropMessageBodyHTML, hOut);
+	case ETYPE_MESSAGE_RTF:
+		{
+			std::string strData;
+			if (GetRTFBody(strData))
+				fWriteResult = WriteFile(hOut, strData.c_str(), strData.size(), &nNumWritten, NULL);
+			else
+				return ER_ERROR_READ;
+		}
+		break;
+	case ETYPE_HEADER:
+		return DumpProp(PropMessageTransportHeaders, hOut);
+	case ETYPE_ATTACHMENT:
+		if (attachRef)
+			return dump_stream(attachRef->open_byte_stream(), hOut);
+		else
+			return ER_ERROR_READ;
+	case ETYPE_PROPERTIES:
+		{
+			std::wstring strBodyText = DumpMessageProperties();
+			fWriteResult = DumpWString(strBodyText, hOut);
+		}
+		break;
+	default:
+		return ER_ERROR_READ;
+	}
+
+	return fWriteResult ? ER_SUCCESS : ER_ERROR_WRITE;
 }
 
 bool PstFileEntry::GetRTFBody(std::string &dest) const
@@ -316,4 +398,83 @@ DWORD PstFileEntry::GetRTFBodySize() const
 	nstream->read((char*) &hdr, sizeof(hdr));
 	
 	return hdr.cbRawSize;
+}
+
+std::wstring PstFileEntry::DumpMessageProperties() const
+{
+	std::wstringstream wss;
+
+	const property_bag &propBag = msgRef->get_property_bag();
+	std::vector<prop_id> propList = propBag.get_prop_list();
+	for (auto citer = propList.cbegin(); citer != propList.cend(); citer++)
+	{
+		prop_id pid = *citer;
+		prop_type ptype = propBag.get_prop_type(pid);
+
+		wss << L"[" << pid << L"] -> ";
+		switch (ptype)
+		{
+		case prop_type_string:
+		case prop_type_wstring:
+			wss << propBag.read_prop<wstring>(pid) << endl;
+			break;
+		case prop_type_longlong:
+			wss << propBag.read_prop<long long>(pid) << endl;
+			break;
+		case prop_type_long:
+			wss << propBag.read_prop<long>(pid) << endl;
+			break;
+		case prop_type_short:
+			wss << propBag.read_prop<short>(pid) << endl;
+			break;
+		case prop_type_systime:
+			{
+				FILETIME timeVal = propBag.read_prop<FILETIME>(pid);
+				wss << L"[Time Value]" << endl;
+			}
+			break;
+		default:
+			wss << L"Unknown Type (" << ptype << L")" << endl;
+			break;
+		}
+	}
+
+	wstring result = wss.str();
+	return result;
+}
+
+ExtractResult PstFileEntry::DumpProp(prop_id id, HANDLE hOut) const
+{
+	if (!msgRef) return ER_ERROR_READ;
+	
+	const property_bag &propBag = msgRef->get_property_bag();
+	prop_type ptype = propBag.get_prop_type(id);
+
+	ExtractResult rval = ER_SUCCESS;
+	DWORD nNumWritten;
+
+	switch(ptype)
+	{
+	case prop_type_string:
+		{
+			std::string strData = propBag.read_prop<std::string>(id);
+			if (!WriteFile(hOut, strData.c_str(), (DWORD) strData.size(), &nNumWritten, NULL))
+				rval = ER_ERROR_WRITE;
+		}
+		break;
+	case prop_type_binary:
+		{
+			std::vector<byte> vData = propBag.read_prop<std::vector<byte>>(id);
+			if (!WriteFile(hOut, vData.data(), (DWORD) vData.size(), &nNumWritten, NULL))
+				return ER_ERROR_WRITE;
+		}
+		break;
+	default:
+		{
+			std::wstring strData = propBag.read_prop<std::wstring>(id);
+			rval = DumpWString(strData, hOut) ? ER_SUCCESS : ER_ERROR_WRITE;
+		}
+	}
+
+	return rval;
 }
