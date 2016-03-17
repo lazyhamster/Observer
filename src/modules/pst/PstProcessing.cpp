@@ -65,12 +65,13 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			{
 				bool dupFound = false;
 				wstring testName = GetDupTestFilename(strBaseFileName, dupCounter);
-				for (auto it = fileInfoObj->Entries.begin(); it != fileInfoObj->Entries.end(); it++)
+				for (auto it = fileInfoObj->Entries.cbegin(); it != fileInfoObj->Entries.cend(); it++)
 				{
 					const PstFileEntry& prevEntry = *it;
-					if ((prevEntry.Folder == parentPath) && (prevEntry.Name == testName))
+					if ((prevEntry.Type == ETYPE_FOLDER || prevEntry.Type == ETYPE_EML) && (prevEntry.Name == testName) && (prevEntry.Folder == parentPath))
 					{
 						dupFound = true;
+						break;
 					}
 				}
 				if (!dupFound) break;
