@@ -18,13 +18,25 @@ static void RenameInvalidPathChars(wstring& input)
 	}
 }
 
-static wstring GetDupTestFilename(wstring &baseName, int dupCounter)
+static std::wstring GetDefaultBaseName(int noNameCounter)
+{
+	wchar_t buf[50] = {0};
+	swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L"Message%05d", noNameCounter);
+	return buf;
+}
+
+static wstring GetDupTestFilename(wstring &baseName, int dupCounter, int &noNameCounter)
 {
 	wchar_t testName[MAX_PATH] = {0};
 	if (dupCounter > 0)
 		swprintf_s(testName, MAX_PATH, L"%s[%d].eml", baseName.c_str(), dupCounter);
 	else
 		swprintf_s(testName, MAX_PATH, L"%s.eml", baseName.c_str());
+
+	// Some times swprintf_s can fail if baseName contains garbage
+	if (!*testName)
+		return GetDefaultBaseName(++noNameCounter) + L".eml";
+
 	return testName;
 }
 
@@ -54,21 +66,21 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			}
 			else
 			{
-				wchar_t buf[50] = {0};
-				swprintf_s(buf, sizeof(buf) / sizeof(buf[0]), L"Message%05d", ++NoNameCounter);
-				strBaseFileName = buf;
+				strBaseFileName = GetDefaultBaseName(++NoNameCounter);
 			}
 			RenameInvalidPathChars(strBaseFileName);
 
 			int dupCounter = 0;
-			while (true)
+			wstring strFileName;
+			// To avoid any potential infinite loops lets limit dup counter
+			while (dupCounter < 10000)
 			{
 				bool dupFound = false;
-				wstring testName = GetDupTestFilename(strBaseFileName, dupCounter);
+				strFileName = GetDupTestFilename(strBaseFileName, dupCounter, NoNameCounter);
 				for (auto it = fileInfoObj->Entries.cbegin(); it != fileInfoObj->Entries.cend(); it++)
 				{
 					const PstFileEntry& prevEntry = *it;
-					if ((prevEntry.Type == ETYPE_FOLDER || prevEntry.Type == ETYPE_EML) && (prevEntry.Name == testName) && (prevEntry.Folder == parentPath))
+					if ((prevEntry.Type == ETYPE_FOLDER || prevEntry.Type == ETYPE_EML) && (prevEntry.Name == strFileName) && (prevEntry.Folder == parentPath))
 					{
 						dupFound = true;
 						break;
@@ -79,8 +91,6 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				dupCounter++;
 			}
 
-			wstring strFileName = GetDupTestFilename(strBaseFileName, dupCounter);
-			
 			PstFileEntry fentry;
 			fentry.Type = fileInfoObj->ExpandEmlFile ? ETYPE_FOLDER : ETYPE_EML;
 			fentry.Name = strFileName;
