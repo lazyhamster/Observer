@@ -122,7 +122,7 @@ public:
     //! \brief Get the display name of the PST
     //! \returns The display name
     std::wstring get_name() const
-        { return get_property_bag().read_prop<std::wstring>(0x3001); }
+        { return get_property_bag().read_prop<std::wstring>(PropDisplayName); }
     //! \brief Lookup a prop_id of a named prop
     //! \param[in] g The namespace guid of the named prop to lookup
     //! \param[in] name The name of the property to lookup

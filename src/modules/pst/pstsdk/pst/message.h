@@ -78,7 +78,7 @@ public:
     //! access the data rather than open_byte_stream() or similar.
     //! \returns true if this attachment is an attached message
     bool is_message() const
-        { return m_bag.read_prop<uint>(0x3705) == 5; }
+        { return m_bag.read_prop<uint>(PropAttachmentMethod) == 5; }
     //! \brief Interpret this attachment as a message
     //! \pre is_message() == true
     //! \returns A message object
@@ -158,15 +158,15 @@ public:
     //! \brief Get the display name of this recipient
     //! \returns The recipient name
     std::wstring get_name() const
-        { return m_row.read_prop<std::wstring>(0x3001); }
+        { return m_row.read_prop<std::wstring>(PropDisplayName); }
     //! \brief Get the type of this recipient
     //! \returns The recipient type
     recipient_type get_type() const
-        { return static_cast<recipient_type>(m_row.read_prop<ulong>(0xc15)); }
+        { return static_cast<recipient_type>(m_row.read_prop<ulong>(PropRecipientType)); }
     //! \brief Get the address type of the recipient
     //! \returns The address type
     std::wstring get_address_type() const
-        { return m_row.read_prop<std::wstring>(0x3002); }
+        { return m_row.read_prop<std::wstring>(PropAddressType); }
     //! \brief Get the email address of the recipient
     //! \returns The email address
     std::wstring get_email_address() const
@@ -178,11 +178,11 @@ public:
     //! \brief Get the name of the recipients account
     //! \returns The account name
     std::wstring get_account_name() const
-        { return m_row.read_prop<std::wstring>(0x3a00); }
+        { return m_row.read_prop<std::wstring>(PropAccount); }
     //! \brief Checks to see if this recipient has an account name
     //! \returns true if get_account_name() doesn't throw
     bool has_account_name() const
-        { return m_row.prop_exists(0x3a00); }
+        { return m_row.prop_exists(PropAccount); }
 
     // lower layer access
     //! \brief Get the property row underying this recipient object
