@@ -35,7 +35,10 @@ namespace pstsdk
 		
 		PropAttachmentFilenameShort		= 0x3704,
 		PropAttachmentMethod			= 0x3705,
-		PropAttachmentFilenameLong		= 0x3707
+		PropAttachmentFilenameLong		= 0x3707,
+
+		PropMessageBodyCodepage			= 0x3fde,
+		PropMessageCodepage				= 0x3ffd
 	};
 
 } // end namespace

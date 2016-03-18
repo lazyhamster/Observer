@@ -121,6 +121,12 @@ std::wstring bytes_to_wstring(const std::vector<byte> &bytes);
 //! \ingroup util
 std::vector<byte> wstring_to_bytes(const std::wstring &wstr);
 
+//! \brief Convert a std::wstring to a std::string using codepage
+//! \param[in] wstr The std::wstring to convert
+//! \returns A std::string
+//! \ingroup util
+std::wstring string_to_wstring(const std::string &str, uint codepage);
+
 } // end pstsdk namespace
 
 inline pstsdk::file::file(const std::wstring& filename)
@@ -233,6 +239,16 @@ inline std::vector<pstsdk::byte> pstsdk::wstring_to_bytes(const std::wstring &ws
 
     const byte *begin = reinterpret_cast<const byte *>(&wstr[0]);
     return std::vector<byte>(begin, begin + wstr.size()*sizeof(wchar_t));
+}
+
+inline std::wstring pstsdk::string_to_wstring(const std::string &str, pstsdk::uint codepage)
+{
+	int destSize = MultiByteToWideChar(codepage, 0, str.c_str(), -1, NULL, 0);
+	if (!destSize) return NULL;
+	std::vector<wchar_t> buffer;
+	buffer.resize(destSize);
+	if (!MultiByteToWideChar(codepage, 0, str.c_str(), -1, &buffer[0], destSize)) return NULL;
+	return (&buffer[0]);
 }
 
 #else // !(defined(_WIN32) || defined(__MINGW32__))

@@ -355,6 +355,16 @@ public:
 	bool has_transport_headers() const
 		{ return m_bag.prop_exists(PropMessageTransportHeaders); }
 
+	//! \brief Checks to see if this message has codepage set
+	//! \returns true if the codepage property exists
+	bool is_codepage_set() const
+		{ return m_bag.prop_exists(PropMessageCodepage); }
+	//! \brief Message codepage
+	//! \returns The codepage value of the message
+	uint get_codepage() const
+		{ return m_bag.read_prop<uint>(PropMessageCodepage); }
+
+
     // lower layer access
     //! \brief Get the property bag backing this message
     //! \returns The property bag
@@ -497,8 +507,20 @@ inline size_t pstsdk::message::get_recipient_count() const
 
 inline std::wstring pstsdk::message::get_subject() const
 {
-    std::wstring buffer = m_bag.read_prop<std::wstring>(PropMessageSubject);
+    std::wstring buffer;
 
+	prop_type ptype = m_bag.get_prop_type(PropMessageSubject);
+	if (ptype == prop_type_string)
+	{
+		std::string tmpStr = m_bag.read_prop<std::string>(PropMessageSubject);
+		uint cp = is_codepage_set() ? get_codepage() : CP_ACP;
+		buffer = string_to_wstring(tmpStr, cp);
+	}
+	else
+	{
+		buffer = m_bag.read_prop<std::wstring>(PropMessageSubject);
+	}
+	
     if(buffer.size() && buffer[0] == message_subject_prefix_lead_byte)
     {
         // Skip the second character as well
