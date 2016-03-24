@@ -475,11 +475,11 @@ static int ExtractStorageItem(StorageObject* storage, ContentTreeNode* item, wst
 	{
 		// Set extract params
 		ExtractOperationParams params;
-		params.item = item->StorageIndex;
-		params.flags = 0;
-		params.destFilePath = destPath.c_str();
-		params.callbacks.FileProgress = ExtractProgress;
-		params.callbacks.signalContext = pctx;
+		params.ItemIndex = item->StorageIndex;
+		params.Flags = 0;
+		params.DestPath = destPath.c_str();
+		params.Callbacks.FileProgress = ExtractProgress;
+		params.Callbacks.signalContext = pctx;
 
 		ExtractStart(item, pctx, hScreen);
 		ret = storage->Extract(params);
@@ -978,7 +978,8 @@ int WINAPI GetFiles(HANDLE hPlugin, struct PluginPanelItem *PanelItem, int Items
 		return 0;
 
 	// Confirm extraction
-	ExtractSelectedParams extrParams(DestPath);
+	ExtractSelectedParams extrParams;
+	extrParams.strDestPath = DestPath;
 	extrParams.bSilent = (OpMode & OPM_SILENT) != 0;
 	extrParams.bShowProgress = (OpMode & OPM_FIND) == 0;
 

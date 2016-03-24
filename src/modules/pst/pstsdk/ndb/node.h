@@ -110,7 +110,7 @@ public:
 
     //! \brief Tells you if this is a subnode
     //! \returns true if this is a subnode, false otherwise
-    bool is_subnode() { return m_pcontainer_node; }
+    bool is_subnode() { return (bool) m_pcontainer_node; }
 
     //! \brief Returns the data block associated with this node
     //! \returns A shared pointer to the data block
