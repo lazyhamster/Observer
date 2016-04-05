@@ -167,8 +167,8 @@
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(FAR_DBG)\Observer\modules\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Platform)\$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(FAR_DBG)\Observer\modules\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\bin\$(Configuration)\modules\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
@@ -182,7 +182,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(SolutionDir)..\obj\$(Configuration)\$(ProjectName)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</LinkIncremental>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</LinkIncremental>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(FAR2_DBG)\Observer\modules\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(FAR2_DBG_x64)\Observer\modules\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(FAR3_DBG_x64)\Observer\modules\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(SolutionDir)..\obj\$(Configuration)-$(Platform)\$(ProjectName)\</IntDir>
@@ -274,7 +274,6 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -298,7 +297,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -319,7 +317,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -345,7 +342,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -368,7 +364,6 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -389,7 +384,6 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -413,7 +407,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -437,7 +430,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -458,7 +450,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -481,7 +472,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -507,7 +497,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -533,7 +522,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <OutputFile>$(OutDir)$(ProjectName).so</OutputFile>
       <ModuleDefinitionFile>pdb.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
