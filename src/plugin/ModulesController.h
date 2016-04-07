@@ -53,10 +53,10 @@ struct FailedModuleInfo
 class ModulesController
 {
 private:
-	vector<ExternalModule> modules;
+	std::vector<ExternalModule> modules;
 	
-	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, wstring &errorMsg);
-	bool IsValidModuleLoaded(ModuleLoadParameters &params);
+	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, std::wstring &errorMsg);
+	bool IsValidModuleLoaded(const ModuleLoadParameters &params);
 	bool GetExceptionMessage(unsigned long exceptionCode, std::wstring &errorText);
 	bool GetExceptionMessage(unsigned long exceptionCode, wchar_t* errTextBuf, size_t errTextBufSize);
 

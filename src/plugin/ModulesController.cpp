@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "ModulesController.h"
+#include "CommonFunc.h"
 
 static bool DoesExtensionFilterMatch( const wchar_t* path, const vector<wstring> &filter )
 {
@@ -36,7 +37,13 @@ static void ParseExtensionList(const wchar_t* listval, ExternalModule& module)
 	free(strList);
 }
 
-int ModulesController::Init( const wchar_t* basePath, Config* cfg, vector<FailedModuleInfo> &failed )
+// Separate function is require because if __try use below, it complains about object unwinding
+static void GetInvalidApiErrorMessage(std::wstring &dest, DWORD moduleVersion)
+{
+	dest = FormatString(L"Invalid API version (reported: %d, required %d)", moduleVersion, ACTUAL_API_VERSION);
+}
+
+int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed )
 {
 	Cleanup();
 
@@ -186,7 +193,7 @@ void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
 	}
 }
 
-bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, wstring &errorMsg )
+bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, std::wstring &errorMsg )
 {
 	if (!module.Name()[0] || !module.LibraryFile()[0])
 		return false;
@@ -211,10 +218,17 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 			{
 				if (module.LoadModule(&loadParams) && IsValidModuleLoaded(loadParams))
 				{
-					module.ModuleFunctions = loadParams.ApiFuncs;
-					module.ModuleVersion = loadParams.ModuleVersion;
+					if (loadParams.ApiVersion != ACTUAL_API_VERSION)
+					{
+						GetInvalidApiErrorMessage(errorMsg, loadParams.ApiVersion);
+					}
+					else
+					{
+						module.ModuleFunctions = loadParams.ApiFuncs;
+						module.ModuleVersion = loadParams.ModuleVersion;
 
-					return true;
+						return true;
+					}
 				}
 			}
 			__except (EXCEPTION_EXECUTE_HANDLER)
@@ -244,11 +258,10 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 	return false;
 }
 
-bool ModulesController::IsValidModuleLoaded( ModuleLoadParameters &params )
+bool ModulesController::IsValidModuleLoaded( const ModuleLoadParameters &params )
 {
-	return (params.ApiVersion == ACTUAL_API_VERSION)
-		&& (params.ApiFuncs.OpenStorage != nullptr) && (params.ApiFuncs.CloseStorage != nullptr) && (params.ApiFuncs.PrepareFiles != nullptr)
-		&& (params.ApiFuncs.GetItem != nullptr) && (params.ApiFuncs.ExtractItem != nullptr);
+	return (params.ApiFuncs.OpenStorage != nullptr) && (params.ApiFuncs.CloseStorage != nullptr)
+		&& (params.ApiFuncs.PrepareFiles != nullptr) && (params.ApiFuncs.GetItem != nullptr) && (params.ApiFuncs.ExtractItem != nullptr);
 }
 
 bool ModulesController::GetExceptionMessage(unsigned long exceptionCode, std::wstring &errorText)
