@@ -34,6 +34,7 @@ void ContentTreeNode::Init( int item_index, StorageItemInfo* item_info )
 	m_nPackedSize = item_info->PackedSize;
 	m_nAttributes = item_info->Attributes;
 	m_nNumberOfHardlinks = item_info->NumHardlinks;
+	m_strOwner = item_info->Owner;
 	LastModificationTime = item_info->ModificationTime;
 	CreationTime = item_info->CreationTime;
 }

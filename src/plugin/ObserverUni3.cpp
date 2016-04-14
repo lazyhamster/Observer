@@ -958,6 +958,7 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 		panelItem->CreationTime = node->CreationTime;
 		panelItem->LastWriteTime = node->LastModificationTime;
 		panelItem->FileSize = node->GetSize();
+		panelItem->Owner = node->GetOwner();
 
 		panelItem++;
 	}
@@ -974,6 +975,7 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 		panelItem->CreationTime = node->CreationTime;
 		panelItem->LastWriteTime = node->LastModificationTime;
 		panelItem->FileSize = node->GetSize();
+		panelItem->Owner = node->GetOwner();
 
 		panelItem++;
 	}

@@ -23,6 +23,7 @@ private:
 	__int64 m_nPackedSize;
 	DWORD m_nAttributes;
 	WORD m_nNumberOfHardlinks;
+	wstring m_strOwner;
 
 public:
 	int StorageIndex;
@@ -49,6 +50,7 @@ public:
 	__int64 GetPackedSize() const { return IsDir() ? 0 : m_nPackedSize; }
 	DWORD GetAttributes() const { return m_nAttributes; }
 	WORD GetNumberOfHardLinks() const { return m_nNumberOfHardlinks; }
+	const wchar_t* GetOwner() const { return m_strOwner.size() > 0 ? m_strOwner.c_str() : nullptr; }
 
 	const wchar_t* Name() const { return m_strName.c_str(); }
 	void SetName(const wchar_t* newName) { m_strName = newName; }

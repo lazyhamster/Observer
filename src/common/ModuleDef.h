@@ -14,7 +14,7 @@ struct ExtractProcessCallbacks
 	ExtractProgressFunc FileProgress;
 };
 
-#define ACTUAL_API_VERSION 5
+#define ACTUAL_API_VERSION 6
 #define STORAGE_FORMAT_NAME_MAX_LEN 32
 #define STORAGE_PARAM_MAX_LEN 64
 
@@ -42,6 +42,7 @@ struct StorageItemInfo
 	FILETIME CreationTime;
 	FILETIME ModificationTime;
 	WORD NumHardlinks;
+	wchar_t Owner[64];
 	wchar_t Path[1024];
 };
 
