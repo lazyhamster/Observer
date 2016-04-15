@@ -1,5 +1,9 @@
 Changes history:
 
+1.12.0
+- Changes in modules API.
+- New file property exposed: Owner (for containers where applicable).
+
 1.11.2
 - PST: Fixed invalid path characters in folder names.
 - PST: Fixed merging of messages with same subject.

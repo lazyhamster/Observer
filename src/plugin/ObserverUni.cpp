@@ -1002,6 +1002,7 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 		panelItem->FindData.ftCreationTime = node->CreationTime;
 		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
 		panelItem->FindData.nFileSize = node->GetSize();
+		panelItem->Owner = node->GetOwner();
 
 		panelItem++;
 	}
@@ -1018,6 +1019,7 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 		panelItem->FindData.ftCreationTime = node->CreationTime;
 		panelItem->FindData.ftLastWriteTime = node->LastModificationTime;
 		panelItem->FindData.nFileSize = node->GetSize();
+		panelItem->Owner = node->GetOwner();
 
 		panelItem++;
 	}
