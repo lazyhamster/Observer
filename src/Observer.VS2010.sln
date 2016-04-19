@@ -61,8 +61,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "modulecrt", "depends\modulecrt\modulecrt.vcxproj", "{CEBDD3F1-0D8A-4D3C-B5A9-1FDF98B8507F}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gthread", "depends\glib\build\gthread.vcxproj", "{287CB42B-8294-4EC5-A397-4EFEC63FF908}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "poppler", "depends\poppler\poppler.vcxproj", "{A9013E8A-A631-4CC5-8EE6-1099A667D157}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "stormlib", "depends\StormLib\stormlib.vcxproj", "{2DC37CA3-387C-43CA-8D40-101E24893D6A}"
@@ -727,30 +725,6 @@ Global
 		{CEBDD3F1-0D8A-4D3C-B5A9-1FDF98B8507F}.Release-Unicode-3|Win32.Build.0 = Release-Unicode-3|Win32
 		{CEBDD3F1-0D8A-4D3C-B5A9-1FDF98B8507F}.Release-Unicode-3|x64.ActiveCfg = Release-Unicode-3|x64
 		{CEBDD3F1-0D8A-4D3C-B5A9-1FDF98B8507F}.Release-Unicode-3|x64.Build.0 = Release-Unicode-3|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug|Win32.ActiveCfg = Debug|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug|Win32.Build.0 = Debug|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug|x64.ActiveCfg = Debug|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug|x64.Build.0 = Debug|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug-Unicode|Win32.ActiveCfg = Debug-Unicode|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug-Unicode|Win32.Build.0 = Debug-Unicode|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug-Unicode|x64.ActiveCfg = Debug-Unicode|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug-Unicode|x64.Build.0 = Debug-Unicode|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug-Unicode-3|Win32.ActiveCfg = Debug-Unicode-3|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug-Unicode-3|Win32.Build.0 = Debug-Unicode-3|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug-Unicode-3|x64.ActiveCfg = Debug-Unicode-3|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Debug-Unicode-3|x64.Build.0 = Debug-Unicode-3|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release|Win32.ActiveCfg = Release|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release|Win32.Build.0 = Release|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release|x64.ActiveCfg = Release|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release|x64.Build.0 = Release|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode|Win32.ActiveCfg = Release-Unicode|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode|Win32.Build.0 = Release-Unicode|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode|x64.ActiveCfg = Release-Unicode|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode|x64.Build.0 = Release-Unicode|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode-3|Win32.ActiveCfg = Release-Unicode-3|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode-3|Win32.Build.0 = Release-Unicode-3|Win32
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode-3|x64.ActiveCfg = Release-Unicode-3|x64
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode-3|x64.Build.0 = Release-Unicode-3|x64
 		{A9013E8A-A631-4CC5-8EE6-1099A667D157}.Debug|Win32.ActiveCfg = Debug|Win32
 		{A9013E8A-A631-4CC5-8EE6-1099A667D157}.Debug|Win32.Build.0 = Debug|Win32
 		{A9013E8A-A631-4CC5-8EE6-1099A667D157}.Debug|x64.ActiveCfg = Debug|x64
@@ -907,6 +881,5 @@ Global
 		{14034EFF-D0FF-4E1C-9935-611339B3DAFC} = {DFAD269E-8C1B-4D43-9B97-E24CF06EECE1}
 		{AD0C1EE1-93C7-460C-8E59-7E8CD0815811} = {764325D2-D606-4200-9870-067D29414B12}
 		{213E1C4D-556C-4D1F-AFA2-1938042920F0} = {764325D2-D606-4200-9870-067D29414B12}
-		{287CB42B-8294-4EC5-A397-4EFEC63FF908} = {764325D2-D606-4200-9870-067D29414B12}
 	EndGlobalSection
 EndGlobal
