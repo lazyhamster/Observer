@@ -264,7 +264,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -288,7 +288,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -310,7 +310,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -334,7 +334,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -354,7 +354,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -375,7 +375,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -399,7 +399,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -423,7 +423,7 @@
     </Midl>
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -445,7 +445,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -466,7 +466,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -490,7 +490,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -514,7 +514,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;..\..\libffi\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GOBJECT_COMPILATION;G_DISABLE_DEPRECATED;G_LOG_DOMAIN="Glib-GObject";%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -532,12 +532,24 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="glib.vcxproj">
+      <Project>{213e1c4d-556c-4d1f-afa2-1938042920f0}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\gobject\gobject.rc" />
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\gobject\gatomicarray.c" />
     <ClCompile Include="..\gobject\gbinding.c" />
     <ClCompile Include="..\gobject\gboxed.c" />
     <ClCompile Include="..\gobject\gclosure.c" />
     <ClCompile Include="..\gobject\genums.c" />
+    <ClCompile Include="..\gobject\gmarshal.c" />
+    <ClCompile Include="..\gobject\gobject-query.c" />
     <ClCompile Include="..\gobject\gobject.c" />
+    <ClCompile Include="..\gobject\gobjectnotifyqueue.c" />
     <ClCompile Include="..\gobject\gparam.c" />
     <ClCompile Include="..\gobject\gparamspecs.c" />
     <ClCompile Include="..\gobject\gsignal.c" />
@@ -556,7 +568,9 @@
     <ClInclude Include="..\gobject\gboxed.h" />
     <ClInclude Include="..\gobject\gclosure.h" />
     <ClInclude Include="..\gobject\genums.h" />
+    <ClInclude Include="..\gobject\glib-types.h" />
     <ClInclude Include="..\gobject\gmarshal.h" />
+    <ClInclude Include="..\gobject\gobject-autocleanups.h" />
     <ClInclude Include="..\gobject\gobject.h" />
     <ClInclude Include="..\gobject\gobject_trace.h" />
     <ClInclude Include="..\gobject\gparam.h" />
@@ -571,21 +585,6 @@
     <ClInclude Include="..\gobject\gvaluearray.h" />
     <ClInclude Include="..\gobject\gvaluecollector.h" />
     <ClInclude Include="..\gobject\gvaluetypes.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\gobject\gobject.def" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="glib.vcxproj">
-      <Project>{213e1c4d-556c-4d1f-afa2-1938042920f0}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="gthread.vcxproj">
-      <Project>{287cb42b-8294-4ec5-a397-4efec63ff908}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\gobject\gobject.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

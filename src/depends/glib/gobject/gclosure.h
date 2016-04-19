@@ -13,16 +13,14 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef __G_CLOSURE_H__
+#define __G_CLOSURE_H__
+
 #if !defined (__GLIB_GOBJECT_H_INSIDE__) && !defined (GOBJECT_COMPILATION)
 #error "Only <glib-object.h> can be included directly."
 #endif
-
-#ifndef __G_CLOSURE_H__
-#define __G_CLOSURE_H__
 
 #include        <gobject/gtype.h>
 
@@ -51,7 +49,7 @@ G_BEGIN_DECLS
  *
  * Returns: number of notifiers
  */
-#define	G_CLOSURE_N_NOTIFIERS(cl)	 ((cl)->meta_marshal + ((cl)->n_guards << 1L) + \
+#define	G_CLOSURE_N_NOTIFIERS(cl)	 (((cl)->n_guards << 1L) + \
                                           (cl)->n_fnotifiers + (cl)->n_inotifiers)
 /**
  * G_CCLOSURE_SWAP_DATA:
@@ -99,15 +97,18 @@ typedef void  (*GClosureNotify)		(gpointer	 data,
 /**
  * GClosureMarshal:
  * @closure: the #GClosure to which the marshaller belongs
- * @return_value: a #GValue to store the return value. May be %NULL if the
- *  callback of @closure doesn't return a value.
+ * @return_value: (allow-none): a #GValue to store the return
+ *  value. May be %NULL if the callback of @closure doesn't return a
+ *  value.
  * @n_param_values: the length of the @param_values array
- * @param_values: an array of #GValue<!-- -->s holding the arguments on
- *  which to invoke the callback of @closure
- * @invocation_hint: the invocation hint given as the last argument
- *  to g_closure_invoke()
- * @marshal_data: additional data specified when registering the marshaller,
- *  see g_closure_set_marshal() and g_closure_set_meta_marshal()
+ * @param_values: (array length=n_param_values): an array of
+ *  #GValues holding the arguments on which to invoke the
+ *  callback of @closure
+ * @invocation_hint: (allow-none): the invocation hint given as the
+ *  last argument to g_closure_invoke()
+ * @marshal_data: (allow-none): additional data specified when
+ *  registering the marshaller, see g_closure_set_marshal() and
+ *  g_closure_set_meta_marshal()
  * 
  * The type used for marshaller functions.
  */
@@ -117,6 +118,35 @@ typedef void  (*GClosureMarshal)	(GClosure	*closure,
 					 const GValue   *param_values,
 					 gpointer        invocation_hint,
 					 gpointer	 marshal_data);
+
+/**
+ * GVaClosureMarshal:
+ * @closure: the #GClosure to which the marshaller belongs
+ * @return_value: (allow-none): a #GValue to store the return
+ *  value. May be %NULL if the callback of @closure doesn't return a
+ *  value.
+ * @instance: (type GObject.TypeInstance): the instance on which the closure is
+ *  invoked.
+ * @args: va_list of arguments to be passed to the closure.
+ * @marshal_data: (allow-none): additional data specified when
+ *  registering the marshaller, see g_closure_set_marshal() and
+ *  g_closure_set_meta_marshal()
+ * @n_params: the length of the @param_types array
+ * @param_types: (array length=n_params): the #GType of each argument from
+ *  @args.
+ *
+ * This is the signature of va_list marshaller functions, an optional
+ * marshaller that can be used in some situations to avoid
+ * marshalling the signal argument into GValues.
+ */
+typedef void (* GVaClosureMarshal) (GClosure *closure,
+				    GValue   *return_value,
+				    gpointer  instance,
+				    va_list   args,
+				    gpointer  marshal_data,
+				    int       n_params,
+				    GType    *param_types);
+
 /**
  * GCClosure:
  * @closure: the #GClosure
@@ -146,7 +176,9 @@ struct _GClosure
 {
   /*< private >*/
   volatile      	guint	 ref_count : 15;
-  volatile       	guint	 meta_marshal : 1;
+  /* meta_marshal is not used anymore but must be zero for historical reasons
+     as it was exposed in the G_CLOSURE_N_NOTIFIERS macro */
+  volatile       	guint	 meta_marshal_nouse : 1;
   volatile       	guint	 n_guards : 1;
   volatile       	guint	 n_fnotifiers : 2;	/* finalization notifiers */
   volatile       	guint	 n_inotifiers : 8;	/* invalidation notifiers */
@@ -189,46 +221,62 @@ struct _GCClosure
 
 
 /* --- prototypes --- */
+GLIB_AVAILABLE_IN_ALL
 GClosure* g_cclosure_new			(GCallback	callback_func,
 						 gpointer	user_data,
 						 GClosureNotify destroy_data);
+GLIB_AVAILABLE_IN_ALL
 GClosure* g_cclosure_new_swap			(GCallback	callback_func,
 						 gpointer	user_data,
 						 GClosureNotify destroy_data);
+GLIB_AVAILABLE_IN_ALL
 GClosure* g_signal_type_cclosure_new		(GType          itype,
 						 guint          struct_offset);
 
 
 /* --- prototypes --- */
+GLIB_AVAILABLE_IN_ALL
 GClosure* g_closure_ref				(GClosure	*closure);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_sink			(GClosure	*closure);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_unref			(GClosure	*closure);
 /* intimidating */
+GLIB_AVAILABLE_IN_ALL
 GClosure* g_closure_new_simple			(guint		 sizeof_closure,
 						 gpointer	 data);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_add_finalize_notifier	(GClosure       *closure,
 						 gpointer	 notify_data,
 						 GClosureNotify	 notify_func);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_remove_finalize_notifier	(GClosure       *closure,
 						 gpointer	 notify_data,
 						 GClosureNotify	 notify_func);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_add_invalidate_notifier	(GClosure       *closure,
 						 gpointer	 notify_data,
 						 GClosureNotify	 notify_func);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_remove_invalidate_notifier	(GClosure       *closure,
 						 gpointer	 notify_data,
 						 GClosureNotify	 notify_func);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_add_marshal_guards		(GClosure	*closure,
 						 gpointer        pre_marshal_data,
 						 GClosureNotify	 pre_marshal_notify,
 						 gpointer        post_marshal_data,
 						 GClosureNotify	 post_marshal_notify);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_set_marshal			(GClosure	*closure,
 						 GClosureMarshal marshal);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_set_meta_marshal		(GClosure       *closure,
 						 gpointer	 marshal_data,
 						 GClosureMarshal meta_marshal);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_invalidate			(GClosure	*closure);
+GLIB_AVAILABLE_IN_ALL
 void	  g_closure_invoke			(GClosure 	*closure,
 						 GValue	/*out*/	*return_value,
 						 guint		 n_param_values,
@@ -245,6 +293,24 @@ void	  g_closure_invoke			(GClosure 	*closure,
    - need marshaller repo with decent aliasing to base types
    - provide marshaller collection, virtually covering anything out there
 */
+
+GLIB_AVAILABLE_IN_ALL
+void g_cclosure_marshal_generic (GClosure     *closure,
+                                 GValue       *return_gvalue,
+                                 guint         n_param_values,
+                                 const GValue *param_values,
+                                 gpointer      invocation_hint,
+                                 gpointer      marshal_data);
+
+GLIB_AVAILABLE_IN_ALL
+void g_cclosure_marshal_generic_va (GClosure *closure,
+				    GValue   *return_value,
+				    gpointer  instance,
+				    va_list   args_list,
+				    gpointer  marshal_data,
+				    int       n_params,
+				    GType    *param_types);
+
 
 G_END_DECLS
 

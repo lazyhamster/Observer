@@ -12,18 +12,16 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * gvalue.h: generic GValue functions
  */
+#ifndef __G_VALUE_H__
+#define __G_VALUE_H__
+
 #if !defined (__GLIB_GOBJECT_H_INSIDE__) && !defined (GOBJECT_COMPILATION)
 #error "Only <glib-object.h> can be included directly."
 #endif
-
-#ifndef __G_VALUE_H__
-#define __G_VALUE_H__
 
 #include	<gobject/gtype.h>
 
@@ -53,7 +51,7 @@ G_BEGIN_DECLS
 /**
  * G_VALUE_TYPE:
  * @value: A #GValue structure.
- * 
+ *
  * Get the type identifier of @value.
  *
  * Returns: the #GType.
@@ -63,7 +61,7 @@ G_BEGIN_DECLS
  * G_VALUE_TYPE_NAME:
  * @value: A #GValue structure.
  *
- * Gets the the type name of @value. 
+ * Gets the type name of @value.
  *
  * Returns: the type name.
  */
@@ -72,7 +70,7 @@ G_BEGIN_DECLS
  * G_VALUE_HOLDS:
  * @value: A #GValue structure.
  * @type: A #GType value.
- * 
+ *
  * Checks if @value holds (or contains) a value of @type.
  * This macro will also check for @value != %NULL and issue a
  * warning if the check fails.
@@ -101,7 +99,7 @@ typedef void (*GValueTransform) (const GValue *src_value,
  * to functions within a #GTypeValueTable structure, or implementations of
  * the g_value_*() API. That is, code portions which implement new fundamental
  * types.
- * #GValue users can not make any assumptions about how data is stored
+ * #GValue users cannot make any assumptions about how data is stored
  * within the 2 element @data union, and the @g_type member should
  * only be accessed through the G_VALUE_TYPE() macro.
  */
@@ -126,28 +124,42 @@ struct _GValue
 
 
 /* --- prototypes --- */
+GLIB_AVAILABLE_IN_ALL
 GValue*         g_value_init	   	(GValue       *value,
 					 GType         g_type);
+GLIB_AVAILABLE_IN_ALL
 void            g_value_copy    	(const GValue *src_value,
 					 GValue       *dest_value);
+GLIB_AVAILABLE_IN_ALL
 GValue*         g_value_reset   	(GValue       *value);
+GLIB_AVAILABLE_IN_ALL
 void            g_value_unset   	(GValue       *value);
+GLIB_AVAILABLE_IN_ALL
 void		g_value_set_instance	(GValue	      *value,
 					 gpointer      instance);
+GLIB_AVAILABLE_IN_2_42
+void            g_value_init_from_instance   (GValue       *value,
+                                              gpointer      instance);
 
 
 /* --- private --- */
+GLIB_AVAILABLE_IN_ALL
 gboolean	g_value_fits_pointer	(const GValue *value);
+GLIB_AVAILABLE_IN_ALL
 gpointer	g_value_peek_pointer	(const GValue *value);
 
 
 /* --- implementation details --- */
+GLIB_AVAILABLE_IN_ALL
 gboolean g_value_type_compatible	(GType		 src_type,
 					 GType		 dest_type);
+GLIB_AVAILABLE_IN_ALL
 gboolean g_value_type_transformable	(GType           src_type,
 					 GType           dest_type);
+GLIB_AVAILABLE_IN_ALL
 gboolean g_value_transform		(const GValue   *src_value,
 					 GValue         *dest_value);
+GLIB_AVAILABLE_IN_ALL
 void	g_value_register_transform_func	(GType		 src_type,
 					 GType		 dest_type,
 					 GValueTransform transform_func);
@@ -157,9 +169,24 @@ void	g_value_register_transform_func	(GType		 src_type,
  *
  * If passed to G_VALUE_COLLECT(), allocated data won't be copied
  * but used verbatim. This does not affect ref-counted types like
- * objects. For more details, see the #GValueTable documentation.
+ * objects.
  */
 #define G_VALUE_NOCOPY_CONTENTS (1 << 27)
+
+/**
+ * G_VALUE_INIT:
+ *
+ * A #GValue must be initialized before it can be used. This macro can
+ * be used as initializer instead of an explicit `{ 0 }` when declaring
+ * a variable, but it cannot be assigned to a variable.
+ *
+ * |[
+ *   GValue value = G_VALUE_INIT;
+ * ]|
+ *
+ * Since: 2.30
+ */
+#define G_VALUE_INIT  { 0, { { 0 } } }
 
 
 G_END_DECLS

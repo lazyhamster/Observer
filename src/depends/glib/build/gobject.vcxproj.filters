@@ -15,6 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="..\gobject\gobject.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
     <ClCompile Include="..\gobject\gatomicarray.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -30,7 +35,16 @@
     <ClCompile Include="..\gobject\genums.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\gobject\gmarshal.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\gobject\gobject.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gobject\gobjectnotifyqueue.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\gobject\gobject-query.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\gobject\gparam.c">
@@ -83,6 +97,9 @@
     <ClInclude Include="..\gobject\genums.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\gobject\glib-types.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\gobject\gmarshal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -90,6 +107,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\gobject\gobject_trace.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\gobject\gobject-autocleanups.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\gobject\gparam.h">
@@ -128,15 +148,5 @@
     <ClInclude Include="..\gobject\gvaluetypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\gobject\gobject.def">
-      <Filter>Source Files</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="..\gobject\gobject.rc">
-      <Filter>Resource Files</Filter>
-    </ResourceCompile>
   </ItemGroup>
 </Project>

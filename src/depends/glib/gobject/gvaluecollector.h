@@ -12,16 +12,13 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * gvaluecollector.h: GValue varargs stubs
  */
 /**
  * SECTION:value_collection
  * @Short_description: Converting varargs to generic values
- * @See_also:#GValueTable
  * @Title: Varargs Value Collection
  * 
  * The macros in this section provide the varargs parsing support needed
@@ -93,7 +90,7 @@ G_STMT_START {										\
   GValue *_val = (value);								\
   guint _flags = (flags);								\
   GTypeValueTable *_vtab = g_type_value_table_peek (_value_type);			\
-  gchar *_collect_format = _vtab->collect_format;					\
+  const gchar *_collect_format = _vtab->collect_format;					\
   GTypeCValue _cvalues[G_VALUE_COLLECT_FORMAT_MAX_LENGTH] = { { 0, }, };		\
   guint _n_values = 0;									\
                                                                                         \
@@ -160,6 +157,43 @@ G_STMT_START {										\
 } G_STMT_END
 
 /**
+ * G_VALUE_COLLECT_SKIP:
+ * @_value_type: the #GType of the value to skip
+ * @var_args: the va_list variable; it may be evaluated multiple times
+ *
+ * Skip an argument of type @_value_type from @var_args.
+ */
+#define G_VALUE_COLLECT_SKIP(_value_type, var_args)					\
+G_STMT_START {										\
+  GTypeValueTable *_vtable = g_type_value_table_peek (_value_type);			\
+  const gchar *_collect_format = _vtable->collect_format;				\
+                                                                                        \
+  while (*_collect_format)								\
+    {											\
+      switch (*_collect_format++)							\
+	{										\
+	case G_VALUE_COLLECT_INT:							\
+	  va_arg ((var_args), gint);							\
+	  break;									\
+	case G_VALUE_COLLECT_LONG:							\
+	  va_arg ((var_args), glong);							\
+	  break;									\
+	case G_VALUE_COLLECT_INT64:							\
+	  va_arg ((var_args), gint64);							\
+	  break;									\
+	case G_VALUE_COLLECT_DOUBLE:							\
+	  va_arg ((var_args), gdouble);							\
+	  break;									\
+	case G_VALUE_COLLECT_POINTER:							\
+	  va_arg ((var_args), gpointer);						\
+	  break;									\
+	default:									\
+	  g_assert_not_reached ();							\
+	}										\
+    }											\
+} G_STMT_END
+
+/**
  * G_VALUE_LCOPY:
  * @value: a #GValue return location. @value is supposed to be initialized 
  *  according to the value type to be collected
@@ -178,7 +212,7 @@ G_STMT_START {										\
   guint _flags = (flags);								\
   GType _value_type = G_VALUE_TYPE (_value);						\
   GTypeValueTable *_vtable = g_type_value_table_peek (_value_type);			\
-  gchar *_lcopy_format = _vtable->lcopy_format;						\
+  const gchar *_lcopy_format = _vtable->lcopy_format;					\
   GTypeCValue _cvalues[G_VALUE_COLLECT_FORMAT_MAX_LENGTH] = { { 0, }, };		\
   guint _n_values = 0;									\
                                                                                         \
@@ -217,7 +251,7 @@ G_STMT_START {										\
 /**
  * G_VALUE_COLLECT_FORMAT_MAX_LENGTH:
  * 
- * The maximal number of #GTypeCValue<!-- -->s which can be collected for a 
+ * The maximal number of #GTypeCValues which can be collected for a 
  * single #GValue.
  */
 #define	G_VALUE_COLLECT_FORMAT_MAX_LENGTH	(8)

@@ -12,16 +12,14 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
 
-#include "gatomicarray.h"
-
 #include <string.h>
+
+#include "gatomicarray.h"
 
 /* A GAtomicArray is a growable, mutable array of data
  * generally of the form of a header of a specific size and
@@ -110,6 +108,10 @@ _g_atomic_array_init (GAtomicArray *array)
  * This means you can use this to grow the
  * array part and it handles the first element
  * being added automatically.
+ *
+ * We don't support shrinking arrays, as if
+ * we then re-grow we may reuse an old pointer
+ * value and confuse the transaction check.
  */
 gpointer
 _g_atomic_array_copy (GAtomicArray *array,
@@ -118,11 +120,6 @@ _g_atomic_array_copy (GAtomicArray *array,
 {
   guint8 *new, *old;
   gsize old_size, new_size;
-
-  /* We don't support shrinking arrays, as if
-     we then re-grow we may reuse an old pointer
-     value and confuse the transaction check. */
-  g_assert (additional_element_size >= 0);
 
   G_LOCK (array);
   old = g_atomic_pointer_get (&array->data);

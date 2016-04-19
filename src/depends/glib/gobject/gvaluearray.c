@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -40,6 +38,23 @@
  * object property that holds an array of values. A #GValueArray wraps
  * an array of #GValue elements in order for it to be used as a boxed
  * type through %G_TYPE_VALUE_ARRAY.
+ *
+ * #GValueArray is deprecated in favour of #GArray since GLib 2.32. It
+ * is possible to create a #GArray that behaves like a #GValueArray by
+ * using the size of #GValue as the element size, and by setting
+ * g_value_unset() as the clear function using g_array_set_clear_func(),
+ * for instance, the following code:
+ *
+ * |[<!-- language="C" --> 
+ *   GValueArray *array = g_value_array_new (10);
+ * ]|
+ *
+ * can be replaced by:
+ *
+ * |[<!-- language="C" --> 
+ *   GArray *array = g_array_sized_new (FALSE, TRUE, sizeof (GValue), 10);
+ *   g_array_set_clear_func (array, (GDestroyNotify) g_value_unset);
+ * ]|
  */
 
 
@@ -59,6 +74,8 @@
  * Return a pointer to the value at @index_ containd in @value_array.
  *
  * Returns: (transfer none): pointer to a value at @index_ in @value_array
+ *
+ * Deprecated: 2.32: Use g_array_index() instead.
  */
 GValue*
 g_value_array_get_nth (GValueArray *value_array,
@@ -112,6 +129,8 @@ value_array_shrink (GValueArray *value_array)
  * regardless of the value of @n_prealloced.
  *
  * Returns: a newly allocated #GValueArray with 0 values
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_sized_new() instead.
  */
 GValueArray*
 g_value_array_new (guint n_prealloced)
@@ -132,6 +151,8 @@ g_value_array_new (guint n_prealloced)
  * @value_array: #GValueArray to free
  *
  * Free a #GValueArray including its contents.
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_unref() instead.
  */
 void
 g_value_array_free (GValueArray *value_array)
@@ -159,6 +180,8 @@ g_value_array_free (GValueArray *value_array)
  * contents.
  *
  * Returns: (transfer full): Newly allocated copy of #GValueArray
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_ref() instead.
  */
 GValueArray*
 g_value_array_copy (const GValueArray *value_array)
@@ -194,6 +217,8 @@ g_value_array_copy (const GValueArray *value_array)
  *
  *
  * Returns: (transfer none): the #GValueArray passed in as @value_array
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_prepend_val() instead.
  */
 GValueArray*
 g_value_array_prepend (GValueArray  *value_array,
@@ -201,7 +226,9 @@ g_value_array_prepend (GValueArray  *value_array,
 {
   g_return_val_if_fail (value_array != NULL, NULL);
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   return g_value_array_insert (value_array, 0, value);
+  G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
 /**
@@ -213,6 +240,8 @@ g_value_array_prepend (GValueArray  *value_array,
  * %NULL, an uninitialized value is appended.
  *
  * Returns: (transfer none): the #GValueArray passed in as @value_array
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_append_val() instead.
  */
 GValueArray*
 g_value_array_append (GValueArray  *value_array,
@@ -220,19 +249,23 @@ g_value_array_append (GValueArray  *value_array,
 {
   g_return_val_if_fail (value_array != NULL, NULL);
 
+  G_GNUC_BEGIN_IGNORE_DEPRECATIONS
   return g_value_array_insert (value_array, value_array->n_values, value);
+  G_GNUC_END_IGNORE_DEPRECATIONS
 }
 
 /**
  * g_value_array_insert:
  * @value_array: #GValueArray to add an element to
- * @index_: insertion position, must be &lt;= value_array-&gt;n_values
+ * @index_: insertion position, must be <= value_array-&gt;n_values
  * @value: (allow-none): #GValue to copy into #GValueArray, or %NULL
  *
  * Insert a copy of @value at specified position into @value_array. If @value
  * is %NULL, an uninitialized value is inserted.
  *
  * Returns: (transfer none): the #GValueArray passed in as @value_array
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_insert_val() instead.
  */
 GValueArray*
 g_value_array_insert (GValueArray  *value_array,
@@ -247,8 +280,8 @@ g_value_array_insert (GValueArray  *value_array,
   i = value_array->n_values;
   value_array_grow (value_array, value_array->n_values + 1, FALSE);
   if (index + 1 < value_array->n_values)
-    g_memmove (value_array->values + index + 1, value_array->values + index,
-	       (i - index) * sizeof (value_array->values[0]));
+    memmove (value_array->values + index + 1, value_array->values + index,
+             (i - index) * sizeof (value_array->values[0]));
   memset (value_array->values + index, 0, sizeof (value_array->values[0]));
   if (value)
     {
@@ -262,12 +295,13 @@ g_value_array_insert (GValueArray  *value_array,
  * g_value_array_remove:
  * @value_array: #GValueArray to remove an element from
  * @index_: position of value to remove, which must be less than
- *          <code>value_array-><link
- *          linkend="GValueArray.n-values">n_values</link></code>
+ *     @value_array->n_values
  *
  * Remove the value at position @index_ from @value_array.
  *
  * Returns: (transfer none): the #GValueArray passed in as @value_array
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_remove_index() instead.
  */
 GValueArray*
 g_value_array_remove (GValueArray *value_array,
@@ -280,8 +314,8 @@ g_value_array_remove (GValueArray *value_array,
     g_value_unset (value_array->values + index);
   value_array->n_values--;
   if (index < value_array->n_values)
-    g_memmove (value_array->values + index, value_array->values + index + 1,
-	       (value_array->n_values - index) * sizeof (value_array->values[0]));
+    memmove (value_array->values + index, value_array->values + index + 1,
+             (value_array->n_values - index) * sizeof (value_array->values[0]));
   value_array_shrink (value_array);
   if (value_array->n_prealloced > value_array->n_values)
     memset (value_array->values + value_array->n_values, 0, sizeof (value_array->values[0]));
@@ -294,12 +328,15 @@ g_value_array_remove (GValueArray *value_array,
  * @value_array: #GValueArray to sort
  * @compare_func: (scope call): function to compare elements
  *
- * Sort @value_array using @compare_func to compare the elements accoring to
+ * Sort @value_array using @compare_func to compare the elements according to
  * the semantics of #GCompareFunc.
  *
- * The current implementation uses Quick-Sort as sorting algorithm.
+ * The current implementation uses the same sorting algorithm as standard
+ * C qsort() function.
  *
  * Returns: (transfer none): the #GValueArray passed in as @value_array
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_sort().
  */
 GValueArray*
 g_value_array_sort (GValueArray *value_array,
@@ -316,18 +353,20 @@ g_value_array_sort (GValueArray *value_array,
 }
 
 /**
- * g_value_array_sort_with_data:
+ * g_value_array_sort_with_data: (rename-to g_value_array_sort)
  * @value_array: #GValueArray to sort
  * @compare_func: (scope call): function to compare elements
  * @user_data: (closure): extra data argument provided for @compare_func
  *
- * Sort @value_array using @compare_func to compare the elements accoring
+ * Sort @value_array using @compare_func to compare the elements according
  * to the semantics of #GCompareDataFunc.
  *
- * The current implementation uses Quick-Sort as sorting algorithm.
+ * The current implementation uses the same sorting algorithm as standard
+ * C qsort() function.
  *
- * Rename to: g_value_array_sort
  * Returns: (transfer none): the #GValueArray passed in as @value_array
+ *
+ * Deprecated: 2.32: Use #GArray and g_array_sort_with_data().
  */
 GValueArray*
 g_value_array_sort_with_data (GValueArray     *value_array,

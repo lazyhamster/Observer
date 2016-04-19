@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General
- * Public License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place, Suite 330,
- * Boston, MA 02111-1307, USA.
+ * Public License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Emmanuele Bassi <ebassi@linux.intel.com>
  */
@@ -31,21 +29,21 @@
  * value is applied to the target property; for instance, the following
  * binding:
  *
- * |[
+ * |[<!-- language="C" --> 
  *   g_object_bind_property (object1, "property-a",
  *                           object2, "property-b",
  *                           G_BINDING_DEFAULT);
  * ]|
  *
- * will cause <emphasis>object2:property-b</emphasis> to be updated every
- * time g_object_set() or the specific accessor changes the value of
- * <emphasis>object1:property-a</emphasis>.
+ * will cause the property named "property-b" of @object2 to be updated
+ * every time g_object_set() or the specific accessor changes the value of
+ * the property "property-a" of @object1.
  *
  * It is possible to create a bidirectional binding between two properties
  * of two #GObject instances, so that if either property changes, the
  * other is updated as well, for instance:
  *
- * |[
+ * |[<!-- language="C" --> 
  *   g_object_bind_property (object1, "property-a",
  *                           object2, "property-b",
  *                           G_BINDING_BIDIRECTIONAL);
@@ -58,7 +56,7 @@
  * transformation from the source value to the target value before
  * applying it; for instance, the following binding:
  *
- * |[
+ * |[<!-- language="C" --> 
  *   g_object_bind_property_full (adjustment1, "value",
  *                                adjustment2, "value",
  *                                G_BINDING_BIDIRECTIONAL,
@@ -67,15 +65,15 @@
  *                                NULL, NULL);
  * ]|
  *
- * will keep the <emphasis>value</emphasis> property of the two adjustments
- * in sync; the <function>celsius_to_fahrenheit</function> function will be
- * called whenever the <emphasis>adjustment1:value</emphasis> property changes
- * and will transform the current value of the property before applying it
- * to the <emphasis>adjustment2:value</emphasis> property; vice versa, the
- * <function>fahrenheit_to_celsius</function> function will be called whenever
- * the <emphasis>adjustment2:value</emphasis> property changes, and will
- * transform the current value of the property before applying it to the
- * <emphasis>adjustment1:value</emphasis>.
+ * will keep the "value" property of the two adjustments in sync; the
+ * @celsius_to_fahrenheit function will be called whenever the "value"
+ * property of @adjustment1 changes and will transform the current value
+ * of the property before applying it to the "value" property of @adjustment2.
+ *
+ * Vice versa, the @fahrenheit_to_celsius function will be called whenever
+ * the "value" property of @adjustment2 changes, and will transform the
+ * current value of the property before applying it to the "value" property
+ * of @adjustment1.
  *
  * Note that #GBinding does not resolve cycles by itself; a cycle like
  *
@@ -95,6 +93,11 @@
  * A binding will be severed, and the resources it allocates freed, whenever
  * either one of the #GObject instances it refers to are finalized, or when
  * the #GBinding instance loses its last reference.
+ *
+ * Bindings for languages with garbage collection can use
+ * g_binding_unbind() to explicitly release a binding between the source
+ * and target properties, instead of relying on the last reference on the
+ * binding, source, and target instances to drop.
  *
  * #GBinding is available since GObject 2.26
  */
@@ -151,8 +154,8 @@ struct _GBinding
   GObject *target;
 
   /* the property names are interned, so they should not be freed */
-  gchar *source_property;
-  gchar *target_property;
+  const gchar *source_property;
+  const gchar *target_property;
 
   GParamSpec *source_pspec;
   GParamSpec *target_pspec;
@@ -188,38 +191,9 @@ enum
   PROP_FLAGS
 };
 
-static GQuark quark_gbinding = 0;
+static guint gobject_notify_signal_id;
 
 G_DEFINE_TYPE (GBinding, g_binding, G_TYPE_OBJECT);
-
-static inline void
-add_binding_qdata (GObject  *gobject,
-                   GBinding *binding)
-{
-  GHashTable *bindings;
-
-  bindings = g_object_get_qdata (gobject, quark_gbinding);
-  if (bindings == NULL)
-    {
-      bindings = g_hash_table_new (NULL, NULL);
-
-      g_object_set_qdata_full (gobject, quark_gbinding,
-                               bindings,
-                               (GDestroyNotify) g_hash_table_destroy);
-    }
-
-  g_hash_table_insert (bindings, binding, GUINT_TO_POINTER (1));
-}
-
-static inline void
-remove_binding_qdata (GObject  *gobject,
-                      GBinding *binding)
-{
-  GHashTable *bindings;
-
-  bindings = g_object_get_qdata (gobject, quark_gbinding);
-  g_hash_table_remove (bindings, binding);
-}
 
 /* the basic assumption is that if either the source or the target
  * goes away then the binding does not exist any more and it should
@@ -243,7 +217,8 @@ weak_unbind (gpointer  user_data,
         g_signal_handler_disconnect (binding->source, binding->source_notify);
 
       g_object_weak_unref (binding->source, weak_unbind, user_data);
-      remove_binding_qdata (binding->source, binding);
+
+      binding->source_notify = 0;
       binding->source = NULL;
     }
 
@@ -256,7 +231,8 @@ weak_unbind (gpointer  user_data,
         g_signal_handler_disconnect (binding->target, binding->target_notify);
 
       g_object_weak_unref (binding->target, weak_unbind, user_data);
-      remove_binding_qdata (binding->target, binding);
+
+      binding->target_notify = 0;
       binding->target = NULL;
     }
 
@@ -264,9 +240,11 @@ weak_unbind (gpointer  user_data,
   g_object_unref (binding);
 }
 
-static inline gboolean
-default_transform (const GValue *value_a,
-                   GValue       *value_b)
+static gboolean
+default_transform (GBinding     *binding,
+                   const GValue *value_a,
+                   GValue       *value_b,
+                   gpointer      user_data G_GNUC_UNUSED)
 {
   /* if it's not the same type, try to convert it using the GValue
    * transformation API; otherwise just copy it
@@ -278,34 +256,34 @@ default_transform (const GValue *value_a,
                                    G_VALUE_TYPE (value_b)))
         {
           g_value_copy (value_a, value_b);
-          goto done;
+          return TRUE;
         }
 
       if (g_value_type_transformable (G_VALUE_TYPE (value_a),
                                       G_VALUE_TYPE (value_b)))
         {
           if (g_value_transform (value_a, value_b))
-            goto done;
-
-          g_warning ("%s: Unable to convert a value of type %s to a "
-                     "value of type %s",
-                     G_STRLOC,
-                     g_type_name (G_VALUE_TYPE (value_a)),
-                     g_type_name (G_VALUE_TYPE (value_b)));
-
-          return FALSE;
+            return TRUE;
         }
-    }
-  else
-    g_value_copy (value_a, value_b);
 
-done:
+      g_warning ("%s: Unable to convert a value of type %s to a "
+                 "value of type %s",
+                 G_STRLOC,
+                 g_type_name (G_VALUE_TYPE (value_a)),
+                 g_type_name (G_VALUE_TYPE (value_b)));
+
+      return FALSE;
+    }
+
+  g_value_copy (value_a, value_b);
   return TRUE;
 }
 
-static inline gboolean
-default_invert_boolean_transform (const GValue *value_a,
-                                  GValue       *value_b)
+static gboolean
+default_invert_boolean_transform (GBinding     *binding,
+                                  const GValue *value_a,
+                                  GValue       *value_b,
+                                  gpointer      user_data G_GNUC_UNUSED)
 {
   gboolean value;
 
@@ -320,69 +298,39 @@ default_invert_boolean_transform (const GValue *value_a,
   return TRUE;
 }
 
-static gboolean
-default_transform_to (GBinding     *binding,
-                      const GValue *value_a,
-                      GValue       *value_b,
-                      gpointer      user_data G_GNUC_UNUSED)
-{
-  if (binding->flags & G_BINDING_INVERT_BOOLEAN)
-    return default_invert_boolean_transform (value_a, value_b);
-
-  return default_transform (value_a, value_b);
-}
-
-static gboolean
-default_transform_from (GBinding     *binding,
-                        const GValue *value_a,
-                        GValue       *value_b,
-                        gpointer      user_data G_GNUC_UNUSED)
-{
-  if (binding->flags & G_BINDING_INVERT_BOOLEAN)
-    return default_invert_boolean_transform (value_a, value_b);
-
-  return default_transform (value_a, value_b);
-}
-
 static void
 on_source_notify (GObject    *gobject,
                   GParamSpec *pspec,
                   GBinding   *binding)
 {
-  const gchar *p_name;
-  GValue source_value = { 0, };
-  GValue target_value = { 0, };
+  GValue from_value = G_VALUE_INIT;
+  GValue to_value = G_VALUE_INIT;
   gboolean res;
 
   if (binding->is_frozen)
     return;
 
-  p_name = g_intern_string (pspec->name);
+  g_value_init (&from_value, G_PARAM_SPEC_VALUE_TYPE (binding->source_pspec));
+  g_value_init (&to_value, G_PARAM_SPEC_VALUE_TYPE (binding->target_pspec));
 
-  if (p_name != binding->source_property)
-    return;
-
-  g_value_init (&source_value, G_PARAM_SPEC_VALUE_TYPE (binding->source_pspec));
-  g_value_init (&target_value, G_PARAM_SPEC_VALUE_TYPE (binding->target_pspec));
-
-  g_object_get_property (binding->source, binding->source_pspec->name, &source_value);
+  g_object_get_property (binding->source, binding->source_pspec->name, &from_value);
 
   res = binding->transform_s2t (binding,
-                                &source_value,
-                                &target_value,
+                                &from_value,
+                                &to_value,
                                 binding->transform_data);
   if (res)
     {
       binding->is_frozen = TRUE;
 
-      g_param_value_validate (binding->target_pspec, &target_value);
-      g_object_set_property (binding->target, binding->target_pspec->name, &target_value);
+      g_param_value_validate (binding->target_pspec, &to_value);
+      g_object_set_property (binding->target, binding->target_pspec->name, &to_value);
 
       binding->is_frozen = FALSE;
     }
 
-  g_value_unset (&source_value);
-  g_value_unset (&target_value);
+  g_value_unset (&from_value);
+  g_value_unset (&to_value);
 }
 
 static void
@@ -390,46 +338,41 @@ on_target_notify (GObject    *gobject,
                   GParamSpec *pspec,
                   GBinding   *binding)
 {
-  const gchar *p_name;
-  GValue source_value = { 0, };
-  GValue target_value = { 0, };
+  GValue from_value = G_VALUE_INIT;
+  GValue to_value = G_VALUE_INIT;
   gboolean res;
 
   if (binding->is_frozen)
     return;
 
-  p_name = g_intern_string (pspec->name);
+  g_value_init (&from_value, G_PARAM_SPEC_VALUE_TYPE (binding->target_pspec));
+  g_value_init (&to_value, G_PARAM_SPEC_VALUE_TYPE (binding->source_pspec));
 
-  if (p_name != binding->target_property)
-    return;
-
-  g_value_init (&source_value, G_PARAM_SPEC_VALUE_TYPE (binding->target_pspec));
-  g_value_init (&target_value, G_PARAM_SPEC_VALUE_TYPE (binding->source_pspec));
-
-  g_object_get_property (binding->target, binding->target_pspec->name, &source_value);
+  g_object_get_property (binding->target, binding->target_pspec->name, &from_value);
 
   res = binding->transform_t2s (binding,
-                                &source_value,
-                                &target_value,
+                                &from_value,
+                                &to_value,
                                 binding->transform_data);
   if (res)
     {
       binding->is_frozen = TRUE;
 
-      g_param_value_validate (binding->source_pspec, &target_value);
-      g_object_set_property (binding->source, binding->source_pspec->name, &target_value);
+      g_param_value_validate (binding->source_pspec, &to_value);
+      g_object_set_property (binding->source, binding->source_pspec->name, &to_value);
 
       binding->is_frozen = FALSE;
     }
 
-  g_value_unset (&source_value);
-  g_value_unset (&target_value);
+  g_value_unset (&from_value);
+  g_value_unset (&to_value);
 }
 
-static void
-g_binding_finalize (GObject *gobject)
+static inline void
+g_binding_unbind_internal (GBinding *binding,
+                           gboolean  unref_binding)
 {
-  GBinding *binding = G_BINDING (gobject);
+  gboolean source_is_target = binding->source == binding->target;
 
   /* dispose of the transformation data */
   if (binding->notify != NULL)
@@ -440,16 +383,15 @@ g_binding_finalize (GObject *gobject)
       binding->notify = NULL;
     }
 
-  /* we need this in case the source and target instance are still
-   * valid, and it was the GBinding that was unreferenced
-   */
   if (binding->source != NULL)
     {
       if (binding->source_notify != 0)
         g_signal_handler_disconnect (binding->source, binding->source_notify);
 
       g_object_weak_unref (binding->source, weak_unbind, binding);
-      remove_binding_qdata (binding->source, binding);
+
+      binding->source_notify = 0;
+      binding->source = NULL;
     }
 
   if (binding->target != NULL)
@@ -457,9 +399,23 @@ g_binding_finalize (GObject *gobject)
       if (binding->target_notify != 0)
         g_signal_handler_disconnect (binding->target, binding->target_notify);
 
-      g_object_weak_unref (binding->target, weak_unbind, binding);
-      remove_binding_qdata (binding->target, binding);
+      if (!source_is_target)
+        g_object_weak_unref (binding->target, weak_unbind, binding);
+
+      binding->target_notify = 0;
+      binding->target = NULL;
     }
+
+  if (unref_binding)
+    g_object_unref (binding);
+}
+
+static void
+g_binding_finalize (GObject *gobject)
+{
+  GBinding *binding = G_BINDING (gobject);
+
+  g_binding_unbind_internal (binding, FALSE);
 
   G_OBJECT_CLASS (g_binding_parent_class)->finalize (gobject);
 }
@@ -540,6 +496,9 @@ static void
 g_binding_constructed (GObject *gobject)
 {
   GBinding *binding = G_BINDING (gobject);
+  GBindingTransformFunc transform_func = default_transform;
+  GQuark source_property_detail;
+  GClosure *source_notify_closure;
 
   /* assert that we were constructed correctly */
   g_assert (binding->source != NULL);
@@ -556,28 +515,45 @@ g_binding_constructed (GObject *gobject)
   g_assert (binding->source_pspec != NULL);
   g_assert (binding->target_pspec != NULL);
 
+  /* switch to the invert boolean transform if needed */
+  if (binding->flags & G_BINDING_INVERT_BOOLEAN)
+    transform_func = default_invert_boolean_transform;
+
   /* set the default transformation functions here */
-  binding->transform_s2t = default_transform_to;
-  binding->transform_t2s = default_transform_from;
+  binding->transform_s2t = transform_func;
+  binding->transform_t2s = transform_func;
 
   binding->transform_data = NULL;
   binding->notify = NULL;
 
-  binding->source_notify = g_signal_connect (binding->source, "notify",
-                                             G_CALLBACK (on_source_notify),
-                                             binding);
+  source_property_detail = g_quark_from_string (binding->source_property);
+  source_notify_closure = g_cclosure_new (G_CALLBACK (on_source_notify),
+                                          binding, NULL);
+  binding->source_notify = g_signal_connect_closure_by_id (binding->source,
+                                                           gobject_notify_signal_id,
+                                                           source_property_detail,
+                                                           source_notify_closure,
+                                                           FALSE);
 
   g_object_weak_ref (binding->source, weak_unbind, binding);
-  add_binding_qdata (binding->source, binding);
 
   if (binding->flags & G_BINDING_BIDIRECTIONAL)
-    binding->target_notify = g_signal_connect (binding->target, "notify",
-                                               G_CALLBACK (on_target_notify),
-                                               binding);
+    {
+      GQuark target_property_detail;
+      GClosure *target_notify_closure;
 
-  g_object_weak_ref (binding->target, weak_unbind, binding);
-  add_binding_qdata (binding->target, binding);
+      target_property_detail = g_quark_from_string (binding->target_property);
+      target_notify_closure = g_cclosure_new (G_CALLBACK (on_target_notify),
+                                              binding, NULL);
+      binding->target_notify = g_signal_connect_closure_by_id (binding->target,
+                                                               gobject_notify_signal_id,
+                                                               target_property_detail,
+                                                               target_notify_closure,
+                                                               FALSE);
+    }
 
+  if (binding->target != binding->source)
+    g_object_weak_ref (binding->target, weak_unbind, binding);
 }
 
 static void
@@ -585,7 +561,8 @@ g_binding_class_init (GBindingClass *klass)
 {
   GObjectClass *gobject_class = G_OBJECT_CLASS (klass);
 
-  quark_gbinding = g_quark_from_static_string ("g-binding");
+  gobject_notify_signal_id = g_signal_lookup ("notify", G_TYPE_OBJECT);
+  g_assert (gobject_notify_signal_id != 0);
 
   gobject_class->constructed = g_binding_constructed;
   gobject_class->set_property = g_binding_set_property;
@@ -681,9 +658,9 @@ g_binding_init (GBinding *binding)
  * g_binding_get_flags:
  * @binding: a #GBinding
  *
- * Retrieves the flags passed when constructing the #GBinding
+ * Retrieves the flags passed when constructing the #GBinding.
  *
- * Return value: the #GBindingFlags used by the #GBinding
+ * Returns: the #GBindingFlags used by the #GBinding
  *
  * Since: 2.26
  */
@@ -699,9 +676,9 @@ g_binding_get_flags (GBinding *binding)
  * g_binding_get_source:
  * @binding: a #GBinding
  *
- * Retrieves the #GObject instance used as the source of the binding
+ * Retrieves the #GObject instance used as the source of the binding.
  *
- * Return value: (transfer none): the source #GObject
+ * Returns: (transfer none): the source #GObject
  *
  * Since: 2.26
  */
@@ -717,9 +694,9 @@ g_binding_get_source (GBinding *binding)
  * g_binding_get_target:
  * @binding: a #GBinding
  *
- * Retrieves the #GObject instance used as the target of the binding
+ * Retrieves the #GObject instance used as the target of the binding.
  *
- * Return value: (transfer none): the target #GObject
+ * Returns: (transfer none): the target #GObject
  *
  * Since: 2.26
  */
@@ -736,13 +713,13 @@ g_binding_get_target (GBinding *binding)
  * @binding: a #GBinding
  *
  * Retrieves the name of the property of #GBinding:source used as the source
- * of the binding
+ * of the binding.
  *
- * Return value: the name of the source property
+ * Returns: the name of the source property
  *
  * Since: 2.26
  */
-G_CONST_RETURN gchar *
+const gchar *
 g_binding_get_source_property (GBinding *binding)
 {
   g_return_val_if_fail (G_IS_BINDING (binding), NULL);
@@ -755,13 +732,13 @@ g_binding_get_source_property (GBinding *binding)
  * @binding: a #GBinding
  *
  * Retrieves the name of the property of #GBinding:target used as the target
- * of the binding
+ * of the binding.
  *
- * Return value: the name of the target property
+ * Returns: the name of the target property
  *
  * Since: 2.26
  */
-G_CONST_RETURN gchar *
+const gchar *
 g_binding_get_target_property (GBinding *binding)
 {
   g_return_val_if_fail (G_IS_BINDING (binding), NULL);
@@ -770,20 +747,42 @@ g_binding_get_target_property (GBinding *binding)
 }
 
 /**
+ * g_binding_unbind:
+ * @binding: a #GBinding
+ *
+ * Explicitly releases the binding between the source and the target
+ * property expressed by @binding.
+ *
+ * This function will release the reference that is being held on
+ * the @binding instance; if you want to hold on to the #GBinding instance
+ * after calling g_binding_unbind(), you will need to hold a reference
+ * to it.
+ *
+ * Since: 2.38
+ */
+void
+g_binding_unbind (GBinding *binding)
+{
+  g_return_if_fail (G_IS_BINDING (binding));
+
+  g_binding_unbind_internal (binding, TRUE);
+}
+
+/**
  * g_object_bind_property_full:
- * @source: the source #GObject
+ * @source: (type GObject.Object): the source #GObject
  * @source_property: the property on @source to bind
- * @target: the target #GObject
+ * @target: (type GObject.Object): the target #GObject
  * @target_property: the property on @target to bind
  * @flags: flags to pass to #GBinding
  * @transform_to: (scope notified) (allow-none): the transformation function
- *   from the @source to the @target, or %NULL to use the default
+ *     from the @source to the @target, or %NULL to use the default
  * @transform_from: (scope notified) (allow-none): the transformation function
- *   from the @target to the @source, or %NULL to use the default
+ *     from the @target to the @source, or %NULL to use the default
  * @user_data: custom data to be passed to the transformation functions,
- *   or %NULL
+ *     or %NULL
  * @notify: function to be called when disposing the binding, to free the
- *   resources used by the transformation functions
+ *     resources used by the transformation functions
  *
  * Complete version of g_object_bind_property().
  *
@@ -803,15 +802,15 @@ g_binding_get_target_property (GBinding *binding)
  *
  * A #GObject can have multiple bindings.
  *
- * <note>The same @user_data parameter will be used for both @transform_to
+ * The same @user_data parameter will be used for both @transform_to
  * and @transform_from transformation functions; the @notify function will
  * be called once, when the binding is removed. If you need different data
  * for each transformation function, please use
- * g_object_bind_property_with_closures() instead.</note>
+ * g_object_bind_property_with_closures() instead.
  *
- * Return value: (transfer none): the #GBinding instance representing the
- *   binding between the two #GObject instances. The binding is released
- *   whenever the #GBinding reference count reaches zero.
+ * Returns: (transfer none): the #GBinding instance representing the
+ *     binding between the two #GObject instances. The binding is released
+ *     whenever the #GBinding reference count reaches zero.
  *
  * Since: 2.26
  */
@@ -912,7 +911,7 @@ g_object_bind_property_full (gpointer               source,
   if ((flags & G_BINDING_BIDIRECTIONAL) &&
       !(pspec->flags & G_PARAM_READABLE))
     {
-      g_warning ("%s: The starget object of type %s has no writable property called '%s'",
+      g_warning ("%s: The target object of type %s has no readable property called '%s'",
                  G_STRLOC,
                  G_OBJECT_TYPE_NAME (target),
                  target_property);
@@ -961,9 +960,9 @@ g_object_bind_property_full (gpointer               source,
 
 /**
  * g_object_bind_property:
- * @source: the source #GObject
+ * @source: (type GObject.Object): the source #GObject
  * @source_property: the property on @source to bind
- * @target: the target #GObject
+ * @target: (type GObject.Object): the target #GObject
  * @target_property: the property on @target to bind
  * @flags: flags to pass to #GBinding
  *
@@ -990,9 +989,9 @@ g_object_bind_property_full (gpointer               source,
  *
  * A #GObject can have multiple bindings.
  *
- * Return value: (transfer none): the #GBinding instance representing the
- *   binding between the two #GObject instances. The binding is released
- *   whenever the #GBinding reference count reaches zero.
+ * Returns: (transfer none): the #GBinding instance representing the
+ *     binding between the two #GObject instances. The binding is released
+ *     whenever the #GBinding reference count reaches zero.
  *
  * Since: 2.26
  */
@@ -1026,8 +1025,8 @@ bind_with_closures_transform_to (GBinding     *binding,
                                  gpointer      data)
 {
   TransformData *t_data = data;
-  GValue params[3] = { { 0, }, { 0, }, { 0, } };
-  GValue retval = { 0, };
+  GValue params[3] = { G_VALUE_INIT, G_VALUE_INIT, G_VALUE_INIT };
+  GValue retval = G_VALUE_INIT;
   gboolean res;
 
   g_value_init (&params[0], G_TYPE_BINDING);
@@ -1069,8 +1068,8 @@ bind_with_closures_transform_from (GBinding     *binding,
                                    gpointer      data)
 {
   TransformData *t_data = data;
-  GValue params[3] = { { 0, }, { 0, }, { 0, } };
-  GValue retval = { 0, };
+  GValue params[3] = { G_VALUE_INIT, G_VALUE_INIT, G_VALUE_INIT };
+  GValue retval = G_VALUE_INIT;
   gboolean res;
 
   g_value_init (&params[0], G_TYPE_BINDING);
@@ -1120,30 +1119,28 @@ bind_with_closures_free_func (gpointer data)
 }
 
 /**
- * g_object_bind_property_with_closures:
- * @source: the source #GObject
+ * g_object_bind_property_with_closures: (rename-to g_object_bind_property_full)
+ * @source: (type GObject.Object): the source #GObject
  * @source_property: the property on @source to bind
- * @target: the target #GObject
+ * @target: (type GObject.Object): the target #GObject
  * @target_property: the property on @target to bind
  * @flags: flags to pass to #GBinding
  * @transform_to: a #GClosure wrapping the transformation function
- *   from the @source to the @target, or %NULL to use the default
+ *     from the @source to the @target, or %NULL to use the default
  * @transform_from: a #GClosure wrapping the transformation function
- *   from the @target to the @source, or %NULL to use the default
+ *     from the @target to the @source, or %NULL to use the default
  *
  * Creates a binding between @source_property on @source and @target_property
  * on @target, allowing you to set the transformation functions to be used by
  * the binding.
  *
  * This function is the language bindings friendly version of
- * g_object_bind_property_full(), using #GClosure<!-- -->s instead of
+ * g_object_bind_property_full(), using #GClosures instead of
  * function pointers.
  *
- * Rename to: g_object_bind_property_full
- *
- * Return value: (transfer none): the #GBinding instance representing the
- *   binding between the two #GObject instances. The binding is released
- *   whenever the #GBinding reference count reaches zero.
+ * Returns: (transfer none): the #GBinding instance representing the
+ *     binding between the two #GObject instances. The binding is released
+ *     whenever the #GBinding reference count reaches zero.
  *
  * Since: 2.26
  */
