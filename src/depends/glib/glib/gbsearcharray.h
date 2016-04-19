@@ -30,7 +30,7 @@ G_BEGIN_DECLS   /* c++ guards */
  * implementation needs to be self-contained within this file.
  */
 
-/* convenience macro to avoid signed overflow for value comparisions */
+/* convenience macro to avoid signed overflow for value comparisons */
 #define G_BSEARCH_ARRAY_CMP(v1,v2) ((v1) > (v2) ? +1 : (v1) == (v2) ? 0 : -1)
 
 
@@ -215,7 +215,7 @@ g_bsearch_array_grow (GBSearchArray        *barray,
   else
     barray = (GBSearchArray *) g_realloc (barray, sizeof (GBSearchArray) + new_size);
   node = G_BSEARCH_ARRAY_NODES (barray) + index_ * bconfig->sizeof_node;
-  g_memmove (node + bconfig->sizeof_node, node, (barray->n_nodes - index_) * bconfig->sizeof_node);
+  memmove (node + bconfig->sizeof_node, node, (barray->n_nodes - index_) * bconfig->sizeof_node);
   barray->n_nodes += 1;
   return barray;
 }
@@ -271,7 +271,7 @@ g_bsearch_array_remove (GBSearchArray        *barray,
 
   barray->n_nodes -= 1;
   node = G_BSEARCH_ARRAY_NODES (barray) + index_ * bconfig->sizeof_node;
-  g_memmove (node, node + bconfig->sizeof_node, (barray->n_nodes - index_) * bconfig->sizeof_node);
+  memmove (node, node + bconfig->sizeof_node, (barray->n_nodes - index_) * bconfig->sizeof_node);
   if (G_UNLIKELY (bconfig->flags & G_BSEARCH_ARRAY_AUTO_SHRINK))
     {
       guint new_size = barray->n_nodes * bconfig->sizeof_node;

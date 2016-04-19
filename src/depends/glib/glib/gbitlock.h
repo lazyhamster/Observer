@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Ryan Lortie <desrt@desrt.ca>
  */
@@ -25,18 +23,53 @@
 
 #include <glib/gtypes.h>
 
-#if defined(G_DISABLE_SINGLE_INCLUDES) && !defined (__GLIB_H_INSIDE__) && !defined (GLIB_COMPILATION)
+#if !defined (__GLIB_H_INSIDE__) && !defined (GLIB_COMPILATION)
 #error "Only <glib.h> can be included directly."
 #endif
 
 G_BEGIN_DECLS
 
+GLIB_AVAILABLE_IN_ALL
 void      g_bit_lock                      (volatile gint *address,
                                            gint           lock_bit);
+GLIB_AVAILABLE_IN_ALL
 gboolean  g_bit_trylock                   (volatile gint *address,
                                            gint           lock_bit);
+GLIB_AVAILABLE_IN_ALL
 void      g_bit_unlock                    (volatile gint *address,
                                            gint           lock_bit);
+
+GLIB_AVAILABLE_IN_ALL
+void      g_pointer_bit_lock              (volatile void *address,
+                                           gint           lock_bit);
+GLIB_AVAILABLE_IN_ALL
+gboolean  g_pointer_bit_trylock           (volatile void *address,
+                                           gint           lock_bit);
+GLIB_AVAILABLE_IN_ALL
+void      g_pointer_bit_unlock            (volatile void *address,
+                                           gint           lock_bit);
+
+#ifdef __GNUC__
+
+#define g_pointer_bit_lock(address, lock_bit) \
+  (G_GNUC_EXTENSION ({                                                       \
+    G_STATIC_ASSERT (sizeof *(address) == sizeof (gpointer));                \
+    g_pointer_bit_lock ((address), (lock_bit));                              \
+  }))
+
+#define g_pointer_bit_trylock(address, lock_bit) \
+  (G_GNUC_EXTENSION ({                                                       \
+    G_STATIC_ASSERT (sizeof *(address) == sizeof (gpointer));                \
+    g_pointer_bit_trylock ((address), (lock_bit));                           \
+  }))
+
+#define g_pointer_bit_unlock(address, lock_bit) \
+  (G_GNUC_EXTENSION ({                                                       \
+    G_STATIC_ASSERT (sizeof *(address) == sizeof (gpointer));                \
+    g_pointer_bit_unlock ((address), (lock_bit));                            \
+  }))
+
+#endif
 
 G_END_DECLS
 

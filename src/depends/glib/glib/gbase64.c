@@ -14,9 +14,7 @@
  * Library General Public License for more details.
  *
  * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * This is based on code in camel, written by:
  *    Michael Zucchi <notzed@ximian.com>
@@ -39,9 +37,11 @@
  *
  * Base64 is an encoding that allows a sequence of arbitrary bytes to be
  * encoded as a sequence of printable ASCII characters. For the definition
- * of Base64, see <ulink url="http://www.ietf.org/rfc/rfc1421.txt">RFC
- * 1421</ulink> or <ulink url="http://www.ietf.org/rfc/rfc2045.txt">RFC
- * 2045</ulink>. Base64 is most commonly used as a MIME transfer encoding
+ * of Base64, see 
+ * [RFC 1421](http://www.ietf.org/rfc/rfc1421.txt)
+ * or
+ * [RFC 2045](http://www.ietf.org/rfc/rfc2045.txt).
+ * Base64 is most commonly used as a MIME transfer encoding
  * for email.
  *
  * GLib supports incremental encoding using g_base64_encode_step() and
@@ -58,12 +58,12 @@ static const char base64_alphabet[] =
 
 /**
  * g_base64_encode_step:
- * @in: the binary data to encode
+ * @in: (array length=len) (element-type guint8): the binary data to encode
  * @len: the length of @in
  * @break_lines: whether to break long lines
- * @out: pointer to destination buffer
- * @state: Saved state between steps, initialize to 0
- * @save: Saved state between steps, initialize to 0
+ * @out: (out) (array) (element-type guint8): pointer to destination buffer
+ * @state: (inout): Saved state between steps, initialize to 0
+ * @save: (inout): Saved state between steps, initialize to 0
  *
  * Incrementally encode a sequence of binary data into its Base-64 stringified
  * representation. By calling this function multiple times you can convert
@@ -81,8 +81,11 @@ static const char base64_alphabet[] =
  * @break_lines is typically used when putting base64-encoded data in emails.
  * It breaks the lines at 72 columns instead of putting all of the text on
  * the same line. This avoids problems with long lines in the email system.
+ * Note however that it breaks the lines with `LF` characters, not
+ * `CR LF` sequences, so the result cannot be passed directly to SMTP
+ * or certain other protocols.
  *
- * Return value: The number of bytes of output that was written
+ * Returns: The number of bytes of output that was written
  *
  * Since: 2.12
  */
@@ -179,9 +182,9 @@ g_base64_encode_step (const guchar *in,
 /**
  * g_base64_encode_close:
  * @break_lines: whether to break long lines
- * @out: pointer to destination buffer
- * @state: Saved state from g_base64_encode_step()
- * @save: Saved state from g_base64_encode_step()
+ * @out: (out) (array) (element-type guint8): pointer to destination buffer
+ * @state: (inout): Saved state from g_base64_encode_step()
+ * @save: (inout): Saved state from g_base64_encode_step()
  *
  * Flush the status from a sequence of calls to g_base64_encode_step().
  *
@@ -189,7 +192,7 @@ g_base64_encode_step (const guchar *in,
  * be written to it. It will need up to 4 bytes, or up to 5 bytes if
  * line-breaking is enabled.
  *
- * Return value: The number of bytes of output that was written
+ * Returns: The number of bytes of output that was written
  *
  * Since: 2.12
  */
@@ -235,14 +238,14 @@ g_base64_encode_close (gboolean  break_lines,
 
 /**
  * g_base64_encode:
- * @data: the binary data to encode
+ * @data: (array length=len) (element-type guint8): the binary data to encode
  * @len: the length of @data
  *
  * Encode a sequence of binary data into its Base-64 stringified
  * representation.
  *
- * Return value: a newly allocated, zero-terminated Base-64 encoded
- *               string representing @data. The returned string must
+ * Returns: (transfer full): a newly allocated, zero-terminated Base-64
+ *               encoded string representing @data. The returned string must
  *               be freed with g_free().
  *
  * Since: 2.12
@@ -293,11 +296,11 @@ static const unsigned char mime_base64_rank[256] = {
 
 /**
  * g_base64_decode_step:
- * @in: binary input data
+ * @in: (array length=len) (element-type guint8): binary input data
  * @len: max length of @in data to decode
- * @out: output buffer
- * @state: Saved state between steps, initialize to 0
- * @save: Saved state between steps, initialize to 0
+ * @out: (out) (array) (element-type guint8): output buffer
+ * @state: (inout): Saved state between steps, initialize to 0
+ * @save: (inout): Saved state between steps, initialize to 0
  *
  * Incrementally decode a sequence of binary data from its Base-64 stringified
  * representation. By calling this function multiple times you can convert
@@ -308,7 +311,7 @@ static const unsigned char mime_base64_rank[256] = {
  * at least: (@len / 4) * 3 + 3 bytes (+ 3 may be needed in case of non-zero
  * state).
  *
- * Return value: The number of bytes of output that was written
+ * Returns: The number of bytes of output that was written
  *
  * Since: 2.12
  **/
@@ -341,8 +344,18 @@ g_base64_decode_step (const gchar  *in,
   /* convert 4 base64 bytes to 3 normal bytes */
   v=*save;
   i=*state;
-  inptr = (const guchar *)in;
+
   last[0] = last[1] = 0;
+
+  /* we use the sign in the state to determine if we got a padding character
+     in the previous sequence */
+  if (i < 0)
+    {
+      i = -i;
+      last[0] = '=';
+    }
+
+  inptr = (const guchar *)in;
   while (inptr < inend)
     {
       c = *inptr++;
@@ -366,7 +379,7 @@ g_base64_decode_step (const gchar  *in,
     }
 
   *save = v;
-  *state = i;
+  *state = last[0] == '=' ? -i : i;
 
   return outptr - out;
 }
@@ -374,11 +387,14 @@ g_base64_decode_step (const gchar  *in,
 /**
  * g_base64_decode:
  * @text: zero-terminated string with base64 text to decode
- * @out_len: The length of the decoded data is written here
+ * @out_len: (out): The length of the decoded data is written here
  *
- * Decode a sequence of Base-64 encoded text into binary data
+ * Decode a sequence of Base-64 encoded text into binary data.  Note
+ * that the returned binary data is not necessarily zero-terminated,
+ * so it should not be used as a character string.
  *
- * Return value: a newly allocated buffer containing the binary data
+ * Returns: (transfer full) (array length=out_len) (element-type guint8):
+ *               newly allocated buffer containing the binary data
  *               that @text represents. The returned buffer must
  *               be freed with g_free().
  *
@@ -399,7 +415,7 @@ g_base64_decode (const gchar *text,
   input_length = strlen (text);
 
   /* We can use a smaller limit here, since we know the saved state is 0,
-     +1 used to avoid calling g_malloc0(0), and hence retruning NULL */
+     +1 used to avoid calling g_malloc0(0), and hence returning NULL */
   ret = g_malloc0 ((input_length / 4) * 3 + 1);
 
   *out_len = g_base64_decode_step (text, input_length, ret, &state, &save);
@@ -409,13 +425,14 @@ g_base64_decode (const gchar *text,
 
 /**
  * g_base64_decode_inplace:
- * @text: zero-terminated string with base64 text to decode
- * @out_len: The length of the decoded data is written here
+ * @text: (inout) (array length=out_len) (element-type guint8): zero-terminated
+ *        string with base64 text to decode
+ * @out_len: (inout): The length of the decoded data is written here
  *
  * Decode a sequence of Base-64 encoded text into binary data
  * by overwriting the input data.
  *
- * Return value: The binary data that @text responds. This pointer
+ * Returns: (transfer none): The binary data that @text responds. This pointer
  *               is the same as the input @text.
  *
  * Since: 2.20

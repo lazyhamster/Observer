@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -31,14 +29,14 @@
 #include "config.h"
 
 #include "gslist.h"
+
 #include "gtestutils.h"
+#include "gslice.h"
 
 /**
  * SECTION:linked_lists_single
  * @title: Singly-Linked Lists
- * @short_description: linked lists containing integer values or
- *                     pointers to data, limited to iterating over the
- *                     list in one direction
+ * @short_description: linked lists that can be iterated in one direction
  *
  * The #GSList structure and its associated functions provide a
  * standard singly-linked list data structure.
@@ -46,17 +44,15 @@
  * Each element in the list contains a piece of data, together with a
  * pointer which links to the next element in the list. Using this
  * pointer it is possible to move through the list in one direction
- * only (unlike the <link
- * linkend="glib-Doubly-Linked-lists">Doubly-Linked Lists</link> which
- * allow movement in both directions).
+ * only (unlike the [double-linked lists][glib-Doubly-Linked-Lists],
+ * which allow movement in both directions).
  *
  * The data contained in each element can be either integer values, by
- * using one of the <link linkend="glib-Type-Conversion-Macros">Type
- * Conversion Macros</link>, or simply pointers to any type of data.
+ * using one of the [Type Conversion Macros][glib-Type-Conversion-Macros],
+ * or simply pointers to any type of data.
  *
- * List elements are allocated from the <link
- * linkend="glib-Memory-Slices">slice allocator</link>, which is more
- * efficient than allocating elements individually.
+ * List elements are allocated from the [slice allocator][glib-Memory-Slices],
+ * which is more efficient than allocating elements individually.
  *
  * Note that most of the #GSList functions expect to be passed a
  * pointer to the first element in the list. The functions which insert
@@ -86,9 +82,8 @@
 /**
  * GSList:
  * @data: holds the element's data, which can be a pointer to any kind
- *        of data, or any integer value using the <link
- *        linkend="glib-Type-Conversion-Macros">Type Conversion
- *        Macros</link>.
+ *        of data, or any integer value using the
+ *        [Type Conversion Macros][glib-Type-Conversion-Macros]
  * @next: contains the link to the next element in the list.
  *
  * The #GSList struct is used for each element in the singly-linked
@@ -98,42 +93,11 @@
 /**
  * g_slist_next:
  * @slist: an element in a #GSList.
- * @Returns: the next element, or %NULL if there are no more elements.
  *
  * A convenience macro to get the next element in a #GSList.
+ *
+ * Returns: the next element, or %NULL if there are no more elements.
  **/
-
-
-/**
- * g_slist_push_allocator:
- * @dummy: the #GAllocator to use when allocating #GSList elements.
- *
- * Sets the allocator to use to allocate #GSList elements. Use
- * g_slist_pop_allocator() to restore the previous allocator.
- *
- * Note that this function is not available if GLib has been compiled
- * with <option>--disable-mem-pools</option>
- *
- * Deprecated: 2.10: It does nothing, since #GSList has been converted
- *                   to the <link linkend="glib-Memory-Slices">slice
- *                   allocator</link>
- **/
-void g_slist_push_allocator (gpointer dummy) { /* present for binary compat only */ }
-
-/**
- * g_slist_pop_allocator:
- *
- * Restores the previous #GAllocator, used when allocating #GSList
- * elements.
- *
- * Note that this function is not available if GLib has been compiled
- * with <option>--disable-mem-pools</option>
- *
- * Deprecated: 2.10: It does nothing, since #GSList has been converted
- *                   to the <link linkend="glib-Memory-Slices">slice
- *                   allocator</link>
- **/
-void g_slist_pop_allocator  (void)           { /* present for binary compat only */ }
 
 #define _g_slist_alloc0()       g_slice_new0 (GSList)
 #define _g_slist_alloc()        g_slice_new (GSList)
@@ -141,11 +105,12 @@ void g_slist_pop_allocator  (void)           { /* present for binary compat only
 
 /**
  * g_slist_alloc:
- * @Returns: a pointer to the newly-allocated #GSList element.
  *
  * Allocates space for one #GSList element. It is called by the
  * g_slist_append(), g_slist_prepend(), g_slist_insert() and
  * g_slist_insert_sorted() functions and so is rarely used on its own.
+ *
+ * Returns: a pointer to the newly-allocated #GSList element.
  **/
 GSList*
 g_slist_alloc (void)
@@ -160,11 +125,9 @@ g_slist_alloc (void)
  * Frees all of the memory used by a #GSList.
  * The freed elements are returned to the slice allocator.
  *
- * <note><para>
  * If list elements contain dynamically-allocated memory,
  * you should either use g_slist_free_full() or free them manually
  * first.
- * </para></note>
  */
 void
 g_slist_free (GSList *list)
@@ -217,27 +180,23 @@ g_slist_free_full (GSList         *list,
  *
  * Adds a new element on to the end of the list.
  *
- * <note><para>
  * The return value is the new start of the list, which may
  * have changed, so make sure you store the new value.
- * </para></note>
  *
- * <note><para>
  * Note that g_slist_append() has to traverse the entire list
  * to find the end, which is inefficient when adding multiple
  * elements. A common idiom to avoid the inefficiency is to prepend
  * the elements and reverse the list when all elements have been added.
- * </para></note>
  *
- * |[
- * /&ast; Notice that these are initialized to the empty list. &ast;/
+ * |[<!-- language="C" --> 
+ * // Notice that these are initialized to the empty list.
  * GSList *list = NULL, *number_list = NULL;
  *
- * /&ast; This is a list of strings. &ast;/
+ * // This is a list of strings.
  * list = g_slist_append (list, "first");
  * list = g_slist_append (list, "second");
  *
- * /&ast; This is a list of integers. &ast;/
+ * // This is a list of integers.
  * number_list = g_slist_append (number_list, GINT_TO_POINTER (27));
  * number_list = g_slist_append (number_list, GINT_TO_POINTER (14));
  * ]|
@@ -274,13 +233,11 @@ g_slist_append (GSList   *list,
  *
  * Adds a new element on to the start of the list.
  *
- * <note><para>
  * The return value is the new start of the list, which
  * may have changed, so make sure you store the new value.
- * </para></note>
  *
- * |[
- * /&ast; Notice that it is initialized to the empty list. &ast;/
+ * |[<!-- language="C" --> 
+ * // Notice that it is initialized to the empty list.
  * GSList *list = NULL;
  * list = g_slist_prepend (list, "last");
  * list = g_slist_prepend (list, "first");
@@ -346,16 +303,8 @@ g_slist_insert (GSList   *list,
       tmp_list = tmp_list->next;
     }
 
-  if (prev_list)
-    {
-      new_list->next = prev_list->next;
-      prev_list->next = new_list;
-    }
-  else
-    {
-      new_list->next = list;
-      list = new_list;
-    }
+  new_list->next = prev_list->next;
+  prev_list->next = new_list;
 
   return list;
 }
@@ -555,6 +504,12 @@ _g_slist_remove_link (GSList *list,
  * link is set to %NULL, so that it becomes a
  * self-contained list with one element.
  *
+ * Removing arbitrary nodes from a singly-linked list
+ * requires time that is proportional to the length of the list
+ * (ie. O(n)). If you find yourself using g_slist_remove_link()
+ * frequently, you should consider a different data structure,
+ * such as the doubly-linked #GList.
+ *
  * Returns: the new start of the #GSList, without the element
  */
 GSList*
@@ -572,6 +527,12 @@ g_slist_remove_link (GSList *list,
  * Removes the node link_ from the list and frees it.
  * Compare this to g_slist_remove_link() which removes the node
  * without freeing it.
+ *
+ * Removing arbitrary nodes from a singly-linked list requires time
+ * that is proportional to the length of the list (ie. O(n)). If you
+ * find yourself using g_slist_delete_link() frequently, you should
+ * consider a different data structure, such as the doubly-linked
+ * #GList.
  *
  * Returns: the new head of @list
  */
@@ -591,16 +552,50 @@ g_slist_delete_link (GSList *list,
  *
  * Copies a #GSList.
  *
- * <note><para>
  * Note that this is a "shallow" copy. If the list elements
  * consist of pointers to data, the pointers are copied but
- * the actual data isn't.
- * </para></note>
+ * the actual data isn't. See g_slist_copy_deep() if you need
+ * to copy the data as well.
  *
  * Returns: a copy of @list
  */
 GSList*
 g_slist_copy (GSList *list)
+{
+  return g_slist_copy_deep (list, NULL, NULL);
+}
+
+/**
+ * g_slist_copy_deep:
+ * @list: a #GSList
+ * @func: a copy function used to copy every element in the list
+ * @user_data: user data passed to the copy function @func, or #NULL
+ *
+ * Makes a full (deep) copy of a #GSList.
+ *
+ * In contrast with g_slist_copy(), this function uses @func to make a copy of
+ * each list element, in addition to copying the list container itself.
+ *
+ * @func, as a #GCopyFunc, takes two arguments, the data to be copied and a user
+ * pointer. It's safe to pass #NULL as user_data, if the copy function takes only
+ * one argument.
+ *
+ * For instance, if @list holds a list of GObjects, you can do:
+ * |[<!-- language="C" --> 
+ * another_list = g_slist_copy_deep (list, (GCopyFunc) g_object_ref, NULL);
+ * ]|
+ *
+ * And, to entirely free the new list, you could do:
+ * |[<!-- language="C" --> 
+ * g_slist_free_full (another_list, g_object_unref);
+ * ]|
+ *
+ * Returns: a full copy of @list, use #g_slist_free_full to free it
+ *
+ * Since: 2.34
+ */
+GSList*
+g_slist_copy_deep (GSList *list, GCopyFunc func, gpointer user_data)
 {
   GSList *new_list = NULL;
 
@@ -609,14 +604,20 @@ g_slist_copy (GSList *list)
       GSList *last;
 
       new_list = _g_slist_alloc ();
-      new_list->data = list->data;
+      if (func)
+        new_list->data = func (list->data, user_data);
+      else
+        new_list->data = list->data;
       last = new_list;
       list = list->next;
       while (list)
         {
           last->next = _g_slist_alloc ();
           last = last->next;
-          last->data = list->data;
+          if (func)
+            last->data = func (list->data, user_data);
+          else
+            last->data = list->data;
           list = list->next;
         }
       last->next = NULL;
@@ -814,9 +815,7 @@ g_slist_index (GSList        *list,
  *
  * Gets the last element in a #GSList.
  *
- * <note><para>
  * This function iterates over the whole list.
- * </para></note>
  *
  * Returns: the last element in the #GSList,
  *     or %NULL if the #GSList has no elements
@@ -839,10 +838,9 @@ g_slist_last (GSList *list)
  *
  * Gets the number of elements in a #GSList.
  *
- * <note><para>
  * This function iterates over the whole list to
- * count its elements.
- * </para></note>
+ * count its elements. To check whether the list is non-empty, it is faster to
+ * check @list against %NULL.
  *
  * Returns: the number of elements in the #GSList
  */

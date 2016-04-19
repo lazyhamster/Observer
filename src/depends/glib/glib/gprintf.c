@@ -12,16 +12,10 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
-
-#ifndef _WIN32
-#define _GNU_SOURCE		/* For vasprintf */
-#endif
 
 #include <stdarg.h>
 #include <stdlib.h>
@@ -34,11 +28,15 @@
 /**
  * g_printf:
  * @format: a standard printf() format string, but notice 
- *          <link linkend="string-precision">string precision pitfalls</link>.
- * @Varargs: the arguments to insert in the output.
+ *          [string precision pitfalls][string-precision]
+ * @...: the arguments to insert in the output.
  *
  * An implementation of the standard printf() function which supports 
  * positional parameters, as specified in the Single Unix Specification.
+ *
+ * As with the standard printf(), this does not automatically append a trailing
+ * new-line character to the message, so typically @format should end with its
+ * own new-line character.
  *
  * Returns: the number of bytes printed.
  *
@@ -60,10 +58,10 @@ g_printf (gchar const *format,
 
 /**
  * g_fprintf:
- * @file: the stream to write to.
+ * @file: (not nullable): the stream to write to.
  * @format: a standard printf() format string, but notice 
- *          <link linkend="string-precision">string precision pitfalls</link>.
- * @Varargs: the arguments to insert in the output.
+ *          [string precision pitfalls][string-precision]
+ * @...: the arguments to insert in the output.
  *
  * An implementation of the standard fprintf() function which supports 
  * positional parameters, as specified in the Single Unix Specification.
@@ -93,8 +91,8 @@ g_fprintf (FILE        *file,
  *          is up to the caller to ensure that the allocated buffer is large
  *          enough to hold the formatted result
  * @format: a standard printf() format string, but notice
- *          <link linkend="string-precision">string precision pitfalls</link>.
- * @Varargs: the arguments to insert in the output.
+ *          [string precision pitfalls][string-precision]
+ * @...: the arguments to insert in the output.
  *
  * An implementation of the standard sprintf() function which supports
  * positional parameters, as specified in the Single Unix Specification.
@@ -129,8 +127,8 @@ g_sprintf (gchar       *string,
  * @n: the maximum number of bytes to produce (including the
  *     terminating nul character).
  * @format: a standard printf() format string, but notice
- *          <link linkend="string-precision">string precision pitfalls</link>.
- * @Varargs: the arguments to insert in the output.
+ *          [string precision pitfalls][string-precision]
+ * @...: the arguments to insert in the output.
  *
  * A safer form of the standard sprintf() function. The output is guaranteed
  * to not exceed @n characters (including the terminating nul character), so
@@ -172,7 +170,7 @@ g_snprintf (gchar	*string,
 /**
  * g_vprintf:
  * @format: a standard printf() format string, but notice 
- *          <link linkend="string-precision">string precision pitfalls</link>.
+ *          [string precision pitfalls][string-precision]
  * @args: the list of arguments to insert in the output.
  *
  * An implementation of the standard vprintf() function which supports 
@@ -193,9 +191,9 @@ g_vprintf (gchar const *format,
 
 /**
  * g_vfprintf:
- * @file: the stream to write to.
+ * @file: (not nullable): the stream to write to.
  * @format: a standard printf() format string, but notice 
- *          <link linkend="string-precision">string precision pitfalls</link>.
+ *          [string precision pitfalls][string-precision]
  * @args: the list of arguments to insert in the output.
  *
  * An implementation of the standard fprintf() function which supports 
@@ -219,7 +217,7 @@ g_vfprintf (FILE        *file,
  * g_vsprintf:
  * @string: the buffer to hold the output.
  * @format: a standard printf() format string, but notice 
- *          <link linkend="string-precision">string precision pitfalls</link>.
+ *          [string precision pitfalls][string-precision]
  * @args: the list of arguments to insert in the output.
  *
  * An implementation of the standard vsprintf() function which supports 
@@ -246,7 +244,7 @@ g_vsprintf (gchar	 *string,
  * @n: the maximum number of bytes to produce (including the 
  *     terminating nul character).
  * @format: a standard printf() format string, but notice 
- *          <link linkend="string-precision">string precision pitfalls</link>.
+ *          string precision pitfalls][string-precision]
  * @args: the list of arguments to insert in the output.
  *
  * A safer form of the standard vsprintf() function. The output is guaranteed
@@ -286,7 +284,7 @@ g_vsnprintf (gchar	 *string,
  * g_vasprintf:
  * @string: the return location for the newly-allocated string.
  * @format: a standard printf() format string, but notice
- *          <link linkend="string-precision">string precision pitfalls</link>.
+ *          [string precision pitfalls][string-precision]
  * @args: the list of arguments to insert in the output.
  *
  * An implementation of the GNU vasprintf() function which supports 
@@ -318,13 +316,6 @@ g_vasprintf (gchar      **string,
   len = vasprintf (string, format, args);
   if (len < 0)
     *string = NULL;
-  else if (!g_mem_is_system_malloc ()) 
-    {
-      /* vasprintf returns malloc-allocated memory */
-      gchar *string1 = g_strndup (*string, len);
-      free (*string);
-      *string = string1;
-    }
 
 #else
 

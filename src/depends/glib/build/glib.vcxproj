@@ -265,7 +265,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -276,8 +276,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -291,7 +292,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -302,8 +303,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -315,7 +317,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -325,8 +327,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -343,7 +346,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -353,8 +356,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -367,7 +371,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -378,8 +382,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -390,7 +395,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -401,8 +406,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -416,7 +422,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -427,8 +433,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -442,7 +449,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;G_ENABLE_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -453,8 +460,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -464,7 +472,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -474,8 +482,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -487,7 +496,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">
     <ClCompile>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -497,8 +506,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -513,7 +523,7 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -522,8 +532,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -538,7 +549,7 @@
     </Midl>
     <ClCompile>
       <AdditionalIncludeDirectories>..;..\glib;..\..\iconv;..\libintl;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;HAVE_CONFIG_H;G_DISABLE_DEPRECATED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;GLIB_COMPILATION;DLL_EXPORT;G_LOG_DOMAIN="Glib";PCRE_STATIC;LINK_SIZE=2;MAX_NAME_SIZE=32;MAX_NAME_COUNT=10000;NEWLINE=-1;POSIX_MALLOC_THRESHOLD=10;MATCH_LIMIT=10000000;MATCH_LIMIT_RECURSION=10000000;SUPPORT_UCP;SUPPORT_UTF;SUPPORT_UTF8;HAVE_CONFIG_H;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
@@ -547,8 +558,9 @@
       <ForcedIncludeFiles>msvc_recommended_pragmas.h;%(ForcedIncludeFiles)</ForcedIncludeFiles>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>WS2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <ModuleDefinitionFile>..\glib\glib.def</ModuleDefinitionFile>
+      <AdditionalDependencies>WS2_32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -558,6 +570,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\glib\deprecated\gallocator.c" />
+    <ClCompile Include="..\glib\deprecated\gcache.c" />
+    <ClCompile Include="..\glib\deprecated\gcompletion.c" />
+    <ClCompile Include="..\glib\deprecated\grel.c" />
+    <ClCompile Include="..\glib\deprecated\gthread-deprecated.c" />
     <ClCompile Include="..\glib\garray.c" />
     <ClCompile Include="..\glib\gasyncqueue.c" />
     <ClCompile Include="..\glib\gatomic.c" />
@@ -565,23 +582,27 @@
     <ClCompile Include="..\glib\gbase64.c" />
     <ClCompile Include="..\glib\gbitlock.c" />
     <ClCompile Include="..\glib\gbookmarkfile.c" />
-    <ClCompile Include="..\glib\gbuffer.c" />
-    <ClCompile Include="..\glib\gcache.c" />
+    <ClCompile Include="..\glib\gbytes.c" />
+    <ClCompile Include="..\glib\gcharset.c" />
     <ClCompile Include="..\glib\gchecksum.c" />
-    <ClCompile Include="..\glib\gcompletion.c" />
     <ClCompile Include="..\glib\gconvert.c" />
     <ClCompile Include="..\glib\gdataset.c" />
     <ClCompile Include="..\glib\gdate.c" />
     <ClCompile Include="..\glib\gdatetime.c" />
     <ClCompile Include="..\glib\gdir.c" />
+    <ClCompile Include="..\glib\genviron.c" />
     <ClCompile Include="..\glib\gerror.c" />
     <ClCompile Include="..\glib\gfileutils.c" />
+    <ClCompile Include="..\glib\ggettext.c" />
     <ClCompile Include="..\glib\ghash.c" />
+    <ClCompile Include="..\glib\ghmac.c" />
     <ClCompile Include="..\glib\ghook.c" />
     <ClCompile Include="..\glib\ghostutils.c" />
     <ClCompile Include="..\glib\giochannel.c" />
     <ClCompile Include="..\glib\giowin32.c" />
     <ClCompile Include="..\glib\gkeyfile.c" />
+    <ClCompile Include="..\glib\glib-init.c" />
+    <ClCompile Include="..\glib\glib-private.c" />
     <ClCompile Include="..\glib\glist.c" />
     <ClCompile Include="..\glib\gmain.c" />
     <ClCompile Include="..\glib\gmappedfile.c" />
@@ -600,10 +621,10 @@
     <ClCompile Include="..\glib\gprimes.c" />
     <ClCompile Include="..\glib\gprintf.c" />
     <ClCompile Include="..\glib\gqsort.c" />
+    <ClCompile Include="..\glib\gquark.c" />
     <ClCompile Include="..\glib\gqueue.c" />
     <ClCompile Include="..\glib\grand.c" />
     <ClCompile Include="..\glib\gregex.c" />
-    <ClCompile Include="..\glib\grel.c" />
     <ClCompile Include="..\glib\gscanner.c" />
     <ClCompile Include="..\glib\gsequence.c" />
     <ClCompile Include="..\glib\gshell.c" />
@@ -613,11 +634,15 @@
     <ClCompile Include="..\glib\gstdio.c" />
     <ClCompile Include="..\glib\gstrfuncs.c" />
     <ClCompile Include="..\glib\gstring.c" />
+    <ClCompile Include="..\glib\gstringchunk.c" />
     <ClCompile Include="..\glib\gtestutils.c" />
+    <ClCompile Include="..\glib\gthread-win32.c" />
     <ClCompile Include="..\glib\gthread.c" />
     <ClCompile Include="..\glib\gthreadpool.c" />
     <ClCompile Include="..\glib\gtimer.c" />
     <ClCompile Include="..\glib\gtimezone.c" />
+    <ClCompile Include="..\glib\gtranslit.c" />
+    <ClCompile Include="..\glib\gtrashstack.c" />
     <ClCompile Include="..\glib\gtree.c" />
     <ClCompile Include="..\glib\gunibreak.c" />
     <ClCompile Include="..\glib\gunicollate.c" />
@@ -632,6 +657,8 @@
     <ClCompile Include="..\glib\gvariant.c" />
     <ClCompile Include="..\glib\gvarianttype.c" />
     <ClCompile Include="..\glib\gvarianttypeinfo.c" />
+    <ClCompile Include="..\glib\gversion.c" />
+    <ClCompile Include="..\glib\gwakeup.c" />
     <ClCompile Include="..\glib\gwin32.c" />
     <ClCompile Include="..\glib\libcharset\localcharset.c">
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">LIBDIR=/irrelevant/lib;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -647,6 +674,7 @@
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">LIBDIR=/irrelevant/lib;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">LIBDIR=/irrelevant/lib;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <ClCompile Include="..\glib\pcre\pcre_byte_order.c" />
     <ClCompile Include="..\glib\pcre\pcre_chartables.c" />
     <ClCompile Include="..\glib\pcre\pcre_compile.c" />
     <ClCompile Include="..\glib\pcre\pcre_config.c" />
@@ -655,51 +683,67 @@
     <ClCompile Include="..\glib\pcre\pcre_fullinfo.c" />
     <ClCompile Include="..\glib\pcre\pcre_get.c" />
     <ClCompile Include="..\glib\pcre\pcre_globals.c" />
+    <ClCompile Include="..\glib\pcre\pcre_jit_compile.c" />
     <ClCompile Include="..\glib\pcre\pcre_newline.c" />
     <ClCompile Include="..\glib\pcre\pcre_ord2utf8.c" />
+    <ClCompile Include="..\glib\pcre\pcre_string_utils.c" />
     <ClCompile Include="..\glib\pcre\pcre_study.c" />
     <ClCompile Include="..\glib\pcre\pcre_tables.c" />
-    <ClCompile Include="..\glib\pcre\pcre_try_flipped.c" />
-    <ClCompile Include="..\glib\pcre\pcre_ucp_searchfuncs.c" />
+    <ClCompile Include="..\glib\pcre\pcre_valid_utf8.c" />
+    <ClCompile Include="..\glib\pcre\pcre_version.c" />
     <ClCompile Include="..\glib\pcre\pcre_xclass.c" />
     <ClCompile Include="..\libintl\libintl.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\glib\deprecated\gallocator.h" />
+    <ClInclude Include="..\glib\deprecated\gcache.h" />
+    <ClInclude Include="..\glib\deprecated\gcompletion.h" />
+    <ClInclude Include="..\glib\deprecated\gmain.h" />
+    <ClInclude Include="..\glib\deprecated\grel.h" />
+    <ClInclude Include="..\glib\deprecated\gthread.h" />
     <ClInclude Include="..\glib\galloca.h" />
     <ClInclude Include="..\glib\garray.h" />
     <ClInclude Include="..\glib\gasyncqueue.h" />
+    <ClInclude Include="..\glib\gasyncqueueprivate.h" />
     <ClInclude Include="..\glib\gatomic.h" />
     <ClInclude Include="..\glib\gbacktrace.h" />
     <ClInclude Include="..\glib\gbase64.h" />
     <ClInclude Include="..\glib\gbitlock.h" />
     <ClInclude Include="..\glib\gbookmarkfile.h" />
     <ClInclude Include="..\glib\gbsearcharray.h" />
-    <ClInclude Include="..\glib\gbuffer.h" />
-    <ClInclude Include="..\glib\gcache.h" />
+    <ClInclude Include="..\glib\gbytes.h" />
+    <ClInclude Include="..\glib\gcharset.h" />
+    <ClInclude Include="..\glib\gcharsetprivate.h" />
     <ClInclude Include="..\glib\gchecksum.h" />
-    <ClInclude Include="..\glib\gcompletion.h" />
+    <ClInclude Include="..\glib\gconstructor.h" />
     <ClInclude Include="..\glib\gconvert.h" />
     <ClInclude Include="..\glib\gdataset.h" />
     <ClInclude Include="..\glib\gdatasetprivate.h" />
     <ClInclude Include="..\glib\gdate.h" />
     <ClInclude Include="..\glib\gdatetime.h" />
-    <ClInclude Include="..\glib\gdebug.h" />
     <ClInclude Include="..\glib\gdir.h" />
+    <ClInclude Include="..\glib\genviron.h" />
     <ClInclude Include="..\glib\gerror.h" />
     <ClInclude Include="..\glib\gfileutils.h" />
+    <ClInclude Include="..\glib\ggettext.h" />
     <ClInclude Include="..\glib\ghash.h" />
+    <ClInclude Include="..\glib\ghmac.h" />
     <ClInclude Include="..\glib\ghook.h" />
     <ClInclude Include="..\glib\ghostutils.h" />
     <ClInclude Include="..\glib\gi18n-lib.h" />
     <ClInclude Include="..\glib\gi18n.h" />
     <ClInclude Include="..\glib\giochannel.h" />
     <ClInclude Include="..\glib\gkeyfile.h" />
+    <ClInclude Include="..\glib\glib-autocleanups.h" />
+    <ClInclude Include="..\glib\glib-init.h" />
     <ClInclude Include="..\glib\glib-object.h" />
+    <ClInclude Include="..\glib\glib-private.h" />
     <ClInclude Include="..\glib\glib.h" />
     <ClInclude Include="..\glib\glibintl.h" />
     <ClInclude Include="..\glib\glib_trace.h" />
     <ClInclude Include="..\glib\glist.h" />
     <ClInclude Include="..\glib\gmacros.h" />
+    <ClInclude Include="..\glib\gmain-internal.h" />
     <ClInclude Include="..\glib\gmain.h" />
     <ClInclude Include="..\glib\gmappedfile.h" />
     <ClInclude Include="..\glib\gmarkup.h" />
@@ -712,6 +756,8 @@
     <ClInclude Include="..\glib\gnulib\printf-parse.h" />
     <ClInclude Include="..\glib\gnulib\printf.h" />
     <ClInclude Include="..\glib\gnulib\vasnprintf.h" />
+    <ClInclude Include="..\glib\gnulib\verify.h" />
+    <ClInclude Include="..\glib\gnulib\xsize.h" />
     <ClInclude Include="..\glib\goption.h" />
     <ClInclude Include="..\glib\gpattern.h" />
     <ClInclude Include="..\glib\gpoll.h" />
@@ -723,7 +769,6 @@
     <ClInclude Include="..\glib\gqueue.h" />
     <ClInclude Include="..\glib\grand.h" />
     <ClInclude Include="..\glib\gregex.h" />
-    <ClInclude Include="..\glib\grel.h" />
     <ClInclude Include="..\glib\gscanner.h" />
     <ClInclude Include="..\glib\gscripttable.h" />
     <ClInclude Include="..\glib\gsequence.h" />
@@ -734,12 +779,15 @@
     <ClInclude Include="..\glib\gstdio.h" />
     <ClInclude Include="..\glib\gstrfuncs.h" />
     <ClInclude Include="..\glib\gstring.h" />
+    <ClInclude Include="..\glib\gstringchunk.h" />
     <ClInclude Include="..\glib\gtestutils.h" />
     <ClInclude Include="..\glib\gthread.h" />
     <ClInclude Include="..\glib\gthreadpool.h" />
     <ClInclude Include="..\glib\gthreadprivate.h" />
     <ClInclude Include="..\glib\gtimer.h" />
     <ClInclude Include="..\glib\gtimezone.h" />
+    <ClInclude Include="..\glib\gtranslit-data.h" />
+    <ClInclude Include="..\glib\gtrashstack.h" />
     <ClInclude Include="..\glib\gtree.h" />
     <ClInclude Include="..\glib\gtypes.h" />
     <ClInclude Include="..\glib\gunibreak.h" />
@@ -756,6 +804,9 @@
     <ClInclude Include="..\glib\gvariant.h" />
     <ClInclude Include="..\glib\gvarianttype.h" />
     <ClInclude Include="..\glib\gvarianttypeinfo.h" />
+    <ClInclude Include="..\glib\gversion.h" />
+    <ClInclude Include="..\glib\gversionmacros.h" />
+    <ClInclude Include="..\glib\gwakeup.h" />
     <ClInclude Include="..\glib\gwin32.h" />
     <ClInclude Include="..\glib\libcharset\libcharset.h" />
     <ClInclude Include="..\glib\libcharset\localcharset.h" />
@@ -763,9 +814,6 @@
     <ClInclude Include="..\glib\pcre\pcre_internal.h" />
     <ClInclude Include="..\glib\pcre\ucp.h" />
     <ClInclude Include="..\libintl\libintl.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\glib\glib.def" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\glib\glib.rc" />

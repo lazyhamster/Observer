@@ -13,9 +13,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  *
  * Author: Ryan Lortie <desrt@desrt.ca>
  */
@@ -62,11 +60,11 @@ typedef struct _GVariantTypeInfo GVariantTypeInfo;
  *   size, the end point is a constant addition to the start point.
  *
  *   It is clear that the starting point of a given item in the tuple is
- *   determined by the items that preceed it in the tuple.  Logically,
+ *   determined by the items that precede it in the tuple.  Logically,
  *   the start point of a particular item in a given type of tuple can
  *   be determined entirely by the end point of the nearest
  *   variable-sized item that came before it (or from the start of the
- *   container itself in case there is no preceeding variable-sized
+ *   container itself in case there is no preceding variable-sized
  *   item).  In the case of "(isis)" for example, in order to find out
  *   the start point of the last string, one must start at the end point
  *   of the first string, align to 4 (for the integer's alignment) and
@@ -84,7 +82,7 @@ typedef struct _GVariantTypeInfo GVariantTypeInfo;
  *
  * First, among the array of offets contained in the tuple, 'i' is the
  * index of the offset that refers to the end of the variable-sized item
- * preceeding the item of interest.  If no variable-sized items preceed
+ * preceding the item of interest.  If no variable-sized items precede
  * this item, then 'i' will be -1.
  *
  * Let 'prev_end' be the end offset of the previous item (or 0 in the
@@ -125,27 +123,37 @@ typedef struct
 #define G_VARIANT_MEMBER_ENDING_OFFSET  2
 
 /* query */
+GLIB_AVAILABLE_IN_ALL
 const gchar *                   g_variant_type_info_get_type_string     (GVariantTypeInfo   *typeinfo);
 
+GLIB_AVAILABLE_IN_ALL
 void                            g_variant_type_info_query               (GVariantTypeInfo   *typeinfo,
                                                                          guint              *alignment,
                                                                          gsize              *size);
 
 /* array */
+GLIB_AVAILABLE_IN_ALL
 GVariantTypeInfo *              g_variant_type_info_element             (GVariantTypeInfo   *typeinfo);
+GLIB_AVAILABLE_IN_ALL
 void                            g_variant_type_info_query_element       (GVariantTypeInfo   *typeinfo,
                                                                          guint              *alignment,
                                                                          gsize              *size);
 
 /* structure */
+GLIB_AVAILABLE_IN_ALL
 gsize                           g_variant_type_info_n_members           (GVariantTypeInfo   *typeinfo);
+GLIB_AVAILABLE_IN_ALL
 const GVariantMemberInfo *      g_variant_type_info_member_info         (GVariantTypeInfo   *typeinfo,
                                                                          gsize               index);
 
 /* new/ref/unref */
+GLIB_AVAILABLE_IN_ALL
 GVariantTypeInfo *              g_variant_type_info_get                 (const GVariantType *type);
+GLIB_AVAILABLE_IN_ALL
 GVariantTypeInfo *              g_variant_type_info_ref                 (GVariantTypeInfo   *typeinfo);
+GLIB_AVAILABLE_IN_ALL
 void                            g_variant_type_info_unref               (GVariantTypeInfo   *typeinfo);
+GLIB_AVAILABLE_IN_ALL
 void                            g_variant_type_info_assert_no_infos     (void);
 
 #endif /* __G_VARIANT_TYPE_INFO_H__ */

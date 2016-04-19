@@ -5,9 +5,11 @@
 #error "config.h must be included prior to glibintl.h"
 #endif
 
-G_CONST_RETURN gchar *glib_gettext  (const gchar *str) G_GNUC_FORMAT(1);
-G_CONST_RETURN gchar *glib_pgettext (const gchar *msgctxtid,
-                                     gsize        msgidoffset) G_GNUC_FORMAT(1);
+GLIB_AVAILABLE_IN_ALL
+const gchar * glib_gettext  (const gchar *str) G_GNUC_FORMAT(1);
+GLIB_AVAILABLE_IN_ALL
+const gchar * glib_pgettext (const gchar *msgctxtid,
+                             gsize        msgidoffset) G_GNUC_FORMAT(1);
 
 #ifdef ENABLE_NLS
 

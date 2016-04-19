@@ -27,15 +27,18 @@
 #pragma warning(disable:4244)	/* No possible loss of data warnings */
 #pragma warning(disable:4305)   /* No truncation from int to char warnings */
 
-#pragma warning(disable:4146)	/* Unary minus to unsigned type */
-#pragma warning(disable:4018)	/* Signed/unsigned */
-#pragma warning(disable:4116)	/* Unnamed type definition */
-#pragma warning(disable:4090)	/* Different 'const' qualifiers */
+#pragma warning(error:4819) /* The file contains a character that cannot be represented in the current code page */
 
 /* work around Microsoft's premature attempt to deprecate the C-Library */
-#pragma warning(disable:4996)   /* This function or variable may be unsafe. */
+#define _CRT_SECURE_NO_WARNINGS
+#define _CRT_NONSTDC_NO_WARNINGS
 
-#pragma warning(disable:4715)  /* not all control paths return a value */
-#pragma warning(disable:4102)  /* unreferenced label */
+// My additions
+#pragma warning(disable:4018)	/* Signed/unsigned mismatch */
+#pragma warning(disable:4116)	/* Unnamed type definition */
+#pragma warning(disable:4090)	/* Different 'const' qualifiers */
+#pragma warning(disable:4068)	/* Unknown pragma */
+#pragma warning(disable:4715)   /* Not all control paths return a value */
+#pragma warning(disable:4146)	/* Unary minus to unsigned type */
 
-#pragma warning(disable:4267) /* conversion from 'x' to 'y', possible loss of data */
+#pragma warning(disable:4996)   /* Deprecated */

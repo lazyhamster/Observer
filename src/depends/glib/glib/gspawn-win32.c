@@ -45,8 +45,10 @@
 #include "config.h"
 
 #include "glib.h"
+#include "glib-private.h"
 #include "gprintfint.h"
 #include "glibintl.h"
+#include "gthread.h"
 
 #include <string.h>
 #include <stdlib.h>
@@ -60,6 +62,7 @@
 #include <direct.h>
 #include <wchar.h>
 
+#ifndef GSPAWN_HELPER
 #ifdef G_SPAWN_WIN32_DEBUG
   static int debug = 1;
   #define SETUP_DEBUG() /* empty */
@@ -77,6 +80,7 @@
 	  }						\
       }							\
     G_STMT_END
+#endif
 #endif
 
 enum
@@ -205,11 +209,8 @@ protect_argv (gchar  **argv,
   return argc;
 }
 
-GQuark
-g_spawn_error_quark (void)
-{
-  return g_quark_from_static_string ("g-exec-error-quark");
-}
+G_DEFINE_QUARK (g-exec-error-quark, g_spawn_error)
+G_DEFINE_QUARK (g-spawn-exit-error-quark, g_spawn_exit_error)
 
 gboolean
 g_spawn_async_utf8 (const gchar          *working_directory,
@@ -547,7 +548,6 @@ do_spawn_with_pipes (gint                 *exit_status,
   gchar *helper_process;
   CONSOLE_CURSOR_INFO cursor_info;
   wchar_t *whelper, **wargv, **wenvp;
-  extern gchar *_glib_get_dll_directory (void);
   gchar *glib_dll_directory;
 
   if (child_setup && !warned_about_child_setup)
@@ -590,7 +590,7 @@ do_spawn_with_pipes (gint                 *exit_status,
     goto cleanup_and_fail;
   
   new_argv = g_new (char *, argc + 1 + ARG_COUNT);
-  if (GetConsoleCursorInfo (GetStdHandle (STD_OUTPUT_HANDLE), &cursor_info))
+  if (GetConsoleWindow () != NULL)
     helper_process = HELPER_PROCESS "-console.exe";
   else
     helper_process = HELPER_PROCESS ".exe";
@@ -1219,6 +1219,25 @@ void
 g_spawn_close_pid (GPid pid)
 {
     CloseHandle (pid);
+}
+
+gboolean
+g_spawn_check_exit_status (gint      exit_status,
+			   GError  **error)
+{
+  gboolean ret = FALSE;
+
+  if (exit_status != 0)
+    {
+      g_set_error (error, G_SPAWN_EXIT_ERROR, exit_status,
+		   _("Child process exited with code %ld"),
+		   (long) exit_status);
+      goto out;
+    }
+
+  ret = TRUE;
+ out:
+  return ret;
 }
 
 #if !defined (_WIN64)

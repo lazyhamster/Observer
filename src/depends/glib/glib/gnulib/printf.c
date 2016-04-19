@@ -12,9 +12,7 @@
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -90,16 +88,16 @@ int _g_gnulib_vprintf (char const *format, va_list args)
 int _g_gnulib_vfprintf (FILE *file, char const *format, va_list args)
 {
   char *result;
-  size_t length;
+  size_t length, rlength;
 
   result = vasnprintf (NULL, &length, format, args);
   if (result == NULL) 
     return -1;
 
-  fwrite (result, 1, length, file);
+  rlength = fwrite (result, 1, length, file);
   free (result);
   
-  return length;
+  return rlength;
 }
 
 int _g_gnulib_vsprintf (char *string, char const *format, va_list args)

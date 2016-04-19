@@ -8,13 +8,11 @@
  *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	 See the GNU
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU Lesser General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
+ * License along with this library; if not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
@@ -24,12 +22,12 @@
  * GLib at ftp://ftp.gtk.org/pub/gtk/.
  */
 
-#if defined(G_DISABLE_SINGLE_INCLUDES) && !defined (__GLIB_H_INSIDE__) && !defined (GLIB_COMPILATION)
-#error "Only <glib.h> can be included directly."
-#endif
-
 #ifndef __G_COMPLETION_H__
 #define __G_COMPLETION_H__
+
+#if !defined (__GLIB_H_INSIDE__) && !defined (GLIB_COMPILATION)
+#error "Only <glib.h> can be included directly."
+#endif
 
 #include <glib/glist.h>
 
@@ -43,8 +41,8 @@ typedef gchar*          (*GCompletionFunc)      (gpointer);
  */
 
 typedef gint (*GCompletionStrncmpFunc) (const gchar *s1,
-					const gchar *s2,
-					gsize        n);
+                                        const gchar *s2,
+                                        gsize        n);
 
 struct _GCompletion
 {
@@ -56,25 +54,29 @@ struct _GCompletion
   GCompletionStrncmpFunc strncmp_func;
 };
 
-#ifndef G_DISABLE_DEPRECATED
-
+GLIB_DEPRECATED_IN_2_26
 GCompletion* g_completion_new           (GCompletionFunc func);
+GLIB_DEPRECATED_IN_2_26
 void         g_completion_add_items     (GCompletion*    cmp,
                                          GList*          items);
+GLIB_DEPRECATED_IN_2_26
 void         g_completion_remove_items  (GCompletion*    cmp,
                                          GList*          items);
+GLIB_DEPRECATED_IN_2_26
 void         g_completion_clear_items   (GCompletion*    cmp);
+GLIB_DEPRECATED_IN_2_26
 GList*       g_completion_complete      (GCompletion*    cmp,
                                          const gchar*    prefix,
                                          gchar**         new_prefix);
+GLIB_DEPRECATED_IN_2_26
 GList*       g_completion_complete_utf8 (GCompletion  *cmp,
                                          const gchar*    prefix,
                                          gchar**         new_prefix);
+GLIB_DEPRECATED_IN_2_26
 void         g_completion_set_compare   (GCompletion *cmp,
-				         GCompletionStrncmpFunc strncmp_func);
+                                         GCompletionStrncmpFunc strncmp_func);
+GLIB_DEPRECATED_IN_2_26
 void         g_completion_free          (GCompletion*    cmp);
-
-#endif
 
 G_END_DECLS
 

@@ -37,8 +37,23 @@
     <Filter Include="Header Files\libintl">
       <UniqueIdentifier>{caeb4e74-467d-4c6e-add0-8cce4d621200}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\deprecated">
+      <UniqueIdentifier>{9afa5ca8-44b9-4f9a-a319-3fb2d32bc99a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\deprecated">
+      <UniqueIdentifier>{411b304d-406f-4893-ad92-94552886602d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\libintl\libintl.c">
+      <Filter>Source Files\libintl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\libcharset\localcharset.c">
+      <Filter>Source Files\libcharset</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\pcre\pcre_byte_order.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
     <ClCompile Include="..\glib\pcre\pcre_chartables.c">
       <Filter>Source Files\pcre</Filter>
     </ClCompile>
@@ -63,10 +78,16 @@
     <ClCompile Include="..\glib\pcre\pcre_globals.c">
       <Filter>Source Files\pcre</Filter>
     </ClCompile>
+    <ClCompile Include="..\glib\pcre\pcre_jit_compile.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
     <ClCompile Include="..\glib\pcre\pcre_newline.c">
       <Filter>Source Files\pcre</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\pcre\pcre_ord2utf8.c">
+      <Filter>Source Files\pcre</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\pcre\pcre_string_utils.c">
       <Filter>Source Files\pcre</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\pcre\pcre_study.c">
@@ -75,10 +96,10 @@
     <ClCompile Include="..\glib\pcre\pcre_tables.c">
       <Filter>Source Files\pcre</Filter>
     </ClCompile>
-    <ClCompile Include="..\glib\pcre\pcre_try_flipped.c">
+    <ClCompile Include="..\glib\pcre\pcre_valid_utf8.c">
       <Filter>Source Files\pcre</Filter>
     </ClCompile>
-    <ClCompile Include="..\glib\pcre\pcre_ucp_searchfuncs.c">
+    <ClCompile Include="..\glib\pcre\pcre_version.c">
       <Filter>Source Files\pcre</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\pcre\pcre_xclass.c">
@@ -98,9 +119,6 @@
     </ClCompile>
     <ClCompile Include="..\glib\gnulib\vasnprintf.c">
       <Filter>Source Files\gnulib</Filter>
-    </ClCompile>
-    <ClCompile Include="..\libintl\libintl.c">
-      <Filter>Source Files\libintl</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\garray.c">
       <Filter>Source Files</Filter>
@@ -123,16 +141,13 @@
     <ClCompile Include="..\glib\gbookmarkfile.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\glib\gbuffer.c">
+    <ClCompile Include="..\glib\gbytes.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\glib\gcache.c">
+    <ClCompile Include="..\glib\gcharset.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gchecksum.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\glib\gcompletion.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gconvert.c">
@@ -150,13 +165,22 @@
     <ClCompile Include="..\glib\gdir.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\glib\genviron.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\glib\gerror.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gfileutils.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\glib\ggettext.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\glib\ghash.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\ghmac.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\ghook.c">
@@ -172,6 +196,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gkeyfile.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\glib-init.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\glib-private.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\glist.c">
@@ -213,6 +243,9 @@
     <ClCompile Include="..\glib\gqsort.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\glib\gquark.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\glib\gqueue.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -220,9 +253,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gregex.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\glib\grel.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gscanner.c">
@@ -252,19 +282,25 @@
     <ClCompile Include="..\glib\gstring.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\glib\gtestutils.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\glib\gthread.c">
+    <ClCompile Include="..\glib\gstringchunk.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gthreadpool.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\gthread-win32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gtimer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gtimezone.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\gtranslit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\gtrashstack.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\glib\gtree.c">
@@ -309,11 +345,35 @@
     <ClCompile Include="..\glib\gvarianttypeinfo.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\glib\gversion.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\gwakeup.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="..\glib\gwin32.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\glib\libcharset\localcharset.c">
-      <Filter>Source Files\libcharset</Filter>
+    <ClCompile Include="..\glib\deprecated\gallocator.c">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\deprecated\gcache.c">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\deprecated\gcompletion.c">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\deprecated\grel.c">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\deprecated\gthread-deprecated.c">
+      <Filter>Source Files\deprecated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\gtestutils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\glib\gthread.c">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -325,6 +385,15 @@
     </ClInclude>
     <ClInclude Include="..\glib\pcre\ucp.h">
       <Filter>Header Files\pcre</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libintl\libintl.h">
+      <Filter>Header Files\libintl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\libcharset\libcharset.h">
+      <Filter>Header Files\libcharset</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\libcharset\localcharset.h">
+      <Filter>Header Files\libcharset</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gnulib\g-gnulib.h">
       <Filter>Header Files\gnulib</Filter>
@@ -341,8 +410,11 @@
     <ClInclude Include="..\glib\gnulib\vasnprintf.h">
       <Filter>Header Files\gnulib</Filter>
     </ClInclude>
-    <ClInclude Include="..\libintl\libintl.h">
-      <Filter>Header Files\libintl</Filter>
+    <ClInclude Include="..\glib\gnulib\verify.h">
+      <Filter>Header Files\gnulib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gnulib\xsize.h">
+      <Filter>Header Files\gnulib</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\galloca.h">
       <Filter>Header Files</Filter>
@@ -351,6 +423,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gasyncqueue.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gasyncqueueprivate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gatomic.h">
@@ -371,16 +446,19 @@
     <ClInclude Include="..\glib\gbsearcharray.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\gbuffer.h">
+    <ClInclude Include="..\glib\gbytes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\gcache.h">
+    <ClInclude Include="..\glib\gcharset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gcharsetprivate.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gchecksum.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\gcompletion.h">
+    <ClInclude Include="..\glib\gconstructor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gconvert.h">
@@ -398,10 +476,10 @@
     <ClInclude Include="..\glib\gdatetime.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\gdebug.h">
+    <ClInclude Include="..\glib\gdir.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\gdir.h">
+    <ClInclude Include="..\glib\genviron.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gerror.h">
@@ -410,7 +488,13 @@
     <ClInclude Include="..\glib\gfileutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\glib\ggettext.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\glib\ghash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\ghmac.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\ghook.h">
@@ -437,10 +521,19 @@
     <ClInclude Include="..\glib\glib_trace.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\glib\glib-autocleanups.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\glib-init.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\glib\glibintl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\glib-object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\glib-private.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\glist.h">
@@ -450,6 +543,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gmain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gmain-internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gmappedfile.h">
@@ -503,9 +599,6 @@
     <ClInclude Include="..\glib\gregex.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\grel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\glib\gscanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -536,7 +629,7 @@
     <ClInclude Include="..\glib\gstring.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\gtestutils.h">
+    <ClInclude Include="..\glib\gstringchunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gthread.h">
@@ -552,6 +645,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gtimezone.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gtranslit-data.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gtrashstack.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\glib\gtree.h">
@@ -602,20 +701,39 @@
     <ClInclude Include="..\glib\gvarianttypeinfo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\glib\gversion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gversionmacros.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gwakeup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="..\glib\gwin32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\libcharset\libcharset.h">
-      <Filter>Header Files\libcharset</Filter>
+    <ClInclude Include="..\glib\deprecated\gallocator.h">
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
-    <ClInclude Include="..\glib\libcharset\localcharset.h">
-      <Filter>Header Files\libcharset</Filter>
+    <ClInclude Include="..\glib\deprecated\gcache.h">
+      <Filter>Header Files\deprecated</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\glib\glib.def">
-      <Filter>Source Files</Filter>
-    </None>
+    <ClInclude Include="..\glib\deprecated\gcompletion.h">
+      <Filter>Header Files\deprecated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\deprecated\gmain.h">
+      <Filter>Header Files\deprecated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\deprecated\grel.h">
+      <Filter>Header Files\deprecated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\deprecated\gthread.h">
+      <Filter>Header Files\deprecated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\glib\gtestutils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\glib\glib.rc">
