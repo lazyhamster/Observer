@@ -210,9 +210,9 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	IncludeTrailingPathDelim(optWcxLocation, sizeof(optWcxLocation) / sizeof(optWcxLocation[0]));
 
 	g_Loader = new WcxLoader();
-	int numModules = g_Loader->LoadModules(optWcxLocation, optRecursiveLoad);
+	g_Loader->LoadModules(optWcxLocation, optRecursiveLoad);
 
-	return (numModules > 0) ? TRUE : FALSE;
+	return TRUE;
 }
 
 void MODULE_EXPORT UnloadSubModule()
