@@ -73,6 +73,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmspack", "depends\libmsp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmodule", "depends\glib\build\gmodule.vcxproj", "{287CB42B-8294-4EC5-A397-4EFEC63FF908}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libffi", "depends\libffi\libffi.vcxproj", "{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -871,6 +873,30 @@ Global
 		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode-3|Win32.Build.0 = Release-Unicode-3|Win32
 		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode-3|x64.ActiveCfg = Release-Unicode-3|x64
 		{287CB42B-8294-4EC5-A397-4EFEC63FF908}.Release-Unicode-3|x64.Build.0 = Release-Unicode-3|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug|Win32.Build.0 = Debug|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug|x64.ActiveCfg = Debug|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug|x64.Build.0 = Debug|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug-Unicode|Win32.ActiveCfg = Debug-Unicode|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug-Unicode|Win32.Build.0 = Debug-Unicode|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug-Unicode|x64.ActiveCfg = Debug-Unicode|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug-Unicode|x64.Build.0 = Debug-Unicode|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug-Unicode-3|Win32.ActiveCfg = Debug-Unicode-3|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug-Unicode-3|Win32.Build.0 = Debug-Unicode-3|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug-Unicode-3|x64.ActiveCfg = Debug-Unicode-3|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Debug-Unicode-3|x64.Build.0 = Debug-Unicode-3|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release|Win32.ActiveCfg = Release|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release|Win32.Build.0 = Release|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release|x64.ActiveCfg = Release|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release|x64.Build.0 = Release|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode|Win32.ActiveCfg = Release-Unicode|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode|Win32.Build.0 = Release-Unicode|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode|x64.ActiveCfg = Release-Unicode|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode|x64.Build.0 = Release-Unicode|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode-3|Win32.ActiveCfg = Release-Unicode-3|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode-3|Win32.Build.0 = Release-Unicode-3|Win32
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode-3|x64.ActiveCfg = Release-Unicode-3|x64
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode-3|x64.Build.0 = Release-Unicode-3|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -908,5 +934,6 @@ Global
 		{AD0C1EE1-93C7-460C-8E59-7E8CD0815811} = {764325D2-D606-4200-9870-067D29414B12}
 		{213E1C4D-556C-4D1F-AFA2-1938042920F0} = {764325D2-D606-4200-9870-067D29414B12}
 		{287CB42B-8294-4EC5-A397-4EFEC63FF908} = {764325D2-D606-4200-9870-067D29414B12}
+		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F} = {764325D2-D606-4200-9870-067D29414B12}
 	EndGlobalSection
 EndGlobal
