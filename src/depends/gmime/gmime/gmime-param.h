@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -42,7 +42,6 @@ struct _GMimeParam {
 	char *name;
 	char *value;
 };
-
 
 GMimeParam *g_mime_param_new (const char *name, const char *value);
 GMimeParam *g_mime_param_new_from_string (const char *str);

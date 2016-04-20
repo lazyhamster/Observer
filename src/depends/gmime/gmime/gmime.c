@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -47,6 +47,19 @@
  **/
 
 extern gboolean _g_mime_enable_rfc2047_workarounds (void);
+extern gboolean _g_mime_use_only_user_charsets (void);
+
+extern void g_mime_iconv_utils_shutdown (void);
+extern void g_mime_iconv_utils_init (void);
+
+extern void _g_mime_iconv_cache_unlock (void);
+extern void _g_mime_iconv_cache_lock (void);
+extern void _g_mime_iconv_utils_unlock (void);
+extern void _g_mime_iconv_utils_lock (void);
+extern void _g_mime_charset_unlock (void);
+extern void _g_mime_charset_lock (void);
+extern void _g_mime_msgid_unlock (void);
+extern void _g_mime_msgid_lock (void);
 
 GQuark gmime_gpgme_error_quark;
 GQuark gmime_error_quark;
@@ -56,6 +69,11 @@ const guint gmime_minor_version = GMIME_MINOR_VERSION;
 const guint gmime_micro_version = GMIME_MICRO_VERSION;
 const guint gmime_interface_age = GMIME_INTERFACE_AGE;
 const guint gmime_binary_age = GMIME_BINARY_AGE;
+
+G_LOCK_DEFINE_STATIC (iconv_cache);
+G_LOCK_DEFINE_STATIC (iconv_utils);
+G_LOCK_DEFINE_STATIC (charset);
+G_LOCK_DEFINE_STATIC (msgid);
 
 static unsigned int initialized = 0;
 static guint32 enable = 0;
@@ -110,10 +128,19 @@ g_mime_init (guint32 flags)
 	
 	enable = flags;
 	
+#if !GLIB_CHECK_VERSION(2, 35, 1)
 	g_type_init ();
+#endif
+	
+#ifdef G_THREADS_ENABLED
+	g_mutex_init (&G_LOCK_NAME (iconv_cache));
+	g_mutex_init (&G_LOCK_NAME (iconv_utils));
+	g_mutex_init (&G_LOCK_NAME (charset));
+	g_mutex_init (&G_LOCK_NAME (msgid));
+#endif
 	
 	g_mime_charset_map_init ();
-	
+	g_mime_iconv_utils_init ();
 	g_mime_iconv_init ();
 	
 #ifdef ENABLE_SMIME
@@ -156,6 +183,7 @@ g_mime_init (guint32 flags)
 	g_mime_stream_file_get_type ();
 	g_mime_stream_filter_get_type ();
 	g_mime_stream_fs_get_type ();
+	//NOTE: GIO interface is disabled for now
 	//g_mime_stream_gio_get_type ();
 	g_mime_stream_mem_get_type ();
 	g_mime_stream_mmap_get_type ();
@@ -200,7 +228,22 @@ g_mime_shutdown (void)
 	
 	g_mime_object_type_registry_shutdown ();
 	g_mime_charset_map_shutdown ();
+	g_mime_iconv_utils_shutdown ();
 	g_mime_iconv_shutdown ();
+	
+#ifdef G_THREADS_ENABLED
+	if (glib_check_version (2, 37, 4) == NULL) {
+		/* The implementation of g_mutex_clear() prior
+		 * to glib 2.37.4 did not properly reset the
+		 * internal mutex pointer to NULL, so re-initializing
+		 * GMime would not properly re-initialize the mutexes.
+		 **/
+		g_mutex_clear (&G_LOCK_NAME (iconv_cache));
+		g_mutex_clear (&G_LOCK_NAME (iconv_utils));
+		g_mutex_clear (&G_LOCK_NAME (charset));
+		g_mutex_clear (&G_LOCK_NAME (msgid));
+	}
+#endif
 }
 
 
@@ -208,4 +251,58 @@ gboolean
 _g_mime_enable_rfc2047_workarounds (void)
 {
 	return (enable & GMIME_ENABLE_RFC2047_WORKAROUNDS);
+}
+
+gboolean
+_g_mime_use_only_user_charsets (void)
+{
+	return (enable & GMIME_ENABLE_USE_ONLY_USER_CHARSETS);
+}
+
+void
+_g_mime_iconv_cache_unlock (void)
+{
+	return G_UNLOCK (iconv_cache);
+}
+
+void
+_g_mime_iconv_cache_lock (void)
+{
+	return G_LOCK (iconv_cache);
+}
+
+void
+_g_mime_iconv_utils_unlock (void)
+{
+	return G_UNLOCK (iconv_utils);
+}
+
+void
+_g_mime_iconv_utils_lock (void)
+{
+	return G_LOCK (iconv_utils);
+}
+
+void
+_g_mime_charset_unlock (void)
+{
+	return G_UNLOCK (charset);
+}
+
+void
+_g_mime_charset_lock (void)
+{
+	return G_LOCK (charset);
+}
+
+void
+_g_mime_msgid_unlock (void)
+{
+	return G_UNLOCK (msgid);
+}
+
+void
+_g_mime_msgid_lock (void)
+{
+	return G_LOCK (msgid);
 }

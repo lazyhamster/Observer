@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -348,8 +348,8 @@ check_protocol_supported (const char *protocol, const char *supported)
 	 * protocol. For example, if the supported protocol is
 	 * "application/pkcs7-signature", then we also want to
 	 * match "application/x-pkcs7-signature". */
-	xsupported = g_strdup_printf ("%.*sx-%s", subtype - supported, supported, subtype);
-	rv = !g_ascii_strcasecmp (protocol, supported);
+	xsupported = g_strdup_printf ("%.*sx-%s", (int) (subtype - supported), supported, subtype);
+	rv = !g_ascii_strcasecmp (protocol, xsupported);
 	g_free (xsupported);
 	
 	return rv;
@@ -365,9 +365,10 @@ check_protocol_supported (const char *protocol, const char *supported)
  * Attempts to verify the signed MIME part contained within the
  * multipart/signed object @mps using the @ctx crypto context.
  *
- * Returns: a new #GMimeSignatureList object on success or %NULL on fail. If
- * the verification fails, an exception will be set on @err to provide
- * information as to why the failure occured.
+ * Returns: (transfer full): a new #GMimeSignatureList object on
+ * success or %NULL on fail. If the verification fails, an exception
+ * will be set on @err to provide information as to why the failure
+ * occured.
  **/
 GMimeSignatureList *
 g_mime_multipart_signed_verify (GMimeMultipartSigned *mps, GMimeCryptoContext *ctx,

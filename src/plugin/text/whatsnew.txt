@@ -3,6 +3,8 @@ Changes history:
 1.12.0
 - Changes in modules API.
 - New file property exposed: Owner (for containers where applicable).
+- Updated GLib library to version 2.48.0.
+- Updated GMime library to version 2.6.20.
 
 1.11.2
 - PST: Fixed invalid path characters in folder names.

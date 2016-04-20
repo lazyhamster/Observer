@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -51,6 +51,8 @@
 #include <gmime/gmime-stream-file.h>
 #include <gmime/gmime-stream-filter.h>
 #include <gmime/gmime-stream-fs.h>
+//NOTE: GIO interface is disabled for now
+//#include <gmime/gmime-stream-gio.h>
 #include <gmime/gmime-stream-mem.h>
 #include <gmime/gmime-stream-mmap.h>
 #include <gmime/gmime-stream-null.h>
@@ -120,7 +122,18 @@ gboolean g_mime_check_version (guint major, guint minor, guint micro);
  * Initialization flag to enable workarounds for badly formed rfc2047
  * encoded-words.
  **/
-#define GMIME_ENABLE_RFC2047_WORKAROUNDS  (1 << 0)
+#define GMIME_ENABLE_RFC2047_WORKAROUNDS     (1 << 0)
+
+/**
+ * GMIME_ENABLE_USE_ONLY_USER_CHARSETS:
+ *
+ * Initialization flag that hints to the rfc2047 encoder to use only
+ * the configured user-charsets (set via g_mime_set_user_charsets())
+ * instead of trying to first use iso-8859-1.
+ *
+ * Since: 2.6.16
+ **/
+#define GMIME_ENABLE_USE_ONLY_USER_CHARSETS  (1 << 1)
 
 void g_mime_init (guint32 flags);
 void g_mime_shutdown (void);

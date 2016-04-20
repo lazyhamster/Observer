@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -138,6 +138,7 @@ const char *g_mime_content_encoding_to_string (GMimeContentEncoding encoding);
 #define GMIME_UUDECODE_STATE_END    (1 << 17)
 #define GMIME_UUDECODE_STATE_MASK   (GMIME_UUDECODE_STATE_BEGIN | GMIME_UUDECODE_STATE_END)
 
+typedef struct _GMimeEncoding GMimeEncoding;
 
 /**
  * GMimeEncoding:
@@ -149,13 +150,13 @@ const char *g_mime_content_encoding_to_string (GMimeContentEncoding encoding);
  *
  * A context used for encoding or decoding data.
  **/
-typedef struct _GMimeEncoding {
+struct _GMimeEncoding {
 	GMimeContentEncoding encoding;
 	unsigned char uubuf[60];
 	gboolean encode;
 	guint32 save;
 	int state;
-} GMimeEncoding;
+};
 
 
 void g_mime_encoding_init_encode (GMimeEncoding *state, GMimeContentEncoding encoding);

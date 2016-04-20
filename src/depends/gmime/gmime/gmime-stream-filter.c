@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -185,7 +185,7 @@ stream_read (GMimeStream *stream, char *buf, size_t n)
 	priv->last_was_read = TRUE;
 	
 	if (priv->filteredlen <= 0) {
-		size_t presize = READ_SIZE;
+		size_t presize = READ_PAD;
 		
 		nread = g_mime_stream_read (filter->source, priv->buffer, READ_SIZE);
 		if (nread <= 0) {

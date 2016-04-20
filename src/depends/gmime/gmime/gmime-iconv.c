@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -80,12 +80,13 @@ static int shutdown = 0;
 #endif /* GMIME_ICONV_DEBUG */
 
 #ifdef G_THREADS_ENABLED
-static GStaticMutex iconv_cache_lock = G_STATIC_MUTEX_INIT;
-#define ICONV_CACHE_LOCK()   g_static_mutex_lock (&iconv_cache_lock)
-#define ICONV_CACHE_UNLOCK() g_static_mutex_unlock (&iconv_cache_lock)
+extern void _g_mime_iconv_cache_unlock (void);
+extern void _g_mime_iconv_cache_lock (void);
+#define ICONV_CACHE_UNLOCK() _g_mime_iconv_cache_unlock ()
+#define ICONV_CACHE_LOCK()   _g_mime_iconv_cache_lock ()
 #else
-#define ICONV_CACHE_LOCK()
 #define ICONV_CACHE_UNLOCK()
+#define ICONV_CACHE_LOCK()
 #endif /* G_THREADS_ENABLED */
 
 
@@ -93,7 +94,7 @@ static GStaticMutex iconv_cache_lock = G_STATIC_MUTEX_INIT;
 
 
 /**
- * iconv_cache_node_new:
+ * iconv_cache_node_new: (skip)
  * @key: cache key
  * @cd: iconv descriptor
  *
@@ -221,7 +222,7 @@ g_mime_iconv_init (void)
 
 
 /**
- * g_mime_iconv_open:
+ * g_mime_iconv_open: (skip)
  * @to: charset to convert to
  * @from: charset to convert from
  *
@@ -308,7 +309,7 @@ g_mime_iconv_open (const char *to, const char *from)
 
 
 /**
- * g_mime_iconv_close:
+ * g_mime_iconv_close: (skip)
  * @cd: iconv conversion descriptor
  *
  * Closes the iconv descriptor @cd.

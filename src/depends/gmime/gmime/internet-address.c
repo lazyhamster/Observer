@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -173,6 +173,8 @@ _internet_address_set_name (InternetAddress *ia, const char *name)
  * @name: the display name for the address group or mailbox
  *
  * Set the display name of the #InternetAddress.
+ *
+ * Note: The @name string should be in UTF-8.
  **/
 void
 internet_address_set_name (InternetAddress *ia, const char *name)
@@ -191,7 +193,9 @@ internet_address_set_name (InternetAddress *ia, const char *name)
  *
  * Gets the display name of the #InternetAddress.
  *
- * Returns: the display name of @ia.
+ * Returns: the name of the mailbox or group in a form suitable for
+ * display if available or %NULL otherwise. If the name is available,
+ * the returned string will be in UTF-8.
  **/
 const char *
 internet_address_get_name (InternetAddress *ia)
@@ -301,10 +305,12 @@ internet_address_mailbox_finalize (GObject *object)
  * @name: person's name
  * @addr: person's address
  *
- * Creates a new #InternetAddress object with name @name and address
+ * Creates a new #InternetAddress object with the specified @name and
  * @addr.
  * 
  * Returns: a new #InternetAddressMailbox object.
+ *
+ * Note: The @name string should be in UTF-8.
  **/
 InternetAddress *
 internet_address_mailbox_new (const char *name, const char *addr)
@@ -440,10 +446,12 @@ internet_address_group_finalize (GObject *object)
  * internet_address_group_new:
  * @name: group name
  *
- * Creates a new #InternetAddressGroup object with a display name of
+ * Creates a new #InternetAddressGroup object with the specified
  * @name.
  * 
  * Returns: a new #InternetAddressGroup object.
+ *
+ * Note: The @name string should be in UTF-8.
  **/
 InternetAddress *
 internet_address_group_new (const char *name)
@@ -496,7 +504,8 @@ internet_address_group_set_members (InternetAddressGroup *group, InternetAddress
  * Gets the #InternetAddressList containing the group members of an
  * rfc822 group address.
  *
- * Returns: a #InternetAddressList containing the members of @group.
+ * Returns: (transfer none): a #InternetAddressList containing the
+ * members of @group.
  **/
 InternetAddressList *
 internet_address_group_get_members (InternetAddressGroup *group)
@@ -926,8 +935,8 @@ internet_address_list_index_of (InternetAddressList *list, InternetAddress *ia)
  *
  * Gets the #InternetAddress at the specified index.
  *
- * Returns: the #InternetAddress at the specified index or %NULL if
- * the index is out of range.
+ * Returns: (transfer none): the #InternetAddress at the specified
+ * index or %NULL if the index is out of range.
  **/
 InternetAddress *
 internet_address_list_get_address (InternetAddressList *list, int index)
@@ -1210,7 +1219,7 @@ internet_address_list_to_string (InternetAddressList *list, gboolean encode)
  * @str: string to write to
  *
  * Writes the rfc2047-encoded rfc822 formatted addresses in @list to
- * @string, folding appropriately.
+ * @str, folding appropriately.
  **/
 void
 internet_address_list_writer (InternetAddressList *list, GString *str)
@@ -1373,6 +1382,62 @@ decode_group (const char **in)
 	return addr;
 }
 
+static gboolean
+decode_route (const char **in)
+{
+	const char *start = *in;
+	const char *inptr = *in;
+	GString *route;
+	
+	route = g_string_new ("");
+	
+	do {
+		inptr++;
+		
+		g_string_append_c (route, '@');
+		if (!decode_domain (&inptr, route))
+			goto error;
+		
+		decode_lwsp (&inptr);
+		if (*inptr == ',') {
+			g_string_append_c (route, ',');
+			inptr++;
+			decode_lwsp (&inptr);
+			
+			/* obs-domain-lists allow commas with nothing between them... */
+			while (*inptr == ',') {
+				inptr++;
+				decode_lwsp (&inptr);
+			}
+		}
+	} while (*inptr == '@');
+	
+	g_string_free (route, TRUE);
+	decode_lwsp (&inptr);
+	
+	if (*inptr != ':') {
+		w(g_warning ("Invalid route domain-list, missing ':': %.*s", inptr - start, start));
+		goto error;
+	}
+	
+	/* eat the ':' */
+	*in = inptr + 1;
+	
+	return TRUE;
+	
+ error:
+	
+	while (*inptr && *inptr != ':' && *inptr != '>')
+		inptr++;
+	
+	if (*inptr == ':')
+		inptr++;
+	
+	*in = inptr;
+	
+	return FALSE;
+}
+
 static InternetAddress *
 decode_address (const char **in)
 {
@@ -1416,7 +1481,7 @@ decode_address (const char **in)
 		 *             /  "." / "[" / "]"              ;  within a word.
 		 */
 		if (*inptr == ':') {
-			/* group */
+			/* rfc2822 group */
 			inptr++;
 			addr = decode_group (&inptr);
 			decode_lwsp (&inptr);
@@ -1427,12 +1492,18 @@ decode_address (const char **in)
 				inptr++;
 			break;
 		} else if (*inptr == '<') {
-			/* mailbox route-addr */
+			/* rfc2822 angle-addr */
 			inptr++;
-			addr = decode_addrspec (&inptr);
+			
+			/* check for obsolete routing... */
+			if (*inptr != '@' || decode_route (&inptr)) {
+				/* rfc2822 addr-spec */
+				addr = decode_addrspec (&inptr);
+			}
+			
 			decode_lwsp (&inptr);
 			if (*inptr != '>') {
-				w(g_warning ("Invalid route-addr, missing closing '>': %.*s",
+				w(g_warning ("Invalid rfc2822 angle-addr, missing closing '>': %.*s",
 					     inptr - start, start));
 				
 				while (*inptr && *inptr != '>' && *inptr != ',')
@@ -1440,8 +1511,9 @@ decode_address (const char **in)
 				
 				if (*inptr == '>')
 					inptr++;
-			} else
+			} else {
 				inptr++;
+			}
 			
 			/* if comment is non-NULL, we can check for a comment containing a name */
 			comment = inptr;
@@ -1546,21 +1618,20 @@ decode_address (const char **in)
  *
  * Construct a list of internet addresses from the given string.
  *
- * Returns: a #InternetAddressList or %NULL if the input string does
- * not contain any addresses.
+ * Returns: (transfer full): a #InternetAddressList or %NULL if the
+ * input string does not contain any addresses.
  **/
 InternetAddressList *
 internet_address_list_parse_string (const char *str)
 {
 	InternetAddressList *addrlist;
 	const char *inptr = str;
+	InternetAddress *addr;
+	const char *start;
 	
 	addrlist = internet_address_list_new ();
 	
 	while (inptr && *inptr) {
-		InternetAddress *addr;
-		const char *start;
-		
 		start = inptr;
 		
 		if ((addr = decode_address (&inptr))) {
@@ -1573,6 +1644,13 @@ internet_address_list_parse_string (const char *str)
 		decode_lwsp (&inptr);
 		if (*inptr == ',') {
 			inptr++;
+			decode_lwsp (&inptr);
+			
+			/* obs-mbox-list and obs-addr-list allow for empty members (commas with nothing between them) */
+			while (*inptr == ',') {
+				inptr++;
+				decode_lwsp (&inptr);
+			}
 		} else if (*inptr) {
 			w(g_warning ("Parse error at '%s': expected ','", inptr));
 			/* try skipping to the next address */

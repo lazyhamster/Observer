@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -187,6 +187,8 @@ url_addrspec_start (const char *in, const char *pos, const char *inend, urlmatch
 	
 	if (inptr == in)
 		return FALSE;
+	
+	inptr--;
 	
 	while (inptr > in) {
 		if (is_atom (*inptr))

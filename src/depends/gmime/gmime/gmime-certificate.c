@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -790,8 +790,8 @@ g_mime_certificate_list_index_of (GMimeCertificateList *list, GMimeCertificate *
  *
  * Gets the #GMimeCertificate at the specified index.
  *
- * Returns: the #GMimeCertificate at the specified index or %NULL if
- * the index is out of range.
+ * Returns: (transfer full): the #GMimeCertificate at the specified
+ * index or %NULL if the index is out of range.
  **/
 GMimeCertificate *
 g_mime_certificate_list_get_certificate (GMimeCertificateList *list, int index)

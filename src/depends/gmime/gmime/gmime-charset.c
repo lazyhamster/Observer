@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -170,12 +170,13 @@ static char *locale_charset = NULL;
 static char *locale_lang = NULL;
 
 #ifdef G_THREADS_ENABLED
-static GStaticMutex charset_lock = G_STATIC_MUTEX_INIT;
-#define CHARSET_LOCK()   g_static_mutex_lock (&charset_lock);
-#define CHARSET_UNLOCK() g_static_mutex_unlock (&charset_lock);
+extern void _g_mime_charset_unlock (void);
+extern void _g_mime_charset_lock (void);
+#define CHARSET_UNLOCK() _g_mime_charset_unlock ()
+#define CHARSET_LOCK()   _g_mime_charset_lock ()
 #else
-#define CHARSET_LOCK()
 #define CHARSET_UNLOCK()
+#define CHARSET_LOCK()
 #endif /* G_THREADS_ENABLED */
 
 
@@ -288,7 +289,7 @@ g_mime_charset_map_init (void)
 	} else
 		locale_charset = NULL;
 #endif
-
+	
 	/* Apparently setlocale() is not reliable either... use getenv() instead. */
 	/*locale = setlocale (LC_ALL, NULL);*/
 	
@@ -941,7 +942,8 @@ g_mime_set_user_charsets (const char **charsets)
  * Get the list of user-preferred charsets set with
  * g_mime_set_user_charsets().
  *
- * Returns: an array of user-set charsets or %NULL if none set.
+ * Returns: (array zero-terminated=1) (transfer none): an array of
+ * user-set charsets or %NULL if none set.
  **/
 const char **
 g_mime_user_charsets (void)

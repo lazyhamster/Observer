@@ -1,11 +1,17 @@
 /* config.h.  Generated from config.h.in by configure.  */
-/* config.h.in.  Generated from configure.in by autoheader.  */
+/* config.h.in.  Generated from configure.ac by autoheader.  */
+
+/* Define if cryptography in GMime is enabled. */
+/* #undef ENABLE_CRYPTOGRAPHY */
+
+/* Define if GMime should enable experimental S/MIME support. */
+/* #undef ENABLE_SMIME */
 
 /* Define if GMime should enable warning output. */
 /* #undef ENABLE_WARNINGS */
 
 /* Define to the GMime version */
-#define GMIME_VERSION "2.6.10"
+#define GMIME_VERSION "2.6.20"
 
 /* Define if libc defines an altzone variable */
 /* #undef HAVE_ALTZONE */
@@ -78,7 +84,7 @@
 #define HAVE_SELECT 1
 
 /* Define to 1 if you have the <stdint.h> header file. */
-/* #undef HAVE_STDINT_H */
+#define HAVE_STDINT_H 1
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #define HAVE_STDLIB_H 1
@@ -113,6 +119,9 @@
 /* Define if struct tm has a tm_gmtoff member */
 /* #undef HAVE_TM_GMTOFF */
 
+/* Define to 1 if you have the <unistd.h> header file. */
+#define HAVE_UNISTD_H 1
+
 /* Define if struct utsname has a domainname member */
 /* #undef HAVE_UTSNAME_DOMAINNAME */
 
@@ -130,13 +139,16 @@
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
-/* #undef LT_OBJDIR */
+#define LT_OBJDIR ".libs/"
 
 /* Define with a value if your <sys/param.h> does not define MAXHOSTNAMELEN */
-/* #undef MAXHOSTNAMELEN */
+#define MAXHOSTNAMELEN 64
 
 /* Define to 0 if your system does not have the O_LARGEFILE flag */
-/* #undef O_LARGEFILE */
+#define O_LARGEFILE 0
+
+/* Name of package */
+#define PACKAGE "gmime"
 
 /* Define to the address where bug reports for this package should be sent. */
 #define PACKAGE_BUGREPORT "http://bugzilla.gnome.org/enter_bug.cgi?product=gmime"
@@ -145,13 +157,16 @@
 #define PACKAGE_NAME "gmime"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "gmime 2.6.10"
+#define PACKAGE_STRING "gmime 2.6.20"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gmime"
 
+/* Define to the home page for this package. */
+#define PACKAGE_URL ""
+
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.6.10"
+#define PACKAGE_VERSION "2.6.20"
 
 /* The size of `off_t', as computed by sizeof. */
 #define SIZEOF_OFF_T 4
@@ -165,8 +180,19 @@
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
+/* Define if GMime should enable stricter parsing rules. */
+/* #undef STRICT_PARSER */
+
+/* Version number of package */
+#define VERSION "2.6.20"
+
+/* Enable large inode numbers on Mac OS X 10.5.  */
+#ifndef _DARWIN_USE_64_BIT_INODE
+# define _DARWIN_USE_64_BIT_INODE 1
+#endif
+
 /* Number of bits in a file offset, on hosts where this is settable. */
-/* #undef _FILE_OFFSET_BITS */
+#define _FILE_OFFSET_BITS 64
 
 /* Define for large files, on AIX-style hosts. */
 /* #undef _LARGE_FILES */

@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -344,6 +344,7 @@ write_content (GMimePart *part, GMimeStream *stream)
 		content_stream = g_mime_data_wrapper_get_stream (part->content);
 		g_mime_stream_reset (content_stream);
 		nwritten = g_mime_stream_write_to_stream (content_stream, stream);
+		g_mime_stream_reset (content_stream);
 		
 		if (nwritten == -1)
 			return -1;
@@ -806,10 +807,12 @@ g_mime_part_get_best_content_encoding (GMimePart *mime_part, GMimeEncodingConstr
 /**
  * g_mime_part_set_filename:
  * @mime_part: a #GMimePart object
- * @filename: the filename of the Mime Part's content
+ * @filename: the file name
  *
  * Sets the "filename" parameter on the Content-Disposition and also sets the
  * "name" parameter on the Content-Type.
+ *
+ * Note: The @filename string should be in UTF-8.
  **/
 void
 g_mime_part_set_filename (GMimePart *mime_part, const char *filename)
@@ -827,12 +830,12 @@ g_mime_part_set_filename (GMimePart *mime_part, const char *filename)
  * g_mime_part_get_filename:
  * @mime_part: a #GMimePart object
  *
- * Gets the filename of the specificed mime part, or %NULL if the mime
- * part does not have the filename or name parameter set.
+ * Gets the filename of the specificed mime part, or %NULL if the
+ * @mime_part does not have the filename or name parameter set.
  *
- * Returns: the filename of the specified MIME Part. It first checks to
- * see if the "filename" parameter was set on the Content-Disposition
- * and if not then checks the "name" parameter in the Content-Type.
+ * Returns: the filename of the specified @mime_part or %NULL if
+ * neither of the parameters is set. If a file name is set, the
+ * returned string will be in UTF-8.
  **/
 const char *
 g_mime_part_get_filename (GMimePart *mime_part)
@@ -887,7 +890,8 @@ g_mime_part_set_content_object (GMimePart *mime_part, GMimeDataWrapper *content)
  * Gets the internal data-wrapper of the specified mime part, or %NULL
  * on error.
  *
- * Returns: the data-wrapper for the mime part's contents.
+ * Returns: (transfer none): the data-wrapper for the mime part's
+ * contents.
  **/
 GMimeDataWrapper *
 g_mime_part_get_content_object (GMimePart *mime_part)

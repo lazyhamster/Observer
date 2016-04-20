@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -45,7 +45,6 @@
 #endif /* ENABLE_WARNINGS */
 
 #define d(x)
-
 
 /**
  * SECTION: gmime-param
@@ -397,7 +396,7 @@ rfc2184_param_charset (const char **in, char **langp)
 	if (langp)
 		*langp = NULL;
 	
-	while (*inptr != '\0' && *inptr != '\'')
+	while (*inptr && *inptr != '\'')
 		inptr++;
 	
 	if (*inptr != '\'')
@@ -409,7 +408,7 @@ rfc2184_param_charset (const char **in, char **langp)
 	charset[len] = '\0';
 	
 	lang = ++inptr;
-	while (*inptr != '\0' && *inptr != '\'')
+	while (*inptr && *inptr != '\'')
 		inptr++;
 	
 	if (*inptr == '\'') {

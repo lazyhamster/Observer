@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -29,6 +29,12 @@
 #include "url-scanner.h"
 #include "gmime-filter-html.h"
 
+#ifdef ENABLE_WARNINGS
+#define w(x) x
+#else
+#define w(x)
+#endif /* ENABLE_WARNINGS */
+
 #define d(x)
 
 
@@ -51,11 +57,17 @@ static struct {
 } patterns[] = {
 	{ CONVERT_WEB_URLS, { "file://",   "",        url_file_start,     url_file_end     } },
 	{ CONVERT_WEB_URLS, { "ftp://",    "",        url_web_start,      url_web_end      } },
+	{ CONVERT_WEB_URLS, { "sftp://",   "",        url_web_start,      url_web_end      } },
 	{ CONVERT_WEB_URLS, { "http://",   "",        url_web_start,      url_web_end      } },
 	{ CONVERT_WEB_URLS, { "https://",  "",        url_web_start,      url_web_end      } },
 	{ CONVERT_WEB_URLS, { "news://",   "",        url_web_start,      url_web_end      } },
 	{ CONVERT_WEB_URLS, { "nntp://",   "",        url_web_start,      url_web_end      } },
 	{ CONVERT_WEB_URLS, { "telnet://", "",        url_web_start,      url_web_end      } },
+	{ CONVERT_WEB_URLS, { "webcal://", "",        url_web_start,      url_web_end      } },
+	{ CONVERT_WEB_URLS, { "mailto:",   "",        url_web_start,      url_web_end      } },
+	{ CONVERT_WEB_URLS, { "callto:",   "",        url_web_start,      url_web_end      } },
+	{ CONVERT_WEB_URLS, { "h323:",     "",        url_web_start,      url_web_end      } },
+	{ CONVERT_WEB_URLS, { "sip:",      "",        url_web_start,      url_web_end      } },
 	{ CONVERT_WEB_URLS, { "www.",      "http://", url_web_start,      url_web_end      } },
 	{ CONVERT_WEB_URLS, { "ftp.",      "ftp://",  url_web_start,      url_web_end      } },
 	{ CONVERT_ADDRSPEC, { "@",         "mailto:", url_addrspec_start, url_addrspec_end } },
@@ -168,7 +180,7 @@ check_size (GMimeFilter *filter, char *outptr, char **outend, size_t len)
 }
 
 static int
-citation_depth (const char *in)
+citation_depth (const char *in, const char *inend)
 {
 	register const char *inptr = in;
 	int depth = 1;
@@ -180,11 +192,11 @@ citation_depth (const char *in)
 	if (!strncmp (inptr, "From", 4))
 		return 0;
 	
-	while (*inptr != '\n') {
+	while (inptr < inend && *inptr != '\n') {
 		if (*inptr == ' ')
 			inptr++;
 		
-		if (*inptr++ != '>')
+		if (inptr >= inend || *inptr++ != '>')
 			break;
 		
 		depth++;
@@ -254,7 +266,7 @@ writeln (GMimeFilter *filter, const char *in, const char *end, char *outptr, cha
 		u = html_utf8_getc (&inptr, inend);
 		switch (u) {
 		case 0xffff:
-			g_warning ("Invalid UTF-8 sequence encountered");
+			w(g_warning ("Invalid UTF-8 sequence encountered"));
 			return outptr;
 			break;
 		case '<':
@@ -321,7 +333,7 @@ html_convert (GMimeFilter *filter, char *in, size_t inlen, size_t prespace,
 	
 	g_mime_filter_set_size (filter, inlen * 2 + 6, FALSE);
 	
-	inptr = in;
+	start = inptr = in;
 	inend = in + inlen;
 	outptr = filter->outbuf;
 	outend = filter->outbuf + filter->outsize;
@@ -331,21 +343,23 @@ html_convert (GMimeFilter *filter, char *in, size_t inlen, size_t prespace,
 		html->pre_open = TRUE;
 	}
 	
-	start = inptr;
-	while (inptr < inend && *inptr != '\n')
-		inptr++;
-	
-	while (inptr < inend) {
+	do {
+		while (inptr < inend && *inptr != '\n')
+			inptr++;
+		
+		if (inptr == inend && !flush)
+			break;
+		
 		html->column = 0;
 		depth = 0;
 		
 		if (html->flags & GMIME_FILTER_HTML_MARK_CITATION) {
-			if ((depth = citation_depth (start)) > 0) {
+			if ((depth = citation_depth (start, inend)) > 0) {
 				char font[25];
 				
 				/* FIXME: we could easily support multiple colour depths here */
 				
-				g_snprintf (font, 25, "<font color=\"#%06x\">", html->colour);
+				g_snprintf (font, 25, "<font color=\"#%06x\">", (html->colour & 0xffffff));
 				
 				outptr = check_size (filter, outptr, &outend, 25);
 				outptr = g_stpcpy (outptr, font);
@@ -416,18 +430,13 @@ html_convert (GMimeFilter *filter, char *in, size_t inlen, size_t prespace,
 			outptr = g_stpcpy (outptr, "<br>");
 		}
 		
-		*outptr++ = '\n';
+		if (inptr < inend)
+			*outptr++ = '\n';
 		
 		start = ++inptr;
-		while (inptr < inend && *inptr != '\n')
-			inptr++;
-	}
+	} while (inptr < inend);
 	
 	if (flush) {
-		/* flush the rest of our input buffer */
-		if (start < inend)
-			outptr = writeln (filter, start, inend, outptr, &outend);
-		
 		if (html->pre_open) {
 			/* close the pre-tag */
 			outptr = check_size (filter, outptr, &outend, 10);
@@ -480,17 +489,17 @@ filter_reset (GMimeFilter *filter)
 GMimeFilter *
 g_mime_filter_html_new (guint32 flags, guint32 colour)
 {
-	GMimeFilterHTML *new;
+	GMimeFilterHTML *filter;
 	guint i;
 	
-	new = g_object_newv (GMIME_TYPE_FILTER_HTML, 0, NULL);
-	new->flags = flags;
-	new->colour = colour;
+	filter = g_object_newv (GMIME_TYPE_FILTER_HTML, 0, NULL);
+	filter->flags = flags;
+	filter->colour = colour;
 	
 	for (i = 0; i < NUM_URL_PATTERNS; i++) {
 		if (patterns[i].mask & flags)
-			url_scanner_add (new->scanner, &patterns[i].pattern);
+			url_scanner_add (filter->scanner, &patterns[i].pattern);
 	}
 	
-	return (GMimeFilter *) new;
+	return (GMimeFilter *) filter;
 }

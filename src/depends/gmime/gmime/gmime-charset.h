@@ -1,6 +1,6 @@
 /* -*- Mode: C; tab-width: 8; indent-tabs-mode: t; c-basic-offset: 8 -*- */
 /*  GMime
- *  Copyright (C) 2000-2012 Jeffrey Stedfast
+ *  Copyright (C) 2000-2014 Jeffrey Stedfast
  *
  *  This library is free software; you can redistribute it and/or
  *  modify it under the terms of the GNU Lesser General Public License
@@ -45,6 +45,7 @@ const char *g_mime_charset_locale_name (void);
 
 const char *g_mime_charset_iso_to_windows (const char *isocharset);
 
+typedef struct _GMimeCharset GMimeCharset;
 
 /**
  * GMimeCharset:
@@ -53,10 +54,10 @@ const char *g_mime_charset_iso_to_windows (const char *isocharset);
  *
  * State used by g_mime_charset_best() and g_mime_charset_best_name().
  **/
-typedef struct _GMimeCharset {
+struct _GMimeCharset {
 	unsigned int mask;
 	unsigned int level;
-} GMimeCharset;
+};
 
 void g_mime_charset_init (GMimeCharset *charset);
 void g_mime_charset_step (GMimeCharset *charset, const char *inbuf, size_t inlen);
