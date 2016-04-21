@@ -75,6 +75,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmodule", "depends\glib\bui
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libffi", "depends\libffi\libffi.vcxproj", "{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gio", "depends\glib\build\gio.vcxproj", "{913D17A4-1585-4733-B91E-8533C65904EF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -897,6 +899,30 @@ Global
 		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode-3|Win32.Build.0 = Release-Unicode-3|Win32
 		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode-3|x64.ActiveCfg = Release-Unicode-3|x64
 		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F}.Release-Unicode-3|x64.Build.0 = Release-Unicode-3|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug|Win32.ActiveCfg = Debug|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug|Win32.Build.0 = Debug|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug|x64.ActiveCfg = Debug|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug|x64.Build.0 = Debug|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug-Unicode|Win32.ActiveCfg = Debug-Unicode|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug-Unicode|Win32.Build.0 = Debug-Unicode|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug-Unicode|x64.ActiveCfg = Debug-Unicode|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug-Unicode|x64.Build.0 = Debug-Unicode|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug-Unicode-3|Win32.ActiveCfg = Debug-Unicode-3|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug-Unicode-3|Win32.Build.0 = Debug-Unicode-3|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug-Unicode-3|x64.ActiveCfg = Debug-Unicode-3|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Debug-Unicode-3|x64.Build.0 = Debug-Unicode-3|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release|Win32.ActiveCfg = Release|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release|Win32.Build.0 = Release|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release|x64.ActiveCfg = Release|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release|x64.Build.0 = Release|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release-Unicode|Win32.ActiveCfg = Release-Unicode|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release-Unicode|Win32.Build.0 = Release-Unicode|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release-Unicode|x64.ActiveCfg = Release-Unicode|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release-Unicode|x64.Build.0 = Release-Unicode|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release-Unicode-3|Win32.ActiveCfg = Release-Unicode-3|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release-Unicode-3|Win32.Build.0 = Release-Unicode-3|Win32
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release-Unicode-3|x64.ActiveCfg = Release-Unicode-3|x64
+		{913D17A4-1585-4733-B91E-8533C65904EF}.Release-Unicode-3|x64.Build.0 = Release-Unicode-3|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -935,5 +961,6 @@ Global
 		{213E1C4D-556C-4D1F-AFA2-1938042920F0} = {764325D2-D606-4200-9870-067D29414B12}
 		{287CB42B-8294-4EC5-A397-4EFEC63FF908} = {764325D2-D606-4200-9870-067D29414B12}
 		{EC5F55AE-A080-4BA1-890D-1E4F0E64356F} = {764325D2-D606-4200-9870-067D29414B12}
+		{913D17A4-1585-4733-B91E-8533C65904EF} = {764325D2-D606-4200-9870-067D29414B12}
 	EndGlobalSection
 EndGlobal
