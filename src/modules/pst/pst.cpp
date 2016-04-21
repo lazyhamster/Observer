@@ -74,6 +74,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), fentry.GetFullPath().c_str());
+	wcsncpy_s(item_info->Owner, STRBUF_SIZE(item_info->Owner), fentry.Sender.c_str(), STRBUF_SIZE(item_info->Owner) - 1);
 	item_info->Attributes = (fentry.Type == ETYPE_FOLDER) ? FILE_ATTRIBUTE_DIRECTORY : FILE_ATTRIBUTE_NORMAL;
 	item_info->Size = fentry.GetSize();
 	item_info->ModificationTime = fentry.LastModificationTime;

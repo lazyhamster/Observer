@@ -54,6 +54,12 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			ftModified = msgPropBag.read_prop<FILETIME>(PR_MESSAGE_DELIVERY_TIME);
 
 		wstring emlDirPath;
+		wstring emlSender;
+
+		if (msgPropBag.prop_exists(PropMessageSenderName))
+			emlSender = msgPropBag.read_prop<std::wstring>(PropMessageSenderName);
+		else if (msgPropBag.prop_exists(PropMessageSenderEmailAddress))
+			emlSender = msgPropBag.read_prop<std::wstring>(PropMessageSenderEmailAddress);
 
 		// Create entry for message itself (file or folder depending on options)
 		{
@@ -98,6 +104,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 			fentry.msgRef = new message(m);
 			fentry.CreationTime = ftCreated;
 			fentry.LastModificationTime = ftModified;
+			fentry.Sender = emlSender;
 
 			fileInfoObj->Entries.push_back(fentry);
 
@@ -119,6 +126,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
+				fentry.Sender = emlSender;
 
 				fileInfoObj->Entries.push_back(fentry);
 			}
@@ -132,6 +140,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
+				fentry.Sender = emlSender;
 
 				fileInfoObj->Entries.push_back(fentry);
 			}
@@ -145,6 +154,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
+				fentry.Sender = emlSender;
 
 				fileInfoObj->Entries.push_back(fentry);
 			}
@@ -159,6 +169,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 				fentry.msgRef = new message(m);
 				fentry.CreationTime = ftCreated;
 				fentry.LastModificationTime = ftModified;
+				fentry.Sender = emlSender;
 
 				fileInfoObj->Entries.push_back(fentry);
 			}
@@ -199,6 +210,7 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 					fentry.attachRef = new attachment(attach);
 					fentry.CreationTime = ftCreated;
 					fentry.LastModificationTime = ftModified;
+					fentry.Sender = emlSender;
 
 					fileInfoObj->Entries.push_back(fentry);
 				} // for

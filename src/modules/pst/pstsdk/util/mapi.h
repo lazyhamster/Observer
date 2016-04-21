@@ -19,6 +19,12 @@ namespace pstsdk
 		PropMessageTransportHeaders		= 0x007d,
 		
 		PropRecipientType				= 0x0c15,
+
+		PropMessageSenderName			= 0x0c1a,
+
+		PropMessageSenderSearchKey		= 0x0c1d,
+		PropMessageSenderAdressType		= 0x0c1e,
+		PropMessageSenderEmailAddress	= 0x0c1f,
 		
 		PropMessageDeliveryTime			= 0x0e06,
 		PropMessageFlags				= 0x0e07,

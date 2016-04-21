@@ -35,6 +35,7 @@ struct PstFileEntry
 	std::wstring Folder;
 	FILETIME CreationTime;
 	FILETIME LastModificationTime;
+	std::wstring Sender;
 
 	message *msgRef;
 	attachment *attachRef;
@@ -57,6 +58,7 @@ struct PstFileEntry
 		attachRef = other.attachRef ? new attachment(*other.attachRef) : NULL;
 		CreationTime = other.CreationTime;
 		LastModificationTime = other.LastModificationTime;
+		Sender = other.Sender;
 	}
 
 	~PstFileEntry()
