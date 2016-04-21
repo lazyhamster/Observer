@@ -25,9 +25,6 @@ enum ExtractResult
 	ER_ERROR_WRITE
 };
 
-#define PR_CLIENT_SUBMIT_TIME 0x0039
-#define PR_MESSAGE_DELIVERY_TIME 0x0E06
-
 struct PstFileEntry 
 {
 	EntryType Type;

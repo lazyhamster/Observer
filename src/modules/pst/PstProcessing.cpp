@@ -48,10 +48,10 @@ bool process_message(const message& m, PstFileInfo *fileInfoObj, const wstring &
 		FILETIME ftModified = {0};
 
 		const property_bag &msgPropBag = m.get_property_bag();
-		if (msgPropBag.prop_exists(PR_CLIENT_SUBMIT_TIME))
-			ftCreated = msgPropBag.read_prop<FILETIME>(PR_CLIENT_SUBMIT_TIME);
-		if (msgPropBag.prop_exists(PR_MESSAGE_DELIVERY_TIME))
-			ftModified = msgPropBag.read_prop<FILETIME>(PR_MESSAGE_DELIVERY_TIME);
+		if (msgPropBag.prop_exists(PropMessageClientSubmitTime))
+			ftCreated = msgPropBag.read_prop<FILETIME>(PropMessageClientSubmitTime);
+		if (msgPropBag.prop_exists(PropMessageDeliveryTime))
+			ftModified = msgPropBag.read_prop<FILETIME>(PropMessageDeliveryTime);
 
 		wstring emlDirPath;
 		wstring emlSender;

@@ -16,6 +16,8 @@ namespace pstsdk
 	{
 		PropMessageSubject				= 0x0037,
 
+		PropMessageClientSubmitTime		= 0x0039,
+
 		PropMessageTransportHeaders		= 0x007d,
 		
 		PropRecipientType				= 0x0c15,
