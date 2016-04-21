@@ -15,12 +15,12 @@ ContentTreeNode::ContentTreeNode( int index, StorageItemInfo* info )
 
 ContentTreeNode::~ContentTreeNode()
 {
-	if (m_dummyFolders.size() > 0)
-		for (vector<ContentTreeNode*>::iterator iter = m_dummyFolders.begin(); iter != m_dummyFolders.end(); iter++)
-		{
-			ContentTreeNode* dir = *iter;
-			delete dir;
-		}
+	for (auto iter = m_dummyFolders.begin(); iter != m_dummyFolders.end(); iter++)
+	{
+		ContentTreeNode* dir = *iter;
+		delete dir;
+	}
+	m_dummyFolders.clear();
 
 	//subitems.clear();
 }
@@ -195,7 +195,7 @@ size_t ContentTreeNode::GetSubDirectoriesNum( bool recursive )
 	size_t nres = subdirs.size();
 	if (recursive)
 	{
-		for (SubNodesMap::const_iterator citer = subdirs.begin(); citer != subdirs.end(); citer++)
+		for (auto citer = subdirs.cbegin(); citer != subdirs.cend(); citer++)
 			nres += citer->second->GetSubDirectoriesNum(recursive);
 	}
 	return nres;
