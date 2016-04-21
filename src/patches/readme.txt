@@ -1,1 +1,1 @@
-Files in this directory are modified source of 7-zip 4.65
+Files in this directory contain information on patches to 3-rd party libraries.
