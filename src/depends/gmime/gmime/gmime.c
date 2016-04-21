@@ -183,8 +183,7 @@ g_mime_init (guint32 flags)
 	g_mime_stream_file_get_type ();
 	g_mime_stream_filter_get_type ();
 	g_mime_stream_fs_get_type ();
-	//NOTE: GIO interface is disabled for now
-	//g_mime_stream_gio_get_type ();
+	g_mime_stream_gio_get_type ();
 	g_mime_stream_mem_get_type ();
 	g_mime_stream_mmap_get_type ();
 	g_mime_stream_null_get_type ();

@@ -576,6 +576,7 @@
     <ClCompile Include="gmime\gmime-stream-file.c" />
     <ClCompile Include="gmime\gmime-stream-filter.c" />
     <ClCompile Include="gmime\gmime-stream-fs.c" />
+    <ClCompile Include="gmime\gmime-stream-gio.c" />
     <ClCompile Include="gmime\gmime-stream-mem.c" />
     <ClCompile Include="gmime\gmime-stream-mmap.c" />
     <ClCompile Include="gmime\gmime-stream-null.c" />
@@ -593,6 +594,7 @@
   <ItemGroup>
     <ClInclude Include="config.h" />
     <ClInclude Include="..\iconv\iconv.h" />
+    <ClInclude Include="gmime\gmime-stream-gio.h" />
     <ClInclude Include="unistd.h" />
     <ClInclude Include="gmime\gmime-certificate.h" />
     <ClInclude Include="gmime\gmime-charset-map-private.h" />
@@ -656,6 +658,9 @@
     <ClInclude Include="util\url-scanner.h" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\glib\build\gio.vcxproj">
+      <Project>{913d17a4-1585-4733-b91e-8533c65904ef}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\glib\build\glib.vcxproj">
       <Project>{213e1c4d-556c-4d1f-afa2-1938042920f0}</Project>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

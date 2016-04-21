@@ -198,6 +198,9 @@
     <ClCompile Include="util\url-scanner.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="gmime\gmime-stream-gio.c">
+      <Filter>Source Files\gmime</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="config.h">
@@ -388,6 +391,9 @@
     </ClInclude>
     <ClInclude Include="util\url-scanner.h">
       <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="gmime\gmime-stream-gio.h">
+      <Filter>Header Files\gmime</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
