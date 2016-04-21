@@ -25,7 +25,6 @@
 #include "../glib/valgrind.h"
 #include <string.h>
 
-#define FFI_BUILDING 1
 #include <ffi.h>
 
 #include "gclosure.h"
