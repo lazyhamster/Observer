@@ -29,7 +29,7 @@ GeaFile::~GeaFile()
 
 bool GeaFile::Open( AStream* inStream, int64_t startOffset, bool ownStream )
 {
-	if (inStream->GetSize() < startOffset + sizeof(geavolume) + sizeof(geahead))
+	if (inStream->GetSize() < startOffset + (int64_t) sizeof(geavolume) + (int64_t) sizeof(geahead))
 		return false;
 
 	geavolume vol;
@@ -494,7 +494,7 @@ bool GeaFile::CheckPassword( uint32_t passIndex, const char* password )
 	if (!password || !*password) return false;
 	if (m_vPasswordCRC.size() <= passIndex) return false;
 	
-	uint32_t passCrc = crc((pubyte) password, strlen(password), CRC_SEED);
+	uint32_t passCrc = crc((pubyte) password, (uint) strlen(password), CRC_SEED);
 	if (m_vPasswordCRC[passIndex] == passCrc)
 	{
 		m_vPasswords[passIndex] = password;

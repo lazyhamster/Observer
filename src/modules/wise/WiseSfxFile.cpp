@@ -87,7 +87,7 @@ bool CWiseSfxFile::ExtractFile( int index, const wchar_t* destPath )
 		size_t copySize = (size_t) min(bytesLeft, COPY_SIZE);
 		m_pSource->ReadBuffer(copyBuf, copySize);
 
-		crcVal = crc32(crcVal, (Bytef*) copyBuf, copySize);
+		crcVal = crc32(crcVal, (Bytef*) copyBuf, (uInt) copySize);
 		
 		if (!destStream->WriteBuffer(copyBuf, copySize))
 		{
