@@ -40,5 +40,6 @@
 #pragma warning(disable:4068)	/* Unknown pragma */
 #pragma warning(disable:4715)   /* Not all control paths return a value */
 #pragma warning(disable:4146)	/* Unary minus to unsigned type */
+#pragma warning(disable:4267)	/* Conversion, possible loss of data */
 
 #pragma warning(disable:4996)   /* Deprecated */
