@@ -59,7 +59,6 @@ unsigned int ffi_prep_args(char *stack, extended_cif *ecif)
 #else
   #define dir 1
 #endif
-  size_t z;
 
   argp = stack;
 
@@ -104,7 +103,7 @@ unsigned int ffi_prep_args(char *stack, extended_cif *ecif)
       if ((sizeof(void*) - 1) & (size_t) argp)
         argp = (char *) ALIGN(argp, sizeof(void*));
 
-      z = (*p_arg)->size;
+      size_t z = (*p_arg)->size;
 
 #ifdef X86_WIN64
       if (z > FFI_SIZEOF_ARG
@@ -211,6 +210,7 @@ unsigned int ffi_prep_args(char *stack, extended_cif *ecif)
           *(ffi_arg*) p_stack_data[stack_args_count - 1] = tmp;
         }
       
+      int i;
       for (i = 0; i < stack_args_count; i++)
         {
           if (p_stack_data[i] != argp2)
@@ -536,8 +536,6 @@ ffi_prep_incoming_args(char *stack, void **rvalue, void **avalue,
 #else
   #define dir 1
 #endif
-  size_t sz;
-  size_t z;
 
   argp = stack;
 #ifndef X86_WIN64
@@ -575,7 +573,7 @@ ffi_prep_incoming_args(char *stack, void **rvalue, void **avalue,
          || (*p_arg)->type == FFI_TYPE_STRUCT)
         continue;
 
-      sz = (*p_arg)->size;
+      size_t sz = (*p_arg)->size;
       if(sz == 0 || sz > FFI_SIZEOF_ARG)
         continue;
 
@@ -605,7 +603,7 @@ ffi_prep_incoming_args(char *stack, void **rvalue, void **avalue,
       if ((sizeof(void*) - 1) & (size_t) argp)
         argp = (char *) ALIGN(argp, sizeof(void*));
 
-      z = (*p_arg)->size;
+      size_t z = (*p_arg)->size;
 
 #ifdef X86_WIN64
       if (z > FFI_SIZEOF_ARG
@@ -844,7 +842,6 @@ ffi_prep_args_raw(char *stack, extended_cif *ecif)
 {
   const ffi_cif *cif = ecif->cif;
   unsigned int i, passed_regs = 0;
-  size_t sz;
   
 #ifndef X86_WIN64
   const unsigned int abi = cif->abi;
@@ -862,7 +859,7 @@ ffi_prep_args_raw(char *stack, extended_cif *ecif)
          || cif->arg_types[i]->type == FFI_TYPE_STRUCT)
         continue;
 
-      sz = cif->arg_types[i]->size;
+      size_t sz = cif->arg_types[i]->size;
       if (sz == 0 || sz > FFI_SIZEOF_ARG)
         continue;
 

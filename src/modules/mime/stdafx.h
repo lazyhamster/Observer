@@ -12,6 +12,7 @@
 // Windows Header Files:
 #include <windows.h>
 
+#define _ALLOW_KEYWORD_MACROS 1
 
 // Additional headers
 #include "config.h"
