@@ -44,9 +44,6 @@
     <ClCompile Include="src\x86\ffi.c">
       <Filter>Source Files\x86</Filter>
     </ClCompile>
-    <ClCompile Include="src\x86\ffi64.c">
-      <Filter>Source Files\x86</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\x86\win32.S">

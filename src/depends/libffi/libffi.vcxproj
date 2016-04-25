@@ -44,18 +44,7 @@
     <ClCompile Include="src\prep_cif.c" />
     <ClCompile Include="src\raw_api.c" />
     <ClCompile Include="src\types.c" />
-    <ClCompile Include="src\x86\ffi.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
-    </ClCompile>
-    <ClCompile Include="src\x86\ffi64.c">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="src\x86\ffi.c" />
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="src\x86\win32.S">
@@ -64,13 +53,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">cl.exe /EP /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win32_plain.asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">cl.exe /EP /nologo /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win32_plain.asm
 ml.exe /c /Cx /coff /Fo $(IntDir)\win32.obj $(IntDir)\win32_plain.asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">cl.exe /EP /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win32_plain.asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">cl.exe /EP /nologo /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win32_plain.asm
 ml.exe /c /Cx /coff /Fo $(IntDir)\win32.obj $(IntDir)\win32_plain.asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">cl.exe /EP /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win32_plain.asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">cl.exe /EP /nologo /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win32_plain.asm
 ml.exe /c /Cx /coff /safeseh /Fo $(IntDir)\win32.obj $(IntDir)\win32_plain.asm</Command>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">cl.exe /EP /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win32_plain.asm
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">cl.exe /EP /nologo /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win32_plain.asm
 ml.exe /c /Cx /coff /safeseh /Fo $(IntDir)\win32.obj $(IntDir)\win32_plain.asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(IntDir)\win32.obj</Outputs>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(IntDir)\win32.obj</Outputs>
@@ -83,17 +72,17 @@ ml.exe /c /Cx /coff /safeseh /Fo $(IntDir)\win32.obj $(IntDir)\win32_plain.asm</
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
       <FileType>Document</FileType>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">cl.exe /EP /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win64_plain.asm
-ml.exe /c /Cx /coff /Fo $(IntDir)\win64.obj $(IntDir)\win64_plain.asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">cl.exe /EP /nologo /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win64_plain.asm
+ml64.exe /c /Cx /Fo $(IntDir)\win64.obj $(IntDir)\win64_plain.asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(IntDir)\win64.obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">cl.exe /EP /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win64_plain.asm
-ml.exe /c /Cx /coff /Fo $(IntDir)\win64.obj $(IntDir)\win64_plain.asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">cl.exe /EP /nologo /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win64_plain.asm
+ml64.exe /c /Cx /Fo $(IntDir)\win64.obj $(IntDir)\win64_plain.asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(IntDir)\win64.obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">cl.exe /EP /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win64_plain.asm
-ml.exe /c /Cx /coff /safeseh /Fo $(IntDir)\win64.obj $(IntDir)\win64_plain.asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">cl.exe /EP /nologo /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win64_plain.asm
+ml64.exe /c /Cx /Fo $(IntDir)\win64.obj $(IntDir)\win64_plain.asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(IntDir)\win64.obj</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">cl.exe /EP /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win64_plain.asm
-ml.exe /c /Cx /coff /safeseh /Fo $(IntDir)\win64.obj $(IntDir)\win64_plain.asm</Command>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">cl.exe /EP /nologo /I $(ProjectDir)\include %(FullPath) &gt; $(IntDir)\win64_plain.asm
+ml64.exe /c /Cx /Fo $(IntDir)\win64.obj $(IntDir)\win64_plain.asm</Command>
       <Outputs Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(IntDir)\win64.obj</Outputs>
     </CustomBuild>
   </ItemGroup>
