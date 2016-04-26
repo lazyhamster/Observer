@@ -224,12 +224,11 @@ InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
 
 3. Системные требования.
 OS: WinXP или новее.
-Минимальные версии FAR-а для работы плагина 1.75 build 2634 / 2.0 build 1807
 
 Windows Installer 4+
-Microsoft Visual C++ 2010 SP1 Redistributable Package
+Microsoft Visual C++ 2013 Redistributable Package
 
-Модуль VDISK дополнительно требует Microsoft .NET Framework 4.0.
+Модуль VDISK дополнительно требует Microsoft .NET Framework 4.5.
 Если .NET не установлен, то этот модуль не будет загружаться.
 
 4. Гарантии.

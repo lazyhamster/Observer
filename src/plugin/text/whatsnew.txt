@@ -1,6 +1,7 @@
 Changes history:
 
 1.12.0
+- Plugin now requires Visual C++ 2013 Redist.
 - Changes in modules API.
 - New file property exposed: Owner (for containers where applicable).
 - Updated GLib library to version 2.48.0.

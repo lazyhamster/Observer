@@ -225,12 +225,11 @@ PDF rendering library.
 
 3. System requirements.
 OS: WinXP or higher.
-Minimal FAR versions are 1.75 build 2634 / 2.0 build 1807
 
 Windows Installer 4+
-Microsoft Visual C++ 2010 SP1 Redistributable Package
+Microsoft Visual C++ 2013 Redistributable Package
 
-VDISK module requires Microsoft .NET Framework 4.0 to be installed.
+VDISK module requires Microsoft .NET Framework 4.5 to be installed.
 If you don't install .NET then this modile will not load.
 
 4. Diclaimer.
