@@ -32,6 +32,11 @@ BaseGenteeFile* TryOpenFile(const wchar_t* path, const char* sample, size_t samp
 		return instNewFile;
 	delete instNewFile;
 
+	BaseGenteeFile* instOldFile = new InstallerOldFile();
+	if (instOldFile->Open(inFile))
+		return instOldFile;
+	delete instOldFile;
+
 	delete inFile;
 	return nullptr;
 }
