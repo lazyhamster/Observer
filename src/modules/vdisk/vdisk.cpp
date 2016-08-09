@@ -356,59 +356,65 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
-	VDisk* vdObj = (VDisk*) storage;
+	VDisk* vdObj = (VDisk*)storage;
 	if (vdObj == NULL || params.ItemIndex < 0 || params.ItemIndex >= vdObj->vItems->Count || !params.DestPath)
 		return SER_ERROR_SYSTEM;
 
 	List<VDFileInfo^> ^fileList = vdObj->vItems;
 	VDFileInfo^ fileInfo = fileList[params.ItemIndex];
-	
+
 	// We do not extract directories
 	if (fileInfo->Ref->GetType() != DiscFileInfo::typeid)
 		return SER_ERROR_SYSTEM;
-	
-	DiscFileInfo^ dfi = (DiscFileInfo^) fileInfo->Ref;
+
+	DiscFileInfo^ dfi = (DiscFileInfo^)fileInfo->Ref;
 	if (!dfi->Exists) return SER_ERROR_READ;
 
 	String^ strDestFile = gcnew String(params.DestPath);
 	int result = SER_SUCCESS;
-	
+
 	try
 	{
 		IO::Stream ^inStr = dfi->OpenRead();
 		IO::Stream ^outStr = gcnew IO::FileStream(strDestFile, IO::FileMode::Create, IO::FileAccess::Write, IO::FileShare::Read);
 
-		int copyBufSize = 32 * 1024;
-		array<Byte> ^copyBuf = gcnew array<Byte>(copyBufSize);
-		
-		Int64 bytesLeft = dfi->Length;
-		while (bytesLeft > 0)
+		try
 		{
-			int copySize = (int) Math::Min(bytesLeft, (Int64) copyBufSize);
-			int readNum = inStr->Read(copyBuf, 0, copySize);
+			int copyBufSize = 32 * 1024;
+			array<Byte> ^copyBuf = gcnew array<Byte>(copyBufSize);
 
-			if (readNum != copySize)
+			Int64 bytesLeft = dfi->Length;
+			while (bytesLeft > 0)
 			{
-				result = SER_ERROR_READ;
-				break;
-			}
-			
-			outStr->Write(copyBuf, 0, readNum);
-			bytesLeft -= readNum;
-			
-			if (params.Callbacks.FileProgress)
-				if (!params.Callbacks.FileProgress(params.Callbacks.signalContext, readNum))
+				int copySize = (int) Math::Min(bytesLeft, (Int64) copyBufSize);
+				int readNum = inStr->Read(copyBuf, 0, copySize);
+
+				if (readNum != copySize)
 				{
-					result = SER_USERABORT;
+					result = SER_ERROR_READ;
 					break;
 				}
+
+				outStr->Write(copyBuf, 0, readNum);
+				bytesLeft -= readNum;
+
+				if (params.Callbacks.FileProgress)
+					if (!params.Callbacks.FileProgress(params.Callbacks.signalContext, readNum))
+					{
+						result = SER_USERABORT;
+						break;
+					}
+			}
 		}
-		
-		outStr->Close();
-		inStr->Close();
+		finally
+		{
+			outStr->Close();
+			inStr->Close();
+		}
 	}
 	catch (...)
 	{
+		//TODO: find exact reason for exception (read or write)
 		result = SER_ERROR_WRITE;
 	}
 

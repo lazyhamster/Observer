@@ -6,6 +6,7 @@ Changes history:
 - New file property exposed: Owner (for containers where applicable).
 - Updated GLib library to version 2.48.0.
 - Updated GMime library to version 2.6.20.
+- VDISK: Fixed crash after failed files extraction.
 
 1.11.2
 - PST: Fixed invalid path characters in folder names.
