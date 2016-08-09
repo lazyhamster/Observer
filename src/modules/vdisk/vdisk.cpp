@@ -412,10 +412,12 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			inStr->Close();
 		}
 	}
-	catch (...)
+	catch (Exception^ ex)
 	{
-		//TODO: find exact reason for exception (read or write)
-		result = SER_ERROR_WRITE;
+		if (String::Compare(ex->Source, "DiscUtils", true) == 0)
+			result = SER_ERROR_READ;
+		else
+			result = SER_ERROR_WRITE;
 	}
 
 	if (result != SER_SUCCESS && IO::File::Exists(strDestFile))
