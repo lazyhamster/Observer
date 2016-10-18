@@ -7,20 +7,24 @@
 struct ExternalModule
 {
 	ExternalModule(const wchar_t* Name, const wchar_t* Library)
-		: m_sModuleName(Name), m_sLibraryFile(Library), ModuleHandle(0), ModuleVersion(0)
+		: m_sModuleName(Name), m_sLibraryFile(Library)
 	{
 		LoadModule = nullptr;
 		UnloadModule = nullptr;
+		ModuleHandle = 0;
+		ModuleVersion = 0;
+		ModuleId = GUID_NULL;
 		memset(&ModuleFunctions, 0, sizeof(ModuleFunctions));
 		ShortCut = '\0';
 	}
 	
 	HMODULE ModuleHandle;
-	std::vector<wstring> ExtensionFilter;
+	std::vector<std::wstring> ExtensionFilter;
 
 	LoadSubModuleFunc LoadModule;
 	UnloadSubModuleFunc UnloadModule;
 
+	GUID ModuleId;
 	DWORD ModuleVersion;
 	module_cbs ModuleFunctions;
 

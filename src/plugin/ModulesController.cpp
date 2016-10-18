@@ -225,6 +225,7 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 					else
 					{
 						module.ModuleFunctions = loadParams.ApiFuncs;
+						module.ModuleId = loadParams.ModuleId;
 						module.ModuleVersion = loadParams.ModuleVersion;
 
 						return true;

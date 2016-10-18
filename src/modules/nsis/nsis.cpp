@@ -72,6 +72,9 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 // Exported Functions
 //////////////////////////////////////////////////////////////////////////
 
+// {8A6011C7-565F-41D2-A5E6-B063330813DB}
+static const GUID MODULE_GUID = { 0x8a6011c7, 0x565f, 0x41d2, { 0xa5, 0xe6, 0xb0, 0x63, 0x33, 0x8, 0x13, 0xdb } };
+
 int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
 #if defined(_7ZIP_LARGE_PAGES)
@@ -93,6 +96,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 		return FALSE;
 	}
 	
+	LoadParams->ModuleId = MODULE_GUID;
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
 	LoadParams->ApiFuncs.OpenStorage = OpenStorage;

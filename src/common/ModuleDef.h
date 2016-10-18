@@ -55,11 +55,11 @@ struct ExtractOperationParams
 	ExtractProcessCallbacks Callbacks;
 };
 
-typedef int (MODULE_EXPORT *OpenStorageFunc)(StorageOpenParams, HANDLE*, StorageGeneralInfo*);
-typedef int (MODULE_EXPORT *PrepareFilesFunc)(HANDLE);
-typedef void (MODULE_EXPORT *CloseStorageFunc)(HANDLE);
-typedef int (MODULE_EXPORT *GetItemFunc)(HANDLE, int, StorageItemInfo*);
-typedef int (MODULE_EXPORT *ExtractFunc)(HANDLE, ExtractOperationParams params);
+typedef int (MODULE_EXPORT *OpenStorageFunc)(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo *info);
+typedef int (MODULE_EXPORT *PrepareFilesFunc)(HANDLE storage);
+typedef void (MODULE_EXPORT *CloseStorageFunc)(HANDLE storage);
+typedef int (MODULE_EXPORT *GetItemFunc)(HANDLE storage, int item_index, StorageItemInfo* item_info);
+typedef int (MODULE_EXPORT *ExtractFunc)(HANDLE storage, ExtractOperationParams params);
 
 struct module_cbs
 {
@@ -75,6 +75,7 @@ struct ModuleLoadParameters
 	//IN
 	const wchar_t* Settings;
 	//OUT
+	GUID ModuleId;
 	DWORD ModuleVersion;
 	DWORD ApiVersion;
 	module_cbs ApiFuncs;

@@ -87,8 +87,12 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 // Exported Functions
 //////////////////////////////////////////////////////////////////////////
 
+// {32D5AEAA-C662-4FA3-AFD1-FFDB64D3B394}
+static const GUID MODULE_GUID = { 0x32d5aeaa, 0xc662, 0x4fa3, { 0xaf, 0xd1, 0xff, 0xdb, 0x64, 0xd3, 0xb3, 0x94 } };
+
 int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
+	LoadParams->ModuleId = MODULE_GUID;
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
 	LoadParams->ApiFuncs.OpenStorage = OpenStorage;

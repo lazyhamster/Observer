@@ -122,8 +122,12 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 // Exported Functions
 //////////////////////////////////////////////////////////////////////////
 
+// {3880FA27-C428-474E-8805-668318051EF7}
+static const GUID MODULE_GUID = { 0x3880fa27, 0xc428, 0x474e, { 0x88, 0x5, 0x66, 0x83, 0x18, 0x5, 0x1e, 0xf7 } };
+
 int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
+	LoadParams->ModuleId = MODULE_GUID;
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;
 	LoadParams->ApiFuncs.OpenStorage = OpenStorage;
