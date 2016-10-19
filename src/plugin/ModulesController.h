@@ -71,7 +71,7 @@ public:
 	int Init(const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed);
 	void Cleanup();
 	
-	size_t NumModules() { return modules.size(); }
+	size_t NumModules() const { return modules.size(); }
 	const ExternalModule& GetModule(int index) { return modules[index]; }
 
 	int OpenStorageFile(OpenStorageFileInParams srcParams, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *info);

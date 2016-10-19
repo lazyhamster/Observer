@@ -142,16 +142,18 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 {
 	wchar_t passBuf[100] = {0};
 
-	bool fRet = FarSInfo.InputBox(&OBSERVER_GUID, &GUID_OBS_INPUTBOX, GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_PASS_REQUIRED), NULL, NULL, passBuf, ARRAY_SIZE(passBuf)-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY) == TRUE;
-	if (fRet)
+	intptr_t nRet = FarSInfo.InputBox(&OBSERVER_GUID, &GUID_OBS_INPUTBOX, GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_PASS_REQUIRED), NULL, NULL, passBuf, ARRAY_SIZE(passBuf)-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY);
+	if (nRet == TRUE)
 	{
 		memset(buffer, 0, bufferSize);
 		WideCharToMultiByte(CP_ACP, 0, passBuf, -1, buffer, (int) bufferSize - 1, NULL, NULL);
+		return true;
 	}
-	return fRet;
+	
+	return false;
 }
 
-static void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
+static void ReportFailedModules(std::vector<FailedModuleInfo> &failedModules)
 {
 	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
 

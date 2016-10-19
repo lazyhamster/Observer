@@ -11,19 +11,19 @@ class ContentTreeNode
 {
 private:
 	// Support for storages where only files are defined (with path though)
-	vector<ContentTreeNode* > m_dummyFolders;
+	std::vector<ContentTreeNode* > m_dummyFolders;
 	ContentTreeNode* insertDummyDirectory(const wchar_t *name);
 
 	ContentTreeNode* GetSubDir(const wchar_t* name);
 	void AddFile(ContentTreeNode* child);
 	void Init(int item_index, StorageItemInfo* item_info);
 
-	wstring m_strName;
+	std::wstring m_strName;
 	__int64 m_nSize;
 	__int64 m_nPackedSize;
 	DWORD m_nAttributes;
 	WORD m_nNumberOfHardlinks;
-	wstring m_strOwner;
+	std::wstring m_strOwner;
 
 public:
 	int StorageIndex;
