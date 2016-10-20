@@ -304,7 +304,7 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 	if (pc->bDisplayOnScreen && (nFileProgress != pc->nCurrentProgress))
 	{
 		static wchar_t szFileProgressLine[100] = {0};
-		swprintf_s(szFileProgressLine, 100, L"File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, nFileProgress, nTotalProgress);
+		swprintf_s(szFileProgressLine, ARRAY_SIZE(szFileProgressLine), L"File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, nFileProgress, nTotalProgress);
 
 		static const wchar_t* InfoLines[4];
 		InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
@@ -675,7 +675,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	}
 
 	// Extract all files one by one
-	for (ContentNodeList::const_iterator cit = items.begin(); cit != items.end(); cit++)
+	for (auto cit = items.begin(); cit != items.end(); cit++)
 	{
 		if (extParams.bShowProgress)
 		{
@@ -949,11 +949,11 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 	PluginPanelItem *panelItem = fdInfo->PanelItem;
 
 	// Display all directories
-	for (SubNodesMap::const_iterator cit = info->CurrentDir()->subdirs.begin(); cit != info->CurrentDir()->subdirs.end(); cit++)
+	for (auto cit = info->CurrentDir()->subdirs.cbegin(); cit != info->CurrentDir()->subdirs.cend(); cit++)
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
-		ContentTreeNode* node = (cit->second);
+		const ContentTreeNode* node = (cit->second);
 
 		panelItem->FileName = node->Name();
 		panelItem->FileAttributes = node->GetAttributes();
@@ -966,11 +966,11 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 	}
 
 	// Display all files
-	for (SubNodesMap::const_iterator cit = info->CurrentDir()->files.begin(); cit != info->CurrentDir()->files.end(); cit++)
+	for (auto cit = info->CurrentDir()->files.cbegin(); cit != info->CurrentDir()->files.cend(); cit++)
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
-		ContentTreeNode* node = (cit->second);
+		const ContentTreeNode* node = (cit->second);
 
 		panelItem->FileName = node->Name();
 		panelItem->FileAttributes = node->GetAttributes();

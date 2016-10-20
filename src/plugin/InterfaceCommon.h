@@ -10,6 +10,9 @@
 	#endif
 #endif
 
+#define CONFIG_FILE L"observer.ini"
+#define CONFIG_USER_FILE L"observer_user.ini"
+
 enum KeepPathValues
 {
 	KPV_NOPATH = 0,

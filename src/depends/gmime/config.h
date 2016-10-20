@@ -51,7 +51,7 @@
 /* #undef HAVE_ICONV_DETECT_H */
 
 /* Define to 1 if you have the <inttypes.h> header file. */
-/* #undef HAVE_INTTYPES_H */
+#define HAVE_INTTYPES_H 1
 
 /* Define to 1 if you have the `localtime' function. */
 #define HAVE_LOCALTIME 1

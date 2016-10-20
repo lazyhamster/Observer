@@ -515,6 +515,7 @@
     <ClCompile Include="..\libintl\libintl.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\config.h" />
     <ClInclude Include="..\glib\deprecated\gallocator.h" />
     <ClInclude Include="..\glib\deprecated\gcache.h" />
     <ClInclude Include="..\glib\deprecated\gcompletion.h" />
