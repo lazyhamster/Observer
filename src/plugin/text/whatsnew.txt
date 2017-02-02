@@ -4,6 +4,7 @@ Changes history:
 - Plugin now requires Visual C++ 2013 Redist.
 - Changes in modules API.
 - New file property exposed: Owner (for containers where applicable).
+- Now you can configure reaction on Enter and Ctrl-PgDn seprately.
 - Updated GLib library to version 2.48.0.
 - Updated GMime library to version 2.6.20.
 - VDISK: Fixed crash after failed files extraction.

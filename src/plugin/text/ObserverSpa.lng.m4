@@ -4,9 +4,10 @@
 "Observer"
 
 "Configuración de Observer"
-"Acti&var complemento"
 "Usar &prefijo"
 "Usar &filtros de extensión"
+"Abrir archivos en &Enter"
+"Abrir archivos en &Ctrl-PgDn"
 
 "Formato"
 "Compresión"

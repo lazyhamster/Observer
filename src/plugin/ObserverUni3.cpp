@@ -28,7 +28,8 @@ static ModulesController g_pController;
 
 // Settings
 #define MAX_PREFIX_SIZE 32
-static int optEnabled = TRUE;
+static int optOpenOnEnter = TRUE;
+static int optOpenOnCtrlPgDn = TRUE;
 static int optUsePrefix = TRUE;
 static int optUseExtensionFilters = TRUE;
 static int optVerboseModuleLoad = FALSE;
@@ -58,7 +59,8 @@ static void LoadSettings(Config* cfg)
 	// Load dynamic settings from registry (they will overwrite static ones)
 	PluginSettings ps(OBSERVER_GUID, FarSInfo.SettingsControl);
 
-	optEnabled = ps.Get(0, L"Enabled", optEnabled);
+	optOpenOnEnter = ps.Get(0, L"OpenOnEnter", optOpenOnEnter);
+	optOpenOnCtrlPgDn = ps.Get(0, L"OpenOnCtrlPgdn", optOpenOnCtrlPgDn);
 	optUsePrefix = ps.Get(0, L"UsePrefix", optUsePrefix);
 	ps.Get(0, L"Prefix", optPrefix, MAX_PREFIX_SIZE, optPrefix);
 
@@ -70,7 +72,8 @@ static void SaveSettings()
 {
 	PluginSettings ps(OBSERVER_GUID, FarSInfo.SettingsControl);
 	
-	ps.Set(0, L"Enabled", optEnabled);
+	ps.Set(0, L"OpenOnEnter", optOpenOnEnter);
+	ps.Set(0, L"OpenOnCtrlPgdn", optOpenOnCtrlPgDn);
 	ps.Set(0, L"UsePrefix", optUsePrefix);
 	ps.Set(0, L"Prefix", optPrefix);
 	ps.Set(0, L"UseExtensionFilters", optUseExtensionFilters);
@@ -812,7 +815,8 @@ intptr_t WINAPI ConfigureW(const ConfigureInfo* Info)
 {
 	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_CONFIG_DIALOG, GetLocMsg(MSG_CONFIG_TITLE), L"ObserverConfig");
 
-	Builder.AddCheckbox(MSG_CONFIG_ENABLE, &optEnabled);
+	Builder.AddCheckbox(MSG_CONFIG_OPEN_ON_ENTER, &optOpenOnEnter);
+	Builder.AddCheckbox(MSG_CONFIG_OPEN_ON_CTRL_PGDN, &optOpenOnCtrlPgDn);
 	Builder.AddCheckbox(MSG_CONFIG_PREFIX, &optUsePrefix);
 	
 	FarDialogItem* edtField = Builder.AddFixEditField(optPrefix, ARRAY_SIZE(optPrefix), 16);
@@ -839,7 +843,12 @@ void WINAPI ClosePanelW(const struct ClosePanelInfo* info)
 
 HANDLE WINAPI AnalyseW(const AnalyseInfo* AInfo)
 {
-	if (!AInfo || !optEnabled || !AInfo->FileName)
+	if (!AInfo || !AInfo->FileName)
+		return nullptr;
+
+	bool isCtrlPgdn = (AInfo->OpMode & OPM_PGDN) != 0;
+
+	if ((isCtrlPgdn && !optOpenOnCtrlPgDn) || (!isCtrlPgdn && !optOpenOnEnter))
 		return nullptr;
 
 	int nAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0, AInfo->Buffer, AInfo->BufferSize);

@@ -4,9 +4,10 @@
 "Observer"
 
 "Observer Configuration"
-"&Enable plugin"
 "Use &prefix"
 "Use extension &filters"
+"Open files on &Enter"
+"Open files on &Ctrl-PgDn"
 
 "Format"
 "Compression"

@@ -33,10 +33,14 @@ m4_include(`version.m4i')m4_dnl
 $ #Observer configuration#
     In this dialog you may change following parameters:
 
- #Enable plugin#
- Enables / Disables plugin's reaction to Enter and Ctrl-PgDn.
+ #Open files on Enter#
+ Enables / Disables plugin's reaction to #Enter#.
  This option does not affect plugins menu (F11).
-
+ 
+ #Open files on Ctrl-PgDn#
+ Enables / Disables plugin's reaction to #Ctrl-PgDn#.
+ This option does not affect plugins menu (F11).
+ 
  #Use prefix#
  Enables / Disables reaction on prefix.
  
