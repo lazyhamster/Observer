@@ -4,7 +4,10 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright 2013 Igalia S.L.
+// Copyright 2013, 2014 Igalia S.L.
+// Copyright 2014 Luigi Scarso <luigi.scarso@gmail.com>
+// Copyright 2014 Albert Astals Cid <aacid@kde.org>
+// Copyright 2015 Dmytro Morgun <lztoad@gmail.com>
 //
 //========================================================================
 
@@ -277,6 +280,20 @@ struct AttributeDefaults {
     Before.initName("Before");
     Nat1.initInt(1);
   }
+
+  ~AttributeDefaults() {
+    Inline.free();
+    LrTb.free();
+    Normal.free();
+    Distribute.free();
+    off.free();
+    Zero.free();
+    Auto.free();
+    Start.free();
+    None.free();
+    Before.free();
+    Nat1.free();
+  }
 };
 
 static const AttributeDefaults attributeDefaults;
@@ -506,6 +523,7 @@ static GBool ownerHasMorePriority(Attribute::Owner a, Attribute::Owner b)
 
 enum ElementType {
   elementTypeUndefined,
+  elementTypeGrouping,
   elementTypeInline,
   elementTypeBlock,
 };
@@ -516,16 +534,16 @@ static const struct TypeMapEntry {
   ElementType               elementType;
   const AttributeMapEntry **attributes;
 } typeMap[] = {
-  { StructElement::Document,   "Document",   elementTypeInline,    attributeMapShared       },
-  { StructElement::Part,       "Part",       elementTypeInline,    attributeMapShared       },
-  { StructElement::Art,        "Art",        elementTypeInline,    attributeMapColumns      },
-  { StructElement::Sect,       "Sect",       elementTypeInline,    attributeMapColumns      },
-  { StructElement::Div,        "Div",        elementTypeInline,    attributeMapColumns      },
-  { StructElement::BlockQuote, "BlockQuote", elementTypeInline,    attributeMapInline       },
-  { StructElement::Caption,    "Caption",    elementTypeInline,    attributeMapInline       },
-  { StructElement::NonStruct,  "NonStruct",  elementTypeInline,    attributeMapInline       },
-  { StructElement::Index,      "Index",      elementTypeInline,    attributeMapInline       },
-  { StructElement::Private,    "Private",    elementTypeInline,    attributeMapInline       },
+  { StructElement::Document,   "Document",   elementTypeGrouping,  attributeMapShared       },
+  { StructElement::Part,       "Part",       elementTypeGrouping,  attributeMapShared       },
+  { StructElement::Art,        "Art",        elementTypeGrouping,  attributeMapColumns      },
+  { StructElement::Sect,       "Sect",       elementTypeGrouping,  attributeMapColumns      },
+  { StructElement::Div,        "Div",        elementTypeGrouping,  attributeMapColumns      },
+  { StructElement::BlockQuote, "BlockQuote", elementTypeGrouping,  attributeMapInline       },
+  { StructElement::Caption,    "Caption",    elementTypeGrouping,  attributeMapInline       },
+  { StructElement::NonStruct,  "NonStruct",  elementTypeGrouping,  attributeMapInline       },
+  { StructElement::Index,      "Index",      elementTypeGrouping,  attributeMapInline       },
+  { StructElement::Private,    "Private",    elementTypeGrouping,  attributeMapInline       },
   { StructElement::Span,       "Span",       elementTypeInline,    attributeMapInline       },
   { StructElement::Quote,      "Quote",      elementTypeInline,    attributeMapInline       },
   { StructElement::Note,       "Note",       elementTypeInline,    attributeMapInline       },
@@ -552,7 +570,7 @@ static const struct TypeMapEntry {
   { StructElement::L,          "L",          elementTypeBlock,     attributeMapList         },
   { StructElement::LI,         "LI",         elementTypeBlock,     attributeMapBlock        },
   { StructElement::Lbl,        "Lbl",        elementTypeBlock,     attributeMapBlock        },
-  { StructElement::LBody,      "LBody",      elementTypeUndefined, attributeMapBlock        },
+  { StructElement::LBody,      "LBody",      elementTypeBlock,     attributeMapBlock        },
   { StructElement::Table,      "Table",      elementTypeBlock,     attributeMapTable        },
   { StructElement::TR,         "TR",         elementTypeUndefined, attributeMapShared       },
   { StructElement::TH,         "TH",         elementTypeUndefined, attributeMapTableCell    },
@@ -563,8 +581,8 @@ static const struct TypeMapEntry {
   { StructElement::Figure,     "Figure",     elementTypeUndefined, attributeMapIllustration },
   { StructElement::Formula,    "Formula",    elementTypeUndefined, attributeMapIllustration },
   { StructElement::Form,       "Form",       elementTypeUndefined, attributeMapIllustration },
-  { StructElement::TOC,        "TOC",        elementTypeUndefined, attributeMapShared       },
-  { StructElement::TOCI,       "TOCI",       elementTypeUndefined, attributeMapShared       },
+  { StructElement::TOC,        "TOC",        elementTypeGrouping,  attributeMapShared       },
+  { StructElement::TOCI,       "TOCI",       elementTypeGrouping,  attributeMapShared       },
 };
 
 
@@ -676,11 +694,11 @@ static StructElement::Type nameToType(const char *name)
 // Attribute
 //------------------------------------------------------------------------
 
-Attribute::Attribute(const char *nameA, Object *valueA):
+Attribute::Attribute(const char *nameA, int nameLenA, Object *valueA):
   type(UserProperty),
   owner(UserProperties),
   revision(0),
-  name(nameA),
+  name(nameA, nameLenA),
   value(),
   hidden(gFalse),
   formatted(NULL)
@@ -788,10 +806,13 @@ Attribute *Attribute::parseUserProperty(Dict *property)
 {
   Object obj, value;
   const char *name = NULL;
+  int nameLen = GooString::CALC_STRING_LEN;
 
-  if (property->lookup("N", &obj)->isString())
-    name = obj.getString()->getCString();
-  else if (obj.isName())
+  if (property->lookup("N", &obj)->isString()) {
+    GooString *s = obj.getString();
+    name = s->getCString();
+    nameLen = s->getLength();
+  } else if (obj.isName())
     name = obj.getName();
   else {
     error(errSyntaxError, -1, "N object is wrong type ({0:s})", obj.getTypeName());
@@ -806,7 +827,7 @@ Attribute *Attribute::parseUserProperty(Dict *property)
     return NULL;
   }
 
-  Attribute *attribute = new Attribute(name, &value);
+  Attribute *attribute = new Attribute(name, nameLen, &value);
   value.free();
   obj.free();
 
@@ -913,6 +934,12 @@ GBool StructElement::isInline() const
   return entry ? (entry->elementType == elementTypeInline) : gFalse;
 }
 
+GBool StructElement::isGrouping() const
+{
+  const TypeMapEntry *entry = getTypeMapEntry(type);
+  return entry ? (entry->elementType == elementTypeGrouping) : gFalse;
+}
+
 GBool StructElement::hasPageRef() const
 {
   return pageRef.isRef() || (parent && parent->hasPageRef());
@@ -1005,8 +1032,8 @@ GooString* StructElement::appendSubTreeText(GooString *string, GBool recursive) 
   if (!string)
     string = new GooString();
 
-  for (unsigned i = 0; i < getNumElements(); i++)
-    getElement(i)->appendSubTreeText(string, recursive);
+  for (unsigned i = 0; i < getNumChildren(); i++)
+    getChild(i)->appendSubTreeText(string, recursive);
 
   return string;
 }
@@ -1151,7 +1178,7 @@ void StructElement::parse(Dict *element)
     for (int i = 0; i < obj.arrayGetLength(); i++) {
       if (obj.arrayGet(i, &iobj)->isDict()) {
         attrIndex = getNumAttributes();
-        parseAttributes(obj.getDict());
+        parseAttributes(iobj.getDict());
       } else if (iobj.isInt()) {
         const int revision = iobj.getInt();
         // Set revision numbers for the elements previously created.
@@ -1260,7 +1287,7 @@ StructElement *StructElement::parseChild(Object *ref,
       child = new StructElement(childObj->getDict(), treeRoot, this, seen);
     } else {
       error(errSyntaxWarning, -1,
-            "Loop detected in structure tree, skipping subtree at object {0:i}:{0:i}",
+            "Loop detected in structure tree, skipping subtree at object {0:d}:{1:d}",
             ref->getRefNum(), ref->getRefGen());
     }
   } else {
@@ -1269,7 +1296,7 @@ StructElement *StructElement::parseChild(Object *ref,
 
   if (child) {
     if (child->isOk()) {
-      appendElement(child);
+      appendChild(child);
       if (ref->isRef())
         treeRoot->parentTreeAdd(ref->getRef(), child);
     } else {

@@ -15,19 +15,20 @@
 //
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2005 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2005-2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2013, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006-2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2006 Nickolay V. Shmyrev <nshmyrev@yandex.ru>
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
-// Copyright (C) 2006-2011 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2006-2011, 2015 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright (C) 2008 Brad Hards <bradh@kde.org>
 // Copyright (C) 2008 Ilya Gorenbein <igorenbein@finjan.com>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2013, 2014 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2013 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2015 Philipp Reinkemeier <philipp.reinkemeier@offis.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -324,6 +325,7 @@ Page::Page(PDFDoc *docA, int numA, Dict *pageDict, Ref pageRefA, PageAttrs *attr
   if (!(thumb.isStream() || thumb.isNull() || thumb.isRef())) {
       error(errSyntaxError, -1, "Page thumb object (page {0:d}) is wrong type ({1:s})",
             num, thumb.getTypeName());
+      thumb.free();
       thumb.initNull(); 
   }
 
@@ -332,6 +334,7 @@ Page::Page(PDFDoc *docA, int numA, Dict *pageDict, Ref pageRefA, PageAttrs *attr
   if (!(actions.isDict() || actions.isNull())) {
       error(errSyntaxError, -1, "Page additional action object (page {0:d}) is wrong type ({1:s})",
             num, actions.getTypeName());
+      actions.free();
       actions.initNull();
   }
   
@@ -442,8 +445,21 @@ void Page::addAnnot(Annot *annot) {
     obj1.free();
   }
 
-  annots->appendAnnot(annot);
+  // Popup annots are already handled by markup annots,
+  // so add to the list only Popup annots without a
+  // markup annotation associated.
+  if (annot->getType() != Annot::typePopup ||
+      static_cast<AnnotPopup*>(annot)->getParentNF()->isNull()) {
+    annots->appendAnnot(annot);
+  }
   annot->setPage(num, gTrue);
+
+  AnnotMarkup *annotMarkup = dynamic_cast<AnnotMarkup*>(annot);
+  if (annotMarkup) {
+    AnnotPopup *annotPopup = annotMarkup->getPopup();
+    if (annotPopup)
+      addAnnot(annotPopup);
+  }
 }
 
 void Page::removeAnnot(Annot *annot) {
@@ -672,7 +688,7 @@ GBool Page::loadThumb(unsigned char **data_out,
     obj1.free ();
     dict->lookup ("CS", &obj1);
   }
-  colorSpace = GfxColorSpace::parse(&obj1, NULL, NULL);
+  colorSpace = GfxColorSpace::parse(NULL, &obj1, NULL, NULL);
   obj1.free();
   if (!colorSpace) {
     fprintf (stderr, "Error: Cannot parse color space\n");

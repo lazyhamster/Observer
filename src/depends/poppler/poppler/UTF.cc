@@ -16,6 +16,8 @@
 // Copyright (C) 2008 Koji Otani <sho@bbr.jp>
 // Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2016 Jason Crain <jason@aquaticape.us>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -25,6 +27,7 @@
 #include "goo/gmem.h"
 #include "PDFDocEncoding.h"
 #include "UTF.h"
+#include <algorithm>
 
 bool UnicodeIsValid(Unicode ucs4)
 {
@@ -89,8 +92,10 @@ int TextStringToUCS4(GooString *textStr, Unicode **ucs4)
 
   len = textStr->getLength();
   s = textStr->getCString();
-  if (len == 0)
+  if (len == 0) {
+    *ucs4 = 0;
     return 0;
+  }
 
   if (textStr->hasUnicodeMarker()) {
     Unicode *utf16;
@@ -113,4 +118,15 @@ int TextStringToUCS4(GooString *textStr, Unicode **ucs4)
   }
   *ucs4 = u;
   return len;
+}
+
+bool UnicodeIsWhitespace(Unicode ucs4)
+{
+  static Unicode const spaces[] = { 0x0009, 0x000A, 0x000B, 0x000C, 0x000D,
+    0x0020, 0x0085, 0x00A0, 0x2000, 0x2001, 0x2002, 0x2003, 0x2004, 0x2005,
+    0x2006, 0x2007, 0x2008, 0x2009, 0x200A, 0x2028, 0x2029, 0x202F, 0x205F,
+    0x3000 };
+  Unicode const *end = spaces + sizeof(spaces) / sizeof(spaces[0]);
+  Unicode const *i = std::lower_bound(spaces, end, ucs4);
+  return (i != end && *i == ucs4);
 }

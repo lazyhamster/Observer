@@ -6,17 +6,35 @@
 //
 //========================================================================
 
+//========================================================================
+//
+// Modified under the Poppler project - http://poppler.freedesktop.org
+//
+// All changes made under the Poppler project to this file are licensed
+// under GPL version 2 or later
+//
+// Copyright (C) 2014 Bogdan Cristea <cristeab@gmail.com>
+// Copyright (C) 2014 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2016 Tor Lillqvist <tml@collabora.com>
+//
+// To see a description of the changes please see the Changelog file that
+// came with your tarball or type make ChangeLog if you are building from git
+//
+//========================================================================
+
 #ifndef POPPLER_CONFIG_H
 #define POPPLER_CONFIG_H
+
+#include <stdio.h>
 
 // We duplicate some of the config.h #define's here since they are
 // used in some of the header files we install.  The #ifndef/#endif
 // around #undef look odd, but it's to silence warnings about
 // redefining those symbols.
 
-/* Defines the poppler version */
+/* Defines the poppler version. */
 #ifndef POPPLER_VERSION
-#define POPPLER_VERSION "0.25.0"
+#define POPPLER_VERSION "0.51.0"
 #endif
 
 /* Enable multithreading support. */
@@ -61,7 +79,7 @@
 
 /* Build against libpng. */
 #ifndef ENABLE_LIBPNG
-#define ENABLE_LIBPNG 1
+/* #undef ENABLE_LIBPNG */
 #endif
 
 /* Use zlib instead of builtin zlib decoder. */
@@ -117,7 +135,7 @@
 //------------------------------------------------------------------------
 
 // copyright notice
-#define popplerCopyright "Copyright 2005-2013 The Poppler Developers - http://poppler.freedesktop.org"
+#define popplerCopyright "Copyright 2005-2017 The Poppler Developers - http://poppler.freedesktop.org"
 #define xpdfCopyright "Copyright 1996-2011 Glyph & Cog, LLC"
 
 //------------------------------------------------------------------------
@@ -169,9 +187,9 @@ char * strtok_r (char *s, const char *delim, char **save_ptr);
 #define GCC_PRINTF_FORMAT(fmt_index, va_index)
 #endif
 
-#if (_MSC_VER < 1800)
-#define fmax(a, b) max(a, b)
-#define fmin(a, b) min(a, b)
+#if defined(_MSC_VER) && _MSC_VER < 1800
+#define fmax(a, b) std::max(a, b)
+#define fmin(a, b) std::min(a, b)
 #endif
 
 

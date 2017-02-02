@@ -42,6 +42,7 @@
     <ClCompile Include="fofi\FoFiType1.cc" />
     <ClCompile Include="fofi\FoFiType1C.cc" />
     <ClCompile Include="goo\gfile.cc" />
+    <ClCompile Include="goo\glibc.cc" />
     <ClCompile Include="goo\gmem.cc" />
     <ClCompile Include="goo\GooHash.cc" />
     <ClCompile Include="goo\GooList.cc" />
@@ -64,6 +65,7 @@
     <ClCompile Include="poppler\FileSpec.cc" />
     <ClCompile Include="poppler\FlateStream.cc" />
     <ClCompile Include="poppler\FontEncodingTables.cc" />
+    <ClCompile Include="poppler\FontInfo.cc" />
     <ClCompile Include="poppler\Form.cc" />
     <ClCompile Include="poppler\Function.cc" />
     <ClCompile Include="poppler\Gfx.cc" />
@@ -86,6 +88,7 @@
     <ClCompile Include="poppler\OutputDev.cc" />
     <ClCompile Include="poppler\Page.cc" />
     <ClCompile Include="poppler\PageLabelInfo.cc" />
+    <ClCompile Include="poppler\PageTransition.cc" />
     <ClCompile Include="poppler\Parser.cc" />
     <ClCompile Include="poppler\PDFDoc.cc" />
     <ClCompile Include="poppler\PDFDocEncoding.cc" />
@@ -94,10 +97,12 @@
     <ClCompile Include="poppler\PSTokenizer.cc" />
     <ClCompile Include="poppler\Rendition.cc" />
     <ClCompile Include="poppler\SecurityHandler.cc" />
+    <ClCompile Include="poppler\SignatureInfo.cc" />
     <ClCompile Include="poppler\Sound.cc" />
     <ClCompile Include="poppler\Stream.cc" />
     <ClCompile Include="poppler\StructElement.cc" />
     <ClCompile Include="poppler\StructTreeRoot.cc" />
+    <ClCompile Include="poppler\TextOutputDev.cc" />
     <ClCompile Include="poppler\UnicodeMap.cc" />
     <ClCompile Include="poppler\UnicodeTypeTable.cc" />
     <ClCompile Include="poppler\UTF.cc" />
@@ -114,6 +119,7 @@
     <ClInclude Include="fofi\FoFiType1.h" />
     <ClInclude Include="fofi\FoFiType1C.h" />
     <ClInclude Include="goo\gfile.h" />
+    <ClInclude Include="goo\glibc.h" />
     <ClInclude Include="goo\gmem.h" />
     <ClInclude Include="goo\GooHash.h" />
     <ClInclude Include="goo\GooLikely.h" />
@@ -124,6 +130,7 @@
     <ClInclude Include="goo\grandom.h" />
     <ClInclude Include="goo\gstrtod.h" />
     <ClInclude Include="goo\gtypes.h" />
+    <ClInclude Include="goo\gtypes_p.h" />
     <ClInclude Include="poppler-config.h" />
     <ClInclude Include="poppler\Annot.h" />
     <ClInclude Include="poppler\Array.h" />
@@ -142,6 +149,7 @@
     <ClInclude Include="poppler\FileSpec.h" />
     <ClInclude Include="poppler\FlateStream.h" />
     <ClInclude Include="poppler\FontEncodingTables.h" />
+    <ClInclude Include="poppler\FontInfo.h" />
     <ClInclude Include="poppler\Form.h" />
     <ClInclude Include="poppler\Function.h" />
     <ClInclude Include="poppler\Gfx.h" />
@@ -167,14 +175,17 @@
     <ClInclude Include="poppler\Page.h" />
     <ClInclude Include="poppler\PageLabelInfo.h" />
     <ClInclude Include="poppler\PageLabelInfo_p.h" />
+    <ClInclude Include="poppler\PageTransition.h" />
     <ClInclude Include="poppler\Parser.h" />
     <ClInclude Include="poppler\PDFDoc.h" />
     <ClInclude Include="poppler\PDFDocEncoding.h" />
     <ClInclude Include="poppler\PopplerCache.h" />
     <ClInclude Include="poppler\ProfileData.h" />
+    <ClInclude Include="poppler\PSOutputDev.h" />
     <ClInclude Include="poppler\PSTokenizer.h" />
     <ClInclude Include="poppler\Rendition.h" />
     <ClInclude Include="poppler\SecurityHandler.h" />
+    <ClInclude Include="poppler\SignatureInfo.h" />
     <ClInclude Include="poppler\Sound.h" />
     <ClInclude Include="poppler\Stream-CCITT.h" />
     <ClInclude Include="poppler\Stream.h" />

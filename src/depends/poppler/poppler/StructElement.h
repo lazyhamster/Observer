@@ -4,7 +4,9 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright 2013 Igalia S.L.
+// Copyright 2013, 2014 Igalia S.L.
+// Copyright 2014 Luigi Scarso <luigi.scarso@gmail.com>
+// Copyright 2014 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -74,7 +76,7 @@ public:
   Attribute(Type type, Object *value);
 
   // Creates an UserProperty attribute, with an arbitrary name and value.
-  Attribute(const char *name, Object *value);
+  Attribute(const char *name, int nameLen, Object *value);
 
   GBool isOk() const { return type != Unknown; }
 
@@ -86,7 +88,8 @@ public:
   Object *getValue() const { return &value; }
   static Object *getDefaultValue(Type type);
 
-  const char *getName() const { return type == UserProperty ? name.getCString() : getTypeName(); }
+  // The caller gets the ownership of the return GooString and is responsible of deleting it
+  GooString *getName() const { return type == UserProperty ? name.copy() : new GooString(getTypeName()); }
 
   // The revision is optional, and defaults to zero.
   Guint getRevision() const { return revision; }
@@ -153,6 +156,7 @@ public:
   GBool isOk() const { return type != Unknown; }
   GBool isBlock() const;
   GBool isInline() const;
+  GBool isGrouping() const;
 
   inline GBool isContent() const { return (type == MCID) || isObjectRef(); }
   inline GBool isObjectRef() const { return (type == OBJR && c->ref.num != -1 && c->ref.gen != -1); }
@@ -190,11 +194,11 @@ public:
   const GooString *getExpandedAbbr() const { return isContent() ? NULL : s->expandedAbbr; }
   GooString *getExpandedAbbr() { return isContent() ? NULL : s->expandedAbbr; }
 
-  unsigned getNumElements() const { return isContent() ? 0 : s->elements.size(); }
-  const StructElement *getElement(int i) const { return isContent() ? NULL : s->elements.at(i); }
-  StructElement *getElement(int i) { return isContent() ? NULL : s->elements.at(i); }
+  unsigned getNumChildren() const { return isContent() ? 0 : s->elements.size(); }
+  const StructElement *getChild(int i) const { return isContent() ? NULL : s->elements.at(i); }
+  StructElement *getChild(int i) { return isContent() ? NULL : s->elements.at(i); }
 
-  void appendElement(StructElement *element) {
+  void appendChild(StructElement *element) {
     if (!isContent() && element && element->isOk()) {
       s->elements.push_back(element);
     }

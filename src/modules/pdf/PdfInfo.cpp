@@ -44,6 +44,7 @@ bool TryParseDateTime( GooString* strDate, FILETIME *fTime )
 bool PdfInfo::LoadInfo( PDFDoc* doc )
 {
 	Catalog* cat = doc->getCatalog();
+	if (!cat) return false;
 	
 	// Get embedded files
 	for (int i = 0; i < cat->numEmbeddedFiles(); i++)

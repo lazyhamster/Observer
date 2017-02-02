@@ -8,6 +8,7 @@ Changes history:
 - Updated GLib library to version 2.48.0.
 - Updated GMime library to version 2.6.20.
 - VDISK: Fixed crash after failed files extraction.
+- PDF: Updated Poppler library to version 0.51.0.
 
 1.11.2
 - PST: Fixed invalid path characters in folder names.

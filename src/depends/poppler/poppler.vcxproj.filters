@@ -246,6 +246,21 @@
     <ClCompile Include="utils\JSInfo.cc">
       <Filter>Source Files\utils</Filter>
     </ClCompile>
+    <ClCompile Include="poppler\FontInfo.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\PageTransition.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\SignatureInfo.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\TextOutputDev.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\glibc.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils\JSInfo.h">
@@ -505,6 +520,24 @@
     </ClInclude>
     <ClInclude Include="poppler-config.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\FontInfo.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PageTransition.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PSOutputDev.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\SignatureInfo.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\glibc.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\gtypes_p.h">
+      <Filter>Header Files\goo</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

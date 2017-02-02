@@ -4,6 +4,9 @@
 //
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
+// Copyright (C) 2015 André Guerreiro <aguerreiro1985@gmail.com>
+// Copyright (C) 2015 André Esser <bepandre@hotmail.com>
+// Copyright (C) 2016 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -20,6 +23,7 @@
 
 #include <config.h>
 
+#include "glibc.h"
 #include "DateInfo.h"
 
 #include <stdio.h>
@@ -72,20 +76,16 @@ GBool parseDateString(const char *dateString, int *year, int *month, int *day, i
    return gFalse;
 }
 
-
+// Convert time to PDF date string
 GooString *timeToDateString(time_t *timet) {
   GooString *dateString;
   char s[5];
   struct tm *gt;
   size_t len;
   time_t timep = timet ? *timet : time(NULL);
-  
-#ifdef HAVE_GMTIME_R
   struct tm t;
+
   gt = gmtime_r (&timep, &t);
-#else
-  gt = gmtime (&timep);
-#endif
 
   dateString = new GooString ("D:");
 
@@ -116,3 +116,35 @@ GooString *timeToDateString(time_t *timet) {
   return dateString;
 }
 
+// Convert PDF date string to time. Returns -1 if conversion fails.
+time_t dateStringToTime(GooString *dateString) {
+  int year, mon, day, hour, min, sec, tz_hour, tz_minute;
+  char tz;
+  struct tm tm;
+  time_t time;
+
+  if (!parseDateString (dateString->getCString(), &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute))
+    return -1;
+
+  tm.tm_year = year - 1900;
+  tm.tm_mon = mon - 1;
+  tm.tm_mday = day;
+  tm.tm_hour = hour;
+  tm.tm_min = min;
+  tm.tm_sec = sec;
+  tm.tm_wday = -1;
+  tm.tm_yday = -1;
+  tm.tm_isdst = -1; /* 0 = DST off, 1 = DST on, -1 = don't know */
+
+  /* compute tm_wday and tm_yday and check date */
+  time = timegm (&tm);
+  if (time == (time_t)-1)
+    return time;
+
+  time_t offset = (tz_hour*60 + tz_minute)*60;
+  if (tz == '-')
+    offset *= -1;
+  time -= offset;
+
+  return time;
+}

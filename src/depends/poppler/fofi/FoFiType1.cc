@@ -15,7 +15,8 @@
 //
 // Copyright (C) 2005, 2008, 2010 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2010 Jakub Wilk <ubanus@users.sf.net>
+// Copyright (C) 2010 Jakub Wilk <jwilk@jwilk.net>
+// Copyright (C) 2014 Carlos Garcia Campos <carlosgc@gnome.org>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -263,7 +264,7 @@ void FoFiType1::parse() {
 	    } else {
 	      break;
 	    }
-	    for (; *p >= '0' && *p < '0' + base; ++p) {
+	    for (; *p >= '0' && *p < '0' + base && code < INT_MAX / (base + (*p - '0')); ++p) {
 	      code = code * base + (*p - '0');
 	    }
 	    for (; *p == ' ' || *p == '\t'; ++p) ;

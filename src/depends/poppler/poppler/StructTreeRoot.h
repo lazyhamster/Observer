@@ -4,7 +4,7 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright 2013 Igalia S.L.
+// Copyright 2013, 2014 Igalia S.L.
 //
 //========================================================================
 
@@ -33,11 +33,11 @@ public:
   PDFDoc *getDoc() { return doc; }
   Dict *getRoleMap() { return roleMap.isDict() ? roleMap.getDict() : NULL; }
   Dict *getClassMap() { return classMap.isDict() ? classMap.getDict() : NULL; }
-  unsigned getNumElements() const { return elements.size(); }
-  const StructElement *getElement(int i) const { return elements.at(i); }
-  StructElement *getElement(int i) { return elements.at(i); }
+  unsigned getNumChildren() const { return elements.size(); }
+  const StructElement *getChild(int i) const { return elements.at(i); }
+  StructElement *getChild(int i) { return elements.at(i); }
 
-  void appendElement(StructElement *element) {
+  void appendChild(StructElement *element) {
     if (element && element->isOk()) {
       elements.push_back(element);
     }

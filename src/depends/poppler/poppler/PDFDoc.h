@@ -14,19 +14,22 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005, 2006, 2008 Brad Hards <bradh@frogmouth.net>
-// Copyright (C) 2005, 2009 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009, 2014, 2015 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2008 Julien Rebetez <julienr@svn.gnome.org>
 // Copyright (C) 2008 Pino Toscano <pino@kde.org>
 // Copyright (C) 2008 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2009 Eric Toombs <ewtoombs@uwaterloo.ca>
 // Copyright (C) 2009 Kovid Goyal <kovid@kovidgoyal.net>
-// Copyright (C) 2010 Hib Eris <hib@hiberis.nl>
+// Copyright (C) 2010, 2014 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2010 Srinivas Adicherla <srinivas.adicherla@geodesic.com>
-// Copyright (C) 2011, 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2011, 2013, 2014, 2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Adam Reichold <adamreichold@myopera.com>
 // Copyright (C) 2013 Adrian Perez de Castro <aperez@igalia.com>
+// Copyright (C) 2015 André Guerreiro <aguerreiro1985@gmail.com>
+// Copyright (C) 2015 André Esser <bepandre@hotmail.com>
+// Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -47,6 +50,7 @@
 #include "Catalog.h"
 #include "Page.h"
 #include "Annot.h"
+#include "Form.h"
 #include "OptionalContent.h"
 #include "Stream.h"
 
@@ -108,6 +112,7 @@ public:
 
   // Get the linearization table.
   Linearization *getLinearization();
+  GBool checkLinearization();
 
   // Get the xref table.
   XRef *getXRef() { return xref; }
@@ -199,6 +204,8 @@ public:
   // Is the file encrypted?
   GBool isEncrypted() { return xref->isEncrypted(); }
 
+  std::vector<FormWidgetSignature*> getSignatureWidgets();
+
   // Check various permissions.
   GBool okToPrint(GBool ignoreOwnerPW = gFalse)
     { return xref->okToPrint(ignoreOwnerPW); }
@@ -219,11 +226,48 @@ public:
 
 
   // Is this document linearized?
-  GBool isLinearized();
+  GBool isLinearized(GBool tryingToReconstruct = gFalse);
 
   // Return the document's Info dictionary (if any).
   Object *getDocInfo(Object *obj) { return xref->getDocInfo(obj); }
   Object *getDocInfoNF(Object *obj) { return xref->getDocInfoNF(obj); }
+
+  // Create and return the document's Info dictionary if none exists.
+  // Otherwise return the existing one.
+  Object *createDocInfoIfNoneExists(Object *obj) { return xref->createDocInfoIfNoneExists(obj); }
+
+  // Remove the document's Info dictionary and update the trailer dictionary.
+  void removeDocInfo() { xref->removeDocInfo(); }
+
+  // Set doc info string entry. NULL or empty value will cause a removal.
+  // Takes ownership of value.
+  void setDocInfoStringEntry(const char *key, GooString *value);
+
+  // Set document's properties in document's Info dictionary.
+  // NULL or empty value will cause a removal.
+  // Takes ownership of value.
+  void setDocInfoTitle(GooString *title) { setDocInfoStringEntry("Title", title); }
+  void setDocInfoAuthor(GooString *author) { setDocInfoStringEntry("Author", author); }
+  void setDocInfoSubject(GooString *subject) { setDocInfoStringEntry("Subject", subject); }
+  void setDocInfoKeywords(GooString *keywords) { setDocInfoStringEntry("Keywords", keywords); }
+  void setDocInfoCreator(GooString *creator) { setDocInfoStringEntry("Creator", creator); }
+  void setDocInfoProducer(GooString *producer) { setDocInfoStringEntry("Producer", producer); }
+  void setDocInfoCreatDate(GooString *creatDate) { setDocInfoStringEntry("CreationDate", creatDate); }
+  void setDocInfoModDate(GooString *modDate) { setDocInfoStringEntry("ModDate", modDate); }
+
+  // Get document's properties from document's Info dictionary.
+  // Returns NULL on fail.
+  // Returned GooStrings should be freed by the caller.
+  GooString *getDocInfoStringEntry(const char *key);
+
+  GooString *getDocInfoTitle() { return getDocInfoStringEntry("Title"); }
+  GooString *getDocInfoAuthor() { return getDocInfoStringEntry("Author"); }
+  GooString *getDocInfoSubject() { return getDocInfoStringEntry("Subject"); }
+  GooString *getDocInfoKeywords() { return getDocInfoStringEntry("Keywords"); }
+  GooString *getDocInfoCreator() { return getDocInfoStringEntry("Creator"); }
+  GooString *getDocInfoProducer() { return getDocInfoStringEntry("Producer"); }
+  GooString *getDocInfoCreatDate() { return getDocInfoStringEntry("CreationDate"); }
+  GooString *getDocInfoModDate() { return getDocInfoStringEntry("ModDate"); }
 
   // Return the PDF version specified by the file.
   int getPDFMajorVersion() { return pdfMajorVersion; }
@@ -247,8 +291,10 @@ public:
   void *getGUIData() { return guiData; }
 
   // rewrite pageDict with MediaBox, CropBox and new page CTM
-  void replacePageDict(int pageNo, int rotate, PDFRectangle *mediaBox, PDFRectangle *cropBox, Object *pageCTM);
-  void markPageObjects(Dict *pageDict, XRef *xRef, XRef *countRef, Guint numOffset);
+  void replacePageDict(int pageNo, int rotate, PDFRectangle *mediaBox, PDFRectangle *cropBox);
+  void markPageObjects(Dict *pageDict, XRef *xRef, XRef *countRef, Guint numOffset, int oldRefNum, int newRefNum);
+  GBool markAnnotations(Object *annots, XRef *xRef, XRef *countRef, Guint numOffset, int oldPageNum, int newPageNum);
+  void markAcroForm(Object *acrpForm, XRef *xRef, XRef *countRef, Guint numOffset, int oldPageNum, int newPageNum);
   // write all objects used by pageDict to outStr
   Guint writePageObjects(OutStream *outStr, XRef *xRef, Guint numOffset, GBool combine = gFalse);
   static void writeObject (Object *obj, OutStream* outStr, XRef *xref, Guint numOffset, Guchar *fileKey,
@@ -265,8 +311,8 @@ public:
 
 private:
   // insert referenced objects in XRef
-  void markDictionnary (Dict* dict, XRef *xRef, XRef *countRef, Guint numOffset);
-  void markObject (Object *obj, XRef *xRef, XRef *countRef, Guint numOffset);
+  void markDictionnary (Dict* dict, XRef *xRef, XRef *countRef, Guint numOffset, int oldRefNum, int newRefNum);
+  void markObject (Object *obj, XRef *xRef, XRef *countRef, Guint numOffset, int oldRefNum, int newRefNum);
   static void writeDictionnary (Dict* dict, OutStream* outStr, XRef *xRef, Guint numOffset, Guchar *fileKey,
                                 CryptAlgorithm encAlgorithm, int keyLength, int objNum, int objGen);
 
@@ -301,11 +347,14 @@ private:
   GBool checkHeader();
   GBool checkEncryption(GooString *ownerPassword, GooString *userPassword);
   // Get the offset of the start xref table.
-  Goffset getStartXRef();
+  Goffset getStartXRef(GBool tryingToReconstruct = gFalse);
   // Get the offset of the entries in the main XRef table of a
   // linearized document (0 for non linearized documents).
-  Goffset getMainXRefEntriesOffset();
+  Goffset getMainXRefEntriesOffset(GBool tryingToReconstruct = gFalse);
   long long strToLongLong(char *s);
+
+  // Mark the document's Info dictionary as modified.
+  void setDocInfoModified(Object *infoObj);
 
   GooString *fileName;
 #ifdef _WIN32
@@ -317,6 +366,10 @@ private:
   int pdfMajorVersion;
   int pdfMinorVersion;
   Linearization *linearization;
+  // linearizationState = 0: unchecked
+  // linearizationState = 1: checked and valid
+  // linearizationState = 2: checked and invalid
+  int linearizationState;
   XRef *xref;
   SecurityHandler *secHdlr;
   Catalog *catalog;

@@ -17,9 +17,9 @@
 // Copyright (C) 2006 Ed Catmur <ed@catmur.co.uk>
 // Copyright (C) 2007, 2008, 2011, 2013 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2007 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2008, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2015, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Brian Ewins <brian.ewins@gmail.com>
-// Copyright (C) 2012, 2013 Jason Crain <jason@aquaticape.us>
+// Copyright (C) 2012, 2013, 2015, 2016 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
 //
 // To see a description of the changes please see the Changelog file that
@@ -82,6 +82,15 @@ public:
   GBool matches(GfxState *state);
   GBool matches(TextFontInfo *fontInfo);
 
+  // Get the font ascent, or a default value if the font is not set
+  double getAscent();
+
+  // Get the font descent, or a default value if the font is not set
+  double getDescent();
+
+  // Get the writing mode (0 or 1), or 0 if the font is not set
+  int getWMode();
+
 #if TEXTOUT_WORD_LIST
   // Get the font name (which may be NULL).
   GooString *getFontName() { return fontName; }
@@ -123,7 +132,15 @@ public:
   // Add a character to the word.
   void addChar(GfxState *state, TextFontInfo *fontA, double x, double y,
 	       double dx, double dy, int charPosA, int charLen,
-	       CharCode c, Unicode u, Matrix textMatA);
+	       CharCode c, Unicode u, const Matrix &textMatA);
+
+  // Attempt to add a character to the word as a combining character.
+  // Either character u or the last character in the word must be an
+  // acute, dieresis, or other combining character.  Returns true if
+  // the character was added.
+  GBool addCombining(GfxState *state, TextFontInfo *fontA, double fontSizeA, double x, double y,
+		     double dx, double dy, int charPosA, int charLen,
+		     CharCode c, Unicode u, const Matrix &textMatA);
 
   // Merge <word> onto the end of <this>.
   void merge(TextWord *word);
@@ -172,9 +189,12 @@ public:
   GBool hasSpaceAfter  () { return spaceAfter; }
   TextWord* nextWord () { return next; };
 private:
+  void ensureCapacity(int capacity);
+  void setInitialBounds(TextFontInfo *fontA, double x, double y);
 
   int rot;			// rotation, multiple of 90 degrees
 				//   (0, 1, 2, or 3)
+  int wMode;			// horizontal (0) or vertical (1) writing mode
   double xMin, xMax;		// bounding box x coordinates
   double yMin, yMax;		// bounding box y coordinates
   double base;			// baseline x or y coordinate
@@ -192,8 +212,8 @@ private:
   double fontSize;		// font size
   GBool spaceAfter;		// set if there is a space between this
 				//   word and the next word on the line
+  GBool underlined;
   TextWord *next;		// next word in line
-  int wMode;			// horizontal (0) or vertical (1) writing mode
 
 #if TEXTOUT_WORD_LIST
   double colorR,		// word color
@@ -201,7 +221,6 @@ private:
          colorB;
 #endif
 
-  GBool underlined;
   AnnotLink *link;
 
   friend class TextPool;
@@ -377,6 +396,10 @@ private:
   int visitDepthFirst(TextBlock *blkList, int pos1,
 		      TextBlock **sorted, int sortPos,
 		      GBool* visited);
+  int visitDepthFirst(TextBlock *blkList, int pos1,
+		      TextBlock **sorted, int sortPos,
+		      GBool* visited,
+		      TextBlock **cache, int cacheSize);
 
   TextPage *page;		// the parent page
   int rot;			// text rotation
@@ -601,6 +624,10 @@ public:
   // Get the head of the linked list of TextFlows.
   TextFlow *getFlows() { return flows; }
 
+  // If true, will combine characters when a base and combining
+  // character are drawn on eachother.
+  void setMergeCombining(GBool merge);
+
 #if TEXTOUT_WORD_LIST
   // Build a flat word list, in content stream order (if
   // this->rawOrder is true), physical layout order (if <physLayout>
@@ -619,6 +646,8 @@ private:
   int dumpFragment(Unicode *text, int len, UnicodeMap *uMap, GooString *s);
 
   GBool rawOrder;		// keep text in content stream order
+  GBool mergeCombining;		// merge when combining and base characters
+				// are drawn on top of each other
 
   double pageWidth, pageHeight;	// width and height of current page
   TextWord *curWord;		// currently active string
@@ -813,6 +842,10 @@ public:
 
   GooString *getSelectionText(PDFRectangle *selection,
 			      SelectionStyle style);
+
+  // If true, will combine characters when a base and combining
+  // character are drawn on eachother.
+  void setMergeCombining(GBool merge);
 
 #if TEXTOUT_WORD_LIST
   // Build a flat word list, in content stream order (if

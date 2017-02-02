@@ -5,9 +5,9 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2006-2008 Julien Rebetez <julienr@svn.gnome.org>
-// Copyright 2007-2012 Albert Astals Cid <aacid@kde.org>
+// Copyright 2007-2012, 2015, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright 2007-2008, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright 2007, 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright 2007, 2013, 2016 Adrian Johnson <ajohnson@redneon.com>
 // Copyright 2007 Iñigo Martínez <inigomartinez@gmail.com>
 // Copyright 2008, 2011 Pino Toscano <pino@kde.org>
 // Copyright 2008 Michael Vrable <mvrable@cs.ucsd.edu>
@@ -15,7 +15,9 @@
 // Copyright 2009 KDAB via Guillermo Amaral <gamaral@amaral.com.mx>
 // Copyright 2010, 2012 Mark Riedesel <mark@klowner.com>
 // Copyright 2012 Fabio D'Urso <fabiodurso@hotmail.it>
-// 
+// Copyright 2015 André Guerreiro <aguerreiro1985@gmail.com>
+// Copyright 2015 André Esser <bepandre@hotmail.com>
+//
 //========================================================================
 
 #include <config.h>
@@ -36,6 +38,11 @@
 #include "Gfx.h"
 #include "Form.h"
 #include "PDFDoc.h"
+#include "DateInfo.h"
+#ifdef ENABLE_NSS3
+#include "SignatureHandler.h"
+#endif
+#include "SignatureInfo.h"
 #include "XRef.h"
 #include "PDFDocEncoding.h"
 #include "Annot.h"
@@ -140,6 +147,11 @@ GooString *FormWidget::getPartialName() const {
   return field->getPartialName();
 }
 
+void FormWidget::setPartialName(const GooString &name)
+{
+  field->setPartialName(name);
+}
+
 GooString *FormWidget::getAlternateUiName() const {
   return field->getAlternateUiName();
 }
@@ -164,7 +176,6 @@ FormWidgetButton::FormWidgetButton (PDFDoc *docA, Object *aobj, unsigned num, Re
 	FormWidget(docA, aobj, num, ref, p)
 {
   type = formButton;
-  parent = static_cast<FormFieldButton*>(field);
   onStr = NULL;
 
   Object obj1, obj2;
@@ -193,7 +204,7 @@ char *FormWidgetButton::getOnStr() {
 
   // 12.7.4.2.3 Check Boxes
   //  Yes should be used as the name for the on state
-  return parent->getButtonType() == formButtonCheck ? (char *)"Yes" : NULL;
+  return parent()->getButtonType() == formButtonCheck ? (char *)"Yes" : NULL;
 }
 
 FormWidgetButton::~FormWidgetButton ()
@@ -203,7 +214,7 @@ FormWidgetButton::~FormWidgetButton ()
 
 FormButtonType FormWidgetButton::getButtonType () const
 {
-  return parent->getButtonType ();
+  return parent()->getButtonType ();
 }
 
 void FormWidgetButton::setAppearanceState(const char *state) {
@@ -220,20 +231,25 @@ void FormWidgetButton::updateWidgetAppearance()
 void FormWidgetButton::setState (GBool astate)
 {
   //pushButtons don't have state
-  if (parent->getButtonType() == formButtonPush)
+  if (parent()->getButtonType() == formButtonPush)
     return;
 
   // Silently return if can't set ON state
   if (astate && !onStr)
     return;
 
-  parent->setState(astate ? onStr->getCString() : (char *)"Off");
+  parent()->setState(astate ? onStr->getCString() : (char *)"Off");
   // Parent will call setAppearanceState()
 }
 
 GBool FormWidgetButton::getState ()
 {
-  return onStr ? parent->getState(onStr->getCString()) : gFalse;
+  return onStr ? parent()->getState(onStr->getCString()) : gFalse;
+}
+
+FormFieldButton *FormWidgetButton::parent() const
+{
+  return static_cast<FormFieldButton*>(field);
 }
 
 
@@ -241,17 +257,16 @@ FormWidgetText::FormWidgetText (PDFDoc *docA, Object *aobj, unsigned num, Ref re
 	FormWidget(docA, aobj, num, ref, p)
 {
   type = formText;
-  parent = static_cast<FormFieldText*>(field);
 }
 
 GooString* FormWidgetText::getContent ()
 {
-  return parent->getContent(); 
+  return parent()->getContent();
 }
 
 GooString* FormWidgetText::getContentCopy ()
 {
-  return parent->getContentCopy();
+  return parent()->getContentCopy();
 }
 
 void FormWidgetText::updateWidgetAppearance()
@@ -262,42 +277,42 @@ void FormWidgetText::updateWidgetAppearance()
 
 bool FormWidgetText::isMultiline () const 
 { 
-  return parent->isMultiline(); 
+  return parent()->isMultiline();
 }
 
 bool FormWidgetText::isPassword () const 
 { 
-  return parent->isPassword(); 
+  return parent()->isPassword();
 }
 
 bool FormWidgetText::isFileSelect () const 
 { 
-  return parent->isFileSelect(); 
+  return parent()->isFileSelect();
 }
 
 bool FormWidgetText::noSpellCheck () const 
 { 
-  return parent->noSpellCheck(); 
+  return parent()->noSpellCheck();
 }
 
 bool FormWidgetText::noScroll () const 
 { 
-  return parent->noScroll(); 
+  return parent()->noScroll();
 }
 
 bool FormWidgetText::isComb () const 
 { 
-  return parent->isComb(); 
+  return parent()->isComb();
 }
 
 bool FormWidgetText::isRichText () const 
 { 
-  return parent->isRichText(); 
+  return parent()->isRichText();
 }
 
 int FormWidgetText::getMaxLen () const
 {
-  return parent->getMaxLen ();
+  return parent()->getMaxLen ();
 }
 
 void FormWidgetText::setContent(GooString* new_content)
@@ -307,14 +322,18 @@ void FormWidgetText::setContent(GooString* new_content)
     return;
   }
 
-  parent->setContentCopy(new_content);
+  parent()->setContentCopy(new_content);
+}
+
+FormFieldText *FormWidgetText::parent() const
+{
+  return static_cast<FormFieldText*>(field);
 }
 
 FormWidgetChoice::FormWidgetChoice(PDFDoc *docA, Object *aobj, unsigned num, Ref ref, FormField *p) :
 	FormWidget(docA, aobj, num, ref, p)
 {
   type = formChoice;
-  parent = static_cast<FormFieldChoice*>(field);
 }
 
 FormWidgetChoice::~FormWidgetChoice()
@@ -323,7 +342,7 @@ FormWidgetChoice::~FormWidgetChoice()
 
 bool FormWidgetChoice::_checkRange (int i)
 {
-  if (i < 0 || i >= parent->getNumChoices()) {
+  if (i < 0 || i >= parent()->getNumChoices()) {
     error(errInternal, -1, "FormWidgetChoice::_checkRange i out of range : {0:d}", i);
     return false;
   } 
@@ -337,7 +356,7 @@ void FormWidgetChoice::select (int i)
     return;
   }
   if (!_checkRange(i)) return;
-  parent->select(i);
+  parent()->select(i);
 }
 
 void FormWidgetChoice::toggle (int i)
@@ -347,7 +366,7 @@ void FormWidgetChoice::toggle (int i)
     return;
   }
   if (!_checkRange(i)) return;
-  parent->toggle(i);
+  parent()->toggle(i);
 }
 
 void FormWidgetChoice::deselectAll ()
@@ -356,7 +375,7 @@ void FormWidgetChoice::deselectAll ()
     error(errInternal, -1, "FormWidgetChoice::deselectAll called on a read only field\n");
     return;
   }
-  parent->deselectAll();
+  parent()->deselectAll();
 }
 
 GooString* FormWidgetChoice::getEditChoice ()
@@ -365,7 +384,7 @@ GooString* FormWidgetChoice::getEditChoice ()
     error(errInternal, -1, "FormFieldChoice::getEditChoice called on a non-editable choice\n");
     return NULL;
   }
-  return parent->getEditChoice();
+  return parent()->getEditChoice();
 }
 
 void FormWidgetChoice::updateWidgetAppearance()
@@ -377,7 +396,7 @@ void FormWidgetChoice::updateWidgetAppearance()
 bool FormWidgetChoice::isSelected (int i)
 {
   if (!_checkRange(i)) return false;
-  return parent->isSelected(i);
+  return parent()->isSelected(i);
 }
 
 void FormWidgetChoice::setEditChoice (GooString* new_content)
@@ -391,54 +410,63 @@ void FormWidgetChoice::setEditChoice (GooString* new_content)
     return;
   }
 
-  parent->setEditChoice(new_content);
+  parent()->setEditChoice(new_content);
 }
 
 int FormWidgetChoice::getNumChoices() 
 { 
-  return parent->getNumChoices(); 
+  return parent()->getNumChoices();
 }
 
 GooString* FormWidgetChoice::getChoice(int i) 
 { 
-  return parent->getChoice(i); 
+  return parent()->getChoice(i);
 }
 
 bool FormWidgetChoice::isCombo () const 
 { 
-  return parent->isCombo(); 
+  return parent()->isCombo();
 }
 
 bool FormWidgetChoice::hasEdit () const 
 { 
-  return parent->hasEdit(); 
+  return parent()->hasEdit();
 }
 
 bool FormWidgetChoice::isMultiSelect () const 
 { 
-  return parent->isMultiSelect(); 
+  return parent()->isMultiSelect();
 }
 
 bool FormWidgetChoice::noSpellCheck () const 
 { 
-  return parent->noSpellCheck(); 
+  return parent()->noSpellCheck();
 }
 
 bool FormWidgetChoice::commitOnSelChange () const 
 { 
-  return parent->commitOnSelChange(); 
+  return parent()->commitOnSelChange();
 }
 
 bool FormWidgetChoice::isListBox () const
 {
-  return parent->isListBox();
+  return parent()->isListBox();
+}
+
+FormFieldChoice *FormWidgetChoice::parent() const
+{
+  return static_cast<FormFieldChoice*>(field);
 }
 
 FormWidgetSignature::FormWidgetSignature(PDFDoc *docA, Object *aobj, unsigned num, Ref ref, FormField *p) :
 	FormWidget(docA, aobj, num, ref, p)
 {
   type = formSignature;
-  parent = static_cast<FormFieldSignature*>(field);
+}
+
+SignatureInfo *FormWidgetSignature::validateSignature(bool doVerifyCert, bool forceRevalidation)
+{
+  return static_cast<FormFieldSignature*>(field)->validateSignature(doVerifyCert, forceRevalidation);
 }
 
 void FormWidgetSignature::updateWidgetAppearance()
@@ -506,6 +534,8 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
 
           if (terminal) {
             error(errSyntaxWarning, -1, "Field can't have both Widget AND Field as kids\n");
+            childObj.free();
+            childRef.free();
             continue;
           }
 
@@ -518,6 +548,8 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
             error(errSyntaxWarning, -1, "Field can't have both Widget AND Field as kids\n");
             obj2.free();
             obj3.free();
+            childObj.free();
+            childRef.free();
             continue;
           }
           _createWidget(&childObj, ref);
@@ -582,6 +614,17 @@ FormField::FormField(PDFDoc *docA, Object *aobj, const Ref& aref, FormField *par
     mappingName = NULL;
   }
   obj1.free();
+}
+
+void FormField::setPartialName(const GooString &name)
+{
+  delete partialName;
+  partialName = name.copy();
+
+  Object obj1;
+  obj1.initString(name.copy());
+  obj.getDict()->set("T", &obj1);
+  xref->setModifiedObject(&obj, ref);
 }
 
 FormField::~FormField()
@@ -1370,11 +1413,162 @@ GooString *FormFieldChoice::getSelectedChoice() {
 FormFieldSignature::FormFieldSignature(PDFDoc *docA, Object *dict, const Ref& ref, FormField *parent, std::set<int> *usedParents)
   : FormField(docA, dict, ref, parent, usedParents, formSignature)
 {
+  signature = NULL;
+
+  signature_info = new SignatureInfo();
+  parseInfo();
 }
 
 FormFieldSignature::~FormFieldSignature()
 {
+  byte_range.free();
+  delete signature_info;
+  delete signature;
+}
 
+void FormFieldSignature::parseInfo()
+{
+  if (!obj.isDict())
+    return;
+
+  Object sig_dict, contents_obj, time_of_signing, subfilterName;
+
+  // retrieve PKCS#7
+  obj.dictLookup("V", &sig_dict);
+  if (!sig_dict.isDict()) {
+    sig_dict.free();
+    return;
+  }
+
+  sig_dict.dictLookup("Contents", &contents_obj);
+  if (contents_obj.isString()) {
+    signature = contents_obj.getString()->copy();
+  }
+  contents_obj.free();
+
+  sig_dict.dictLookup("ByteRange", &byte_range);
+
+  // retrieve SigningTime
+  sig_dict.dictLookup("M", &time_of_signing);
+  if (time_of_signing.isString()) {
+    GooString *time_str = time_of_signing.getString();
+    signature_info->setSigningTime(dateStringToTime(time_str)); // Put this information directly in SignatureInfo object
+    time_of_signing.free();
+  }
+
+  // check if subfilter is supported for signature validation, only detached signatures work for now
+  sig_dict.dictLookup("SubFilter", &subfilterName);
+  if (subfilterName.isName("adbe.pkcs7.detached") || subfilterName.isName("adbe.pkcs7.sha1")) {
+    signature_info->setSubFilterSupport(true);
+  }
+
+  subfilterName.free();
+  sig_dict.free();
+}
+
+void FormFieldSignature::hashSignedDataBlock(SignatureHandler *handler, Goffset block_len)
+{
+#ifdef ENABLE_NSS3
+  const int BLOCK_SIZE = 4096;
+  unsigned char signed_data_buffer[BLOCK_SIZE];
+
+  Goffset i = 0;
+  while(i < block_len)
+  {
+    Goffset bytes_left = block_len - i;
+    if (bytes_left < BLOCK_SIZE)
+    {
+      doc->getBaseStream()->doGetChars(bytes_left, signed_data_buffer);
+      handler->updateHash(signed_data_buffer, bytes_left);
+      i = block_len;
+    }
+    else
+    {
+      doc->getBaseStream()->doGetChars(BLOCK_SIZE, signed_data_buffer);
+      handler->updateHash(signed_data_buffer, BLOCK_SIZE);
+      i += BLOCK_SIZE;
+    }
+  }
+#endif
+}
+
+
+SignatureInfo *FormFieldSignature::validateSignature(bool doVerifyCert, bool forceRevalidation)
+{
+#ifdef ENABLE_NSS3
+  if (!signature_info->isSubfilterSupported()) {
+    error(errUnimplemented, 0, "Unable to validate this type of signature");
+    return signature_info;
+  }
+
+  if (signature_info->getSignatureValStatus() != SIGNATURE_NOT_VERIFIED && !forceRevalidation) {
+    return signature_info;
+  }
+
+  if (signature == NULL) {
+    error(errSyntaxError, 0, "Invalid or missing Signature string");
+    return signature_info;
+  }
+
+  if (!byte_range.isArray()) {
+    error(errSyntaxError, 0, "Invalid or missing ByteRange array");
+    return signature_info;
+  }
+
+  int arrayLen = byte_range.arrayGetLength();
+  if (arrayLen < 2) {
+    error(errSyntaxError, 0, "Too few elements in ByteRange array");
+    return signature_info;
+  }
+
+  NSSCMSVerificationStatus sig_val_state;
+  SECErrorCodes cert_val_state;
+  const int signature_len = signature->getLength();
+  unsigned char *signatureuchar = (unsigned char *)gmalloc(signature_len);
+  memcpy(signatureuchar, signature->getCString(), signature_len);
+  SignatureHandler signature_handler(signatureuchar, signature_len);
+
+  Goffset fileLength = doc->getBaseStream()->getLength();
+  for (int i = 0; i < arrayLen/2; i++) {
+    Object offsetObj, lenObj;
+    byte_range.arrayGet(i*2, &offsetObj);
+    byte_range.arrayGet(i*2+1, &lenObj);
+
+    if (!offsetObj.isIntOrInt64() || !lenObj.isIntOrInt64()) {
+      error(errSyntaxError, 0, "Illegal values in ByteRange array");
+      return signature_info;
+    }
+
+    Goffset offset = offsetObj.getIntOrInt64();
+    Goffset len = lenObj.getIntOrInt64();
+
+    if (offset < 0 || offset >= fileLength || len < 0 || len > fileLength || offset + len > fileLength) {
+      error(errSyntaxError, 0, "Illegal values in ByteRange array");
+      return signature_info;
+    }
+
+    doc->getBaseStream()->setPos(offset);
+    hashSignedDataBlock(&signature_handler, len);
+  }
+
+  sig_val_state = signature_handler.validateSignature();
+  signature_info->setSignatureValStatus(SignatureHandler::NSS_SigTranslate(sig_val_state));
+  signature_info->setSignerName(signature_handler.getSignerName());
+
+  // verify if signature contains a 'signing time' attribute
+  if (signature_handler.getSigningTime() != 0) {
+    signature_info->setSigningTime(signature_handler.getSigningTime());
+  }
+
+  if (sig_val_state != NSSCMSVS_GoodSignature || !doVerifyCert) {
+    return signature_info;
+  }
+
+  cert_val_state = signature_handler.validateCertificate();
+  signature_info->setCertificateValStatus(SignatureHandler::NSS_CertTranslate(cert_val_state));
+
+#endif
+  return signature_info;
 }
 
 #ifdef DEBUG_FORMS
@@ -1445,7 +1639,7 @@ Form::Form(PDFDoc *docA, Object* acroFormA)
       }
 
       if (!obj2.isDict()) {
-        error(errSyntaxWarning, -1, "Reference in Fields array to an invalid or non existant object");
+        error(errSyntaxWarning, -1, "Reference in Fields array to an invalid or non existent object");
 	obj2.free();
 	oref.free();
 	continue;
@@ -1475,7 +1669,7 @@ Form::Form(PDFDoc *docA, Object* acroFormA)
 
 Form::~Form() {
   int i;
-  for(i = 0; i< numFields; ++i)
+  for(i = 0; i < numFields; ++i)
     delete rootFields[i];
   gfree (rootFields);
   delete defaultAppearance;

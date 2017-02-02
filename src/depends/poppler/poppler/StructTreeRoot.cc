@@ -4,7 +4,8 @@
 //
 // This file is licensed under the GPLv2 or later
 //
-// Copyright 2013 Igalia S.L.
+// Copyright 2013, 2014 Igalia S.L.
+// Copyright 2014 Fabio D'Urso <fabiodurso@hotmail.it>
 //
 //========================================================================
 
@@ -94,7 +95,7 @@ void StructTreeRoot::parse(Dict *root)
           index.free();
         }
       } else {
-        error(errSyntaxError, -1, "Nums array length is not a even ({0:i})", nums.arrayGetLength());
+        error(errSyntaxError, -1, "Nums array length is not a even ({0:d})", nums.arrayGetLength());
       }
     } else {
       error(errSyntaxError, -1, "Nums object is wrong type ({0:s})", nums.getTypeName());
@@ -127,7 +128,7 @@ void StructTreeRoot::parse(Dict *root)
                           child->getType() == StructElement::Div)) {
             error(errSyntaxWarning, -1, "StructTreeRoot element of tagged PDF is wrong type ({0:s})", child->getTypeName());
           }
-          appendElement(child);
+          appendChild(child);
           if (ref.isRef()) {
             parentTreeAdd(ref.getRef(), child);
           }
@@ -147,7 +148,7 @@ void StructTreeRoot::parse(Dict *root)
     }
     StructElement *child = new StructElement(kids.getDict(), this, NULL, seenElements);
     if (child->isOk()) {
-      appendElement(child);
+      appendChild(child);
       Object ref;
       if (root->lookupNF("K", &ref)->isRef())
         parentTreeAdd(ref.getRef(), child);

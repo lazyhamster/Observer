@@ -2,7 +2,7 @@
 //
 // Gfx.cc
 //
-// Copyright 1996-2003 Glyph & Cog, LLC
+// Copyright 1996-2013 Glyph & Cog, LLC
 //
 //========================================================================
 
@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
-// Copyright (C) 2005-2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005-2013, 2015, 2016 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006-2011 Carlos Garcia Campos <carlosgc@gnome.org>
@@ -28,7 +28,7 @@
 // Copyright (C) 2008 Michael Vrable <mvrable@cs.ucsd.edu>
 // Copyright (C) 2008 Hib Eris <hib@hiberis.nl>
 // Copyright (C) 2009 M Joonas Pihlaja <jpihlaja@cc.helsinki.fi>
-// Copyright (C) 2009-2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2009-2016 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009 William Bader <williambader@hotmail.com>
 // Copyright (C) 2009, 2010 David Benjamin <davidben@mit.edu>
 // Copyright (C) 2010 Nils Höglund <nils.hoglund@gmail.com>
@@ -37,6 +37,7 @@
 // Copyright (C) 2012 Even Rouault <even.rouault@mines-paris.org>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012 Lu Wang <coolwanglu@gmail.com>
+// Copyright (C) 2014 Jason Crain <jason@aquaticape.us>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -468,7 +469,7 @@ GfxPattern *GfxResources::lookupPattern(char *name, OutputDev *out, GfxState *st
   for (resPtr = this; resPtr; resPtr = resPtr->next) {
     if (resPtr->patternDict.isDict()) {
       if (!resPtr->patternDict.dictLookup(name, &obj)->isNull()) {
-	pattern = GfxPattern::parse(&obj, out, state);
+	pattern = GfxPattern::parse(resPtr, &obj, out, state);
 	obj.free();
 	return pattern;
       }
@@ -487,7 +488,7 @@ GfxShading *GfxResources::lookupShading(char *name, OutputDev *out, GfxState *st
   for (resPtr = this; resPtr; resPtr = resPtr->next) {
     if (resPtr->shadingDict.isDict()) {
       if (!resPtr->shadingDict.dictLookup(name, &obj)->isNull()) {
-	shading = GfxShading::parse(&obj, out, state);
+	shading = GfxShading::parse(resPtr, &obj, out, state);
 	obj.free();
 	return shading;
       }
@@ -980,7 +981,10 @@ void Gfx::opSetDash(Object args[], int numArgs) {
   } else {
     dash = (double *)gmallocn(length, sizeof(double));
     for (i = 0; i < length; ++i) {
-      dash[i] = a->get(i, &obj)->getNum();
+      a->get(i, &obj);
+      if (obj.isNum()) {
+	dash[i] = obj.getNum();
+      }
       obj.free();
     }
   }
@@ -1233,7 +1237,7 @@ void Gfx::opSetExtGState(Object args[], int numArgs) {
 	  blendingColorSpace = NULL;
 	  isolated = knockout = gFalse;
 	  if (!obj4.dictLookup("CS", &obj5)->isNull()) {
-	    blendingColorSpace = GfxColorSpace::parse(&obj5, out, state);
+	    blendingColorSpace = GfxColorSpace::parse(res, &obj5, out, state);
 	  }
 	  obj5.free();
 	  if (obj4.dictLookup("I", &obj5)->isBool()) {
@@ -1436,7 +1440,7 @@ void Gfx::opSetFillGray(Object args[], int numArgs) {
   state->setFillPattern(NULL);
   res->lookupColorSpace("DefaultGray", &obj);
   if (!obj.isNull()) {
-    colorSpace = GfxColorSpace::parse(&obj, out, state);
+    colorSpace = GfxColorSpace::parse(res, &obj, out, state);
   }
   if (colorSpace == NULL) {
     colorSpace = new GfxDeviceGrayColorSpace();
@@ -1457,7 +1461,7 @@ void Gfx::opSetStrokeGray(Object args[], int numArgs) {
   state->setStrokePattern(NULL);
   res->lookupColorSpace("DefaultGray", &obj);
   if (!obj.isNull()) {
-    colorSpace = GfxColorSpace::parse(&obj, out, state);
+    colorSpace = GfxColorSpace::parse(res, &obj, out, state);
   }
   if (colorSpace == NULL) {
     colorSpace = new GfxDeviceGrayColorSpace();
@@ -1478,7 +1482,7 @@ void Gfx::opSetFillCMYKColor(Object args[], int numArgs) {
 
   res->lookupColorSpace("DefaultCMYK", &obj);
   if (!obj.isNull()) {
-    colorSpace = GfxColorSpace::parse(&obj, out, state);
+    colorSpace = GfxColorSpace::parse(res, &obj, out, state);
   }
   if (colorSpace == NULL) {
     colorSpace = new GfxDeviceCMYKColorSpace();
@@ -1503,7 +1507,7 @@ void Gfx::opSetStrokeCMYKColor(Object args[], int numArgs) {
   state->setStrokePattern(NULL);
   res->lookupColorSpace("DefaultCMYK", &obj);
   if (!obj.isNull()) {
-    colorSpace = GfxColorSpace::parse(&obj, out, state);
+    colorSpace = GfxColorSpace::parse(res, &obj, out, state);
   }
   if (colorSpace == NULL) {
     colorSpace = new GfxDeviceCMYKColorSpace();
@@ -1527,7 +1531,7 @@ void Gfx::opSetFillRGBColor(Object args[], int numArgs) {
   state->setFillPattern(NULL);
   res->lookupColorSpace("DefaultRGB", &obj);
   if (!obj.isNull()) {
-    colorSpace = GfxColorSpace::parse(&obj, out, state);
+    colorSpace = GfxColorSpace::parse(res, &obj, out, state);
   }
   if (colorSpace == NULL) {
     colorSpace = new GfxDeviceRGBColorSpace();
@@ -1551,7 +1555,7 @@ void Gfx::opSetStrokeRGBColor(Object args[], int numArgs) {
   state->setStrokePattern(NULL);
   res->lookupColorSpace("DefaultRGB", &obj);
   if (!obj.isNull()) {
-    colorSpace = GfxColorSpace::parse(&obj, out, state);
+    colorSpace = GfxColorSpace::parse(res, &obj, out, state);
   }
   if (colorSpace == NULL) {
     colorSpace = new GfxDeviceRGBColorSpace();
@@ -1573,9 +1577,9 @@ void Gfx::opSetFillColorSpace(Object args[], int numArgs) {
 
   res->lookupColorSpace(args[0].getName(), &obj);
   if (obj.isNull()) {
-    colorSpace = GfxColorSpace::parse(&args[0], out, state);
+    colorSpace = GfxColorSpace::parse(res, &args[0], out, state);
   } else {
-    colorSpace = GfxColorSpace::parse(&obj, out, state);
+    colorSpace = GfxColorSpace::parse(res, &obj, out, state);
   }
   obj.free();
   if (colorSpace) {
@@ -1598,9 +1602,9 @@ void Gfx::opSetStrokeColorSpace(Object args[], int numArgs) {
   state->setStrokePattern(NULL);
   res->lookupColorSpace(args[0].getName(), &obj);
   if (obj.isNull()) {
-    colorSpace = GfxColorSpace::parse(&args[0], out, state);
+    colorSpace = GfxColorSpace::parse(res, &args[0], out, state);
   } else {
-    colorSpace = GfxColorSpace::parse(&obj, out, state);
+    colorSpace = GfxColorSpace::parse(res, &obj, out, state);
   }
   obj.free();
   if (colorSpace) {
@@ -2122,7 +2126,12 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
   btm = baseMatrix;
   ptm = tPat->getMatrix();
   // iCTM = invert CTM
-  det = 1 / (ctm[0] * ctm[3] - ctm[1] * ctm[2]);
+  det = ctm[0] * ctm[3] - ctm[1] * ctm[2];
+  if (fabs(det) < 0.000001) {
+    error(errSyntaxError, getPos(), "Singular matrix in tiling pattern fill");
+    return;
+  }
+  det = 1 / det;
   ictm[0] = ctm[3] * det;
   ictm[1] = -ctm[1] * det;
   ictm[2] = -ctm[2] * det;
@@ -2145,7 +2154,12 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
   m[5] = m1[4] * ictm[1] + m1[5] * ictm[3] + ictm[5];
 
   // construct a (device space) -> (pattern space) transform matrix
-  det = 1 / (m1[0] * m1[3] - m1[1] * m1[2]);
+  det = m1[0] * m1[3] - m1[1] * m1[2];
+  if (fabs(det) < 0.000001) {
+    error(errSyntaxError, getPos(), "Singular matrix in tiling pattern fill");
+    return;
+  }
+  det = 1 / det;
   imb[0] = m1[3] * det;
   imb[1] = -m1[1] * det;
   imb[2] = -m1[2] * det;
@@ -2279,6 +2293,7 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
 		       xi0, yi0, xi1, yi1, xstep, ystep)) {
     goto restore;
   } else {
+    out->updatePatternOpacity(state);
     for (yi = yi0; yi < yi1; ++yi) {
       for (xi = xi0; xi < xi1; ++xi) {
         x = xi * xstep;
@@ -2289,6 +2304,7 @@ void Gfx::doTilingPatternFill(GfxTilingPattern *tPat,
         	  m1, tPat->getBBox());
       }
     }
+    out->clearPatternOpacity(state);
   }
 
   // restore graphics state
@@ -2329,7 +2345,13 @@ void Gfx::doShadingPatternFill(GfxShadingPattern *sPat,
   btm = baseMatrix;
   ptm = sPat->getMatrix();
   // iCTM = invert CTM
-  det = 1 / (ctm[0] * ctm[3] - ctm[1] * ctm[2]);
+  det = ctm[0] * ctm[3] - ctm[1] * ctm[2];
+  if (fabs(det) < 0.000001) {
+    error(errSyntaxError, getPos(), "Singular matrix in shading pattern fill");
+    restoreStateStack(savedState);
+    return;
+  }
+  det = 1 / det;
   ictm[0] = ctm[3] * det;
   ictm[1] = -ctm[1] * det;
   ictm[2] = -ctm[2] * det;
@@ -3351,6 +3373,12 @@ void Gfx::doGouraudTriangleShFill(GfxGouraudTriangleShading *shading) {
   delete reusablePath;
 }
 
+static inline void checkTrue(bool b, const char *message) {
+  if (unlikely(!b)) {
+    error(errSyntaxError, -1, message);
+  }
+}
+
 void Gfx::gouraudFillTriangle(double x0, double y0, GfxColor *color0,
 			      double x1, double y1, GfxColor *color1,
 			      double x2, double y2, GfxColor *color2,
@@ -3369,11 +3397,11 @@ void Gfx::gouraudFillTriangle(double x0, double y0, GfxColor *color0,
     state->setFillColor(color0);
     out->updateFillColor(state);
 
-    path->reset();                         assert(!path->isEnd());
-    path->setCoord(x0,y0);  path->next();  assert(!path->isEnd());
-    path->setCoord(x1,y1);  path->next();  assert(!path->isEnd());
-    path->setCoord(x2,y2);  path->next();  assert(!path->isEnd());
-    path->setCoord(x0,y0);  path->next();  assert( path->isEnd());
+    path->reset();                         checkTrue(!path->isEnd(), "Path should not be at end");
+    path->setCoord(x0,y0);  path->next();  checkTrue(!path->isEnd(), "Path should not be at end");
+    path->setCoord(x1,y1);  path->next();  checkTrue(!path->isEnd(), "Path should not be at end");
+    path->setCoord(x2,y2);  path->next();  checkTrue(!path->isEnd(), "Path should not be at end");
+    path->setCoord(x0,y0);  path->next();  checkTrue( path->isEnd(), "Path should be at end");
     out->fill(state);
 
   } else {
@@ -3416,11 +3444,11 @@ void Gfx::gouraudFillTriangle(double x0, double y0, double color0,
     state->setFillColor(&color);
     out->updateFillColor(state);
 
-    path->reset();                         assert(!path->isEnd());
-    path->setCoord(x0,y0);  path->next();  assert(!path->isEnd());
-    path->setCoord(x1,y1);  path->next();  assert(!path->isEnd());
-    path->setCoord(x2,y2);  path->next();  assert(!path->isEnd());
-    path->setCoord(x0,y0);  path->next();  assert( path->isEnd());
+    path->reset();                         checkTrue(!path->isEnd(), "Path should not be at end");
+    path->setCoord(x0,y0);  path->next();  checkTrue(!path->isEnd(), "Path should not be at end");
+    path->setCoord(x1,y1);  path->next();  checkTrue(!path->isEnd(), "Path should not be at end");
+    path->setCoord(x2,y2);  path->next();  checkTrue(!path->isEnd(), "Path should not be at end");
+    path->setCoord(x0,y0);  path->next();  checkTrue( path->isEnd(), "Path should be at end");
     out->fill(state);
 
   } else {
@@ -4019,6 +4047,7 @@ void Gfx::doShowText(GooString *s) {
       curX += tdx;
       curY += tdy;
       state->moveTo(curX, curY);
+      out->updateCTM(state, 0, 0, 0, 0, 0, 0);
       p += n;
       len -= n;
     }
@@ -4400,7 +4429,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
         }
         state->setRenderingIntent(objIntent.getName());
       }
-      colorSpace = GfxColorSpace::parse(&obj1, out, state);
+      colorSpace = GfxColorSpace::parse(res, &obj1, out, state);
       if (objIntent.isName()) {
         state->setRenderingIntent(tempIntent);
         free(tempIntent);
@@ -4412,7 +4441,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
       if (objCS.isNull()) {
         colorSpace = new GfxDeviceGrayColorSpace();
       } else {
-        colorSpace = GfxColorSpace::parse(&objCS, out, state);
+        colorSpace = GfxColorSpace::parse(res, &objCS, out, state);
       }
       objCS.free();
     } else if (csMode == streamCSDeviceRGB) {
@@ -4421,7 +4450,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
       if (objCS.isNull()) {
         colorSpace = new GfxDeviceRGBColorSpace();
       } else {
-        colorSpace = GfxColorSpace::parse(&objCS, out, state);
+        colorSpace = GfxColorSpace::parse(res, &objCS, out, state);
       }
       objCS.free();
     } else if (csMode == streamCSDeviceCMYK) {
@@ -4430,7 +4459,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
       if (objCS.isNull()) {
         colorSpace = new GfxDeviceCMYKColorSpace();
       } else {
-        colorSpace = GfxColorSpace::parse(&objCS, out, state);
+        colorSpace = GfxColorSpace::parse(res, &objCS, out, state);
       }
       objCS.free();
     } else {
@@ -4525,7 +4554,7 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
 	  obj2.free();
 	}
       }
-      maskColorSpace = GfxColorSpace::parse(&obj1, out, state);
+      maskColorSpace = GfxColorSpace::parse(NULL, &obj1, out, state);
       obj1.free();
       if (!maskColorSpace || maskColorSpace->getMode() != csDeviceGray) {
 	goto err1;
@@ -4541,7 +4570,34 @@ void Gfx::doImage(Object *ref, Stream *str, GBool inlineImg) {
 	delete maskColorMap;
 	goto err1;
       }
-      //~ handle the Matte entry
+      // handle the Matte entry
+      maskDict->lookup("Matte", &obj1);
+      if (obj1.isArray()) {
+        if (obj1.getArray()->getLength() != colorSpace->getNComps()) {
+          error(errSyntaxError, -1, "Matte entry should have {0:d} components but has {1:d}",
+            colorSpace->getNComps(), obj1.getArray()->getLength());
+        } else if (maskWidth != width || maskHeight != height) {
+          error(errSyntaxError, -1, "Softmask with matte entry {0:d} x {1:d} must have same geometry as the image {2:d} x {3:d}",
+            maskWidth, maskHeight, width, height);
+        } else {
+          GfxColor matteColor;
+          for (i = 0; i < colorSpace->getNComps(); i++) {
+            obj1.getArray()->get(i, &obj2);
+            if (!obj2.isNum()) {
+              obj2.free();
+              error(errSyntaxError, -1, "Matte entry {0:d} should be a number but it's of type {1:d}", i, obj2.getType());
+
+              break;
+            }
+            matteColor.c[i] = dblToCol(obj2.getNum());
+            obj2.free();
+          }
+          if (i == colorSpace->getNComps()) {
+            maskColorMap->setMatteColor(&matteColor);
+          }
+        }
+      }
+      obj1.free();
       haveSoftMask = gTrue;
     } else if (maskObj.isArray()) {
       // color key mask
@@ -4821,7 +4877,7 @@ void Gfx::doForm(Object *str) {
   if (dict->lookup("Group", &obj1)->isDict()) {
     if (obj1.dictLookup("S", &obj2)->isName("Transparency")) {
       if (!obj1.dictLookup("CS", &obj3)->isNull()) {
-	blendingColorSpace = GfxColorSpace::parse(&obj3, out, state);
+	blendingColorSpace = GfxColorSpace::parse(res, &obj3, out, state);
       }
       obj3.free();
       if (obj1.dictLookup("I", &obj3)->isBool()) {
@@ -5274,6 +5330,7 @@ void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor,
         obj1.free();
       } else {
         obj1.free();
+        bboxObj.free();
         error(errSyntaxError, getPos(), "Bad form bounding box value");
         return;
       }
@@ -5285,8 +5342,15 @@ void Gfx::drawAnnot(Object *str, AnnotBorder *border, AnnotColor *aColor,
     if (matrixObj.isArray() && matrixObj.arrayGetLength() >= 6) {
       for (i = 0; i < 6; ++i) {
 	matrixObj.arrayGet(i, &obj1);
-	m[i] = obj1.getNum();
-	obj1.free();
+	if (likely(obj1.isNum())) {
+	  m[i] = obj1.getNum();
+	  obj1.free();
+	} else {
+	  obj1.free();
+	  matrixObj.free();
+	  error(errSyntaxError, getPos(), "Bad form matrix");
+	  return;
+	}
       }
     } else {
       m[0] = 1; m[1] = 0;
