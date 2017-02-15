@@ -22,7 +22,7 @@ private:
 
 	ContentTreeNode* m_pRootDir;
 	ContentTreeNode* m_pCurrentDir;
-	vector<ContentTreeNode*> m_vItems;
+	std::vector<ContentTreeNode*> m_vItems;
 
 	__int64 m_nTotalSize;
 	__int64 m_nTotalPackedSize;

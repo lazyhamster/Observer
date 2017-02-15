@@ -41,8 +41,12 @@ bool TryParseDateTime( GooString* strDate, FILETIME *fTime )
 		&& SystemTimeToFileTime(&stime, fTime);
 }
 
-bool PdfInfo::LoadInfo( PDFDoc* doc )
+//////////////////////////////////////////////////////////////////////////
+
+bool PdfInfo::LoadInfo( PDFDoc* doc, bool openAllFiles )
 {
+	Cleanup();
+	
 	Catalog* cat = doc->getCatalog();
 	if (!cat) return false;
 	
@@ -51,7 +55,7 @@ bool PdfInfo::LoadInfo( PDFDoc* doc )
 	{
 		FileSpec* file = cat->embeddedFile(i);
 		if (file->isOk())
-			embFiles.push_back(file);
+			m_vFiles.push_back(new PdfEmbeddedFile(file));
 	}
 
 	// Get page attachments
@@ -66,42 +70,58 @@ bool PdfInfo::LoadInfo( PDFDoc* doc )
 		{
 			Annot* ant = annots->getAnnot(j);
 			if ((ant->getType() == Annot::typeFileAttachment) && ant->isOk())
-				embFiles.push_back(new FileSpec(static_cast<AnnotFileAttachment *>(ant)->getFile()));
+			{
+				FileSpec* spec = new FileSpec(static_cast<AnnotFileAttachment *>(ant)->getFile());
+				m_vFiles.push_back(new PdfEmbeddedFile(spec));
+			}
 		}
 	}
 
+	char scriptNameBuf[MAX_PATH];
 	for (int i = 0; i < cat->numJS(); i++)
 	{
 		GooString* jsName = cat->getJSName(i);
 		GooString* jsText = cat->getJS(i);
 		if (jsText)
 		{
-			PdfScriptData scriptData;
-			scriptData.Name = jsName && jsName->getLength() ? jsName->getCString() : "";
-			scriptData.Text = jsText->getCString();
+			char* scriptName = jsName && jsName->getLength() ? jsName->getCString() : nullptr;
+			if (!scriptName || !*scriptName)
+			{
+				sprintf_s(scriptNameBuf, MAX_PATH, "script%04d", i);
+				scriptName = scriptNameBuf;
+			}
 
-			scripts.push_back(scriptData);
+			m_vFiles.push_back(new PdfScriptFile(scriptName, jsText->getCString(), jsText->getLength()));
 		}
 	}
 
 	// Generate info
-	LoadMetaData(doc, metadata);
-		
-	docRef = doc;
-	return true;
+	if (openAllFiles || m_vFiles.size() > 0)
+	{
+		std::string metadata;
+		LoadMetaData(doc, metadata);
+		m_vFiles.insert(m_vFiles.begin(), new PdfMetadataFile(metadata));
+	}
+
+	if (m_vFiles.size() > 0)
+	{
+		docRef = doc;
+		return true;
+	}
+
+	return false;
 }
 
 void PdfInfo::Cleanup()
 {
-	if (docRef)
-		delete docRef;
-
-	metadata.clear();
+	std::for_each(m_vFiles.begin(), m_vFiles.end(), [](PdfPseudoFile* f) { delete f; });
+	m_vFiles.clear();
 	
-	std::for_each(embFiles.begin(), embFiles.end(), [] (FileSpec* spec) { delete spec; });
-	embFiles.clear();
-
-	scripts.clear();
+	if (docRef)
+	{
+		delete docRef;
+		docRef = nullptr;
+	}
 }
 
 static void PrintEntry(Dict* dict, const char* key, const char* header, std::stringstream& output)
@@ -258,4 +278,103 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 	}
 
 	output = sstr.str();
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+static std::wstring ConvertNameToUnicode(const char* name, int nameLen)
+{
+	wchar_t tmp[MAX_PATH] = { 0 };
+	MultiByteToWideChar(CP_UTF8, 0, name, nameLen, tmp, MAX_PATH);
+	return tmp;
+}
+
+static PseudoFileSaveResult DumpStringToFile(const wchar_t* destPath, const std::string &content)
+{
+	DWORD dwBytes;
+	HANDLE hf = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
+	if (hf == INVALID_HANDLE_VALUE) return PseudoFileSaveResult::PFSR_ERROR_WRITE;
+
+	PseudoFileSaveResult rval = PseudoFileSaveResult::PFSR_OK;
+	if (!WriteFile(hf, content.c_str(), (DWORD)content.size(), &dwBytes, NULL))
+		rval = PseudoFileSaveResult::PFSR_ERROR_WRITE;
+
+	CloseHandle(hf);
+	return rval;
+}
+
+PdfMetadataFile::PdfMetadataFile(std::string& data)
+{
+	m_strName = L"{pdf_info}.txt";
+	m_strMetadata = data;
+}
+
+PseudoFileSaveResult PdfMetadataFile::Save(const wchar_t* filePath) const
+{
+	return DumpStringToFile(filePath, m_strMetadata);
+}
+
+PdfScriptFile::PdfScriptFile(const char* name, const char* text, size_t textSize)
+{
+	m_strName = ConvertNameToUnicode(name, -1);
+	m_strText = std::string(text, textSize);
+}
+
+PseudoFileSaveResult PdfScriptFile::Save(const wchar_t* filePath) const
+{
+	return DumpStringToFile(filePath, m_strText);
+}
+
+PdfEmbeddedFile::PdfEmbeddedFile(FileSpec* spec)
+{
+	m_pSpec = spec;
+	m_pEmbFile = spec->getEmbeddedFile();
+
+	GooString* strName = m_pSpec->getFileName();
+	if (strName->hasUnicodeMarker())
+	{
+		wchar_t tmpBuf[MAX_PATH] = { 0 };
+		
+		int numWChars = (strName->getLength() - 2) / 2;
+		size_t nextCharPos = 0;
+		char* pChar = strName->getCString() + 2;
+		for (int i = 0; i < numWChars; i++)
+		{
+			tmpBuf[nextCharPos] = (pChar[0] << 8) | pChar[1];
+			nextCharPos++;
+			pChar += 2;
+		}
+		tmpBuf[nextCharPos] = 0;
+
+		m_strName = tmpBuf;
+	}
+	else
+	{
+		m_strName = ConvertNameToUnicode(strName->getCString(), strName->getLength());
+	}
+}
+
+PdfEmbeddedFile::~PdfEmbeddedFile()
+{
+	delete m_pEmbFile;
+	delete m_pSpec;
+}
+
+void PdfEmbeddedFile::GetCreationTime(FILETIME* time) const
+{
+	TryParseDateTime(m_pEmbFile->createDate(), time);
+}
+
+void PdfEmbeddedFile::GetModificationTime(FILETIME* time) const
+{
+	TryParseDateTime(m_pEmbFile->modDate(), time);
+}
+
+PseudoFileSaveResult PdfEmbeddedFile::Save(const wchar_t* filePath) const
+{
+	if (!m_pEmbFile->isOk())
+		return PseudoFileSaveResult::PFSR_ERROR_READ;
+
+	GBool ret = m_pEmbFile->save(filePath);
+	return ret ? PseudoFileSaveResult::PFSR_OK : PseudoFileSaveResult::PFSR_ERROR_WRITE;
 }

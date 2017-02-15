@@ -12,22 +12,6 @@ static bool optOpenAllFiles = false;
 
 #define FILE_SIGNATURE_PDF "%PDF-"
 
-static int DumpStringToFile(const wchar_t* destPath, const std::string &content)
-{
-	DWORD dwBytes;
-	HANDLE hf = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, 0);
-	if (hf == INVALID_HANDLE_VALUE) return SER_ERROR_WRITE;
-
-	int rval = SER_SUCCESS;
-	if (!WriteFile(hf, content.c_str(), (DWORD) content.size(), &dwBytes, NULL))
-		rval = SER_ERROR_WRITE;
-
-	CloseHandle(hf);
-	return rval;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	if (!SignatureMatchOrNull(params.Data, params.DataSize, FILE_SIGNATURE_PDF))
@@ -37,7 +21,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	if (doc->isOk())
 	{
 		PdfInfo* pData = new PdfInfo();
-		if (pData->LoadInfo(doc) && (optOpenAllFiles || pData->HasFiles()))
+		if (pData->LoadInfo(doc, optOpenAllFiles))
 		{
 			*storage = pData;
 
@@ -74,105 +58,45 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	PdfInfo* pData = (PdfInfo*) storage;
 	if (pData == nullptr || item_index < 0) return GET_ITEM_ERROR;
 
-	memset(item_info, 0, sizeof(StorageItemInfo));
-	if (item_index == 0)
+	if (item_index < pData->GetNumFiles())
 	{
-		// First file will be always fake info file
-		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{pdf_info}.txt");
-		item_info->Size = pData->metadata.size();
-		return GET_ITEM_OK;
-	}
-	else if (item_index < (int) pData->embFiles.size() + 1)
-	{
-		// File is embedded file
-		
-		FileSpec* fsp = pData->embFiles[item_index - 1];
-		GooString* strName = fsp->getFileName();
-		EmbFile* embFileInfo = fsp->getEmbeddedFile();
-		
-		wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"{files}\\");
-		if (strName->hasUnicodeMarker())
-		{
-			int numWChars = (strName->getLength() - 2) / 2;
-			size_t nextCharPos = wcslen(item_info->Path);
-			char* pChar = strName->getCString() + 2;
-			for (int i = 0; i < numWChars; i++)
-			{
-				item_info->Path[nextCharPos] = (pChar[0] << 8) | pChar[1];
-				nextCharPos++;
-				pChar += 2;
-			}
-			item_info->Path[nextCharPos] = 0;
-		}
-		else
-		{
-			size_t currLen = wcslen(item_info->Path);
-			MultiByteToWideChar(CP_ACP, 0, strName->getCString(), strName->getLength(), item_info->Path + currLen, (int) (STRBUF_SIZE(item_info->Path) - currLen));
-			item_info->Path[currLen + strName->getLength()] = 0;
-		}
-		item_info->Size = embFileInfo->size();
-		TryParseDateTime(embFileInfo->createDate(), &item_info->CreationTime);
-		TryParseDateTime(embFileInfo->modDate(), &item_info->ModificationTime);
+		const PdfPseudoFile* pFile = pData->GetFile(item_index);
 
+		memset(item_info, 0, sizeof(StorageItemInfo));
+		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"%s%s", pFile->GetPrefix(), pFile->GetName());
+		item_info->Size = pFile->GetSize();
+		item_info->PackedSize = pFile->GetSize();
+		pFile->GetCreationTime(&item_info->CreationTime);
+		pFile->GetModificationTime(&item_info->ModificationTime);
+
+		RenameInvalidPathChars(item_info->Path + wcslen(pFile->GetPrefix()));
+		
 		// For some special cases
 		if (item_info->Size < 0) item_info->Size = 0;
+		if (item_info->PackedSize < 0) item_info->PackedSize = 0;
 
 		return GET_ITEM_OK;
 	}
-	else if (item_index < (int) (pData->embFiles.size() + pData->scripts.size() + 1))
-	{
-		// File is script file
-		size_t scriptIndex = item_index - pData->embFiles.size() - 1;
-		const PdfScriptData& scriptData = pData->scripts[scriptIndex];
 
-		std::string scriptName(scriptData.Name);
-		for (size_t i = 0; i < scriptName.length(); i++)
-		{
-			if (!IsValidPathChar(scriptName[i]))
-				scriptName[i] = '_';
-		}
-		
-		char fileNameBuf[MAX_PATH] = {0};
-		if (scriptName.length() == 0)
-			sprintf_s(fileNameBuf, "{scripts}\\script%04d", scriptIndex);
-		else
-			sprintf_s(fileNameBuf, "{scripts}\\script%s", scriptName.c_str());
-
-		MultiByteToWideChar(CP_ACP, 0, fileNameBuf, -1, item_info->Path, STRBUF_SIZE(item_info->Path));
-		item_info->Size = scriptData.Text.length();
-
-		return GET_ITEM_OK;
-	}
-	
 	return GET_ITEM_NOMOREITEMS;
 }
 
 int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 {
 	PdfInfo* pData = (PdfInfo*) storage;
-	if (pData == nullptr || params.ItemIndex < 0) return SER_ERROR_SYSTEM;
+	if (pData == nullptr || params.ItemIndex < 0 || params.ItemIndex >= pData->GetNumFiles()) return SER_ERROR_SYSTEM;
 
-	if (params.ItemIndex == 0)
+	const PdfPseudoFile* pFile = pData->GetFile(params.ItemIndex);
+	PseudoFileSaveResult sr = pFile->Save(params.DestPath);
+
+	switch (sr)
 	{
-		return DumpStringToFile(params.DestPath, pData->metadata);
-	}
-	else if (params.ItemIndex < (int) pData->embFiles.size() + 1)
-	{
-		FileSpec* fsp = pData->embFiles[params.ItemIndex - 1];
-		EmbFile* embFileInfo = fsp->getEmbeddedFile();
-
-		if (!embFileInfo->isOk())
-			return SER_ERROR_READ;
-
-		GBool ret = embFileInfo->save(params.DestPath);
-		return ret ? SER_SUCCESS : SER_ERROR_WRITE;
-	}
-	else if (params.ItemIndex < (int) (pData->embFiles.size() + pData->scripts.size() + 1))
-	{
-		size_t scriptIndex = params.ItemIndex - pData->embFiles.size() - 1;
-		const PdfScriptData& scriptData = pData->scripts[scriptIndex];
-
-		return DumpStringToFile(params.DestPath, scriptData.Text);
+	case PseudoFileSaveResult::PFSR_OK:
+		return SER_SUCCESS;
+	case PseudoFileSaveResult::PFSR_ERROR_READ:
+		return SER_ERROR_READ;
+	case PseudoFileSaveResult::PFSR_ERROR_WRITE:
+		return SER_ERROR_WRITE;
 	}
 	
 	return SER_ERROR_SYSTEM;
