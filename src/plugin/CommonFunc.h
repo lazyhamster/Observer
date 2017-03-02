@@ -17,13 +17,13 @@ void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim);
 
 void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize);
 void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize);
-void IncludeTrailingPathDelim(wstring& pathBuf);
-void IncludeTrailingPathDelim(string& pathBuf);
+void IncludeTrailingPathDelim(std::wstring& pathBuf);
+void IncludeTrailingPathDelim(std::string& pathBuf);
 
 void InsertCommas(wchar_t *Dest);
 void InsertCommas(char *Dest);
 
-std::wstring FormatString(const std::wstring fmt, ...);
+std::wstring FormatString(const wchar_t* fmt_str, ...);
 std::wstring FileTimeToString(FILETIME ft);
 
 void UpdateFileTime(const wchar_t* path, const FILETIME* createTime, const FILETIME* modTime);

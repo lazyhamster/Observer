@@ -35,7 +35,7 @@ int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 
 		if (recursive)
 		{
 			// Iterate through sub directories
-			for (SubNodesMap::const_iterator cit = node->subdirs.begin(); cit != node->subdirs.end(); cit++)
+			for (auto cit = node->subdirs.begin(); cit != node->subdirs.end(); cit++)
 			{
 				ContentTreeNode* child = cit->second;
 				numItems += CollectFileList(child, targetlist, totalSize, recursive);
@@ -43,7 +43,7 @@ int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 
 		}
 
 		// Iterate through files
-		for (SubNodesMap::const_iterator cit = node->files.begin(); cit != node->files.end(); cit++)
+		for (auto cit = node->files.begin(); cit != node->files.end(); cit++)
 		{
 			ContentTreeNode* child = cit->second;
 			targetlist.push_back(child);

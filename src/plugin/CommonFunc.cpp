@@ -121,7 +121,7 @@ void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize)
 		strcat_s(pathBuf, bufMaxSize, "\\");
 }
 
-void IncludeTrailingPathDelim(string& pathBuf)
+void IncludeTrailingPathDelim(std::string& pathBuf)
 {
 	if (pathBuf.length() == 0) return;
 
@@ -129,7 +129,7 @@ void IncludeTrailingPathDelim(string& pathBuf)
 		pathBuf.append("\\");
 }
 
-void IncludeTrailingPathDelim(wstring& pathBuf)
+void IncludeTrailingPathDelim(std::wstring& pathBuf)
 {
 	if (pathBuf.length() == 0) return;
 
@@ -176,16 +176,16 @@ void InsertCommas(char *Dest)
 		}
 }
 
-std::wstring FormatString(const std::wstring fmt_str, ...)
+std::wstring FormatString(const wchar_t* fmt_str, ...)
 {
 	const size_t MaxBufferSize = 1024;
 	
 	wchar_t formatted[MaxBufferSize];
 	va_list ap;
 
-	wcscpy_s(&formatted[0], MaxBufferSize, fmt_str.c_str());
+	wcscpy_s(&formatted[0], MaxBufferSize, fmt_str);
 	va_start(ap, fmt_str);
-	_vsnwprintf_s(&formatted[0], MaxBufferSize, MaxBufferSize, fmt_str.c_str(), ap);
+	_vsnwprintf_s(&formatted[0], MaxBufferSize, MaxBufferSize, fmt_str, ap);
 	va_end(ap);
 
 	return std::wstring(formatted);
