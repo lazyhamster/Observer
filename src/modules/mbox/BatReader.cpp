@@ -83,6 +83,9 @@ int CBatReader::Scan()
 		item.Date = msgHeader.receivedTime;
 		item.IsDeleted = (msgHeader.statusFlag & 1) != 0;
 
+		// Subject need sanitizing because it will be a base for file name
+		SanitizeString(item.Subject);
+
 		m_vItems.push_back(item);
 		nFoundItems++;
 		

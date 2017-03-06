@@ -47,5 +47,6 @@ public:
 };
 
 std::wstring ConvertString(const char* src);
+void SanitizeString(std::wstring &str);
 
 #endif // MailReader_h__

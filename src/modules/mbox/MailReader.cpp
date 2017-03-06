@@ -5,7 +5,8 @@ std::wstring ConvertString(const char* src)
 {
 	if (!src || !*src) return L"";
 	
-	size_t tmpBufSize = strlen(src) + 1;
+	int tmpBufSize = MultiByteToWideChar(CP_UTF8, 0, src, -1, nullptr, 0);
+	if (tmpBufSize == 0) return L"";
 	
 	wchar_t* tmpBuf = (wchar_t*) malloc(tmpBufSize * sizeof(wchar_t));
 	memset(tmpBuf, 0, tmpBufSize * sizeof(wchar_t));
@@ -16,6 +17,18 @@ std::wstring ConvertString(const char* src)
 	free(tmpBuf);
 
 	return retVal;
+}
+
+static bool IsBadPathChar(wchar_t c)
+{
+	return wcschr(L"\r\n", c) != nullptr;
+}
+
+void SanitizeString(std::wstring &str)
+{
+	wchar_t bad_chars[] = L"\r\n";
+	
+	str.erase(std::remove_if(str.begin(), str.end(), IsBadPathChar), str.end());
 }
 
 //////////////////////////////////////////////////////////////////////////

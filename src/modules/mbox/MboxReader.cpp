@@ -40,6 +40,8 @@ int CMboxReader::Scan()
 		item.Subject = ConvertString(strSubj);
 		item.IsDeleted = false;
 		g_mime_message_get_date(message, &item.Date, &item.TimeZone);
+
+		SanitizeString(item.Subject);
 		
 		m_vItems.push_back(item);
 		nFoundItems++;
