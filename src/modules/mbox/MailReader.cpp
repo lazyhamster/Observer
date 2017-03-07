@@ -19,16 +19,26 @@ std::wstring ConvertString(const char* src)
 	return retVal;
 }
 
-static bool IsBadPathChar(wchar_t c)
-{
-	return wcschr(L"\r\n", c) != nullptr;
-}
-
 void SanitizeString(std::wstring &str)
 {
-	wchar_t bad_chars[] = L"\r\n";
+	static wchar_t bad_chars[] = L"\r\n\t";
+
+	// Trim left
+	auto pos = str.find_first_not_of(bad_chars);
+	if (pos > 0)
+		str.erase(0, pos);
 	
-	str.erase(std::remove_if(str.begin(), str.end(), IsBadPathChar), str.end());
+	// Trim right
+	auto pos_back = str.find_last_not_of(bad_chars);
+	if ((pos_back != std::wstring::npos) && (pos_back < str.length()))
+		str.erase(pos_back + 1);
+	
+	// Replace symbols in the middle with spaces
+	for (size_t i = 0; i < str.length(); ++i)
+	{
+		if (wcschr(L"\r\n", str[i]) != nullptr)
+			str[i] = ' ';
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
