@@ -23,7 +23,7 @@ m4_include(`version.m4i')m4_dnl
 
  For additional information look in supplied readme.txt
 
- (c) 2009-2016, Ariman
+ (c) 2009-2017, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
  Download link: ~https://sourceforge.net/projects/far-observer~@https://sourceforge.net/projects/far-observer@

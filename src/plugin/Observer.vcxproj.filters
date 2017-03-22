@@ -35,9 +35,6 @@
     <ClCompile Include="ModulesController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Observer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ObserverUni.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

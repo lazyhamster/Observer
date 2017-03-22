@@ -23,7 +23,7 @@
 
  Для дополнительной информации смотрите файл readme_ru.txt
 
- (c) 2009-2016, Ariman
+ (c) 2009-2017, Ariman
  -----------------------------------------
  Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
  Download link: ~https://sourceforge.net/projects/far-observer~@https://sourceforge.net/projects/far-observer@

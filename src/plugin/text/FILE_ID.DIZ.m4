@@ -1,6 +1,6 @@
 m4_include(`version.m4i')m4_dnl
 Observer OBSERVER_VERSION
-Plugin for FAR 1.75 / 2.0 / 3.0
+Plugin for FAR 2.0 / 3.0
 ---------------------------
 
 This plugins allows to browse several types of file containers.
@@ -26,7 +26,7 @@ Supported file formats:
 - PDF files (embedded files)
 - CreateInstall packages
 
-(c) 2009-2016, Ariman
+(c) 2009-2017, Ariman
 -----------------------------------------
 Web-site: http://sourceforge.net/projects/far-observer/
 E-mail for suggestions, bug reports, etc: ariman@inbox.ru
