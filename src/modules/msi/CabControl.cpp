@@ -94,8 +94,7 @@ CCabControl::CCabControl(void)
 
 CCabControl::~CCabControl(void)
 {
-	map<wstring, CabCacheItem*>::iterator iter;
-	for (iter = m_mCabCache.begin(); iter != m_mCabCache.end(); iter++)
+	for (auto iter = m_mCabCache.begin(); iter != m_mCabCache.end(); iter++)
 	{
 		CabCacheItem* item = iter->second;
 		delete item;		

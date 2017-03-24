@@ -62,7 +62,7 @@ CMsiViewer::~CMsiViewer(void)
 	if (m_hMsi)	MsiCloseHandle(m_hMsi);
 	if (m_pRootDir)	delete m_pRootDir;
 
-	for (map<wstring, wstring>::iterator iter = m_mStreamCache.begin(); iter != m_mStreamCache.end(); iter++)
+	for (auto iter = m_mStreamCache.begin(); iter != m_mStreamCache.end(); iter++)
 		DeleteFileW(iter->second.c_str());
 	RemoveDirectoryW(m_strStreamCacheLocation.c_str());
 }
@@ -1355,7 +1355,7 @@ int CMsiViewer::GetCompressionType()
 		return MSI_COMPRESSION_CAB;
 
 	bool fFoundUncomp = false, fFoundComp = false;
-	for (vector<BasicNode*>::const_iterator cit = m_vFlatIndex.begin(); cit != m_vFlatIndex.end(); cit++)
+	for (auto cit = m_vFlatIndex.begin(); cit != m_vFlatIndex.end(); cit++)
 	{
 		BasicNode* node = *cit;
 		if (!node->IsDir())
