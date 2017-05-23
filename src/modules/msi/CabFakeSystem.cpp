@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "CabSystem.h"
 
+#include <MsiQuery.h>
+
 extern "C"
 {
 #include "mspack\mspack.h"

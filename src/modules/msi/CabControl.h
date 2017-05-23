@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CabSystem.h"
+
 struct CabCacheItem;
 
 class CCabControl

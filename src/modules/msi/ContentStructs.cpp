@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "ContentStructs.h"
 
+#include <MsiDefs.h>
+
 #define KILLSTR(wstr) if(wstr){free(wstr); wstr = NULL;}
 
 void SplitEntryWithAlloc(wchar_t* source, wchar_t delim, wchar_t* &shortName, wchar_t* &longName)

@@ -14,10 +14,6 @@
 
 
 // Reference additional headers your program requires here
-#include <Msi.h>
-#include <MsiQuery.h>
-#include <MsiDefs.h>
-
 #include <map>
 #include <vector>
 #include <string>

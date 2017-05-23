@@ -396,6 +396,7 @@
     </ClCompile>
     <ClCompile Include="msi.cpp" />
     <ClCompile Include="MsiViewer.cpp" />
+    <ClCompile Include="OleReader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">Create</PrecompiledHeader>
@@ -415,6 +416,7 @@
     <ClInclude Include="CabSystem.h" />
     <ClInclude Include="ContentStructs.h" />
     <ClInclude Include="MsiViewer.h" />
+    <ClInclude Include="OleReader.h" />
     <ClInclude Include="PackageStruct.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />

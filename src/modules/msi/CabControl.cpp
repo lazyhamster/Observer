@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "CabControl.h"
-#include "CabSystem.h"
 
 extern "C"
 {

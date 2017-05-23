@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "MsiViewer.h"
 
+#include <MsiQuery.h>
+#include <MsiDefs.h>
+
 #pragma comment(lib, "Msi.lib")
 
 #define OK(f) res=f; \
