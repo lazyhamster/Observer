@@ -62,7 +62,7 @@ private:
 
 	wstring getStoragePath();
 	bool AcquireStreamCachePath();
-	int cacheInternalStream(const wchar_t* streamName);
+	bool cacheInternalStream(const wchar_t* streamName);
 
 	void buildFlatIndex(DirectoryNode* root);
 

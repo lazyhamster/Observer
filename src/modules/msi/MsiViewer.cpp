@@ -1,17 +1,21 @@
 #include "StdAfx.h"
 #include "MsiViewer.h"
+#include "OleReader.h"
 
 #include <MsiQuery.h>
 #include <MsiDefs.h>
 
 #pragma comment(lib, "Msi.lib")
 
+#define OK_V(f, rv) res=f; \
+	if(res!=ERROR_SUCCESS) return rv;
 #define OK(f) res=f; \
 	if(res!=ERROR_SUCCESS) return res;
 #define OK_MISS(f) res=f; \
 	if(res == ERROR_BAD_QUERY_SYNTAX) return ERROR_SUCCESS; \
 	else if(res != ERROR_SUCCESS) return res;
 #define READ_STR(rec,ind,s) nCellSize = sizeof(s)/sizeof(s[0]); OK( MsiRecordGetStringW(rec, ind, s, &nCellSize) );
+#define READ_STR_V(rec,ind,s, rv) nCellSize = sizeof(s)/sizeof(s[0]); OK_V( MsiRecordGetStringW(rec, ind, s, &nCellSize), rv );
 
 #define FCOPY_BUF_SIZE 32*1024
 
@@ -1190,16 +1194,17 @@ bool CMsiViewer::AcquireStreamCachePath()
 	return true;
 }
 
-int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
+bool CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 {
 	wstring strCabPath = m_mStreamCache[streamName];
 	if (strCabPath.length() > 0)
-		return TRUE;
+		return true;
 	
 	if (!AcquireStreamCachePath())
-		return FALSE;
+		return false;
 
-	int nResult = FALSE;
+	const wchar_t* msiInternalStreamName = streamName[0] == '#' ? streamName + 1 : streamName;
+	strCabPath = m_strStreamCacheLocation + msiInternalStreamName;
 
 	UINT res;
 	PMSIHANDLE hQueryStream;
@@ -1212,9 +1217,23 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 		if (res == ERROR_SUCCESS)
 			res = MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQueryStream);
 	}
-	OK(res);
+	if (res == ERROR_BAD_QUERY_SYNTAX)
+	{
+		// Could be a WiX file. In this case we should read it as Compound File.
+		COleStorage oleStor;
+		if (!oleStor.Open(m_strStorageLocation.c_str()))
+			return false;
+		if (oleStor.ExtractStream(msiInternalStreamName, strCabPath.c_str()))
+		{
+			m_mStreamCache[streamName] = strCabPath;
+			return true;
+		}
+	}
+	OK_V(res, false);
 
-	OK( MsiViewExecute(hQueryStream, 0) );
+	OK_V(MsiViewExecute(hQueryStream, 0), false);
+
+	bool nResult = false;
 
 	// Go through streams list and copy to temp folder
 	PMSIHANDLE hStreamRec;
@@ -1222,12 +1241,12 @@ int CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 	wchar_t wszStreamName[256];
 	while ((res = MsiViewFetch(hQueryStream, &hStreamRec)) != ERROR_NO_MORE_ITEMS)
 	{
-		OK(res);
+		if (res != ERROR_SUCCESS)
+			break;
 
-		READ_STR(hStreamRec, 1, wszStreamName);
-		if ((streamName[0] == '#' && wcscmp(wszStreamName, streamName + 1) == 0) || (wcscmp(wszStreamName, streamName) == 0))
+		READ_STR_V(hStreamRec, 1, wszStreamName, false);
+		if (wcscmp(wszStreamName, msiInternalStreamName) == 0)
 		{
-			wstring strCabPath = m_strStreamCacheLocation + (streamName + 1);
 			HANDLE hOutputFile = CreateFileW(strCabPath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_NEW, FILE_ATTRIBUTE_NORMAL, NULL);
 			if (hOutputFile == INVALID_HANDLE_VALUE) break;
 
