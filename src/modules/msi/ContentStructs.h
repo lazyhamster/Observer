@@ -64,8 +64,8 @@ public:
 	wchar_t* ParentKey;
 	bool IsSpecial;
 
-	vector<DirectoryNode*> SubDirs;
-	vector<FileNode*> Files;
+	std::vector<DirectoryNode*> SubDirs;
+	std::vector<FileNode*> Files;
 
 	DirectoryNode();
 	~DirectoryNode();
