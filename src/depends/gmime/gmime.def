@@ -1,6 +1,7 @@
 EXPORTS
 
 	g_mime_init
+	g_mime_shutdown
 	g_mime_content_type_get_media_subtype
 	g_mime_content_type_get_media_type
 	g_mime_data_wrapper_write_to_stream

@@ -396,4 +396,9 @@
       <Filter>Header Files\gmime</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="gmime.def">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

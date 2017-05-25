@@ -116,4 +116,5 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 
 void MODULE_EXPORT UnloadSubModule()
 {
+	g_mime_shutdown();
 }
