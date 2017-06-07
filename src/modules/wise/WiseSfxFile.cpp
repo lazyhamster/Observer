@@ -8,6 +8,7 @@ CWiseSfxFile::CWiseSfxFile()
 	m_pSource = nullptr;
 	m_nStartOffset = -1;
 	m_nFileSize = 0;
+	m_nCrc32 = 0;
 }
 
 CWiseSfxFile::~CWiseSfxFile()

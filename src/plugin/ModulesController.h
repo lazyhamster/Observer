@@ -6,7 +6,7 @@
 
 struct ExternalModule
 {
-	ExternalModule(const wchar_t* Name, const wchar_t* Library)
+	ExternalModule(const std::wstring& Name, const std::wstring& Library)
 		: m_sModuleName(Name), m_sLibraryFile(Library)
 	{
 		LoadModule = nullptr;

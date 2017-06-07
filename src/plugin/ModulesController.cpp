@@ -58,7 +58,7 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 	for (size_t i = 0; i < mModulesList->Count(); i++)
 	{
 		const ConfigItem& nextOpt = mModulesList->GetItem(i);
-		ExternalModule module(nextOpt.Key.c_str(), nextOpt.Value.c_str());
+		ExternalModule module(nextOpt.Key, nextOpt.Value);
 		
 		ConfigSection* moduleOpts = cfg->GetSection(module.Name());
 		wstring moduleSettingsStr = moduleOpts ? moduleOpts->GetAll() : L"";
@@ -104,18 +104,18 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 	} // for
 
 	// Assign automatic shortcuts to modules without one
-	int lastScIndex = 1;
+	size_t lastScIndex = 1;
 	for (size_t j = 0; j < modules.size(); j++)
 	{
 		ExternalModule &module = modules[j];
 		if (module.ShortCut) continue;
 
 		// Find first unused shortcut
-		while (lastScIndex < 36 && vUsedShortcuts[lastScIndex])
+		while (lastScIndex < _countof(vUsedShortcuts) && vUsedShortcuts[lastScIndex])
 			lastScIndex++;
 		
 		// Too many modules, not enough shortcuts
-		if (lastScIndex > 36) break;
+		if (lastScIndex >= _countof(vUsedShortcuts)) break;
 		
 		module.ShortCut = (lastScIndex < 10) ? (L'0' + lastScIndex) : (L'A' + lastScIndex - 10);
 		vUsedShortcuts[lastScIndex] = true;

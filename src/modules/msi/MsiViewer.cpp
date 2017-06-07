@@ -61,6 +61,7 @@ CMsiViewer::CMsiViewer(void)
 	m_nSummaryWordCount = 0;
 	memset(&m_ftCreateTime, 0, sizeof(m_ftCreateTime));
 	m_pCabControl = new CCabControl();
+	m_eType = MsiFileType::Unknown;
 }
 
 CMsiViewer::~CMsiViewer(void)
@@ -368,7 +369,7 @@ int CMsiViewer::readPackageType()
 	// Merge Module must have ModuleComponents table with some data
 	// If this table is absent of empty then we have regular MSI database.
 
-	m_eType = MSI_TYPE_MSI;
+	m_eType = MsiFileType::MSI;
 
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQuery) );
 	OK( MsiViewExecute(hQuery, 0) );
@@ -384,7 +385,7 @@ int CMsiViewer::readPackageType()
 		READ_STR(hCompRec, 1, wszStreamName);
 		if (wcscmp(wszStreamName, L"MergeModule.CABinet") == 0)
 		{
-			m_eType = MSI_TYPE_MERGE_MODULE;
+			m_eType = MsiFileType::MergeModule;
 			break;
 		}
 	}
@@ -1037,7 +1038,7 @@ FileNode* CMsiViewer::GetFile( const int fileIndex )
 
 const wchar_t* CMsiViewer::getFileStorageName( FileNode* file )
 {
-	if (m_eType == MSI_TYPE_MERGE_MODULE)
+	if (m_eType == MsiFileType::MergeModule)
 		return L"MergeModule.CABinet";
 	
 	// Check flags first to filter uncompressed files
@@ -1131,7 +1132,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 		else
 		{
 			wstring strCabPath;
-			if (cab[0] == '#' || m_eType == MSI_TYPE_MERGE_MODULE)
+			if (cab[0] == '#' || m_eType == MsiFileType::MergeModule)
 			{
 				// Copy from internal stream
 				if (cacheInternalStream(cab))

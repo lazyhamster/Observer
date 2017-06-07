@@ -15,10 +15,11 @@ typedef std::map<wstring, wstring> WStringMap;
 #define MSI_COMPRESSION_CAB 1
 #define MSI_COMPRESSION_MIXED 2
 
-enum MsiFileType
+enum class MsiFileType
 {
-	MSI_TYPE_MSI,
-	MSI_TYPE_MERGE_MODULE
+	Unknown,
+	MSI,
+	MergeModule
 };
 
 class CMsiViewer
@@ -28,7 +29,7 @@ private:
 	DirectoryNode* m_pRootDir;
 	std::vector <MediaEntry> m_vMedias;
 	wstring m_strStorageLocation;
-	vector <BasicNode*> m_vFlatIndex;
+	std::vector <BasicNode*> m_vFlatIndex;
 	int m_nSummaryWordCount;
 	FILETIME m_ftCreateTime;
 	MsiFileType m_eType;

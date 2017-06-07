@@ -37,9 +37,9 @@ public:
 class CFileStream : public AStream
 {
 private:
-	CFileStream() {}
-	CFileStream(const CFileStream& other) {}
-	CFileStream& operator=( const CFileStream& rhs ) {}
+	CFileStream() = delete;
+	CFileStream(const CFileStream& other) = delete;
+	CFileStream& operator=(const CFileStream& rhs) = delete;
 
 protected:
 	HANDLE m_hFile;

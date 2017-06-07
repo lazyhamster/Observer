@@ -30,6 +30,7 @@ bool ReadStructArray( CBasicFile* inFile, BIG_SectionRef secref, T** list )
 CHW2BigFile::CHW2BigFile()
 {
 	memset(&m_archHeader, 0, sizeof(m_archHeader));
+	memset(&m_sectionHeader, 0, sizeof(m_sectionHeader));
 	m_vFileInfoList = NULL;
 }
 

@@ -15,11 +15,14 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 		switch (view->GetFileType())
 		{
-			case MSI_TYPE_MERGE_MODULE:
+			case MsiFileType::MSI:
+				wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI Installation Database");
+				break;
+			case MsiFileType::MergeModule:
 				wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI Merge Module");
 				break;
 			default:
-				wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"MSI Installation Database");
+				wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"Unknown MSI type");
 				break;
 		}
 		

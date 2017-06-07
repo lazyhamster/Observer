@@ -88,7 +88,7 @@ FILETIME StringToTime(const char* data)
 	FILETIME res = {0};
 
 	SYSTEMTIME st = {0};
-	int valnum = sscanf(data, "%4d%2d%2d%2d%2d%2d", &st.wYear, &st.wMonth, &st.wDay, &st.wHour, &st.wMinute, &st.wSecond);
+	int valnum = sscanf(data, "%4hu%2hu%2hu%2hu%2hu%2hu", &st.wYear, &st.wMonth, &st.wDay, &st.wHour, &st.wMinute, &st.wSecond);
 	if (valnum >= 3) SystemTimeToFileTime(&st, &res);
 
 	return res;

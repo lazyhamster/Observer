@@ -9,8 +9,8 @@ private:
 	wchar_t* m_wszFilePath;
 
 	// Make class non-copyable
-	OptionsFile(const OptionsFile &other) {}
-	OptionsFile& operator =(const OptionsFile &other) {}
+	OptionsFile(const OptionsFile &other) = delete;
+	OptionsFile& operator =(const OptionsFile &other) = delete;
 
 public:
 	OptionsFile(const wchar_t* ConfigLocation);

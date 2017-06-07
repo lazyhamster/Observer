@@ -9,9 +9,9 @@ typedef bool(*PasswordQueryCallbackFunc)(char*, size_t);
 class StorageObject
 {
 private:
-	StorageObject() {}
-	StorageObject(const StorageObject& copy) {}
-	StorageObject &operator=(const StorageObject &a) {}
+	StorageObject() = delete;
+	StorageObject(const StorageObject& copy) = delete;
+	StorageObject &operator=(const StorageObject &a) = delete;
 
 private:
 	ModulesController* m_pModules;

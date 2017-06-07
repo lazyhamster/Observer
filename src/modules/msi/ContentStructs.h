@@ -57,8 +57,8 @@ public:
 class DirectoryNode : public BasicNode
 {
 private:
-	DirectoryNode(const DirectoryNode &node) {};
-	DirectoryNode &operator=(const DirectoryNode &a) {}
+	DirectoryNode(const DirectoryNode &node) = delete;
+	DirectoryNode &operator=(const DirectoryNode &a) = delete;
 
 public:
 	wchar_t* ParentKey;

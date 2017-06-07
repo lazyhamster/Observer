@@ -23,15 +23,7 @@ RegistrySettings::RegistrySettings( const wchar_t* RootKey )
 	m_strRegKeyName.append(SETTINGS_KEY_REGISTRY);
 
 	m_hkRegKey = 0;
-}
-
-RegistrySettings::RegistrySettings( const char* RootKey )
-{
-	m_strRegKeyName = ConvertString(RootKey);
-	m_strRegKeyName.append(L"\\");
-	m_strRegKeyName.append(SETTINGS_KEY_REGISTRY);
-
-	m_hkRegKey = 0;
+	m_fCanWrite = false;
 }
 
 RegistrySettings::~RegistrySettings()
@@ -55,6 +47,7 @@ bool RegistrySettings::Open(bool CanWrite)
 	else
 		retVal = RegOpenKey(HKEY_CURRENT_USER, m_strRegKeyName.c_str(), &m_hkRegKey);
 
+	m_fCanWrite = CanWrite;
 	return (retVal == ERROR_SUCCESS);
 }
 
@@ -93,6 +86,19 @@ bool RegistrySettings::GetValue( const char* ValueName, char *Output, size_t Out
 	return (retVal == ERROR_SUCCESS);
 }
 
+bool RegistrySettings::GetValue( const wchar_t* ValueName, bool &Output )
+{
+	if (!m_hkRegKey) return false;
+	
+	int nValue;
+	if (GetValue(ValueName, nValue))
+	{
+		Output = (nValue != 0);
+		return true;
+	}
+	return false;
+}
+
 bool RegistrySettings::SetValue( const wchar_t* ValueName, int Value )
 {
 	if (!m_fCanWrite || !m_hkRegKey) return false;
@@ -117,4 +123,9 @@ bool RegistrySettings::SetValue( const char* ValueName, const char *Value )
 	size_t nDataSize = (strlen(Value) + 1) * sizeof(char);
 	LSTATUS retVal = RegSetValueExA(m_hkRegKey, ValueName, 0, REG_SZ, (LPBYTE) Value, (DWORD) nDataSize);
 	return (retVal == ERROR_SUCCESS);
+}
+
+bool RegistrySettings::SetValue( const wchar_t* ValueName, bool Value )
+{
+	return SetValue(ValueName, Value ? 1 : 0);
 }
