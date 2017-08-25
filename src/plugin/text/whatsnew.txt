@@ -1,7 +1,7 @@
 Changes history:
 
 1.12.0
-- Plugin now requires Visual C++ 2013 Redist.
+- Plugin now requires Visual C++ 2013 Redist (instead of VC++ 2010 Redist).
 - Changes in modules API.
 - New file property exposed: Owner (for containers where applicable).
 - Now you can configure reaction on Enter and Ctrl-PgDn seprately.
@@ -12,6 +12,7 @@ Changes history:
 - PDF: Updated Poppler library to version 0.51.0.
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
 - MSI: Fixed inability to extract files from some installers made by WiX.
+- MPQ: Updated StormLib to version 9.21.
 
 1.11.2
 - PST: Fixed invalid path characters in folder names.

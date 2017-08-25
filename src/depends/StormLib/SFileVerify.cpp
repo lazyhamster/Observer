@@ -113,13 +113,6 @@ static void memrev(unsigned char *buf, size_t count)
     }
 }
 
-static bool is_valid_md5(void * pvMd5)
-{
-    LPDWORD Md5 = (LPDWORD)pvMd5;
-
-    return (Md5[0] | Md5[1] | Md5[2] | Md5[3]) ? true : false;
-}
-
 static bool decode_base64_key(const char * szKeyBase64, rsa_key * key)
 {
     unsigned char decoded_key[0x200];
@@ -449,6 +442,10 @@ static DWORD VerifyWeakSignature(
     int hash_idx = find_hash("md5");
     int result = 0;
 
+    // The signature might be zeroed out. In that case, we ignore it
+    if(!IsValidSignature(pSI->Signature))
+        return ERROR_WEAK_SIGNATURE_OK;
+
     // Calculate hash of the entire archive, skipping the (signature) file
     if(!CalculateMpqHashMd5(ha, pSI, Md5Digest))
         return ERROR_VERIFY_FAILED;
@@ -570,7 +567,6 @@ static DWORD VerifyFile(
     HANDLE hFile = NULL;
     DWORD dwVerifyResult = 0;
     DWORD dwTotalBytes = 0;
-    DWORD dwBytesRead;
     DWORD dwCrc32 = 0;
 
     //
@@ -629,6 +625,8 @@ static DWORD VerifyFile(
         // Go through entire file and update both CRC32 and MD5
         for(;;)
         {
+            DWORD dwBytesRead = 0;
+
             // Read data from file
             SFileReadFile(hFile, Buffer, sizeof(Buffer), &dwBytesRead, NULL);
             if(dwBytesRead == 0)
@@ -685,7 +683,7 @@ static DWORD VerifyFile(
                     md5_done(&md5_state, md5);
 
                     // Only check the MD5 if it is valid
-                    if(is_valid_md5(pFileMd5))
+                    if(IsValidMD5(pFileMd5))
                     {
                         dwVerifyResult |= VERIFY_FILE_HAS_MD5;
                         if(memcmp(md5, pFileMd5, MD5_DIGEST_SIZE))
@@ -752,8 +750,8 @@ bool QueryMpqSignatureInfo(
             if(!FileStream_Read(ha->pStream, &pSI->BeginExclude, pSI->Signature, dwFileSize))
                 return false;
 
-            pSI->cbSignatureSize = dwFileSize;
             pSI->SignatureTypes |= SIGNATURE_TYPE_WEAK;
+            pSI->cbSignatureSize = dwFileSize;
             return true;
         }
     }
@@ -792,7 +790,9 @@ int SSignFileCreate(TMPQArchive * ha)
     if(ha->dwFileFlags3 != 0)
     {
         // The (signature) file must be non-encrypted and non-compressed
+        assert(ha->dwFlags & MPQ_FLAG_SIGNATURE_NEW);
         assert(ha->dwFileFlags3 == MPQ_FILE_EXISTS);
+        assert(ha->dwReservedFiles > 0);
 
         // Create the (signature) file file in the MPQ
         // Note that the file must not be compressed or encrypted
@@ -806,21 +806,15 @@ int SSignFileCreate(TMPQArchive * ha)
         // Write the empty signature file to the archive
         if(nError == ERROR_SUCCESS)
         {
-            // Write the empty zeroed fiel to the MPQ
+            // Write the empty zeroed file to the MPQ
             memset(EmptySignature, 0, sizeof(EmptySignature));
             nError = SFileAddFile_Write(hf, EmptySignature, (DWORD)sizeof(EmptySignature), 0);
-        }
+            SFileAddFile_Finish(hf);
 
-        // If the save process succeeded, we clear the MPQ_FLAG_ATTRIBUTE_INVALID flag
-        if(nError == ERROR_SUCCESS)
-        {
-            ha->dwFlags &= ~MPQ_FLAG_SIGNATURE_INVALID;
+            // Clear the invalid mark
+            ha->dwFlags &= ~(MPQ_FLAG_SIGNATURE_NEW | MPQ_FLAG_SIGNATURE_NONE);
             ha->dwReservedFiles--;
         }
-
-        // Free the file
-        if(hf != NULL)
-            SFileAddFile_Finish(hf);
     }
 
     return nError;
@@ -1050,7 +1044,7 @@ bool WINAPI SFileSignArchive(HANDLE hMpq, DWORD dwSignatureType)
     {
         // Turn the signature on. The signature will
         // be applied when the archive is closed
-        ha->dwFlags |= MPQ_FLAG_SIGNATURE_INVALID | MPQ_FLAG_CHANGED;
+        ha->dwFlags |= MPQ_FLAG_SIGNATURE_NEW | MPQ_FLAG_CHANGED;
         ha->dwFileFlags3 = MPQ_FILE_EXISTS;
         ha->dwReservedFiles++;
     }

@@ -78,9 +78,9 @@ bool WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwCreateFlags, DWO
     CreateInfo.cbSize         = sizeof(SFILE_CREATE_MPQ);
     CreateInfo.dwMpqVersion   = (dwCreateFlags & MPQ_CREATE_ARCHIVE_VMASK) >> FLAGS_TO_FORMAT_SHIFT;
     CreateInfo.dwStreamFlags  = STREAM_PROVIDER_FLAT | BASE_PROVIDER_FILE;
-    CreateInfo.dwFileFlags1   = (dwCreateFlags & MPQ_CREATE_LISTFILE)   ? MPQ_FILE_EXISTS : 0;
-    CreateInfo.dwFileFlags2   = (dwCreateFlags & MPQ_CREATE_ATTRIBUTES) ? MPQ_FILE_EXISTS : 0;
-    CreateInfo.dwFileFlags3   = (dwCreateFlags & MPQ_CREATE_SIGNATURE)  ? MPQ_FILE_EXISTS : 0;
+    CreateInfo.dwFileFlags1   = (dwCreateFlags & MPQ_CREATE_LISTFILE)   ? MPQ_FILE_DEFAULT_INTERNAL : 0;
+    CreateInfo.dwFileFlags2   = (dwCreateFlags & MPQ_CREATE_ATTRIBUTES) ? MPQ_FILE_DEFAULT_INTERNAL : 0;
+    CreateInfo.dwFileFlags3   = (dwCreateFlags & MPQ_CREATE_SIGNATURE)  ? MPQ_FILE_DEFAULT_INTERNAL : 0;
     CreateInfo.dwAttrFlags    = (dwCreateFlags & MPQ_CREATE_ATTRIBUTES) ? (MPQ_ATTRIBUTE_CRC32 | MPQ_ATTRIBUTE_FILETIME | MPQ_ATTRIBUTE_MD5) : 0;
     CreateInfo.dwSectorSize   = (CreateInfo.dwMpqVersion >= MPQ_FORMAT_VERSION_3) ? 0x4000 : 0x1000;
     CreateInfo.dwRawChunkSize = (CreateInfo.dwMpqVersion >= MPQ_FORMAT_VERSION_4) ? 0x4000 : 0;
@@ -92,7 +92,7 @@ bool WINAPI SFileCreateArchive(const TCHAR * szMpqName, DWORD dwCreateFlags, DWO
 
     // Backward compatibility: SFileCreateArchive always used to add (listfile)
     // We would break loads of applications if we change that
-    CreateInfo.dwFileFlags1 = MPQ_FILE_EXISTS;
+    CreateInfo.dwFileFlags1 = MPQ_FILE_DEFAULT_INTERNAL;
 
     // Let the main function create the archive
     return SFileCreateArchive2(szMpqName, &CreateInfo, phMpq);
@@ -159,26 +159,26 @@ bool WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCrea
     // Increment the maximum amount of files to have space for (listfile)
     if(pCreateInfo->dwMaxFileCount && pCreateInfo->dwFileFlags1)
     {
-        dwMpqFlags |= MPQ_FLAG_LISTFILE_INVALID;
+        dwMpqFlags |= MPQ_FLAG_LISTFILE_NEW;
         dwReservedFiles++;
     }
 
     // Increment the maximum amount of files to have space for (attributes)
     if(pCreateInfo->dwMaxFileCount && pCreateInfo->dwFileFlags2 && pCreateInfo->dwAttrFlags)
     {
-        dwMpqFlags |= MPQ_FLAG_ATTRIBUTES_INVALID;
+        dwMpqFlags |= MPQ_FLAG_ATTRIBUTES_NEW;
         dwReservedFiles++;
     }
 
     // Increment the maximum amount of files to have space for (signature)
     if(pCreateInfo->dwMaxFileCount && pCreateInfo->dwFileFlags3)
     {
-        dwMpqFlags |= MPQ_FLAG_SIGNATURE_INVALID;
+        dwMpqFlags |= MPQ_FLAG_SIGNATURE_NEW;
         dwReservedFiles++;
     }
 
     // If file count is not zero, initialize the hash table size
-    dwHashTableSize = GetHashTableSizeForFileCount(pCreateInfo->dwMaxFileCount + dwReservedFiles);
+    dwHashTableSize = GetNearestPowerOfTwo(pCreateInfo->dwMaxFileCount + dwReservedFiles);
 
     // Retrieve the file size and round it up to 0x200 bytes
     FileStream_GetSize(pStream, &MpqPos);
@@ -202,7 +202,7 @@ bool WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCrea
     if(nError == ERROR_SUCCESS)
     {
         memset(ha, 0, sizeof(TMPQArchive));
-        ha->pfnHashString   = HashString;
+        ha->pfnHashString   = HashStringSlash;
         ha->pStream         = pStream;
         ha->dwSectorSize    = pCreateInfo->dwSectorSize;
         ha->UserDataPos     = MpqPos;
@@ -256,11 +256,7 @@ bool WINAPI SFileCreateArchive2(const TCHAR * szMpqName, PSFILE_CREATE_MPQ pCrea
     // Create initial file table
     if(nError == ERROR_SUCCESS && ha->dwMaxFileCount != 0)
     {
-        ha->pFileTable = STORM_ALLOC(TFileEntry, ha->dwMaxFileCount);
-        if(ha->pFileTable != NULL)
-            memset(ha->pFileTable, 0x00, sizeof(TFileEntry) * ha->dwMaxFileCount);
-        else
-            nError = ERROR_NOT_ENOUGH_MEMORY;
+        nError = CreateFileTable(ha, ha->dwMaxFileCount);
     }
 
     // Cleanup : If an error, delete all buffers and return

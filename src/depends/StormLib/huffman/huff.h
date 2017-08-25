@@ -67,7 +67,7 @@ enum TInsertPoint
 // Huffmann tree item
 struct THTreeItem
 {
-    THTreeItem()    { pPrev = pNext = NULL;}
+    THTreeItem()    { pPrev = pNext = NULL; DecompressedValue = 0; Weight = 0; pParent = pChildLo = NULL; }
 //  ~THTreeItem()   { RemoveItem(); }
 
     void         RemoveItem();
@@ -115,7 +115,7 @@ class THuffmannTree
     THTreeItem * CreateNewItem(unsigned int DecompressedValue, unsigned int Weight, TInsertPoint InsertPoint);
 
     unsigned int FixupItemPosByWeight(THTreeItem * pItem, unsigned int MaxWeight);
-    void  BuildTree(unsigned int CompressionType);
+    bool  BuildTree(unsigned int CompressionType);
 
     void  IncWeightsAndRebalance(THTreeItem * pItem);
     void  InsertNewBranchAndRebalance(unsigned int Value1, unsigned int Value2);
