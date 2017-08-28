@@ -1,5 +1,5 @@
 /* config.h.  Generated from config.h.in by configure.  */
-/* config.h.in.  Generated from configure.ac by autoheader.  */
+/* config.h.in.  Generated from configure.in by autoheader.  */
 
 /* Define if cryptography in GMime is enabled. */
 /* #undef ENABLE_CRYPTOGRAPHY */
@@ -11,7 +11,7 @@
 /* #undef ENABLE_WARNINGS */
 
 /* Define to the GMime version */
-#define GMIME_VERSION "2.6.20"
+#define GMIME_VERSION "2.6.23"
 
 /* Define if libc defines an altzone variable */
 /* #undef HAVE_ALTZONE */
@@ -139,13 +139,13 @@
 
 /* Define to the sub-directory in which libtool stores uninstalled libraries.
    */
-#define LT_OBJDIR ".libs/"
+/* #undef LT_OBJDIR */
 
 /* Define with a value if your <sys/param.h> does not define MAXHOSTNAMELEN */
-#define MAXHOSTNAMELEN 64
+/* #undef MAXHOSTNAMELEN */
 
 /* Define to 0 if your system does not have the O_LARGEFILE flag */
-#define O_LARGEFILE 0
+/* #undef O_LARGEFILE */
 
 /* Name of package */
 #define PACKAGE "gmime"
@@ -157,16 +157,13 @@
 #define PACKAGE_NAME "gmime"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "gmime 2.6.20"
+#define PACKAGE_STRING "gmime 2.6.23"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "gmime"
 
-/* Define to the home page for this package. */
-#define PACKAGE_URL ""
-
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "2.6.20"
+#define PACKAGE_VERSION "2.6.23"
 
 /* The size of `off_t', as computed by sizeof. */
 #define SIZEOF_OFF_T 4
@@ -183,16 +180,8 @@
 /* Define if GMime should enable stricter parsing rules. */
 /* #undef STRICT_PARSER */
 
-/* Version number of package */
-#define VERSION "2.6.20"
-
-/* Enable large inode numbers on Mac OS X 10.5.  */
-#ifndef _DARWIN_USE_64_BIT_INODE
-# define _DARWIN_USE_64_BIT_INODE 1
-#endif
-
 /* Number of bits in a file offset, on hosts where this is settable. */
-#define _FILE_OFFSET_BITS 64
+/* #undef _FILE_OFFSET_BITS */
 
 /* Define for large files, on AIX-style hosts. */
 /* #undef _LARGE_FILES */

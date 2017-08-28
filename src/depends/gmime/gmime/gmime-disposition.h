@@ -60,6 +60,7 @@ typedef struct _GMimeContentDispositionClass GMimeContentDispositionClass;
  * @parent_object: parent #GObject
  * @param_hash: parameter hash table keyed by param name
  * @params: a #GMimeParam list
+ * @priv: private fields
  * @disposition: disposition
  *
  * A data structure representing a Content-Disposition.
@@ -93,9 +94,11 @@ void g_mime_content_disposition_set_params (GMimeContentDisposition *disposition
 const GMimeParam *g_mime_content_disposition_get_params (GMimeContentDisposition *disposition);
 
 void g_mime_content_disposition_set_parameter (GMimeContentDisposition *disposition,
-					       const char *attribute, const char *value);
+					       const char *name, const char *value);
 const char *g_mime_content_disposition_get_parameter (GMimeContentDisposition *disposition,
-						      const char *attribute);
+						      const char *name);
+
+gboolean g_mime_content_disposition_is_attachment (GMimeContentDisposition *disposition);
 
 char *g_mime_content_disposition_to_string (GMimeContentDisposition *disposition, gboolean fold);
 

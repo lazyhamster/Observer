@@ -23,6 +23,8 @@
 #include <config.h>
 #endif
 
+#include <string.h>
+
 #include "gmime-crypto-context.h"
 #include "gmime-error.h"
 
@@ -52,6 +54,10 @@ static const char *crypto_get_encryption_protocol (GMimeCryptoContext *ctx);
 
 static const char *crypto_get_key_exchange_protocol (GMimeCryptoContext *ctx);
 
+static int crypto_set_retrieve_session_key (GMimeCryptoContext *ctx, gboolean retrieve_session_key,
+					    GError **err);
+static gboolean crypto_get_retrieve_session_key (GMimeCryptoContext *ctx);
+
 static int crypto_sign (GMimeCryptoContext *ctx, const char *userid,
 			GMimeDigestAlgo digest, GMimeStream *istream,
 			GMimeStream *ostream, GError **err);
@@ -67,6 +73,10 @@ static int crypto_encrypt (GMimeCryptoContext *ctx, gboolean sign,
 
 static GMimeDecryptResult *crypto_decrypt (GMimeCryptoContext *ctx, GMimeStream *istream,
 					   GMimeStream *ostream, GError **err);
+
+static GMimeDecryptResult *crypto_decrypt_session (GMimeCryptoContext *ctx, const char *session_key,
+						   GMimeStream *istream, GMimeStream *ostream,
+						   GError **err);
 
 static int crypto_import_keys (GMimeCryptoContext *ctx, GMimeStream *istream,
 			       GError **err);
@@ -118,11 +128,14 @@ g_mime_crypto_context_class_init (GMimeCryptoContextClass *klass)
 	klass->verify = crypto_verify;
 	klass->encrypt = crypto_encrypt;
 	klass->decrypt = crypto_decrypt;
+	klass->decrypt_session = crypto_decrypt_session;
 	klass->import_keys = crypto_import_keys;
 	klass->export_keys = crypto_export_keys;
 	klass->get_signature_protocol = crypto_get_signature_protocol;
 	klass->get_encryption_protocol = crypto_get_encryption_protocol;
 	klass->get_key_exchange_protocol = crypto_get_key_exchange_protocol;
+	klass->get_retrieve_session_key = crypto_get_retrieve_session_key;
+	klass->set_retrieve_session_key = crypto_set_retrieve_session_key;
 }
 
 static void
@@ -153,6 +166,71 @@ g_mime_crypto_context_set_request_password (GMimeCryptoContext *ctx, GMimePasswo
 	
 	ctx->request_passwd = request_passwd;
 }
+
+
+static gboolean
+crypto_get_retrieve_session_key (GMimeCryptoContext *ctx)
+{
+	return FALSE;
+}
+
+/**
+ * g_mime_crypto_context_get_retrieve_session_key:
+ * @ctx: a #GMimeCryptoContext
+ *
+ * Gets whether or not the @ctx is configured to retrieve a session
+ * key during decryption (see g_mime_decrypt_result_get_session_key()).
+ *
+ * Returns: %TRUE if the @ctx is configured to retrieve a session key
+ * or %FALSE otherwise.
+ **/
+gboolean
+g_mime_crypto_context_get_retrieve_session_key (GMimeCryptoContext *ctx)
+{
+	g_return_val_if_fail (GMIME_IS_CRYPTO_CONTEXT (ctx), FALSE);
+	
+	return GMIME_CRYPTO_CONTEXT_GET_CLASS (ctx)->get_retrieve_session_key (ctx);
+}
+
+static int
+crypto_set_retrieve_session_key (GMimeCryptoContext *ctx, gboolean retrieve_session_key,
+				 GError **err)
+{
+	if (!retrieve_session_key)
+		return 0;
+	
+	g_set_error (err, GMIME_ERROR, GMIME_ERROR_NOT_SUPPORTED,
+		     "Session key retrieval is not supported by this crypto context");
+	
+	return -1;
+}
+
+/**
+ * g_mime_crypto_context_set_retrieve_session_key:
+ * @ctx: a #GMimeCryptoContext
+ * @retrieve_session_key: whether to retrieve session keys during decryption
+ * @err: a #GError
+ *
+ * Configures whether @ctx should produce a session key during future
+ * decryption operations (see
+ * g_mime_decrypt_result_get_session_key()).
+ *
+ * Returns: %0 on success or %-1 on fail.
+ **/
+int
+g_mime_crypto_context_set_retrieve_session_key (GMimeCryptoContext *ctx,
+						gboolean retrieve_session_key,
+						GError **err)
+{
+	if (!GMIME_IS_CRYPTO_CONTEXT (ctx)) {
+		g_set_error (err, GMIME_ERROR, GMIME_ERROR_NOT_SUPPORTED,
+			     "Not a GMimeCryptoContext, can't set retrieve_session_key");
+		return -1;
+	}
+	
+	return GMIME_CRYPTO_CONTEXT_GET_CLASS (ctx)->set_retrieve_session_key (ctx, retrieve_session_key, err);
+}
+
 
 
 static GMimeDigestAlgo
@@ -421,6 +499,17 @@ crypto_decrypt (GMimeCryptoContext *ctx, GMimeStream *istream,
 	return NULL;
 }
 
+static GMimeDecryptResult *
+crypto_decrypt_session (GMimeCryptoContext *ctx, const char *session_key,
+			GMimeStream *istream, GMimeStream *ostream,
+			GError **err)
+{
+	g_set_error (err, GMIME_ERROR, GMIME_ERROR_NOT_SUPPORTED,
+		     "Decryption with a session key is not supported by this crypto context");
+	
+	return NULL;
+}
+
 
 /**
  * g_mime_crypto_context_decrypt:
@@ -441,7 +530,7 @@ crypto_decrypt (GMimeCryptoContext *ctx, GMimeStream *istream,
  * was encrypted to.
  *
  * Note: It *may* be possible to maliciously design an encrypted stream such
- * that recursively decrypting it will result in ane endless loop, causing
+ * that recursively decrypting it will result in an endless loop, causing
  * a denial of service attack on your application.
  *
  * Returns: (transfer full): a #GMimeDecryptResult on success or %NULL
@@ -456,6 +545,55 @@ g_mime_crypto_context_decrypt (GMimeCryptoContext *ctx, GMimeStream *istream,
 	g_return_val_if_fail (GMIME_IS_STREAM (ostream), NULL);
 	
 	return GMIME_CRYPTO_CONTEXT_GET_CLASS (ctx)->decrypt (ctx, istream, ostream, err);
+}
+
+/**
+ * g_mime_crypto_context_decrypt_session:
+ * @ctx: a #GMimeCryptoContext
+ * @session_key: session key to use
+ * @istream: input/ciphertext stream
+ * @ostream: output/cleartext stream
+ * @err: a #GError
+ *
+ * Decrypts the ciphertext input stream using a specific session key
+ * and writes the resulting cleartext to the output stream. If
+ * @session_key is non-%NULL, but is not valid for the ciphertext, the
+ * decryption will fail even if other available secret key material
+ * may have been able to decrypt it. If @session_key is %NULL, this
+ * does the same thing as g_mime_crypto_context_decrypt().
+ *
+ * When non-%NULL, @session_key should be a %NULL-terminated string,
+ * such as the one returned by g_mime_decrypt_result_get_session_key()
+ * from a previous decryption.
+ *
+ * If the encrypted input stream was also signed, the returned
+ * #GMimeDecryptResult will have a non-%NULL list of signatures, each with a
+ * #GMimeSignatureStatus (among other details about each signature).
+ *
+ * On success, the returned #GMimeDecryptResult will contain a list of
+ * certificates, one for each recipient, that the original encrypted stream
+ * was encrypted to.
+ *
+ * Note: It *may* be possible to maliciously design an encrypted stream such
+ * that recursively decrypting it will result in an endless loop, causing
+ * a denial of service attack on your application.
+ *
+ * Returns: (transfer full): a #GMimeDecryptResult on success or %NULL
+ * on error.
+ **/
+GMimeDecryptResult *
+g_mime_crypto_context_decrypt_session (GMimeCryptoContext *ctx, const char *session_key,
+				       GMimeStream *istream, GMimeStream *ostream,
+				       GError **err)
+{
+	g_return_val_if_fail (GMIME_IS_CRYPTO_CONTEXT (ctx), NULL);
+	g_return_val_if_fail (GMIME_IS_STREAM (istream), NULL);
+	g_return_val_if_fail (GMIME_IS_STREAM (ostream), NULL);
+	
+	if (session_key == NULL)
+		return GMIME_CRYPTO_CONTEXT_GET_CLASS (ctx)->decrypt (ctx, istream, ostream, err);
+	else
+		return GMIME_CRYPTO_CONTEXT_GET_CLASS (ctx)->decrypt_session (ctx, session_key, istream, ostream, err);
 }
 
 
@@ -573,6 +711,7 @@ g_mime_decrypt_result_init (GMimeDecryptResult *result, GMimeDecryptResultClass 
 	result->mdc = GMIME_DIGEST_ALGO_DEFAULT;
 	result->recipients = NULL;
 	result->signatures = NULL;
+	result->session_key = NULL;
 }
 
 static void
@@ -585,6 +724,11 @@ g_mime_decrypt_result_finalize (GObject *object)
 	
 	if (result->signatures)
 		g_object_unref (result->signatures);
+	
+	if (result->session_key) {
+		memset (result->session_key, 0, strlen (result->session_key));
+		g_free (result->session_key);
+	}
 	
 	G_OBJECT_CLASS (result_parent_class)->finalize (object);
 }
@@ -749,9 +893,51 @@ g_mime_decrypt_result_set_mdc (GMimeDecryptResult *result, GMimeDigestAlgo mdc)
  * Returns: the mdc digest algorithm used.
  **/
 GMimeDigestAlgo
-g_mime_decryption_result_get_mdc (GMimeDecryptResult *result)
+g_mime_decrypt_result_get_mdc (GMimeDecryptResult *result)
 {
 	g_return_val_if_fail (GMIME_IS_DECRYPT_RESULT (result), GMIME_DIGEST_ALGO_DEFAULT);
 	
 	return result->mdc;
+}
+
+
+/**
+ * g_mime_decrypt_result_set_session_key:
+ * @result: a #GMimeDecryptResult
+ * @session_key: a pointer to a null-terminated string representing the session key
+ *
+ * Set the session_key to be returned by this decryption result.
+ **/
+void
+g_mime_decrypt_result_set_session_key (GMimeDecryptResult *result, const char *session_key)
+{
+	g_return_if_fail (GMIME_IS_DECRYPT_RESULT (result));
+	
+	if (result->session_key) {
+		memset (result->session_key, 0, strlen (result->session_key));
+		g_free (result->session_key);
+	}
+	
+	result->session_key = g_strdup (session_key);
+}
+
+
+/**
+ * g_mime_decrypt_result_get_session_key:
+ * @result: a #GMimeDecryptResult
+ *
+ * Get the session_key used for this decryption, if the underlying
+ * crypto context is capable of and (configured to) retrieve session
+ * keys during decryption.  See, for example,
+ * g_mime_crypto_context_set_retrieve_session_key().
+ *
+ * Returns: the session_key digest algorithm used, or NULL if no
+ * session key was requested or found.
+ **/
+const char *
+g_mime_decrypt_result_get_session_key (GMimeDecryptResult *result)
+{
+	g_return_val_if_fail (GMIME_IS_DECRYPT_RESULT (result), NULL);
+	
+	return result->session_key;
 }

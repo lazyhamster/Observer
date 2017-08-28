@@ -86,6 +86,11 @@ static GMimeDigestAlgo gpg_digest_id (GMimeCryptoContext *ctx, const char *name)
 
 static const char *gpg_digest_name (GMimeCryptoContext *ctx, GMimeDigestAlgo digest);
 
+static gboolean gpg_get_retrieve_session_key (GMimeCryptoContext *context);
+
+static int gpg_set_retrieve_session_key (GMimeCryptoContext *ctx, gboolean retrieve_session_key,
+					 GError **err);
+
 static int gpg_sign (GMimeCryptoContext *ctx, const char *userid,
 		     GMimeDigestAlgo digest, GMimeStream *istream,
 		     GMimeStream *ostream, GError **err);
@@ -106,6 +111,10 @@ static int gpg_encrypt (GMimeCryptoContext *ctx, gboolean sign, const char *user
 
 static GMimeDecryptResult *gpg_decrypt (GMimeCryptoContext *ctx, GMimeStream *istream,
 					GMimeStream *ostream, GError **err);
+
+static GMimeDecryptResult *gpg_decrypt_session (GMimeCryptoContext *ctx, const char *session_key,
+						GMimeStream *istream, GMimeStream *ostream,
+						GError **err);
 
 static int gpg_import_keys (GMimeCryptoContext *ctx, GMimeStream *istream,
 			    GError **err);
@@ -158,16 +167,20 @@ g_mime_gpg_context_class_init (GMimeGpgContextClass *klass)
 	crypto_class->verify = gpg_verify;
 	crypto_class->encrypt = gpg_encrypt;
 	crypto_class->decrypt = gpg_decrypt;
+	crypto_class->decrypt_session = gpg_decrypt_session;
 	crypto_class->import_keys = gpg_import_keys;
 	crypto_class->export_keys = gpg_export_keys;
 	crypto_class->get_signature_protocol = gpg_get_signature_protocol;
 	crypto_class->get_encryption_protocol = gpg_get_encryption_protocol;
 	crypto_class->get_key_exchange_protocol = gpg_get_key_exchange_protocol;
+	crypto_class->get_retrieve_session_key = gpg_get_retrieve_session_key;
+	crypto_class->set_retrieve_session_key = gpg_set_retrieve_session_key;
 }
 
 static void
 g_mime_gpg_context_init (GMimeGpgContext *ctx, GMimeGpgContextClass *klass)
 {
+	ctx->retrieve_session_key = FALSE;
 	ctx->auto_key_retrieve = FALSE;
 	ctx->always_trust = FALSE;
 	ctx->use_agent = FALSE;
@@ -294,7 +307,10 @@ struct _GpgCtx {
 	int stdout_fd;
 	int stderr_fd;
 	int status_fd;
-	int secret_fd;  /* used for sign/decrypt/verify */
+	int secret_fd;  /* used for exactly one of:
+			 * (a) sending a password to gpg when signing or encrypting
+			 * (b) sending a detatched signature to gpg when verifying
+			 */
 	
 	/* status-fd buffer */
 	char *statusbuf;
@@ -313,6 +329,7 @@ struct _GpgCtx {
 	GMimeCertificateList *encrypted_to;  /* full list of encrypted-to recipients */
 	GMimeSignatureList *signatures;
 	GMimeSignature *signature;
+	char *session_key;
 	
 	int exit_status;
 	
@@ -328,8 +345,9 @@ struct _GpgCtx {
 	unsigned int need_passwd:1;
 	unsigned int bad_passwds:2;
 	unsigned int decrypt_okay:1;
+	unsigned int override_session_key:1;
 	
-	unsigned int padding:19;
+	unsigned int padding:18;
 };
 
 static struct _GpgCtx *
@@ -356,6 +374,7 @@ gpg_ctx_new (GMimeGpgContext *ctx)
 	gpg->recipients = NULL;
 	gpg->cipher = GMIME_CIPHER_ALGO_DEFAULT;
 	gpg->digest = GMIME_DIGEST_ALGO_DEFAULT;
+	gpg->override_session_key = FALSE;
 	gpg->always_trust = FALSE;
 	gpg->use_agent = FALSE;
 	gpg->armor = FALSE;
@@ -375,6 +394,7 @@ gpg_ctx_new (GMimeGpgContext *ctx)
 	gpg->need_id = NULL;
 	
 	gpg->encrypted_to = NULL;
+	gpg->session_key = NULL;
 	gpg->signatures = NULL;
 	gpg->signature = NULL;
 	
@@ -555,6 +575,11 @@ gpg_ctx_free (struct _GpgCtx *gpg)
 	if (gpg->encrypted_to)
 		g_object_unref (gpg->encrypted_to);
 	
+	if (gpg->session_key) {
+		memset (gpg->session_key, 0, strlen (gpg->session_key));
+		g_free (gpg->session_key);
+	}
+	
 	if (gpg->signatures)
 		g_object_unref (gpg->signatures);
 	
@@ -590,8 +615,16 @@ gpg_digest_str (GMimeDigestAlgo digest)
 	}
 }
 
+static const char *
+filename (const char *path)
+{
+	const char *slash = strrchr (path, '/');
+	
+	return slash != NULL ? slash + 1 : path;
+}
+
 static char **
-gpg_ctx_get_argv (struct _GpgCtx *gpg, int status_fd, int secret_fd, char ***strv)
+gpg_ctx_get_argv (struct _GpgCtx *gpg, const char *path, int status_fd, int secret_fd, char ***strv)
 {
 	const char *digest_str;
 	char **argv, *buf;
@@ -602,7 +635,7 @@ gpg_ctx_get_argv (struct _GpgCtx *gpg, int status_fd, int secret_fd, char ***str
 	*strv = g_new (char *, 3);
 	
 	args = g_ptr_array_new ();
-	g_ptr_array_add (args, "gpg");
+	g_ptr_array_add (args, (char *) filename (path));
 	
 	g_ptr_array_add (args, "--verbose");
 	g_ptr_array_add (args, "--no-secmem-warning");
@@ -614,7 +647,6 @@ gpg_ctx_get_argv (struct _GpgCtx *gpg, int status_fd, int secret_fd, char ***str
                    interactive --command-fd option to send it the
                    user's password */
 		g_ptr_array_add (args, "--batch");
-		g_ptr_array_add (args, "--yes");
 	}
 	
 	g_ptr_array_add (args, "--charset=UTF-8");
@@ -622,7 +654,7 @@ gpg_ctx_get_argv (struct _GpgCtx *gpg, int status_fd, int secret_fd, char ***str
 	(*strv)[v++] = buf = g_strdup_printf ("--status-fd=%d", status_fd);
 	g_ptr_array_add (args, buf);
 	
-	if (gpg->need_passwd) {
+	if (gpg->need_passwd && !gpg->override_session_key) {
 		(*strv)[v++] = buf = g_strdup_printf ("--command-fd=%d", secret_fd);
 		g_ptr_array_add (args, buf);
 	}
@@ -699,6 +731,14 @@ gpg_ctx_get_argv (struct _GpgCtx *gpg, int status_fd, int secret_fd, char ***str
 		if (gpg->use_agent)
 			g_ptr_array_add (args, "--use-agent");
 		
+		if (gpg->ctx->retrieve_session_key)
+			g_ptr_array_add (args, "--show-session-key");
+		
+		if (gpg->override_session_key) {
+			(*strv)[v++] = buf = g_strdup_printf ("--override-session-key-fd=%d", secret_fd);
+			g_ptr_array_add (args, buf);
+		}
+		
 		g_ptr_array_add (args, "--decrypt");
 		g_ptr_array_add (args, "--output");
 		g_ptr_array_add (args, "-");
@@ -732,22 +772,26 @@ gpg_ctx_get_argv (struct _GpgCtx *gpg, int status_fd, int secret_fd, char ***str
 }
 
 static int
-gpg_ctx_op_start (struct _GpgCtx *gpg)
+gpg_ctx_op_start (struct _GpgCtx *gpg, const char *path)
 {
 	int i, maxfd, errnosave, fds[10];
 	char **argv, **strv = NULL;
 	int flags;
 	
-	for (i = 0; i < 10; i++)
+	maxfd = G_N_ELEMENTS (fds);
+	for (i = 0; i < maxfd; i++)
 		fds[i] = -1;
 	
-	maxfd = (gpg->need_passwd || gpg->sigstream) ? 10 : 8;
+	/* don't create the command-fd if we don't need it */
+	if (!(gpg->need_passwd || gpg->sigstream || gpg->override_session_key))
+		maxfd -= 2;
+	
 	for (i = 0; i < maxfd; i += 2) {
 		if (pipe (fds + i) == -1)
 			goto exception;
 	}
 	
-	argv = gpg_ctx_get_argv (gpg, fds[7], fds[8], &strv);
+	argv = gpg_ctx_get_argv (gpg, path, fds[7], fds[8], &strv);
 	
 	if (!(gpg->pid = fork ())) {
 		/* child process */
@@ -829,7 +873,7 @@ gpg_ctx_op_start (struct _GpgCtx *gpg)
 }
 
 static char *
-next_token (char *in, char **token)
+next_token (char *in, gboolean secret, char **token)
 {
 	char *start, *inptr = in;
 	
@@ -846,8 +890,11 @@ next_token (char *in, char **token)
 	while (*inptr && *inptr != ' ' && *inptr != '\n')
 		inptr++;
 	
-	if (token)
+	if (token != NULL)
 		*token = g_strndup (start, (size_t) (inptr - start));
+	
+	if (secret)
+		memset (start, '*', (size_t) (inptr - start));
 	
 	return inptr;
 }
@@ -875,7 +922,7 @@ gpg_ctx_add_signature (struct _GpgCtx *gpg, GMimeSignatureStatus status, char *i
 	g_object_unref (sig);
 	
 	/* get the key id of the signer */
-	info = next_token (info, &sig->cert->keyid);
+	info = next_token (info, FALSE, &sig->cert->keyid);
 	
 	/* the rest of the string is the signer's name */
 	sig->cert->name = g_strdup (info);
@@ -915,7 +962,7 @@ gpg_ctx_parse_signer_info (struct _GpgCtx *gpg, char *status)
 		g_object_unref (sig);
 		
 		/* get the key id of the signer */
-		status = next_token (status, &sig->cert->keyid);
+		status = next_token (status, FALSE, &sig->cert->keyid);
 		
 		/* the second token is the public-key algorithm id */
 		sig->cert->pubkey_algo = strtoul (status, &inend, 10);
@@ -967,10 +1014,10 @@ gpg_ctx_parse_signer_info (struct _GpgCtx *gpg, char *status)
 		status += 9;
 		
 		/* the first token is the fingerprint */
-		status = next_token (status, &sig->cert->fingerprint);
+		status = next_token (status, FALSE, &sig->cert->fingerprint);
 		
 		/* the second token is the date the stream was signed YYYY-MM-DD */
-		status = next_token (status, NULL);
+		status = next_token (status, FALSE, NULL);
 		
 		/* the third token is the signature creation date (or 0 for unknown?) */
 		sig->created = strtoul (status, &inend, 10);
@@ -1000,7 +1047,7 @@ gpg_ctx_parse_signer_info (struct _GpgCtx *gpg, char *status)
 		status = inend + 1;
 		
 		/* the sixth token is a reserved numeric value (ignore for now) */
-		status = next_token (status, NULL);
+		status = next_token (status, FALSE, NULL);
 		
 		/* the seventh token is the public-key algorithm id */
 		sig->cert->pubkey_algo = strtoul (status, &inend, 10);
@@ -1046,6 +1093,29 @@ gpg_ctx_parse_signer_info (struct _GpgCtx *gpg, char *status)
 			sig->cert->trust = GMIME_CERTIFICATE_TRUST_UNDEFINED;
 		}
 	}
+}
+
+/* write the session_key to the secret file descriptor and close
+   it.  Returns 0 on success. */
+static int
+gpg_ctx_write_session_key (struct _GpgCtx *gpg, const char *session_key)
+{
+	size_t len = strlen (session_key);
+	ssize_t w, nwritten = 0;
+	
+	do {
+		do {
+			w = write (gpg->secret_fd, session_key + nwritten, len - nwritten);
+		} while (w == -1 && (errno == EINTR || errno == EAGAIN));
+		
+		if (w > 0)
+			nwritten += w;
+	} while (nwritten < len && w != -1);
+	
+	close (gpg->secret_fd);
+	gpg->secret_fd = -1;
+	
+	return (w == -1);
 }
 
 static int
@@ -1098,7 +1168,7 @@ gpg_ctx_parse_status (struct _GpgCtx *gpg, GError **err)
 		
 		status += 12;
 		
-		status = next_token (status, &hint);
+		status = next_token (status, FALSE, &hint);
 		if (!hint) {
 			g_set_error_literal (err, GMIME_ERROR, GMIME_ERROR_PARSE_ERROR,
 					     _("Failed to parse gpg userid hint."));
@@ -1122,7 +1192,7 @@ gpg_ctx_parse_status (struct _GpgCtx *gpg, GError **err)
 		
 		status += 16;
 		
-		status = next_token (status, &userid);
+		status = next_token (status, FALSE, &userid);
 		if (!userid) {
 			g_set_error_literal (err, GMIME_ERROR, GMIME_ERROR_PARSE_ERROR,
 					     _("Failed to parse gpg passphrase request."));
@@ -1136,7 +1206,7 @@ gpg_ctx_parse_status (struct _GpgCtx *gpg, GError **err)
 		
 		status += 20;
 		
-		status = next_token (status, &userid);
+		status = next_token (status, FALSE, &userid);
 		if (!userid) {
 			g_set_error_literal (err, GMIME_ERROR, GMIME_ERROR_PARSE_ERROR,
 					     _("Failed to parse gpg passphrase request."));
@@ -1173,7 +1243,7 @@ gpg_ctx_parse_status (struct _GpgCtx *gpg, GError **err)
 			prompt = g_strdup_printf (_("You need a passphrase to unlock the key for\n"
 						    "user: \"%s\""), name);
 		} else {
-			next_token (status, &prompt);
+			next_token (status, FALSE, &prompt);
 			g_set_error (err, GMIME_ERROR, GMIME_ERROR_GENERAL,
 				     _("Unexpected request from GnuPG for `%s'"), prompt);
 			g_free (prompt);
@@ -1257,10 +1327,10 @@ gpg_ctx_parse_status (struct _GpgCtx *gpg, GError **err)
 			status += 12;
 			
 			/* skip the next single-char token ("D" for detached) */
-			status = next_token (status, NULL);
+			status = next_token (status, FALSE, NULL);
 			
 			/* skip the public-key algorithm id token */
-			status = next_token (status, NULL);
+			status = next_token (status, FALSE, NULL);
 			
 			/* this token is the digest algorithm used */
 			gpg->digest = strtoul (status, NULL, 10);
@@ -1316,7 +1386,7 @@ gpg_ctx_parse_status (struct _GpgCtx *gpg, GError **err)
 				status += 7;
 				
 				/* first token is the recipient's keyid */
-				status = next_token (status, &cert->keyid);
+				status = next_token (status, FALSE, &cert->keyid);
 				
 				/* second token is the recipient's pubkey algo */
 				cert->pubkey_algo = strtoul (status, &inend, 10);
@@ -1334,6 +1404,15 @@ gpg_ctx_parse_status (struct _GpgCtx *gpg, GError **err)
 				/* nothing to do... we'll grab the MDC used in DECRYPTION_INFO */
 			} else if (!strncmp (status, "BADMDC", 6)) {
 				/* nothing to do, this will only be sent after DECRYPTION_FAILED */
+			} else if (!strncmp (status, "SESSION_KEY", 11)) {
+				if (gpg->session_key) {
+					memset (gpg->session_key, 0, strlen (gpg->session_key));
+					g_free (gpg->session_key);
+				}
+
+				status += 11;
+				
+				status = next_token (status, TRUE, &gpg->session_key);
 			} else {
 				gpg_ctx_parse_signer_info (gpg, status);
 			}
@@ -1840,7 +1919,7 @@ gpg_sign (GMimeCryptoContext *context, const char *userid, GMimeDigestAlgo diges
 	gpg_ctx_set_istream (gpg, istream);
 	gpg_ctx_set_ostream (gpg, ostream);
 	
-	if (gpg_ctx_op_start (gpg) == -1) {
+	if (gpg_ctx_op_start (gpg, ctx->path) == -1) {
 		g_set_error (err, GMIME_ERROR, errno,
 			     _("Failed to execute gpg: %s"),
 			     errno ? g_strerror (errno) : _("Unknown"));
@@ -1902,7 +1981,7 @@ gpg_verify (GMimeCryptoContext *context, GMimeDigestAlgo digest,
 	gpg_ctx_set_istream (gpg, istream);
 	gpg_ctx_set_digest (gpg, digest);
 	
-	if (gpg_ctx_op_start (gpg) == -1) {
+	if (gpg_ctx_op_start (gpg, ctx->path) == -1) {
 		g_set_error (err, GMIME_ERROR, errno,
 			     _("Failed to execute gpg: %s"),
 			     errno ? g_strerror (errno) : _("Unknown"));
@@ -1975,7 +2054,7 @@ gpg_encrypt (GMimeCryptoContext *context, gboolean sign, const char *userid,
 	for (i = 0; i < recipients->len; i++)
 		gpg_ctx_add_recipient (gpg, recipients->pdata[i]);
 	
-	if (gpg_ctx_op_start (gpg) == -1) {
+	if (gpg_ctx_op_start (gpg, ctx->path) == -1) {
 		g_set_error (err, GMIME_ERROR, errno,
 			     _("Failed to execute gpg: %s"),
 			     errno ? g_strerror (errno) : _("Unknown"));
@@ -2022,6 +2101,14 @@ static GMimeDecryptResult *
 gpg_decrypt (GMimeCryptoContext *context, GMimeStream *istream,
 	     GMimeStream *ostream, GError **err)
 {
+	return gpg_decrypt_session (context, NULL, istream, ostream, err);
+}
+
+static GMimeDecryptResult *
+gpg_decrypt_session (GMimeCryptoContext *context, const char *session_key,
+		     GMimeStream *istream, GMimeStream *ostream,
+		     GError **err)
+{
 #ifdef ENABLE_CRYPTOGRAPHY
 	GMimeGpgContext *ctx = (GMimeGpgContext *) context;
 	GMimeDecryptResult *result;
@@ -2035,9 +2122,21 @@ gpg_decrypt (GMimeCryptoContext *context, GMimeStream *istream,
 	gpg_ctx_set_istream (gpg, istream);
 	gpg_ctx_set_ostream (gpg, ostream);
 	
-	if (gpg_ctx_op_start (gpg) == -1) {
+	if (session_key)
+		gpg->override_session_key = TRUE;
+	
+	if (gpg_ctx_op_start (gpg, ctx->path) == -1) {
 		g_set_error (err, GMIME_ERROR, errno,
 			     _("Failed to execute gpg: %s"),
+			     errno ? g_strerror (errno) : _("Unknown"));
+		gpg_ctx_free (gpg);
+		
+		return NULL;
+	}
+	
+	if (session_key && gpg_ctx_write_session_key (gpg, session_key)) {
+		g_set_error (err, GMIME_ERROR, errno,
+			     _("Failed to pass session key to gpg: %s"),
 			     errno ? g_strerror (errno) : _("Unknown"));
 		gpg_ctx_free (gpg);
 		
@@ -2067,10 +2166,12 @@ gpg_decrypt (GMimeCryptoContext *context, GMimeStream *istream,
 	result = g_mime_decrypt_result_new ();
 	result->recipients = gpg->encrypted_to;
 	result->signatures = gpg->signatures;
+	result->session_key = gpg->session_key;
 	result->cipher = gpg->cipher;
 	result->mdc = gpg->digest;
 	gpg->encrypted_to = NULL;
 	gpg->signatures = NULL;
+	gpg->session_key = NULL;
 	
 	gpg_ctx_free (gpg);
 	
@@ -2093,7 +2194,7 @@ gpg_import_keys (GMimeCryptoContext *context, GMimeStream *istream, GError **err
 	gpg_ctx_set_mode (gpg, GPG_CTX_MODE_IMPORT);
 	gpg_ctx_set_istream (gpg, istream);
 	
-	if (gpg_ctx_op_start (gpg) == -1) {
+	if (gpg_ctx_op_start (gpg, ctx->path) == -1) {
 		g_set_error (err, GMIME_ERROR, errno,
 			     _("Failed to execute gpg: %s"),
 			     errno ? g_strerror (errno) : _("Unknown"));
@@ -2152,7 +2253,7 @@ gpg_export_keys (GMimeCryptoContext *context, GPtrArray *keys, GMimeStream *ostr
 		gpg_ctx_add_recipient (gpg, keys->pdata[i]);
 	}
 	
-	if (gpg_ctx_op_start (gpg) == -1) {
+	if (gpg_ctx_op_start (gpg, ctx->path) == -1) {
 		g_set_error (err, GMIME_ERROR, errno,
 			     _("Failed to execute gpg: %s"),
 			     errno ? g_strerror (errno) : _("Unknown"));
@@ -2194,11 +2295,62 @@ gpg_export_keys (GMimeCryptoContext *context, GPtrArray *keys, GMimeStream *ostr
 #endif /* ENABLE_CRYPTOGRAPHY */
 }
 
+int
+_g_mime_get_gpg_version (const char *path)
+{
+	const char vheader[] = "gpg (GnuPG) ";
+	int v, n = 0, version = 0;
+	const char *inptr;
+	char buffer[128];
+	char *command;
+	FILE *gpg;
+	
+	g_return_val_if_fail (path != NULL, -1);
+	
+	command = g_strdup_printf ("%s --version", path);
+	gpg = popen (command, "r");
+	g_free (command);
+	
+	if (gpg == NULL)
+		return -1;
+	
+	inptr = fgets (buffer, 128, gpg);
+	pclose (gpg);
+	
+	if (strncmp (inptr, vheader, sizeof (vheader) - 1) != 0)
+		return -1;
+	
+	inptr += sizeof (vheader) - 1;
+	while (*inptr >= '0' && *inptr <= '9' && n < 4) {
+		v = 0;
+		
+		while (*inptr >= '0' && *inptr <= '9' && (v < 25 || (v == 25 && *inptr < '6'))) {
+			v = (v * 10) + (*inptr - '0');
+			inptr++;
+		}
+		
+		version = (version << 8) + v;
+		n++;
+		
+		if (*inptr != '.')
+			break;
+		
+		inptr++;
+	}
+	
+	if (n == 0)
+		return -1;
+	
+	if (n < 4)
+		version = version << ((4 - n) * 8);
+	
+	return version;
+}
 
 /**
  * g_mime_gpg_context_new:
  * @request_passwd: a #GMimePasswordRequestFunc
- * @path: path to gpg binary
+ * @path: path to gpg binary or %NULL for the default
  *
  * Creates a new gpg crypto context object.
  *
@@ -2211,10 +2363,10 @@ g_mime_gpg_context_new (GMimePasswordRequestFunc request_passwd, const char *pat
 	GMimeCryptoContext *crypto;
 	GMimeGpgContext *ctx;
 	
-	g_return_val_if_fail (path != NULL, NULL);
-	
 	ctx = g_object_newv (GMIME_TYPE_GPG_CONTEXT, 0, NULL);
-	ctx->path = g_strdup (path);
+	ctx->path = g_strdup (path ? path : "gpg");
+	
+	ctx->version = _g_mime_get_gpg_version (ctx->path);
 	
 	crypto = (GMimeCryptoContext *) ctx;
 	crypto->request_passwd = request_passwd;
@@ -2230,9 +2382,11 @@ g_mime_gpg_context_new (GMimePasswordRequestFunc request_passwd, const char *pat
  * g_mime_gpg_context_get_auto_key_retrieve:
  * @ctx: a #GMimeGpgContext
  *
- * Gets the @auto_key_retrieve flag on the gpg context.
+ * Gets whether or not gpg should auto-retrieve keys from a keyserver
+ * when verifying signatures.
  *
- * Returns: the @auto_key_retrieve flag on the gpg context.
+ * Returns: %TRUE if gpg should auto-retrieve keys from a keyserver or
+ * %FALSE otherwise.
  **/
 gboolean
 g_mime_gpg_context_get_auto_key_retrieve (GMimeGpgContext *ctx)
@@ -2246,10 +2400,10 @@ g_mime_gpg_context_get_auto_key_retrieve (GMimeGpgContext *ctx)
 /**
  * g_mime_gpg_context_set_auto_key_retrieve:
  * @ctx: a #GMimeGpgContext
- * @auto_key_retrieve: auto-retrieve keys from a keys server
+ * @auto_key_retrieve: %TRUE if gpg should auto-retrieve keys from a keys server
  *
- * Sets the @auto_key_retrieve flag on the gpg context which is used
- * for signature verification.
+ * Sets whether or not gpg should auto-retrieve keys from a keyserver
+ * when verifying signatures.
  **/
 void
 g_mime_gpg_context_set_auto_key_retrieve (GMimeGpgContext *ctx, gboolean auto_key_retrieve)
@@ -2264,9 +2418,10 @@ g_mime_gpg_context_set_auto_key_retrieve (GMimeGpgContext *ctx, gboolean auto_ke
  * g_mime_gpg_context_get_always_trust:
  * @ctx: a #GMimeGpgContext
  *
- * Gets the always_trust flag on the gpg context.
+ * Gets whther or not gpg should always trust keys when encrypting.
  *
- * Returns: the always_trust flag on the gpg context.
+ * Returns: %TRUE if gpg should always trust keys when encrypting or
+ * %FALSE otherwise.
  **/
 gboolean
 g_mime_gpg_context_get_always_trust (GMimeGpgContext *ctx)
@@ -2280,10 +2435,9 @@ g_mime_gpg_context_get_always_trust (GMimeGpgContext *ctx)
 /**
  * g_mime_gpg_context_set_always_trust:
  * @ctx: a #GMimeGpgContext
- * @always_trust: always trust flag
+ * @always_trust: %TRUE if gpg should always trust keys when encrypting
  *
- * Sets the @always_trust flag on the gpg context which is used for
- * encryption.
+ * Sets whether or not gpg should always trust keys when encrypting.
  **/
 void
 g_mime_gpg_context_set_always_trust (GMimeGpgContext *ctx, gboolean always_trust)
@@ -2298,10 +2452,11 @@ g_mime_gpg_context_set_always_trust (GMimeGpgContext *ctx, gboolean always_trust
  * g_mime_gpg_context_get_use_agent:
  * @ctx: a #GMimeGpgContext
  *
- * Gets the use_agent flag on the gpg context.
+ * Gets whether or not gpg should attempt to use the gpg-agent when
+ * requesting credentials.
  *
- * Returns: the use_agent flag on the gpg context, which indicates
- * that GnuPG should attempt to use gpg-agent for credentials.
+ * Returns: %TRUE if the gpg-agent should be used when requesting
+ * credentials or %FALSE otherwise.
  **/
 gboolean
 g_mime_gpg_context_get_use_agent (GMimeGpgContext *ctx)
@@ -2315,10 +2470,10 @@ g_mime_gpg_context_get_use_agent (GMimeGpgContext *ctx)
 /**
  * g_mime_gpg_context_set_use_agent:
  * @ctx: a #GMimeGpgContext
- * @use_agent: always trust flag
+ * @use_agent: use agent flag
  *
- * Sets the @use_agent flag on the gpg context, which indicates that
- * GnuPG should attempt to use gpg-agent for credentials.
+ * Sets whether or not gpg should attempt to use the gpg-agent when
+ * requesting credentials.
  **/
 void
 g_mime_gpg_context_set_use_agent (GMimeGpgContext *ctx, gboolean use_agent)
@@ -2326,4 +2481,32 @@ g_mime_gpg_context_set_use_agent (GMimeGpgContext *ctx, gboolean use_agent)
 	g_return_if_fail (GMIME_IS_GPG_CONTEXT (ctx));
 	
 	ctx->use_agent = use_agent;
+}
+
+static gboolean
+gpg_get_retrieve_session_key (GMimeCryptoContext *context)
+{
+	GMimeGpgContext *ctx = (GMimeGpgContext *) context;
+	
+	g_return_val_if_fail (GMIME_IS_GPG_CONTEXT (ctx), FALSE);
+	
+	return ctx->retrieve_session_key;
+}
+
+
+static int
+gpg_set_retrieve_session_key (GMimeCryptoContext *context, gboolean retrieve_session_key,
+			      GError **err)
+{
+	GMimeGpgContext *ctx = (GMimeGpgContext *) context;
+	
+	if (!GMIME_IS_GPG_CONTEXT (ctx)) {
+		g_set_error (err, GMIME_ERROR, GMIME_ERROR_NOT_SUPPORTED,
+			     "Not a GMimeGpgContext, can't set retrieve_session_key");
+		return -1;
+	}
+	
+	ctx->retrieve_session_key = retrieve_session_key;
+	
+	return 0;
 }

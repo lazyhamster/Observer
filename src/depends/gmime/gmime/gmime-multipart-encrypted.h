@@ -46,8 +46,6 @@ enum {
 /**
  * GMimeMultipartEncrypted:
  * @parent_object: parent #GMimeMultipart
- * @validity: a #GMimeSignatureValidity if the part has been decrypted or %NULL otherwise
- * @decrypted: cached decrypted MIME part
  *
  * A multipart/encrypted MIME part.
  **/
@@ -75,6 +73,12 @@ GMimeObject *g_mime_multipart_encrypted_decrypt (GMimeMultipartEncrypted *mpe,
 						 GMimeCryptoContext *ctx,
 						 GMimeDecryptResult **result,
 						 GError **err);
+
+GMimeObject *g_mime_multipart_encrypted_decrypt_session (GMimeMultipartEncrypted *mpe,
+							 GMimeCryptoContext *ctx,
+							 const char *session_key,
+							 GMimeDecryptResult **result,
+							 GError **err);
 
 G_END_DECLS
 

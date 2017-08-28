@@ -113,12 +113,28 @@ struct _GMimeCryptoContextClass {
 	
 	int                      (* export_keys) (GMimeCryptoContext *ctx, GPtrArray *keys,
 						  GMimeStream *ostream, GError **err);
+	
+	GMimeDecryptResult *     (* decrypt_session)     (GMimeCryptoContext *ctx, const char *session_key,
+							  GMimeStream *istream, GMimeStream *ostream,
+							  GError **err);
+	
+	gboolean                 (* get_retrieve_session_key) (GMimeCryptoContext *ctx);
+	
+	int                      (* set_retrieve_session_key) (GMimeCryptoContext *ctx,
+							       gboolean retrieve_session_key,
+							       GError **err);
 };
 
 
 GType g_mime_crypto_context_get_type (void);
 
 void g_mime_crypto_context_set_request_password (GMimeCryptoContext *ctx, GMimePasswordRequestFunc request_passwd);
+
+gboolean g_mime_crypto_context_get_retrieve_session_key (GMimeCryptoContext *ctx);
+
+int g_mime_crypto_context_set_retrieve_session_key (GMimeCryptoContext *ctx,
+						    gboolean retrieve_session_key,
+						    GError **err);
 
 /* digest algo mapping */
 GMimeDigestAlgo g_mime_crypto_context_digest_id (GMimeCryptoContext *ctx, const char *name);
@@ -148,6 +164,10 @@ int g_mime_crypto_context_encrypt (GMimeCryptoContext *ctx, gboolean sign,
 
 GMimeDecryptResult *g_mime_crypto_context_decrypt (GMimeCryptoContext *ctx, GMimeStream *istream,
 						   GMimeStream *ostream, GError **err);
+
+GMimeDecryptResult *g_mime_crypto_context_decrypt_session (GMimeCryptoContext *ctx, const char *session_key,
+							   GMimeStream *istream, GMimeStream *ostream,
+							   GError **err);
 
 /* key/certificate routines */
 int g_mime_crypto_context_import_keys (GMimeCryptoContext *ctx, GMimeStream *istream, GError **err);
@@ -196,6 +216,7 @@ typedef enum {
  * @signatures: A #GMimeSignatureList if signed or %NULL otherwise.
  * @cipher: The cipher algorithm used to encrypt the stream.
  * @mdc: The MDC digest algorithm used, if any.
+ * @session_key: The session key if requested or %NULL otherwise.
  *
  * An object containing the results from decrypting an encrypted stream.
  **/
@@ -206,6 +227,7 @@ struct _GMimeDecryptResult {
 	GMimeSignatureList *signatures;
 	GMimeCipherAlgo cipher;
 	GMimeDigestAlgo mdc;
+	char *session_key;
 };
 
 struct _GMimeDecryptResultClass {
@@ -228,6 +250,9 @@ GMimeCipherAlgo g_mime_decrypt_result_get_cipher (GMimeDecryptResult *result);
 
 void g_mime_decrypt_result_set_mdc (GMimeDecryptResult *result, GMimeDigestAlgo mdc);
 GMimeDigestAlgo g_mime_decrypt_result_get_mdc (GMimeDecryptResult *result);
+
+void g_mime_decrypt_result_set_session_key (GMimeDecryptResult *result, const char *session_key);
+const char *g_mime_decrypt_result_get_session_key (GMimeDecryptResult *result);
 
 G_END_DECLS
 

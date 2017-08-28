@@ -695,7 +695,7 @@ g_mime_header_list_append (GMimeHeaderList *headers, const char *name, const cha
  * @headers: a #GMimeHeaderList
  * @name: header name
  *
- * Gets the value of the first header with the name requested.
+ * Gets the value of the first header with the specified name.
  *
  * Returns: the value of the header requested.
  *
@@ -982,16 +982,10 @@ g_mime_header_list_to_string (const GMimeHeaderList *headers)
 void
 g_mime_header_list_register_writer (GMimeHeaderList *headers, const char *name, GMimeHeaderWriter writer)
 {
-	gpointer okey, oval;
-	
 	g_return_if_fail (headers != NULL);
 	g_return_if_fail (name != NULL);
 	
-	if (g_hash_table_lookup (headers->writers, name)) {
-		g_hash_table_lookup_extended (headers->writers, name, &okey, &oval);
-		g_hash_table_remove (headers->writers, name);
-		g_free (okey);
-	}
+	g_hash_table_remove (headers->writers, name);
 	
 	if (writer)
 		g_hash_table_insert (headers->writers, g_strdup (name), writer);
