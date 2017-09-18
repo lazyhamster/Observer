@@ -1,42 +1,8 @@
 #ifndef _ModulesController_h__
 #define _ModulesController_h__
 
-#include "ModuleDef.h"
+#include "ExternalModule.h"
 #include "Config.h"
-
-struct ExternalModule
-{
-	ExternalModule(const std::wstring& Name, const std::wstring& Library)
-		: m_sModuleName(Name), m_sLibraryFile(Library)
-	{
-		LoadModule = nullptr;
-		UnloadModule = nullptr;
-		ModuleHandle = 0;
-		ModuleVersion = 0;
-		ModuleId = GUID_NULL;
-		memset(&ModuleFunctions, 0, sizeof(ModuleFunctions));
-		ShortCut = '\0';
-	}
-	
-	HMODULE ModuleHandle;
-	std::vector<std::wstring> ExtensionFilter;
-
-	LoadSubModuleFunc LoadModule;
-	UnloadSubModuleFunc UnloadModule;
-
-	GUID ModuleId;
-	DWORD ModuleVersion;
-	module_cbs ModuleFunctions;
-
-	wchar_t ShortCut;
-
-	const wchar_t* Name() const { return m_sModuleName.c_str(); }
-	const wchar_t* LibraryFile() const { return m_sLibraryFile.c_str(); }
-
-private:
-	std::wstring m_sModuleName;
-	std::wstring m_sLibraryFile;
-};
 
 struct OpenStorageFileInParams
 {

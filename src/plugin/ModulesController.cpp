@@ -2,41 +2,6 @@
 #include "ModulesController.h"
 #include "CommonFunc.h"
 
-static bool DoesExtensionFilterMatch( const wchar_t* path, const vector<wstring> &filter )
-{
-	if (filter.size() == 0)
-		return true;
-
-	for (size_t i = 0; i < filter.size(); i++)
-	{
-		if (PathMatchSpec(path, filter[i].c_str()))
-			return true;
-	}
-
-	return false;
-}
-
-static void ParseExtensionList(const wchar_t* listval, ExternalModule& module)
-{
-	if (!listval || !listval[0]) return;
-	
-	wchar_t* context = NULL;
-	wchar_t* strList = _wcsdup(listval);
-
-	wchar_t* token = wcstok_s(strList, L";", &context);
-	while (token)
-	{
-		if (wcslen(token) > 0)
-		{
-			while(!token[0]) token++;
-			module.ExtensionFilter.push_back(token);
-		}
-
-		token = wcstok_s(NULL, L";", &context);
-	}
-	free(strList);
-}
-
 // Separate function is require because if __try use below, it complains about object unwinding
 static void GetInvalidApiErrorMessage(std::wstring &dest, DWORD moduleVersion)
 {
@@ -72,7 +37,7 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 				wstring extList;
 				if (mFiltersList->GetValue(module.Name(), extList))
 				{
-					ParseExtensionList(extList.c_str(), module);
+					module.AddExtensionFilter(extList);
 				}
 			}
 
@@ -155,7 +120,7 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 		if (srcParams.openWithModule == -1 || srcParams.openWithModule == i)
 		{
 			const ExternalModule &modulePtr = modules[i];
-			if (!srcParams.applyExtFilters || DoesExtensionFilterMatch(srcParams.path, modulePtr.ExtensionFilter))
+			if (!srcParams.applyExtFilters || modulePtr.DoesPathMatchFilter(srcParams.path))
 			{
 				int openRes;
 				__try

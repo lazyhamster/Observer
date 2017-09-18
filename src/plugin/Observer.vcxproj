@@ -449,6 +449,7 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">false</CompileAsManaged>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="ExternalModule.cpp" />
     <ClCompile Include="FarStorage.cpp" />
     <ClCompile Include="InterfaceCommon.cpp" />
     <ClCompile Include="ModulesController.cpp" />
@@ -487,6 +488,7 @@
     <ClInclude Include="CommonFunc.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="ContentStructures.h" />
+    <ClInclude Include="ExternalModule.h" />
     <ClInclude Include="FarStorage.h" />
     <ClInclude Include="..\common\ModuleCRT.h" />
     <ClInclude Include="..\common\ModuleDef.h" />
