@@ -28,6 +28,7 @@ struct StorageGeneralInfo
 
 struct StorageOpenParams
 {
+	size_t StructSize;
 	const wchar_t* FilePath;
 	const char* Password;
 	const void* Data;
@@ -73,6 +74,7 @@ struct module_cbs
 struct ModuleLoadParameters
 {
 	//IN
+	size_t StructSize;
 	const wchar_t* Settings;
 	//OUT
 	GUID ModuleId;

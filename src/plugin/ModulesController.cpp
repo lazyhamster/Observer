@@ -143,6 +143,7 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 		return SOR_INVALID_FILE;
 
 	StorageOpenParams openParams = {0};
+	openParams.StructSize = sizeof(StorageOpenParams);
 	openParams.FilePath = srcParams.path;
 	openParams.Password = srcParams.password;
 	openParams.Data = srcParams.dataBuffer;
@@ -212,6 +213,7 @@ bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &mod
 		if ((module.LoadModule != NULL) && (module.UnloadModule != NULL))
 		{
 			ModuleLoadParameters loadParams = {0};
+			loadParams.StructSize = sizeof(ModuleLoadParameters);
 			loadParams.Settings = moduleSettings;
 
 			__try
