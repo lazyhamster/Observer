@@ -18,6 +18,9 @@
       <Extensions>ini;lng;DIZ;txt;hlf</Extensions>
       <ParseFiles>false</ParseFiles>
     </Filter>
+    <Filter Include="Header Files\far3">
+      <UniqueIdentifier>{f182e72d-0aa9-4600-8fa8-dfd1129ed000}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommonFunc.cpp">
@@ -125,6 +128,15 @@
     </ClInclude>
     <ClInclude Include="ExternalModule.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\depends\far3\DlgBuilder.hpp">
+      <Filter>Header Files\far3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\depends\far3\plugin.hpp">
+      <Filter>Header Files\far3</Filter>
+    </ClInclude>
+    <ClInclude Include="..\depends\far3\PluginSettings.hpp">
+      <Filter>Header Files\far3</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

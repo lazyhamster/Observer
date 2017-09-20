@@ -485,6 +485,9 @@
     <None Include="version.m4i" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\depends\far3\DlgBuilder.hpp" />
+    <ClInclude Include="..\depends\far3\plugin.hpp" />
+    <ClInclude Include="..\depends\far3\PluginSettings.hpp" />
     <ClInclude Include="CommonFunc.h" />
     <ClInclude Include="Config.h" />
     <ClInclude Include="ContentStructures.h" />
