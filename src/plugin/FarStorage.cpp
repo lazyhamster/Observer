@@ -119,18 +119,18 @@ bool StorageObject::ReadFileList(bool &aborted)
 	__int64 nTotalSize = 0, nTotalPackedSize = 0;
 	DWORD nNumFiles = 0, nNumDirs = 0;
 
-	const ExternalModule &module = m_pModules->GetModule(m_nModuleIndex);
+	const ExternalModule* module = m_pModules->GetModule(m_nModuleIndex);
 		
 	DWORD item_index = 0;
 	StorageItemInfo item_info;
 
-	if (!module.ModuleFunctions.PrepareFiles(m_pStoragePtr))
+	if (!module->ModuleFunctions.PrepareFiles(m_pStoragePtr))
 		return false;
 
 	do
 	{
 		memset(&item_info, 0, sizeof(item_info));
-		int res = module.ModuleFunctions.GetItem(m_pStoragePtr, item_index, &item_info);
+		int res = module->ModuleFunctions.GetItem(m_pStoragePtr, item_index, &item_info);
 
 		if (res == GET_ITEM_NOMOREITEMS)
 		{
@@ -198,8 +198,8 @@ bool StorageObject::ReadFileList(bool &aborted)
 
 int StorageObject::Extract( ExtractOperationParams &params )
 {
-	const ExternalModule &module = m_pModules->GetModule(m_nModuleIndex);
-	return module.ModuleFunctions.ExtractItem(m_pStoragePtr, params);
+	const ExternalModule* module = m_pModules->GetModule(m_nModuleIndex);
+	return module->ModuleFunctions.ExtractItem(m_pStoragePtr, params);
 }
 
 int StorageObject::ChangeCurrentDir( const wchar_t* path )

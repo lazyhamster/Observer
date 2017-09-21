@@ -46,7 +46,7 @@ public:
 	int ChangeCurrentDir(const wchar_t* path);
 
 	ContentTreeNode* CurrentDir() const { return m_pCurrentDir; }
-	const wchar_t* GetModuleName() const { return (m_nModuleIndex >= 0) ? m_pModules->GetModule(m_nModuleIndex).Name() : NULL; }
+	const wchar_t* GetModuleName() const { return (m_nModuleIndex >= 0) ? m_pModules->GetModule(m_nModuleIndex)->Name() : NULL; }
 	int GetModuleIndex() const { return m_nModuleIndex; }
 	const wchar_t* StoragePath() const { return m_wszStoragePath; }
 	__int64 TotalSize() const { return m_nTotalSize; }

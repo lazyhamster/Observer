@@ -18,7 +18,7 @@ ExternalModule::ExternalModule(const std::wstring& Name, const std::wstring& Lib
 
 ExternalModule::~ExternalModule()
 {
-	//Unload();
+	Unload();
 }
 
 bool ExternalModule::Load(const wchar_t* basePath, const wchar_t* moduleSettings, ModuleLoadResult& loadResult)

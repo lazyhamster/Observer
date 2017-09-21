@@ -63,6 +63,7 @@ public:
 	bool ParseFile(const wstring& path);
 
 	ConfigSection* GetSection(const wchar_t* sectionName);
+	ConfigSection* GetSection(const std::wstring& sectionName) { return GetSection(sectionName.c_str()); }
 	ConfigSection* AddSection(const wchar_t* sectionName);
 	bool IsSectionExists(const wchar_t* sectionName);
 };

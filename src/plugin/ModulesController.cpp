@@ -20,20 +20,22 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 		if (nextModuleInfo.Key.size() == 0 || nextModuleInfo.Value.size() == 0)
 			continue;
 
-		ExternalModule module(nextModuleInfo.Key, nextModuleInfo.Value);
-		
-		ConfigSection* moduleOpts = cfg->GetSection(module.Name());
+		const std::wstring& moduleName = nextModuleInfo.Key;
+		const std::wstring& moduleLibrary = nextModuleInfo.Value;
+
+		ConfigSection* moduleOpts = cfg->GetSection(moduleName);
 		wstring moduleLoadError;
 
-		if (LoadModule(basePath, module, moduleOpts, moduleLoadError))
+		ExternalModule* module = LoadModule(basePath, moduleName, moduleLibrary, moduleOpts, moduleLoadError);
+		if (module)
 		{
 			// Read extensions filter for each module
 			if (mFiltersList != NULL)
 			{
 				wstring extList;
-				if (mFiltersList->GetValue(module.Name(), extList))
+				if (mFiltersList->GetValue(module->Name(), extList))
 				{
-					module.AddExtensionFilter(extList);
+					module->AddExtensionFilter(extList);
 				}
 			}
 
@@ -41,10 +43,10 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 			if (mShortcutList != NULL)
 			{
 				wchar_t cShortcut;
-				if (mShortcutList->GetValue(module.Name(), cShortcut))
+				if (mShortcutList->GetValue(module->Name(), cShortcut))
 				{
 					cShortcut = towupper(cShortcut);
-					module.ShortCut = cShortcut;
+					module->ShortCut = cShortcut;
 					if (iswalpha(cShortcut))
 						vUsedShortcuts[cShortcut - L'A' + 10] = true;
 					else
@@ -52,12 +54,12 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 				}
 			}
 			
-			modules.push_back(module);
+			m_vModules.push_back(module);
 		}
 		else
 		{
 			FailedModuleInfo failInfo;
-			failInfo.ModuleName = module.Name();
+			failInfo.ModuleName = moduleName;
 			failInfo.ErrorMessage = moduleLoadError;
 
 			failed.push_back(failInfo);
@@ -66,10 +68,10 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 
 	// Assign automatic shortcuts to modules without one
 	size_t lastScIndex = 1;
-	for (size_t j = 0; j < modules.size(); j++)
+	for (size_t j = 0; j < m_vModules.size(); j++)
 	{
-		ExternalModule &module = modules[j];
-		if (module.ShortCut) continue;
+		ExternalModule* module = m_vModules[j];
+		if (module->ShortCut) continue;
 
 		// Find first unused shortcut
 		while (lastScIndex < _countof(vUsedShortcuts) && vUsedShortcuts[lastScIndex])
@@ -78,30 +80,34 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 		// Too many modules, not enough shortcuts
 		if (lastScIndex >= _countof(vUsedShortcuts)) break;
 		
-		module.ShortCut = (lastScIndex < 10) ? (L'0' + lastScIndex) : (L'A' + lastScIndex - 10);
+		module->ShortCut = (lastScIndex < 10) ? (L'0' + lastScIndex) : (L'A' + lastScIndex - 10);
 		vUsedShortcuts[lastScIndex] = true;
 		lastScIndex++;
 	}
 
-	return (int) modules.size();
+	return (int)m_vModules.size();
 }
 
 void ModulesController::Cleanup()
 {
-	for (size_t i = 0; i < modules.size(); i++)
+	for (size_t i = 0; i < m_vModules.size(); i++)
 	{
-		ExternalModule &modulePtr = modules[i];
-		modulePtr.Unload();
+		ExternalModule *modulePtr = m_vModules[i];
+		
+		modulePtr->Unload();
+		delete modulePtr;
 	}
-	modules.clear();
+	m_vModules.clear();
 }
 
-bool ModulesController::LoadModule(const wchar_t* basePath, ExternalModule &module, ConfigSection* moduleSettings, std::wstring &errorMsg)
+ExternalModule* ModulesController::LoadModule(const wchar_t* basePath, const std::wstring& moduleName, const std::wstring& moduleLibrary, ConfigSection* moduleSettings, std::wstring &errorMsg)
 {
 	ModuleLoadResult loadResult;
 	wstring moduleSettingsStr = moduleSettings ? moduleSettings->GetAll() : L"";
 
-	if (!module.Load(basePath, moduleSettingsStr.c_str(), loadResult))
+	ExternalModule* module = new ExternalModule(moduleName, moduleLibrary);
+
+	if (!module->Load(basePath, moduleSettingsStr.c_str(), loadResult))
 	{
 		switch (loadResult.Status)
 		{
@@ -118,17 +124,18 @@ bool ModulesController::LoadModule(const wchar_t* basePath, ExternalModule &modu
 			errorMsg = L"Module was loaded successfully but LoadSubModule returned an error";
 			break;
 		case ModuleLoadStatus::NotModule:
-			errorMsg = FormatString(L"Library %s is not a valid Observer module", module.LibraryFile());
+			errorMsg = FormatString(L"Library %s is not a valid Observer module", moduleLibrary.c_str());
 			break;
 		default:
 			errorMsg = L"[ATTENTION] Unrecognized error on module load attempt";
 			break;
 		}
 
-		return false;
+		delete module;
+		return nullptr;
 	}
 
-	return true;
+	return module;
 }
 
 int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *sinfo)
@@ -145,17 +152,17 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 	openParams.DataSize = srcParams.dataSize;
 	
 	*moduleIndex = -1;
-	for (size_t i = 0; i < modules.size(); i++)
+	for (size_t i = 0; i < m_vModules.size(); i++)
 	{
 		if (srcParams.openWithModule == -1 || srcParams.openWithModule == i)
 		{
-			const ExternalModule &modulePtr = modules[i];
-			if (!srcParams.applyExtFilters || modulePtr.DoesPathMatchFilter(srcParams.path))
+			const ExternalModule* modulePtr = m_vModules[i];
+			if (!srcParams.applyExtFilters || modulePtr->DoesPathMatchFilter(srcParams.path))
 			{
 				int openRes;
 				__try
 				{
-					openRes = modulePtr.ModuleFunctions.OpenStorage(openParams, storage, sinfo);
+					openRes = modulePtr->ModuleFunctions.OpenStorage(openParams, storage, sinfo);
 				}
 				__except (EXCEPTION_EXECUTE_HANDLER)
 				{
@@ -182,10 +189,10 @@ int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *m
 
 void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
 {
-	if ((moduleIndex >= 0) && (moduleIndex < (int) modules.size()))
+	if ((moduleIndex >= 0) && (moduleIndex < (int)m_vModules.size()))
 	{
-		const ExternalModule &modulePtr = modules[moduleIndex];
-		modulePtr.ModuleFunctions.CloseStorage(storage);
+		const ExternalModule* modulePtr = m_vModules[moduleIndex];
+		modulePtr->ModuleFunctions.CloseStorage(storage);
 	}
 }
 

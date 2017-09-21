@@ -16,16 +16,16 @@ struct OpenStorageFileInParams
 
 struct FailedModuleInfo 
 {
-	wstring ModuleName;
-	wstring ErrorMessage;
+	std::wstring ModuleName;
+	std::wstring ErrorMessage;
 };
 
 class ModulesController
 {
 private:
-	std::vector<ExternalModule> modules;
+	std::vector<ExternalModule*> m_vModules;
 	
-	bool LoadModule(const wchar_t* basePath, ExternalModule &module, ConfigSection* moduleSettings, std::wstring &errorMsg);
+	ExternalModule* LoadModule(const wchar_t* basePath, const std::wstring& moduleName, const std::wstring& moduleLibrary, ConfigSection* moduleSettings, std::wstring &errorMsg);
 	bool GetExceptionMessage(unsigned long exceptionCode, std::wstring &errorText);
 	bool GetExceptionMessage(unsigned long exceptionCode, wchar_t* errTextBuf, size_t errTextBufSize);
 	bool GetSystemErrorMessage(DWORD errorCode, std::wstring &errorText);
@@ -37,8 +37,8 @@ public:
 	int Init(const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed);
 	void Cleanup();
 	
-	size_t NumModules() const { return modules.size(); }
-	const ExternalModule& GetModule(int index) { return modules[index]; }
+	size_t NumModules() const { return m_vModules.size(); }
+	const ExternalModule* GetModule(int index) { return m_vModules[index]; }
 
 	int OpenStorageFile(OpenStorageFileInParams srcParams, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *info);
 	void CloseStorageFile(int moduleIndex, HANDLE storage);

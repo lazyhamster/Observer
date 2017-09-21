@@ -52,6 +52,8 @@ private:
 	std::vector<std::wstring> m_vExtensionFilter;
 
 	ExternalModule() = delete;
+	ExternalModule(const ExternalModule& other) = delete;
+	ExternalModule &operator=(const ExternalModule &a) = delete;
 
 	bool IsModuleOk(const ModuleLoadParameters &params);
 };

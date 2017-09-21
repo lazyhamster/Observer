@@ -127,11 +127,11 @@ static int SelectModuleToOpenFileAs()
 	memset(MenuItems, 0, nNumModules * sizeof(FarMenuItem));
 	for (size_t i = 0; i < nNumModules; i++)
 	{
-		const ExternalModule& modInfo = g_pController.GetModule((int) i);
-		if (modInfo.ShortCut)
-			MenuStrings[i] = FormatString(L"&%c %s", modInfo.ShortCut, modInfo.Name());
+		const ExternalModule* modInfo = g_pController.GetModule((int) i);
+		if (modInfo->ShortCut)
+			MenuStrings[i] = FormatString(L"&%c %s", modInfo->ShortCut, modInfo->Name());
 		else
-			MenuStrings[i] = modInfo.Name();
+			MenuStrings[i] = modInfo->Name();
 		MenuItems[i].Text = MenuStrings[i].c_str();
 	}
 
