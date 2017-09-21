@@ -25,10 +25,10 @@ class ModulesController
 private:
 	std::vector<ExternalModule> modules;
 	
-	bool LoadModule(const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, std::wstring &errorMsg);
-	bool IsValidModuleLoaded(const ModuleLoadParameters &params);
+	bool LoadModule(const wchar_t* basePath, ExternalModule &module, ConfigSection* moduleSettings, std::wstring &errorMsg);
 	bool GetExceptionMessage(unsigned long exceptionCode, std::wstring &errorText);
 	bool GetExceptionMessage(unsigned long exceptionCode, wchar_t* errTextBuf, size_t errTextBufSize);
+	bool GetSystemErrorMessage(DWORD errorCode, std::wstring &errorText);
 
 public:
 	ModulesController(void) {};

@@ -22,14 +22,16 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 
 	for (size_t i = 0; i < mModulesList->Count(); i++)
 	{
-		const ConfigItem& nextOpt = mModulesList->GetItem(i);
-		ExternalModule module(nextOpt.Key, nextOpt.Value);
+		const ConfigItem& nextModuleInfo = mModulesList->GetItem(i);
+		if (nextModuleInfo.Key.size() == 0 || nextModuleInfo.Value.size() == 0)
+			continue;
+
+		ExternalModule module(nextModuleInfo.Key, nextModuleInfo.Value);
 		
 		ConfigSection* moduleOpts = cfg->GetSection(module.Name());
-		wstring moduleSettingsStr = moduleOpts ? moduleOpts->GetAll() : L"";
 		wstring moduleLoadError;
 
-		if (LoadModule(basePath, module, moduleSettingsStr.c_str(), moduleLoadError))
+		if (LoadModule(basePath, module, moduleOpts, moduleLoadError))
 		{
 			// Read extensions filter for each module
 			if (mFiltersList != NULL)
@@ -95,10 +97,44 @@ void ModulesController::Cleanup()
 	for (size_t i = 0; i < modules.size(); i++)
 	{
 		ExternalModule &modulePtr = modules[i];
-		modulePtr.UnloadModule();
-		FreeLibrary(modulePtr.ModuleHandle);
+		modulePtr.Unload();
 	}
 	modules.clear();
+}
+
+bool ModulesController::LoadModule(const wchar_t* basePath, ExternalModule &module, ConfigSection* moduleSettings, std::wstring &errorMsg)
+{
+	ModuleLoadResult loadResult;
+	wstring moduleSettingsStr = moduleSettings ? moduleSettings->GetAll() : L"";
+
+	if (!module.Load(basePath, moduleSettingsStr.c_str(), loadResult))
+	{
+		switch (loadResult.Status)
+		{
+		case ModuleLoadStatus::LoadLibraryFailed:
+			GetSystemErrorMessage(loadResult.ErrorCode, errorMsg);
+			break;
+		case ModuleLoadStatus::ExceptionCaught:
+			GetExceptionMessage(loadResult.ErrorCode, errorMsg);
+			break;
+		case ModuleLoadStatus::InvalidAPIVersion:
+			errorMsg = FormatString(L"Invalid API version (reported: %d, required %d)", loadResult.ErrorCode, ACTUAL_API_VERSION);
+			break;
+		case ModuleLoadStatus::LoadModuleFailed:
+			errorMsg = L"Module was loaded successfully but LoadSubModule returned an error";
+			break;
+		case ModuleLoadStatus::NotModule:
+			errorMsg = FormatString(L"Library %s is not a valid Observer module", module.LibraryFile());
+			break;
+		default:
+			errorMsg = L"[ATTENTION] Unrecognized error on module load attempt";
+			break;
+		}
+
+		return false;
+	}
+
+	return true;
 }
 
 int ModulesController::OpenStorageFile(OpenStorageFileInParams srcParams, int *moduleIndex, HANDLE *storage, StorageGeneralInfo *sinfo)
@@ -159,81 +195,10 @@ void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
 	}
 }
 
-bool ModulesController::LoadModule( const wchar_t* basePath, ExternalModule &module, const wchar_t* moduleSettings, std::wstring &errorMsg )
-{
-	if (!module.Name()[0] || !module.LibraryFile()[0])
-		return false;
-
-	wchar_t wszFullModulePath[MAX_PATH] = {0};
-	swprintf_s(wszFullModulePath, MAX_PATH, L"%s%s", basePath, module.LibraryFile());
-
-	module.ModuleHandle = LoadLibraryEx(wszFullModulePath, NULL, LOAD_WITH_ALTERED_SEARCH_PATH);
-	if (module.ModuleHandle != NULL)
-	{
-		// Search for exported functions
-		module.LoadModule = (LoadSubModuleFunc) GetProcAddress(module.ModuleHandle, "LoadSubModule");
-		module.UnloadModule = (UnloadSubModuleFunc) GetProcAddress(module.ModuleHandle, "UnloadSubModule");
-
-		// Try to load modules
-		if ((module.LoadModule != NULL) && (module.UnloadModule != NULL))
-		{
-			ModuleLoadParameters loadParams = {0};
-			loadParams.StructSize = sizeof(ModuleLoadParameters);
-			loadParams.Settings = moduleSettings;
-
-			__try
-			{
-				if (module.LoadModule(&loadParams) && IsValidModuleLoaded(loadParams))
-				{
-					if (loadParams.ApiVersion != ACTUAL_API_VERSION)
-					{
-						GetInvalidApiErrorMessage(errorMsg, loadParams.ApiVersion);
-					}
-					else
-					{
-						module.ModuleFunctions = loadParams.ApiFuncs;
-						module.ModuleId = loadParams.ModuleId;
-						module.ModuleVersion = loadParams.ModuleVersion;
-
-						return true;
-					}
-				}
-			}
-			__except (EXCEPTION_EXECUTE_HANDLER)
-			{
-				//Nothing to do here. Module unload code is below.
-				GetExceptionMessage(_exception_code(), errorMsg);
-			}
-		}
-
-		FreeLibrary(module.ModuleHandle);
-		return false;
-	}
-	else
-	{
-		DWORD err = GetLastError();
-
-		wchar_t* msgBuffer = NULL;
-		if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, err, 0, (LPWSTR) &msgBuffer, 0, NULL) == 0)
-		{
-			msgBuffer = (wchar_t*) LocalAlloc(LPTR, 256 * sizeof(wchar_t));
-			swprintf_s(msgBuffer, LocalSize(msgBuffer) / sizeof(*msgBuffer), L"Unrecognized error code: %u", err);
-		}
-		errorMsg = msgBuffer;
-		LocalFree(msgBuffer);
-	}
-	
-	return false;
-}
-
-bool ModulesController::IsValidModuleLoaded( const ModuleLoadParameters &params )
-{
-	return (params.ApiFuncs.OpenStorage != nullptr) && (params.ApiFuncs.CloseStorage != nullptr)
-		&& (params.ApiFuncs.PrepareFiles != nullptr) && (params.ApiFuncs.GetItem != nullptr) && (params.ApiFuncs.ExtractItem != nullptr);
-}
-
 bool ModulesController::GetExceptionMessage(unsigned long exceptionCode, std::wstring &errorText)
 {
+	//TODO: this code is not working properly, should re-implement
+	
 	bool rval = true;
 	
 	wchar_t* msgBuffer = NULL;
@@ -258,5 +223,22 @@ bool ModulesController::GetExceptionMessage(unsigned long exceptionCode, wchar_t
 	std::wstring str;
 	bool rval = GetExceptionMessage(exceptionCode, str);
 	wcscpy_s(errTextBuf, errTextBufSize, str.c_str());
+	return rval;
+}
+
+bool ModulesController::GetSystemErrorMessage(DWORD errorCode, std::wstring &errorText)
+{
+	bool rval = true;
+	
+	wchar_t* msgBuffer = NULL;
+	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, errorCode, 0, (LPWSTR)&msgBuffer, 0, NULL) == 0)
+	{
+		msgBuffer = (wchar_t*)LocalAlloc(LPTR, 256 * sizeof(wchar_t));
+		swprintf_s(msgBuffer, LocalSize(msgBuffer) / sizeof(*msgBuffer), L"Unrecognized error code: %u", errorCode);
+		rval = false;
+	}
+	errorText = msgBuffer;
+	LocalFree(msgBuffer);
+
 	return rval;
 }

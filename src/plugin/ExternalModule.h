@@ -3,20 +3,33 @@
 
 #include "ModuleDef.h"
 
+enum class ModuleLoadStatus
+{
+	Success,
+	LoadLibraryFailed,
+	NotModule,
+	InvalidAPIVersion,
+	ExceptionCaught,
+	LoadModuleFailed
+};
+
+struct ModuleLoadResult
+{
+	ModuleLoadStatus Status;
+	unsigned long ErrorCode;
+};
+
 struct ExternalModule
 {
-	HMODULE ModuleHandle;
-	
-	LoadSubModuleFunc LoadModule;
-	UnloadSubModuleFunc UnloadModule;
-
-	GUID ModuleId;
-	DWORD ModuleVersion;
 	module_cbs ModuleFunctions;
 
 	wchar_t ShortCut;
 
 	ExternalModule(const std::wstring& Name, const std::wstring& Library);
+	~ExternalModule();
+
+	bool Load(const wchar_t* basePath, const wchar_t* moduleSettings, ModuleLoadResult& loadResult);
+	void Unload();
 	
 	int AddExtensionFilter(std::wstring& filterStr);
 	bool DoesPathMatchFilter(const wchar_t* path) const;
@@ -28,9 +41,19 @@ private:
 	std::wstring m_sModuleName;
 	std::wstring m_sLibraryFile;
 
+	HMODULE m_hModuleHandle;
+
+	LoadSubModuleFunc m_pLoadModule;
+	UnloadSubModuleFunc m_pUnloadModule;
+	
+	GUID m_ModuleId;
+	DWORD m_nModuleVersion;
+
 	std::vector<std::wstring> m_vExtensionFilter;
 
 	ExternalModule() = delete;
+
+	bool IsModuleOk(const ModuleLoadParameters &params);
 };
 
 #endif // ExternalModule_h__
