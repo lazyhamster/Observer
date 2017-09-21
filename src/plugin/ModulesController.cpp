@@ -2,12 +2,6 @@
 #include "ModulesController.h"
 #include "CommonFunc.h"
 
-// Separate function is require because if __try use below, it complains about object unwinding
-static void GetInvalidApiErrorMessage(std::wstring &dest, DWORD moduleVersion)
-{
-	dest = FormatString(L"Invalid API version (reported: %d, required %d)", moduleVersion, ACTUAL_API_VERSION);
-}
-
 int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed )
 {
 	Cleanup();
@@ -197,24 +191,64 @@ void ModulesController::CloseStorageFile(int moduleIndex, HANDLE storage)
 
 bool ModulesController::GetExceptionMessage(unsigned long exceptionCode, std::wstring &errorText)
 {
-	//TODO: this code is not working properly, should re-implement
-	
 	bool rval = true;
-	
-	wchar_t* msgBuffer = NULL;
-	if (FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_FROM_HMODULE | FORMAT_MESSAGE_IGNORE_INSERTS, GetModuleHandle(L"NTDLL.dll"), exceptionCode, 0, msgBuffer, 0, NULL) == 0)
-	{
-		const size_t kMsgBufferSize = 256;
-		msgBuffer = (wchar_t*) LocalAlloc(LPTR, kMsgBufferSize * sizeof(wchar_t));
-		if (exceptionCode == 0xE0434352)
-			swprintf_s(msgBuffer, kMsgBufferSize, L".NET code has thrown an exception (%u)", exceptionCode);
-		else
-			swprintf_s(msgBuffer, kMsgBufferSize, L"Unrecognized exception: %u", exceptionCode);
-		rval = false;
-	}
-	errorText = msgBuffer;
-	LocalFree(msgBuffer);
 
+	switch (exceptionCode)
+	{
+	case EXCEPTION_ACCESS_VIOLATION:
+		errorText = L"The thread attempts to read from or write to a virtual address for which it does not have access.";
+		break;
+	case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+		errorText = L"The thread attempts to access an array element that is out of bounds, and the underlying hardware supports bounds checking.";
+		break;
+	case EXCEPTION_BREAKPOINT:
+		errorText = L"A breakpoint is encountered.";
+		break;
+	case EXCEPTION_DATATYPE_MISALIGNMENT:
+		errorText = L"The thread attempts to read or write data that is misaligned on hardware that does not provide alignment. For example, 16-bit values must be aligned on 2-byte boundaries, 32-bit values on 4-byte boundaries, and so on.";
+		break;
+	case EXCEPTION_GUARD_PAGE:
+		errorText = L"The thread accessed memory allocated with the PAGE_GUARD modifier.";
+		break;
+	case EXCEPTION_ILLEGAL_INSTRUCTION:
+		errorText = L"The thread tries to execute an invalid instruction.";
+		break;
+	case EXCEPTION_IN_PAGE_ERROR:
+		errorText = L"The thread tries to access a page that is not present, and the system is unable to load the page. For example, this exception might occur if a network connection is lost while running a program over a network.";
+		break;
+	case EXCEPTION_INT_DIVIDE_BY_ZERO:
+		errorText = L"The thread attempts to divide an integer value by an integer divisor of 0 (zero).";
+		break;
+	case EXCEPTION_INT_OVERFLOW:
+		errorText = L"The result of an integer operation creates a value that is too large to be held by the destination register. In some cases, this will result in a carry out of the most significant bit of the result. Some operations do not set the carry flag.";
+		break;
+	case EXCEPTION_INVALID_DISPOSITION:
+		errorText = L"An exception handler returns an invalid disposition to the exception dispatcher. Programmers using a high-level language such as C should never encounter this exception.";
+		break;
+	case EXCEPTION_INVALID_HANDLE:
+		errorText = L"The thread used a handle to a kernel object that was invalid (probably because it had been closed.)";
+		break;
+	case EXCEPTION_NONCONTINUABLE_EXCEPTION:
+		errorText = L"The thread attempts to continue execution after a non-continuable exception occurs.";
+		break;
+	case EXCEPTION_PRIV_INSTRUCTION:
+		errorText = L"The thread attempts to execute an instruction with an operation that is not allowed in the current computer mode.";
+		break;
+	case EXCEPTION_SINGLE_STEP:
+		errorText = L"A trace trap or other single instruction mechanism signals that one instruction is executed.";
+		break;
+	case EXCEPTION_STACK_OVERFLOW:
+		errorText = L"The thread uses up its stack.";
+		break;
+	case 0xE0434352:
+		errorText = L".NET code has thrown an exception";
+		break;
+	default:
+		errorText = FormatString(L"Unrecognized exception: %u", exceptionCode);
+		rval = false;
+		break;
+	}
+	
 	return rval;
 }
 
