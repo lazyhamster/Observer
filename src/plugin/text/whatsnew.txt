@@ -8,6 +8,7 @@ Changes history:
 - Updated GLib library to version 2.48.0.
 - Updated GMime library to version 2.6.23.
 - Updated ZLib library to version 1.2.11.
+- Updated libmspack to version 0.6alpha.
 - VDISK: Fixed crash after failed files extraction.
 - PDF: Updated Poppler library to version 0.51.0.
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
