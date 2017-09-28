@@ -6,7 +6,7 @@
 #include <vector>
 
 #define __STORMLIB_SELF__ 1
-#include "StormLib/StormLib.h"
+#include "StormLib/src/StormLib.h"
 
 struct MoPaQ_File
 {
