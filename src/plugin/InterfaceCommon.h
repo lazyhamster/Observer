@@ -4,12 +4,6 @@
 #include "ContentStructures.h"
 #include "FarStorage.h"
 
-#ifndef NO_CHECK_FAR_VERSION
-	#ifndef FARMANAGERVERSION_MAJOR
-	#error Major version of FAR can not be found
-	#endif
-#endif
-
 #define CONFIG_FILE L"observer.ini"
 #define CONFIG_USER_FILE L"observer_user.ini"
 
@@ -22,11 +16,8 @@ enum KeepPathValues
 
 struct ProgressContext
 {
-#if FARMANAGERVERSION_MAJOR == 1
-	char szFilePath[MAX_PATH];
-#else
 	wchar_t wszFilePath[MAX_PATH];
-#endif
+
 	int nCurrentFileNumber;
 	__int64 nCurrentFileSize;
 
@@ -41,11 +32,7 @@ struct ProgressContext
 
 	ProgressContext()
 	{
-#if FARMANAGERVERSION_MAJOR == 1
-		memset(szFilePath, 0, sizeof(szFilePath));
-#else
 		memset(wszFilePath, 0, sizeof(wszFilePath));
-#endif
 		nCurrentFileNumber = 0;
 		nTotalFiles = 0;
 		nTotalSize = 0;
@@ -59,21 +46,13 @@ struct ProgressContext
 
 struct ExtractSelectedParams
 {
-#if FARMANAGERVERSION_MAJOR == 1
-	string strDestPath;
-#else
-	wstring strDestPath;
-#endif
+	std::wstring strDestPath;
 	int nPathProcessing;			// from KeepPathValues
 	int nOverwriteExistingFiles;    // 0 - skip, 1 - overwrite, 2 - ask
 	bool bShowProgress;
 	bool bSilent;
 
-#if FARMANAGERVERSION_MAJOR == 1
 	ExtractSelectedParams()
-#else	
-	ExtractSelectedParams()
-#endif
 	{
 		nPathProcessing = KPV_PARTIAL;
 		nOverwriteExistingFiles = 2;

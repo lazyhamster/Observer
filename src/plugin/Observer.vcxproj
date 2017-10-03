@@ -479,7 +479,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Observer.def" />
     <None Include="ObserverUni.def" />
     <None Include="ObserverUni3.def" />
     <None Include="version.m4i" />

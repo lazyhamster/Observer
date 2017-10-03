@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "CommonFunc.h"
 
-#define NO_CHECK_FAR_VERSION
 #include "InterfaceCommon.h"
 
 wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt)
