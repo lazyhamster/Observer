@@ -318,7 +318,7 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 		InfoLines[2] = szFileProgressLine;
 		InfoLines[3] = pc->wszFilePath;
 
-		FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_ERROR_MESSAGE, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
+		FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_PROGRESS_DIALOG, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
 
 		// Win7 only feature
 		if (pc->nTotalSize > 0)
