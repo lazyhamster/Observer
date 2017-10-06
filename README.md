@@ -10,12 +10,12 @@ Download prebuilt binaries and place then in Plugins directory of your FAR manag
 
 ## How to build from source ##
 
-Project is developed under MS Visual Studio 2010.
+Project is developed under MS Visual Studio 2013.
 
 Additional requirements:
 
-* Boost 1.55+.
-* M4 Macro Processor.
+* Boost C++ Libraries.
+* M4 Macro Processor (must be in %PATH%).
 
 ## Links ##
 
