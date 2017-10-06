@@ -28,6 +28,9 @@
 "Not enough space on target drive"
 "&Overwrite existing file"
 "Keep &paths"
+"Files:"
+"Bytes:"
+"Elapsed time:"
 
 "Reading files list (%s)"
 "Content Error"

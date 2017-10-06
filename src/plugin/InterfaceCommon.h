@@ -7,6 +7,9 @@
 #define CONFIG_FILE L"observer.ini"
 #define CONFIG_USER_FILE L"observer_user.ini"
 
+const size_t cntProgressDialogWidth = 65;
+const int cntProgressRedrawTimeout = 100; // ms
+
 enum KeepPathValues
 {
 	KPV_NOPATH = 0,
@@ -16,8 +19,11 @@ enum KeepPathValues
 
 struct ProgressContext
 {
-	wchar_t wszFilePath[MAX_PATH];
-
+	std::wstring strItemShortPath;
+	std::wstring strDestShortPath;
+	
+	std::wstring strItemPath;
+	
 	int nCurrentFileNumber;
 	__int64 nCurrentFileSize;
 
@@ -29,10 +35,12 @@ struct ProgressContext
 	int nCurrentProgress;
 
 	bool bDisplayOnScreen;
+	DWORD nLastDisplayTime;
+
+	DWORD nStartTime;
 
 	ProgressContext()
 	{
-		memset(wszFilePath, 0, sizeof(wszFilePath));
 		nCurrentFileNumber = 0;
 		nTotalFiles = 0;
 		nTotalSize = 0;
@@ -41,6 +49,9 @@ struct ProgressContext
 		nTotalProcessedBytes = 0;
 		nCurrentProgress = -1;
 		bDisplayOnScreen = true;
+		nLastDisplayTime = 0;
+
+		nStartTime = GetTickCount();
 	}
 };
 
@@ -114,6 +125,10 @@ public:
 #define I64TOW_C(num, wstr) _i64tow_s(num, wstr, ARRAY_SIZE(wstr), 10); InsertCommas(wstr);
 
 int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 &totalSize, bool recursive);
-wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt);
+std::wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt);
+
+std::wstring ProgressBarString(intptr_t Percentage, intptr_t Width);
+std::wstring DurationToString(long long durationMs);
+std::wstring JoinProgressLine(const std::wstring &prefix, const std::wstring &suffix, size_t maxWidth, size_t rightPadding);
 
 #endif // InterfaceCommon_h__

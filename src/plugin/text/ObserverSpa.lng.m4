@@ -28,6 +28,9 @@
 "No hay espacio libre en dispositivo destino"
 "S&obrescribir archivo existente"
 "Mantener &rutas"
+"*Files:*"
+"*Bytes:*"
+"*Elapsed time:*"
 
 "Leyendo lista de archivos (%s)"
 "Error de Contenido"

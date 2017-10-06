@@ -3,7 +3,7 @@
 
 #include "InterfaceCommon.h"
 
-wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt)
+std::wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt)
 {
 	wstring strResult(baseDir);
 	IncludeTrailingPathDelim(strResult);
@@ -62,4 +62,32 @@ int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 
 	}
 
 	return numItems;
+}
+
+std::wstring ProgressBarString(intptr_t Percentage, intptr_t Width)
+{
+	std::wstring result;
+	// 0xB0 - 0x2591
+	// 0xDB - 0x2588
+	result = std::wstring((Width - 5) * (Percentage > 100 ? 100 : Percentage) / 100, 0x2588);
+	result += std::wstring((Width - 5) - result.length(), 0x2591);
+	result += FormatString(L"%4d%%", Percentage > 100 ? 100 : Percentage);
+	return result;
+}
+
+std::wstring DurationToString(long long durationMs)
+{
+	long long secs = durationMs / 1000;
+	long long mins = secs / 60;
+	long long hours = mins / 60;
+
+	return FormatString(L"%02lld:%02lld:%02lld", hours, mins - hours * 60, secs - mins * 60 - hours * 60 * 60);
+}
+
+std::wstring JoinProgressLine(const std::wstring &prefix, const std::wstring &suffix, size_t maxWidth, size_t rightPadding)
+{
+	size_t middlePadding = maxWidth - prefix.length() - suffix.length() - rightPadding;
+	std::wstring result = prefix + std::wstring(middlePadding, ' ') + suffix + std::wstring(rightPadding, ' ');
+
+	return result;
 }

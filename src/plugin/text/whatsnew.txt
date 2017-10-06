@@ -3,6 +3,7 @@ Changes history:
 1.12.0
 - Plugin now requires Visual C++ 2013 Redist (instead of VC++ 2010 Redist).
 - Changes in modules API.
+- New extraction progress dialog.
 - New file property exposed: Owner (for containers where applicable).
 - Now you can configure reaction on Enter and Ctrl-PgDn seprately.
 - Updated GLib library to version 2.48.0.
