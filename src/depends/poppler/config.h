@@ -276,7 +276,9 @@
 
 /* MS has defined snprintf as deprecated */
 #ifdef _MSC_VER
+#if _MSC_VER < 1900
 #define snprintf _snprintf
+#endif
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
 #endif
