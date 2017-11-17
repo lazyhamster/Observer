@@ -1,9 +1,16 @@
-/obj/
-/bin/Release*/
-ipch/
-*.sdf
-*.opensdf
-*.suo
 Observer_*.rar
 plug_version.h
 Observer.rc
+
+# MSVC build folders
+/obj/
+/bin/Release*/
+
+# MSVC files
+ipch/
+.vs/
+*.sdf
+*.opensdf
+*.suo
+*.VC.db
+*.VC.opendb
