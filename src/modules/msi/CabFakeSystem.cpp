@@ -6,7 +6,6 @@
 extern "C"
 {
 #include "mspack\mspack.h"
-#include "mspack\system.h"
 };
 
 #define MEM_CACHE_CHUNK_SIZE (64*1024)

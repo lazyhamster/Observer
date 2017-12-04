@@ -4,7 +4,6 @@
 extern "C"
 {
 #include "mspack\mspack.h"
-#include "mspack\system.h"
 };
 
 struct CabCacheItem
