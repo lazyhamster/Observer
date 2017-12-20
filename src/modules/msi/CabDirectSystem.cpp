@@ -87,7 +87,7 @@ static off_t msp_tell(struct mspack_file *file) {
 
 static void msp_msg(struct mspack_file *file, const char *format, ...) {
 	va_list ap;
-	if (file) fprintf(stderr, "%s: ", ((struct mspack_file_p *) file)->name);
+	if (file) fprintf(stderr, "%S: ", ((struct mspack_file_p *) file)->name);
 	va_start(ap, format);
 	vfprintf(stderr, format, ap);
 	va_end(ap);
