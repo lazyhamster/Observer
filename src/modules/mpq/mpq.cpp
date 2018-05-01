@@ -3,10 +3,41 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
+#include "modulecrt/OptionsParser.h"
 #include <vector>
 
 #define __STORMLIB_SELF__ 1
 #include "StormLib/src/StormLib.h"
+
+static char optListfilesLocation[MAX_PATH] = { 0 };
+static char optListfilesMask[32] = "*.*";
+static bool optListfilesRecursive = true;
+
+static void TrimStr(char* str)
+{
+	size_t strLen = strlen(str);
+
+	// Trim at the end
+	while (strLen > 0 && (str[strLen - 1] == ' ' || str[strLen - 1] == '\n' || str[strLen - 1] == '\r'))
+	{
+		str[strLen - 1] = 0;
+		strLen--;
+	}
+
+	// Trim at the start
+	while (strLen > 0 && (str[0] == ' ' || str[0] == '\n' || str[0] == '\r'))
+	{
+		memmove(str, str + 1, strLen - 1);
+		strLen--;
+	}
+}
+
+void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize)
+{
+	size_t nPathLen = strlen(pathBuf);
+	if (pathBuf[nPathLen - 1] != '\\')
+		strcat_s(pathBuf, bufMaxSize, "\\");
+}
 
 struct MoPaQ_File
 {
@@ -23,6 +54,41 @@ static inline UINT get_lcid_codepage( LCID lcid )
 	return ret;
 }
 
+static void AddListfilesFromDirectory(HANDLE hMpq, const char *sDir, bool bRecursive = true)
+{
+	char sPath[MAX_PATH];
+
+	strcpy_s(sPath, sizeof(sPath) / sizeof(sPath[0]), sDir);
+	strcat_s(sPath, sizeof(sPath) / sizeof(sPath[0]), optListfilesMask);
+
+	WIN32_FIND_DATAA fdFile;
+	HANDLE hFind = FindFirstFileA(sPath, &fdFile);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return;
+
+	do
+	{
+		if (strcmp(fdFile.cFileName, ".") == 0 ||
+			strcmp(fdFile.cFileName, "..") == 0)
+			continue;
+
+		strcpy_s(sPath, sizeof(sPath) / sizeof(sPath[0]), sDir);
+		strcat_s(sPath, sizeof(sPath) / sizeof(sPath[0]), fdFile.cFileName);
+
+		if (!(fdFile.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
+		{
+			SFileAddListFile(hMpq, sPath);
+		}
+		else if (bRecursive)
+		{
+			strcat_s(sPath, sizeof(sPath) / sizeof(sPath[0]), "\\");
+			AddListfilesFromDirectory(hMpq, sPath);
+		}
+	} while (FindNextFileA(hFind, &fdFile));
+
+	FindClose(hFind);
+}
+
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	HANDLE hMpq = NULL;
@@ -35,6 +101,12 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		fEncrypted = true;
 		if (!SFileOpenArchive(params.FilePath, 0, STREAM_PROVIDER_MPQE | MPQ_OPEN_READ_ONLY, &hMpq))
 			return SOR_INVALID_FILE;
+	}
+
+	if (optListfilesLocation[0])
+	{
+		// TODO: Monitor the listfiles folder updates instead of scanning it every time
+		AddListfilesFromDirectory(hMpq, optListfilesLocation, optListfilesRecursive);
 	}
 
 	// Try to enum file, if failed then don't claim archive
@@ -184,6 +256,14 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.GetItem = GetStorageItem;
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
+
+	OptionsList opts(LoadParams->Settings);
+	opts.GetValue(L"ListfilesLocation", optListfilesLocation, sizeof(optListfilesLocation) / sizeof(optListfilesLocation[0]));
+	opts.GetValue(L"ListfilesMask", optListfilesMask, sizeof(optListfilesMask) / sizeof(optListfilesMask[0]));
+	opts.GetValue(L"ListfilesRecursive", optListfilesRecursive);
+
+	TrimStr(optListfilesLocation);
+	IncludeTrailingPathDelim(optListfilesLocation, sizeof(optListfilesLocation) / sizeof(optListfilesLocation[0]));
 
 	return TRUE;
 }
