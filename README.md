@@ -6,7 +6,13 @@ This is an official repository for the project.
 
 ## How to install ##
 
-Download prebuilt binaries and place then in Plugins directory of your FAR manager installation.
+Download prebuilt binaries and place them in Plugins directory of your FAR Manager installation.
+
+## System requirements ##
+
+* MS Visual C++ 2013 Redistributable Package
+* MS Windows Installer 4 or higher (for .msi files support)
+* MS .NET Framework 3.5 (for virtual disks support)
 
 ## How to build from source ##
 
@@ -18,8 +24,6 @@ Additional requirements:
 * M4 Macro Processor (must be in %PATH%).
 
 ## Links ##
-
-[Download Binaries](http://sourceforge.net/projects/far-observer/)
 
 [Support Forum](http://forum.farmanager.com/viewforum.php?f=5)
 
