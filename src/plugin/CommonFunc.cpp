@@ -114,21 +114,6 @@ void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize)
 		wcscat_s(pathBuf, bufMaxSize, L"\\");
 }
 
-void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize)
-{
-	size_t nPathLen = strlen(pathBuf);
-	if (pathBuf[nPathLen - 1] != '\\')
-		strcat_s(pathBuf, bufMaxSize, "\\");
-}
-
-void IncludeTrailingPathDelim(std::string& pathBuf)
-{
-	if (pathBuf.length() == 0) return;
-
-	if (pathBuf.at(pathBuf.length() - 1) != '\\')
-		pathBuf.append("\\");
-}
-
 void IncludeTrailingPathDelim(std::wstring& pathBuf)
 {
 	if (pathBuf.length() == 0) return;

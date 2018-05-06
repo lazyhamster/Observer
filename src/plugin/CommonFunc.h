@@ -16,9 +16,7 @@ wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim);
 void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim);
 
 void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize);
-void IncludeTrailingPathDelim(char *pathBuf, size_t bufMaxSize);
 void IncludeTrailingPathDelim(std::wstring& pathBuf);
-void IncludeTrailingPathDelim(std::string& pathBuf);
 
 void InsertCommas(wchar_t *Dest);
 void InsertCommas(char *Dest);
