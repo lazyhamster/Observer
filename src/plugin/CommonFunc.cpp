@@ -110,7 +110,7 @@ wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim)
 void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize)
 {
 	size_t nPathLen = wcslen(pathBuf);
-	if (pathBuf[nPathLen - 1] != '\\')
+	if (nPathLen > 0 && pathBuf[nPathLen - 1] != '\\')
 		wcscat_s(pathBuf, bufMaxSize, L"\\");
 }
 
