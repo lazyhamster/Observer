@@ -13,6 +13,7 @@
 
 
 // Additional headers
+#include <stdint.h>
 #include <wchar.h>
 #include <ShlObj.h>
 #include <Shlwapi.h>

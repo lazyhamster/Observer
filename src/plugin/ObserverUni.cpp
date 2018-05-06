@@ -176,11 +176,11 @@ static int SelectModuleToOpenFileAs()
 	memset(MenuItems, 0, nNumModules * sizeof(FarMenuItem));
 	for (size_t i = 0; i < nNumModules; i++)
 	{
-		const ExternalModule& modInfo = g_pController.GetModule((int) i);
-		if (modInfo.ShortCut)
-			MenuStrings[i] = FormatString(L"&%c %s", modInfo.ShortCut, modInfo.Name());
+		const ExternalModule* modInfo = g_pController.GetModule((int) i);
+		if (modInfo->ShortCut)
+			MenuStrings[i] = FormatString(L"&%c %s", modInfo->ShortCut, modInfo->Name());
 		else
-			MenuStrings[i] = modInfo.Name();
+			MenuStrings[i] = modInfo->Name();
 		MenuItems[i].Text = MenuStrings[i].c_str();
 	}
 
@@ -323,6 +323,41 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 	return (nameStr.size() > 0);
 }
 
+static std::wstring FileSizeToString(int64_t fileSize, bool keepBytes)
+{
+	//todo: implement analog for FSF.FormatFileSize from Far3
+
+	std::wstring result = FormatString(L"%lld", fileSize);
+
+	if (keepBytes)
+	{
+		int cnt = 0;
+		for (size_t i = result.length() - 1; i > 0; --i)
+		{
+			cnt++;
+			if (cnt % 3 == 0)
+				result.insert(i, 1, ' ');
+		}
+	}
+
+	return result;
+}
+
+static std::wstring ShortenPath(const std::wstring &path, size_t maxWidth)
+{
+	if (path.length() > maxWidth)
+	{
+		wchar_t* tmpBuf = _wcsdup(path.c_str());
+		FSF.TruncPathStr(tmpBuf, maxWidth);
+
+		std::wstring result(tmpBuf);
+		free(tmpBuf);
+		return result;
+	}
+
+	return path;
+}
+
 //-----------------------------------  Callback functions ----------------------------------------
 
 static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
@@ -337,20 +372,35 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 	int nFileProgress = (pc->nCurrentFileSize > 0) ? (int) ((pc->nProcessedFileBytes * 100) / pc->nCurrentFileSize) : 0;
 	int nTotalProgress = (pc->nTotalSize > 0) ? (int) (((pc->nTotalProcessedBytes + pc->nProcessedFileBytes) * 100) / pc->nTotalSize) : 0;
 
-	if (pc->bDisplayOnScreen && (nFileProgress != pc->nCurrentProgress))
+	DWORD currentTime = GetTickCount();
+
+	if (pc->bDisplayOnScreen && (nFileProgress != pc->nCurrentProgress) && (currentTime - pc->nLastDisplayTime > cntProgressRedrawTimeout))
 	{
-		static wchar_t szFileProgressLine[100] = {0};
-		swprintf_s(szFileProgressLine, 100, L"File: %d/%d. Progress: %2d%% / %2d%%", pc->nCurrentFileNumber, pc->nTotalFiles, nFileProgress, nTotalProgress);
+		pc->nLastDisplayTime = currentTime;
 
-		static const wchar_t* InfoLines[4];
-		InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
-		InfoLines[1] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
-		InfoLines[2] = szFileProgressLine;
-		InfoLines[3] = pc->wszFilePath;
+		std::wstring strFilesNumLine = JoinProgressLine(GetLocMsg(MSG_EXTRACT_PROGRESS_FILES), FormatString(L"%d / %d", pc->nCurrentFileNumber, pc->nTotalFiles), cntProgressDialogWidth, 5);
+		std::wstring strBytesLine = JoinProgressLine(GetLocMsg(MSG_EXTRACT_PROGRESS_BYTES), FileSizeToString(pc->nTotalProcessedBytes + pc->nProcessedFileBytes, true) + L" / " + FileSizeToString(pc->nTotalSize, true), cntProgressDialogWidth, 5);
 
-		FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 0);
+		std::wstring strPBarCurrent = ProgressBarString(nFileProgress, cntProgressDialogWidth);
+		std::wstring strPBarTotal = ProgressBarString(nTotalProgress, cntProgressDialogWidth);
 
-		// Win7 only feature
+		std::wstring elapsedTimeStr = JoinProgressLine(GetLocMsg(MSG_EXTRACT_PROGRESS_ELAPSED) + DurationToString(currentTime - pc->nStartTime), L"", cntProgressDialogWidth, 0);
+
+		static const wchar_t* DlgLines[11];
+		DlgLines[0] = GetLocMsg(MSG_EXTRACT_EXTRACTING);
+		DlgLines[1] = pc->strItemShortPath.c_str();
+		DlgLines[2] = L"to";
+		DlgLines[3] = pc->strDestShortPath.c_str();
+		DlgLines[4] = strPBarCurrent.c_str();
+		DlgLines[5] = L"\1";
+		DlgLines[6] = strFilesNumLine.c_str();
+		DlgLines[7] = strBytesLine.c_str();
+		DlgLines[8] = strPBarTotal.c_str();
+		DlgLines[9] = L"\1";
+		DlgLines[10] = elapsedTimeStr.c_str();
+
+		FarSInfo.Message(FarSInfo.ModuleNumber, 0, NULL, DlgLines, _countof(DlgLines), 0);
+
 		if (pc->nTotalSize > 0)
 		{
 			PROGRESSVALUE pv;
@@ -364,43 +414,24 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 	return TRUE;
 }
 
-static int CALLBACK ExtractStart(const ContentTreeNode* item, ProgressContext* context, HANDLE &screen)
+static int CALLBACK ExtractStart(ProgressContext* context, const ContentTreeNode* item, std::wstring& itemDestPath)
 {
-	screen = FarSInfo.SaveScreen(0, 0, -1, -1);
-
 	context->nCurrentFileNumber++;
 	context->nCurrentFileSize = item->GetSize();
 	context->nProcessedFileBytes = 0;
 	context->nCurrentProgress = -1;
 	
-	wchar_t wszSubPath[PATH_BUFFER_SIZE] = {0};
-	item->GetPath(wszSubPath, PATH_BUFFER_SIZE);
-		
-	// Shrink file path to fit on console
-	CONSOLE_SCREEN_BUFFER_INFO si;
-	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-	if ((hStdOut != INVALID_HANDLE_VALUE) && GetConsoleScreenBufferInfo(hStdOut, &si))
-	{
-		FSF.TruncPathStr(wszSubPath, si.dwSize.X - 16);
-		wcscpy_s(context->wszFilePath, ARRAY_SIZE(context->wszFilePath), wszSubPath);
-	}
-	else
-	{
-		// Save file name for dialogs
-		size_t nPathLen = wcslen(wszSubPath);
-		wchar_t* wszSubPathPtr = wszSubPath;
-		if (nPathLen > MAX_PATH) wszSubPathPtr += (nPathLen % MAX_PATH);
+	std::wstring strItemSubPath = item->GetPath();
 
-		wcscpy_s(context->wszFilePath, ARRAY_SIZE(context->wszFilePath), wszSubPathPtr);
-	}
+	context->strItemPath = strItemSubPath;
+	context->strItemShortPath = ShortenPath(strItemSubPath, cntProgressDialogWidth);
+	context->strDestShortPath = ShortenPath(itemDestPath, cntProgressDialogWidth);
 
 	return ExtractProgress((HANDLE)context, 0);
 }
 
-static void CALLBACK ExtractDone(ProgressContext* context, HANDLE screen, bool success)
+static void CALLBACK ExtractDone(ProgressContext* context, bool success)
 {
-	FarSInfo.RestoreScreen(screen);
-
 	if (success)
 		context->nTotalProcessedBytes += context->nCurrentFileSize;
 }
@@ -412,7 +443,7 @@ static int ExtractError(int errorReason, HANDLE context)
 	static const wchar_t* InfoLines[7];
 	InfoLines[0] = GetLocMsg(MSG_PLUGIN_NAME);
 	InfoLines[1] = GetLocMsg(MSG_EXTRACT_FAILED);
-	InfoLines[2] = pctx->wszFilePath;
+	InfoLines[2] = pctx->strItemPath.c_str();
 	InfoLines[3] = L"Retry";
 	InfoLines[4] = GetLocMsg(MSG_BTN_SKIP);
 	InfoLines[5] = GetLocMsg(MSG_BTN_SKIP_ALL);
@@ -607,7 +638,6 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		SetFileAttributes(destPath.c_str(), fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 	}
 
-	HANDLE hScreen;
 	string strFilePassword;
 
 	int ret;
@@ -622,9 +652,9 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		params.Callbacks.FileProgress = ExtractProgress;
 		params.Callbacks.signalContext = pctx;
 
-		ExtractStart(item, pctx, hScreen);
+		ExtractStart(pctx, item, destPath);
 		ret = storage->Extract(params);
-		ExtractDone(pctx, hScreen, ret == SER_SUCCESS);
+		ExtractDone(pctx, ret == SER_SUCCESS);
 
 		if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
 		{
@@ -650,7 +680,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		}
 		else if (ret == SER_ERROR_SYSTEM)
 		{
-			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_FAILED, pctx->wszFilePath);
+			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_FAILED, pctx->strItemPath.c_str());
 		}
 		else if (ret == SER_PASSWORD_REQUIRED)
 		{
@@ -717,6 +747,8 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	pctx.nTotalSize = totalExtractSize;
 	pctx.bDisplayOnScreen = extParams.bShowProgress;
 
+	HANDLE hScreen = FarSInfo.SaveScreen(0, 0, -1, -1);
+
 	wchar_t wszSaveTitle[512], wszCurTitle[128];
 
 	if (extParams.bShowProgress)
@@ -751,6 +783,8 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 
 		if (nExtractResult != SER_SUCCESS) break;
 	}
+
+	FarSInfo.RestoreScreen(hScreen);
 
 	if (extParams.bShowProgress)
 	{
