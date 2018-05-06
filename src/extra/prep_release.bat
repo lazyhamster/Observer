@@ -1,6 +1,14 @@
 @ECHO OFF
 
-IF "%1" == "" GOTO :EMPTY_VERSION
+ECHO Fetching version
+
+m4 -P version.m4 > version.txt
+SET /p PVER=<version.txt
+DEL version.txt
+
+IF "%PVER%" == "" GOTO :EMPTY_VERSION
+ECHO Version detected: %PVER%
+ECHO.
 
 ECHO Verifying prerequisites
 
@@ -44,7 +52,7 @@ ECHO Building version for Far 2 x86
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-%PACKER_CMD% -- Observer_Far2_x86_%1.rar "..\..\bin\Release-Unicode\*" > nul
+%PACKER_CMD% -- Observer_Far2_x86_%PVER%.rar "..\..\bin\Release-Unicode\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x64
@@ -52,7 +60,7 @@ ECHO Building version for Far 2 x64
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-%PACKER_CMD% -- Observer_Far2_x64_%1.rar "..\..\bin\Release-Unicode-x64\*" > nul
+%PACKER_CMD% -- Observer_Far2_x64_%PVER%.rar "..\..\bin\Release-Unicode-x64\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x86
@@ -60,7 +68,7 @@ ECHO Building version for Far 3 x86
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-%PACKER_CMD% -- Observer_Far3_x86_%1.rar "..\..\bin\Release-Unicode-3\*" > nul
+%PACKER_CMD% -- Observer_Far3_x86_%PVER%.rar "..\..\bin\Release-Unicode-3\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x64
@@ -68,11 +76,11 @@ ECHO Building version for Far 3 x64
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-%PACKER_CMD% -- Observer_Far3_x64_%1.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
+%PACKER_CMD% -- Observer_Far3_x64_%PVER%.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Packing source code
-%PACKER_CMD% -xipch "-x*\ipch" "-x*\ipch\*" -x*.suo -x*.sdf -x*.opensdf -xObserver*.rar -- Observer_%1_src.rar "..\..\src" "..\..\doc" > nul
+%PACKER_CMD% -xipch "-x*\ipch" "-x*\ipch\*" -x*.suo -x*.sdf -x*.opensdf -xObserver*.rar -- Observer_%PVER%_src.rar "..\..\src" "..\..\doc" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO [SUCCESS] Global build complete !!!
