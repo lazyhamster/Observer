@@ -3,9 +3,17 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
+#include "ModuleCRT.h"
+#include "modulecrt/OptionsParser.h"
 
 #define STORMLIB_NO_AUTO_LINK 1
 #include "StormLib/src/StormLib.h"
+
+static wchar_t optListfilesLocation[MAX_PATH] = {0};
+static bool optListfilesRecursive = true;
+
+static std::vector<std::wstring> g_Listfiles;
+static bool g_ListfileEnumComplete = false;
 
 struct MoPaQ_File
 {
@@ -21,6 +29,38 @@ static inline UINT get_lcid_codepage( LCID lcid )
 		ret = 0;
 	return ret;
 }
+
+static void EnumListfiles(const wchar_t* path, bool recurse, std::vector<std::wstring> &dest)
+{
+	std::wstring mask = path + std::wstring(L"*.*");
+	
+	WIN32_FIND_DATA fd;
+	HANDLE hFind = FindFirstFile(mask.c_str(), &fd);
+	if (hFind == INVALID_HANDLE_VALUE)
+		return;
+
+	do 
+	{
+		if (wcscmp(fd.cFileName, L".") == 0 || wcscmp(fd.cFileName, L"..") == 0)
+			continue;
+		
+		std::wstring strFilePath = path + std::wstring(fd.cFileName);
+		
+		if ((fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0)
+		{
+			dest.push_back(strFilePath);
+		}
+		else if (recurse)
+		{
+			strFilePath += L"\\";
+			EnumListfiles(strFilePath.c_str(), recurse, dest);
+		}
+	} while (FindNextFile(hFind, &fd) != 0);
+
+	FindClose(hFind);
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
@@ -45,6 +85,18 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 		return SOR_INVALID_FILE;
 	}
 	SFileFindClose(hSearch);
+
+	// Add listfiles if configured
+	if (!g_ListfileEnumComplete && optListfilesLocation[0])
+	{
+		EnumListfiles(optListfilesLocation, optListfilesRecursive, g_Listfiles);
+		g_ListfileEnumComplete = true;
+	}
+
+	for (auto cit = g_Listfiles.cbegin(); cit != g_Listfiles.cend(); ++cit)
+	{
+		SFileAddListFile(hMpq, cit->c_str());
+	}
 
 	MoPaQ_File* file = new MoPaQ_File();
 	file->hMpq = hMpq;
@@ -183,6 +235,16 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.GetItem = GetStorageItem;
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
+
+	OptionsList opts(LoadParams->Settings);
+	opts.GetValue(L"ListfilesLocation", optListfilesLocation, _countof(optListfilesLocation));
+	opts.GetValue(L"ListfilesRecursive", optListfilesRecursive);
+
+	TrimStr(optListfilesLocation);
+	IncludeTrailingPathDelim(optListfilesLocation, _countof(optListfilesLocation));
+
+	g_ListfileEnumComplete = false;
+	g_Listfiles.clear();
 
 	return TRUE;
 }

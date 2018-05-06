@@ -15,6 +15,7 @@ Changes history:
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
 - MSI: Fixed inability to extract files from some installers made by WiX.
 - MPQ: Updated StormLib to version 9.22.
+- MPQ: Added support for listfiles.
 
 1.11.2
 - PST: Fixed invalid path characters in folder names.
