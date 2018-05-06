@@ -5,22 +5,23 @@ IF "%1" == "" GOTO :EMPTY_VERSION
 ECHO Verifying prerequisites
 
 IF DEFINED ProgramFiles(x86) (
-  SET DEVENV_EXE_PATH="%ProgramFiles(x86)%\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe"
+  SET DEVENV_EXE_PATH="%ProgramFiles(x86)%\Microsoft Visual Studio 12.0\Common7\IDE\devenv.exe"
 ) ELSE (
-  SET DEVENV_EXE_PATH="%ProgramFiles%\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe"
+  SET DEVENV_EXE_PATH="%ProgramFiles%\Microsoft Visual Studio 12.0\Common7\IDE\devenv.exe"
 )
 
 IF EXIST %DEVENV_EXE_PATH% GOTO VS_FOUND
-ECHO [ERROR] MS Visual Studio 2010 is not found. Exiting.
+ECHO [ERROR] MS Visual Studio 2013 is not found. Exiting.
 PAUSE
 EXIT 1
 
 :VS_FOUND
-ECHO Using Visual Studio 2010 from
+ECHO Using Visual Studio from
 ECHO %DEVENV_EXE_PATH%
 ECHO.
 
 SET PACKER_CMD=@rar.exe a -y -r -ep1 -apObserver -x*.metagen
+SET SOLUTION_FILE=Observer.sln
 
 REM ECHO Building version for Far 1 x86
 REM %DEVENV_EXE_PATH% /Rebuild "Release|Win32" "..\Observer.VS2010.sln"
@@ -39,7 +40,7 @@ REM %PACKER_CMD% -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
 REM if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x86
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode|Win32" "..\Observer.VS2010.sln"
+%DEVENV_EXE_PATH% /Rebuild "Release-Unicode|Win32" "..\%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
@@ -47,7 +48,7 @@ ECHO Packing release
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x64
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode|x64" "..\Observer.VS2010.sln"
+%DEVENV_EXE_PATH% /Rebuild "Release-Unicode|x64" "..\%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
@@ -55,7 +56,7 @@ ECHO Packing release
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x86
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|Win32" "..\Observer.VS2010.sln"
+%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|Win32" "..\%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
@@ -63,7 +64,7 @@ ECHO Packing release
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x64
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|x64" "..\Observer.VS2010.sln"
+%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|x64" "..\%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
