@@ -3,9 +3,8 @@
 
 #include "stdafx.h"
 #include "ModuleDef.h"
-#include <vector>
 
-#define __STORMLIB_SELF__ 1
+#define STORMLIB_NO_AUTO_LINK 1
 #include "StormLib/src/StormLib.h"
 
 struct MoPaQ_File
