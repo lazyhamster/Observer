@@ -902,8 +902,8 @@ void WINAPI ExitFARW(void)
 int WINAPI ConfigureW(int ItemNumber)
 {
 	FarDialogItem DialogItems []={
-	/*00*/ {DI_DOUBLEBOX, 3,1, 40, 8, 0, 0, 0,0, GetLocMsg(MSG_CONFIG_TITLE), 0},
-	/*01*/ {DI_CHECKBOX,  5,2,  0, 2, 1, optEnabled, 0,0, GetLocMsg(MSG_CONFIG_ENABLE), 0},
+	/*00*/ {DI_DOUBLEBOX, 3,1, 41, 8, 0, 0, 0,0, GetLocMsg(MSG_CONFIG_TITLE), 0},
+	/*01*/ {DI_CHECKBOX,  5,2,  0, 2, 1, optEnabled, 0,0, GetLocMsg(MSG_CONFIG_OPEN_ON_BOTH), 0},
 	/*02*/ {DI_CHECKBOX,  5,3,  0, 3, 0, optUsePrefix, 0,0, GetLocMsg(MSG_CONFIG_PREFIX), 0},
 	/*03*/ {DI_FIXEDIT,   8,4, 24, 4, 0, 0, 0,0, optPrefix, 0},
 	/*04*/ {DI_CHECKBOX,  5,5,  0, 5, 0, optUseExtensionFilters, 0,0, GetLocMsg(MSG_CONFIG_USEEXTFILTERS), 0},
@@ -912,7 +912,7 @@ int WINAPI ConfigureW(int ItemNumber)
 	/*07*/ {DI_BUTTON,    0,7,  0, 7, 0, 0, DIF_CENTERGROUP, 0, GetLocMsg(MSG_BTN_CANCEL), 0},
 	};
 
-	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 44, 10, L"ObserverConfig",
+	HANDLE hDlg = FarSInfo.DialogInit(FarSInfo.ModuleNumber, -1, -1, 45, 10, L"ObserverConfig",
 		DialogItems, sizeof(DialogItems) / sizeof(DialogItems[0]), 0, 0, FarSInfo.DefDlgProc, 0);
 
 	if (hDlg != INVALID_HANDLE_VALUE)

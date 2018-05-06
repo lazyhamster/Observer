@@ -8,6 +8,7 @@
 "Usar &filtros de extensión"
 "Abrir archivos en &Enter"
 "Abrir archivos en &Ctrl-PgDn"
+"Abrir archivos en &Enter / Ctrl-PgDn"
 
 "Formato"
 "Compresión"

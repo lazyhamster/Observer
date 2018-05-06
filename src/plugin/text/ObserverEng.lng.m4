@@ -8,6 +8,7 @@
 "Use extension &filters"
 "Open files on &Enter"
 "Open files on &Ctrl-PgDn"
+"Open files on &Enter / Ctrl-PgDn"
 
 "Format"
 "Compression"
