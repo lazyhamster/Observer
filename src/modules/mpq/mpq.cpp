@@ -19,6 +19,8 @@ struct MoPaQ_File
 {
 	HANDLE hMpq;
 	bool isEncrypted;
+	
+	bool bListfilesApplied;
 	std::vector<SFILE_FIND_DATA> vFiles;
 };
 
@@ -86,21 +88,17 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	}
 	SFileFindClose(hSearch);
 
-	// Add listfiles if configured
+	// Find listfiles if configured
 	if (!g_ListfileEnumComplete && optListfilesLocation[0])
 	{
 		EnumListfiles(optListfilesLocation, optListfilesRecursive, g_Listfiles);
 		g_ListfileEnumComplete = true;
 	}
 
-	for (auto cit = g_Listfiles.cbegin(); cit != g_Listfiles.cend(); ++cit)
-	{
-		SFileAddListFile(hMpq, cit->c_str());
-	}
-
 	MoPaQ_File* file = new MoPaQ_File();
 	file->hMpq = hMpq;
 	file->isEncrypted = fEncrypted;
+	file->bListfilesApplied = false;
 
 	*storage = file;
 
@@ -127,6 +125,15 @@ int MODULE_EXPORT PrepareFiles(HANDLE storage)
 {
 	MoPaQ_File* fileObj = (MoPaQ_File*) storage;
 	if (fileObj == NULL) return FALSE;
+
+	if (!fileObj->bListfilesApplied)
+	{
+		fileObj->bListfilesApplied = true;
+		for (auto cit = g_Listfiles.cbegin(); cit != g_Listfiles.cend(); ++cit)
+		{
+			SFileAddListFile(fileObj->hMpq, cit->c_str());
+		}
+	}
 	
 	SFILE_FIND_DATA ffd = {0};
 	HANDLE hSearch = SFileFindFirstFile(fileObj->hMpq, "*", &ffd, NULL);
