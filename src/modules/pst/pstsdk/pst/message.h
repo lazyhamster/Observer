@@ -131,12 +131,7 @@ public:
     //! \param[in] n The node backing the message which has these attachments
     explicit attachment_transform(const node& n) 
         : m_node(n) { }
-#ifndef BOOST_NO_RVALUE_REFERENCES
-    //! \brief Move constructor for transform objects
-    //! \param[in] other The transform object to move from
-    attachment_transform(attachment_transform&& other)
-        : m_node(std::move(other.m_node)) { }
-#endif
+
     //! \brief Perform the transform
     //! \param[in] row A row from the messages attachment table
     //! \returns An attachment object
