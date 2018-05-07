@@ -481,6 +481,13 @@
   <ItemGroup>
     <None Include="ObserverUni.def" />
     <None Include="ObserverUni3.def" />
+    <CustomBuild Include="text\observer.ini">
+      <FileType>Document</FileType>
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <Outputs>$(OutDir)</Outputs>
+      <LinkObjects>false</LinkObjects>
+    </CustomBuild>
     <None Include="version.m4i" />
   </ItemGroup>
   <ItemGroup>
@@ -509,14 +516,7 @@
   </ItemGroup>
   <ItemGroup>
     <M4_Macro Include="plug_version.h.m4">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(ProjectDir)%(Filename)</OutputFile>
+      <OutputFile>$(ProjectDir)%(Filename)</OutputFile>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
@@ -524,14 +524,7 @@
     </M4_Macro>
     <M4_Macro Include="text\FILE_ID.DIZ.m4" />
     <M4_Macro Include="Observer.rc.m4">
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">$(ProjectDir)%(Filename)</OutputFile>
-      <OutputFile Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">$(ProjectDir)%(Filename)</OutputFile>
+      <OutputFile>$(ProjectDir)%(Filename)</OutputFile>
     </M4_Macro>
     <M4_Macro Include="text\ObserverEng.hlf.m4" />
     <M4_Macro Include="text\ObserverEng.lng.m4" />
@@ -540,22 +533,37 @@
     <M4_Macro Include="text\ObserverSpa.lng.m4" />
   </ItemGroup>
   <ItemGroup>
-    <DText Include="text\license.txt" />
-    <DText Include="text\observer.ini" />
-    <DText Include="text\readme.txt" />
-    <DText Include="text\readme_ru.txt" />
-    <DText Include="..\common\todo.txt">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">true</ExcludedFromBuild>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</ExcludedFromBuild>
-    </DText>
-    <DText Include="text\whatsnew.txt" />
-    <DText Include="text\whatsnew_ru.txt" />
+    <Text Include="..\common\todo.txt" />
+    <CustomBuild Include="text\license.txt">
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(OutDir)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="text\readme.txt">
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(OutDir)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="text\readme_ru.txt">
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(OutDir)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="text\whatsnew.txt">
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(OutDir)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="text\whatsnew_ru.txt">
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(OutDir)</Outputs>
+    </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

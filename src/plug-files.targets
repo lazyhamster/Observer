@@ -7,19 +7,9 @@
       Include="M4_Macro">
       <Targets>_M4_Macro</Targets>
     </AvailableItemName>
-    <AvailableItemName
-      Include="DText">
-      <Targets>_DText</Targets>
-    </AvailableItemName>
   </ItemGroup>
   <UsingTask
     TaskName="M4_Macro"
-    TaskFactory="XamlTaskFactory"
-    AssemblyName="Microsoft.Build.Tasks.v4.0">
-    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
-  </UsingTask>
-  <UsingTask
-    TaskName="DText"
     TaskFactory="XamlTaskFactory"
     AssemblyName="Microsoft.Build.Tasks.v4.0">
     <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
@@ -88,60 +78,5 @@
     </ItemGroup>
     <MakeDir
       Directories="@(M4_MacroDirsToMake-&gt;'%(RootDir)%(Directory)')" />
-  </Target>
-  <Target
-    Name="_DText"
-    BeforeTargets="$(DTextBeforeTargets)"
-    AfterTargets="$(DTextAfterTargets)"
-    Condition="'@(DText)' != ''"
-    DependsOnTargets="$(DTextDependsOn);ComputeDTextOutput"
-    Outputs="%(DText.Outputs)"
-    Inputs="%(DText.Identity);%(DText.AdditionalDependencies);$(MSBuildProjectFile)">
-    <ItemGroup
-      Condition="'@(SelectedFiles)' != ''">
-      <DText
-        Remove="@(DText)"
-        Condition="'%(Identity)' != '@(SelectedFiles)'" />
-    </ItemGroup>
-    <ItemGroup>
-      <DText_tlog
-        Include="%(DText.Outputs)"
-        Condition="'%(DText.Outputs)' != '' and '%(DText.ExcludedFromBuild)' != 'true'">
-        <Source>@(DText, '|')</Source>
-      </DText_tlog>
-    </ItemGroup>
-    <Message
-      Importance="High"
-      Text="%(DText.ExecutionDescription)" />
-    <WriteLinesToFile
-      Condition="'@(DText_tlog)' != '' and '%(DText_tlog.ExcludedFromBuild)' != 'true'"
-      File="$(IntDir)$(ProjectName).write.1.tlog"
-      Lines="^%(DText_tlog.Source);@(DText_tlog-&gt;'%(Fullpath)')" />
-    <DText
-      Condition="'@(DText)' != '' and '%(DText.ExcludedFromBuild)' != 'true'"
-      CommandLineTemplate="%(DText.CommandLineTemplate)"
-      AdditionalOptions="%(DText.AdditionalOptions)"
-      Inputs="%(DText.Identity)" />
-  </Target>
-  <PropertyGroup>
-    <ComputeLinkInputsTargets>
-            $(ComputeLinkInputsTargets);
-            ComputeDTextOutput;
-          </ComputeLinkInputsTargets>
-    <ComputeLibInputsTargets>
-            $(ComputeLibInputsTargets);
-            ComputeDTextOutput;
-          </ComputeLibInputsTargets>
-  </PropertyGroup>
-  <Target
-    Name="ComputeDTextOutput"
-    Condition="'@(DText)' != ''">
-    <ItemGroup>
-      <DTextDirsToMake
-        Condition="'@(DText)' != '' and '%(DText.ExcludedFromBuild)' != 'true'"
-        Include="%(DText.Outputs)" />
-    </ItemGroup>
-    <MakeDir
-      Directories="@(DTextDirsToMake-&gt;'%(RootDir)%(Directory)')" />
   </Target>
 </Project>

@@ -28,5 +28,5 @@ Supported file formats:
 
 (c) 2009-2018, Ariman
 -----------------------------------------
-Web-site: http://sourceforge.net/projects/far-observer/
+Web-site: https://github.com/lazyhamster/Observer
 E-mail for suggestions, bug reports, etc: ariman@inbox.ru

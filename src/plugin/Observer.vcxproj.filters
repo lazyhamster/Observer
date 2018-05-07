@@ -76,6 +76,9 @@
     <None Include="ObserverUni3.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="text\observer.ini">
+      <Filter>Support Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunc.h">
@@ -168,26 +171,25 @@
     </M4_Macro>
   </ItemGroup>
   <ItemGroup>
-    <DText Include="text\license.txt">
+    <Text Include="..\common\todo.txt">
       <Filter>Support Files</Filter>
-    </DText>
-    <DText Include="text\observer.ini">
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="text\readme.txt">
       <Filter>Support Files</Filter>
-    </DText>
-    <DText Include="text\readme.txt">
+    </CustomBuild>
+    <CustomBuild Include="text\license.txt">
       <Filter>Support Files</Filter>
-    </DText>
-    <DText Include="text\readme_ru.txt">
+    </CustomBuild>
+    <CustomBuild Include="text\readme_ru.txt">
       <Filter>Support Files</Filter>
-    </DText>
-    <DText Include="..\common\todo.txt">
+    </CustomBuild>
+    <CustomBuild Include="text\whatsnew.txt">
       <Filter>Support Files</Filter>
-    </DText>
-    <DText Include="text\whatsnew.txt">
+    </CustomBuild>
+    <CustomBuild Include="text\whatsnew_ru.txt">
       <Filter>Support Files</Filter>
-    </DText>
-    <DText Include="text\whatsnew_ru.txt">
-      <Filter>Support Files</Filter>
-    </DText>
+    </CustomBuild>
   </ItemGroup>
 </Project>

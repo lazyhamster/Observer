@@ -17,20 +17,4 @@
       <AdditionalDependencies>version.m4i</AdditionalDependencies>
     </M4_Macro>
   </ItemDefinitionGroup>
-  <PropertyGroup
-    Condition="'$(DTextBeforeTargets)' == '' and '$(DTextAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
-    <DTextBeforeTargets>Midl</DTextBeforeTargets>
-    <DTextAfterTargets>CustomBuild</DTextAfterTargets>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DTextDependsOn
-      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(DTextDependsOn)</DTextDependsOn>
-  </PropertyGroup>
-  <ItemDefinitionGroup>
-    <DText>
-      <CommandLineTemplate>copy /y [Inputs] "$(OutDir)%(Filename)%(Extension)" &gt; nul</CommandLineTemplate>
-      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
-      <ExecutionDescription>Copying text file (%(Filename)%(Extension)) ...</ExecutionDescription>
-    </DText>
-  </ItemDefinitionGroup>
 </Project>
