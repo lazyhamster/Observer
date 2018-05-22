@@ -199,7 +199,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Observer-Far2.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -226,7 +226,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Observer-Far3.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -256,7 +256,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Observer-Far2.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -286,7 +286,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Observer-Far3.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <ImportLibrary>$(IntDir)$(TargetName).lib</ImportLibrary>
@@ -313,7 +313,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Observer-Far2.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -341,7 +341,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Observer-Far3.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -373,7 +373,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Observer-Far2.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -404,7 +404,7 @@
     <Link>
       <AdditionalDependencies>shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <OutputFile>$(OutDir)4Observer.dll</OutputFile>
-      <ModuleDefinitionFile>ObserverUni3.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>Observer-Far3.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
@@ -453,13 +453,13 @@
     <ClCompile Include="FarStorage.cpp" />
     <ClCompile Include="InterfaceCommon.cpp" />
     <ClCompile Include="ModulesController.cpp" />
-    <ClCompile Include="ObserverUni.cpp">
+    <ClCompile Include="Observer-Far2.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode-3|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="ObserverUni3.cpp">
+    <ClCompile Include="Observer-Far3.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
@@ -479,8 +479,8 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ObserverUni.def" />
-    <None Include="ObserverUni3.def" />
+    <None Include="Observer-Far2.def" />
+    <None Include="Observer-Far3.def" />
     <CustomBuild Include="text\observer.ini">
       <FileType>Document</FileType>
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>

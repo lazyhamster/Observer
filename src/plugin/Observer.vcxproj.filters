@@ -38,9 +38,6 @@
     <ClCompile Include="ModulesController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ObserverUni.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="OptionsFile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -48,9 +45,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObserverUni3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Config.cpp">
@@ -65,19 +59,22 @@
     <ClCompile Include="ExternalModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Observer-Far3.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Observer-Far2.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ObserverUni.def">
-      <Filter>Source Files</Filter>
-    </None>
     <None Include="version.m4i">
       <Filter>Support Files</Filter>
     </None>
-    <None Include="ObserverUni3.def">
+    <None Include="Observer-Far3.def">
       <Filter>Source Files</Filter>
     </None>
-    <None Include="text\observer.ini">
-      <Filter>Support Files</Filter>
+    <None Include="Observer-Far2.def">
+      <Filter>Source Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +186,9 @@
       <Filter>Support Files</Filter>
     </CustomBuild>
     <CustomBuild Include="text\whatsnew_ru.txt">
+      <Filter>Support Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="text\observer.ini">
       <Filter>Support Files</Filter>
     </CustomBuild>
   </ItemGroup>
