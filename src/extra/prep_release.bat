@@ -29,26 +29,10 @@ ECHO %DEVENV_EXE_PATH%
 ECHO.
 
 SET PACKER_CMD=@rar.exe a -y -r -ep1 -apObserver -x*.metagen
-SET SOLUTION_FILE=Observer.sln
-
-REM ECHO Building version for Far 1 x86
-REM %DEVENV_EXE_PATH% /Rebuild "Release|Win32" "..\Observer.VS2010.sln"
-REM if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
-
-REM ECHO Recoding lang files
-REM pushd ..\..\bin\Release
-REM @iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.hlf > ObserverRus.tmp
-REM @move /Y ObserverRus.tmp ObserverRus.hlf > nul
-REM @iconv --from-code=UTF-8 --to-code=866 -c ObserverRus.lng > ObserverRus.tmp
-REM @move /Y ObserverRus.tmp ObserverRus.lng > nul
-REM popd
-
-REM ECHO Packing release
-REM %PACKER_CMD% -- Observer_Far1_x86_%1.rar "..\..\bin\Release\*" > nul
-REM if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
+SET SOLUTION_FILE=..\Observer.sln
 
 ECHO Building version for Far 2 x86
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode|Win32" "..\%SOLUTION_FILE%"
+%DEVENV_EXE_PATH% /Rebuild "Release-Unicode|Win32" "%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
@@ -56,7 +40,7 @@ ECHO Packing release
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x64
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode|x64" "..\%SOLUTION_FILE%"
+%DEVENV_EXE_PATH% /Rebuild "Release-Unicode|x64" "%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
@@ -64,7 +48,7 @@ ECHO Packing release
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x86
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|Win32" "..\%SOLUTION_FILE%"
+%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|Win32" "%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
@@ -72,15 +56,11 @@ ECHO Packing release
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x64
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|x64" "..\%SOLUTION_FILE%"
+%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|x64" "%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
 %PACKER_CMD% -- Observer_Far3_x64_%PVER%.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
-if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
-
-ECHO Packing source code
-%PACKER_CMD% -xipch "-x*\ipch" "-x*\ipch\*" -x*.suo -x*.sdf -x*.opensdf -xObserver*.rar -- Observer_%PVER%_src.rar "..\..\src" "..\..\doc" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO [SUCCESS] Global build complete !!!
@@ -95,5 +75,5 @@ ECHO Unable to pack release into archive
 EXIT 3
 
 :EMPTY_VERSION
-ECHO Please set release version
+ECHO Can not fetch release version from sources
 EXIT 4
