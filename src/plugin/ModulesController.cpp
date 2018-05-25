@@ -67,7 +67,7 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 	} // for
 
 	// Assign automatic shortcuts to modules without one
-	size_t lastScIndex = 1;
+	unsigned short lastScIndex = 1;
 	for (size_t j = 0; j < m_vModules.size(); j++)
 	{
 		ExternalModule* module = m_vModules[j];

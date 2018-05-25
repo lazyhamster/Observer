@@ -1212,7 +1212,7 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 			intptr_t nItemBufferSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, NULL);
 			PluginPanelItem* pItem = (PluginPanelItem*) malloc(nItemBufferSize);
 			
-			FarGetPluginPanelItem gppi = { sizeof(FarGetPluginPanelItem), nItemBufferSize, pItem };
+			FarGetPluginPanelItem gppi = { sizeof(FarGetPluginPanelItem), (size_t) nItemBufferSize, pItem };
 			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, &gppi);
 			if (wcscmp(pItem->FileName, L"..") != 0)
 			{
