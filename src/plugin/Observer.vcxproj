@@ -523,9 +523,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
     </M4_Macro>
     <M4_Macro Include="text\FILE_ID.DIZ.m4" />
-    <M4_Macro Include="Observer.rc.m4">
-      <OutputFile>$(ProjectDir)%(Filename)</OutputFile>
-    </M4_Macro>
     <M4_Macro Include="text\ObserverEng.hlf.m4" />
     <M4_Macro Include="text\ObserverEng.lng.m4" />
     <M4_Macro Include="text\ObserverRus.hlf.m4" />

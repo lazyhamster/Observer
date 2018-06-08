@@ -1,7 +1,13 @@
-m4_include(`version.m4i')m4_dnl
 // Microsoft Visual C++ generated resource script.
 //
 #include "resource.h"
+#include "plug_version.h"
+
+#define stringize( x )        stringizei( x )
+#define stringizei( x )       #x
+
+#define VERSION_FULL OBSERVER_VERSION_MAJOR, OBSERVER_VERSION_MINOR, OBSERVER_VERSION_REVISION, 0
+#define VERSION_FULL_STR OBSERVER_VERSION_MAJOR.OBSERVER_VERSION_MINOR.OBSERVER_VERSION_REVISION.0
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -54,8 +60,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION VMAJOR,VMINOR,VREVISION,0
- PRODUCTVERSION VMAJOR,VMINOR,VREVISION,0
+ FILEVERSION VERSION_FULL
+ PRODUCTVERSION VERSION_FULL
  FILEFLAGSMASK 0x17L
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -71,12 +77,12 @@ BEGIN
         BLOCK "041904b0"
         BEGIN
             VALUE "FileDescription", "Observer Plugin for FAR Manager"
-            VALUE "FileVersion", "VMAJOR, VMINOR, VREVISION, 0"
+            VALUE "FileVersion", stringize(VERSION_FULL_STR)
             VALUE "InternalName", "Observer"
-            VALUE "LegalCopyright", "Copyright (C) 2008-2011, Ariman"
+            VALUE "LegalCopyright", "Copyright (C) 2008-2018, Ariman"
             VALUE "OriginalFilename", "Observer.dll"
             VALUE "ProductName", "Observer"
-            VALUE "ProductVersion", "VMAJOR, VMINOR, VREVISION, 0"
+            VALUE "ProductVersion", stringize(VERSION_FULL_STR)
         END
     END
     BLOCK "VarFileInfo"

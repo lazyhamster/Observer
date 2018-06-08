@@ -1,6 +1,5 @@
 Observer_*.rar
 plug_version.h
-Observer.rc
 
 # MSVC build folders
 /obj/

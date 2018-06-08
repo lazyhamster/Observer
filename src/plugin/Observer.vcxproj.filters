@@ -145,9 +145,6 @@
     <M4_Macro Include="text\FILE_ID.DIZ.m4">
       <Filter>Support Files</Filter>
     </M4_Macro>
-    <M4_Macro Include="Observer.rc.m4">
-      <Filter>Support Files</Filter>
-    </M4_Macro>
     <M4_Macro Include="text\ObserverEng.hlf.m4">
       <Filter>Support Files</Filter>
     </M4_Macro>
