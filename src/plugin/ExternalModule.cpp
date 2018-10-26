@@ -119,7 +119,7 @@ bool ExternalModule::IsModuleOk(const ModuleLoadParameters &params)
 
 int ExternalModule::AddExtensionFilter(std::wstring& filterStr)
 {
-	if (filterStr.size() == 0) return 0;
+	if (filterStr.empty()) return 0;
 
 	wchar_t* context = NULL;
 	wchar_t* strList = _wcsdup(filterStr.c_str());
@@ -145,7 +145,7 @@ int ExternalModule::AddExtensionFilter(std::wstring& filterStr)
 bool ExternalModule::DoesPathMatchFilter(const wchar_t* path) const
 {
 	// Empty filter means match all
-	if (m_vExtensionFilter.size() == 0)
+	if (m_vExtensionFilter.empty())
 		return true;
 
 	for (size_t i = 0; i < m_vExtensionFilter.size(); ++i)

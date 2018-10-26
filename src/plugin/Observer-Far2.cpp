@@ -205,7 +205,7 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 
 void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
 {
-	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
+	if (!optVerboseModuleLoad || failedModules.empty()) return;
 
 	size_t listItemsNumber = failedModules.size() * 3 - 1;
 	size_t listBufferSize = listItemsNumber * sizeof(FarListItem);

@@ -17,7 +17,7 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 	for (size_t i = 0; i < mModulesList->Count(); i++)
 	{
 		const ConfigItem& nextModuleInfo = mModulesList->GetItem(i);
-		if (nextModuleInfo.Key.size() == 0 || nextModuleInfo.Value.size() == 0)
+		if (nextModuleInfo.Key.empty() || nextModuleInfo.Value.empty())
 			continue;
 
 		const std::wstring& moduleName = nextModuleInfo.Key;

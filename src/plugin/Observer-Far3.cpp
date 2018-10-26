@@ -1,7 +1,7 @@
 // Observer.cpp : Defines the exported functions for the DLL application.
 // This module contains functions for Far 3.0+
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include <far3/plugin.hpp>
 #include <far3/DlgBuilder.hpp>
 #include <far3/PluginSettings.hpp>
@@ -135,7 +135,7 @@ static int SelectModuleToOpenFileAs()
 		MenuItems[i].Text = MenuStrings[i].c_str();
 	}
 
-	intptr_t nMSel = FarSInfo.Menu(&OBSERVER_GUID, &GUID_OBS_MENU, -1, -1, 0, 0, GetLocMsg(MSG_OPEN_SELECT_MODULE), NULL, NULL, NULL, NULL, MenuItems, (int) nNumModules);
+	intptr_t nMSel = FarSInfo.Menu(&OBSERVER_GUID, &GUID_OBS_MENU, -1, -1, 0, 0, GetLocMsg(MSG_OPEN_SELECT_MODULE), nullptr, nullptr, nullptr, nullptr, MenuItems, nNumModules);
 
 	delete [] MenuItems;
 	return (int) nMSel;
@@ -158,7 +158,7 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 
 static void ReportFailedModules(std::vector<FailedModuleInfo> &failedModules)
 {
-	if (!optVerboseModuleLoad || (failedModules.size() == 0)) return;
+	if (!optVerboseModuleLoad || failedModules.empty()) return;
 
 	size_t boxListSize = failedModules.size() * 2;
 	const wchar_t* *boxList = new const wchar_t*[boxListSize];
@@ -195,13 +195,15 @@ static int AnalizeStorage(const wchar_t* Name, bool applyExtFilters, void* start
 	return retVal;
 }
 
-static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleIndex)
+static StorageObject* OpenStorage(const std::wstring& Name, bool applyExtFilters, int moduleIndex)
 {
+	if (Name.empty()) return nullptr;
+	
 	StorageObject *storage = new StorageObject(&g_pController, StoragePasswordQuery);
-	if (!storage->Open(Name, applyExtFilters, moduleIndex))
+	if (!storage->Open(Name.c_str(), applyExtFilters, moduleIndex))
 	{
 		delete storage;
-		return INVALID_HANDLE_VALUE;
+		return nullptr;
 	}
 
 	wchar_t wszDialogText[100] = {0};
@@ -216,11 +218,11 @@ static HANDLE OpenStorage(const wchar_t* Name, bool applyExtFilters, int moduleI
 
 	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, TBPS_INDETERMINATE, NULL);
 
-	HANDLE hResult = INVALID_HANDLE_VALUE;
+	StorageObject* hResult = nullptr;
 	bool listAborted;
 	if (storage->ReadFileList(listAborted))
 	{
-		hResult = (HANDLE) storage;
+		hResult = storage;
 	}
 	else
 	{
@@ -921,7 +923,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 			MenuItems[0].Text = GetLocMsg(MSG_OPEN_FILE);
 			MenuItems[1].Text = GetLocMsg(MSG_OPEN_FILE_AS);
 
-			intptr_t nMItem = FarSInfo.Menu(&OBSERVER_GUID, &GUID_OBS_MENU, -1, -1, 0, 0, GetLocMsg(MSG_PLUGIN_NAME), NULL, NULL, NULL, NULL, MenuItems, ARRAY_SIZE(MenuItems));
+			intptr_t nMItem = FarSInfo.Menu(&OBSERVER_GUID, &GUID_OBS_MENU, -1, -1, 0, 0, GetLocMsg(MSG_PLUGIN_NAME), nullptr, nullptr, nullptr, nullptr, MenuItems, ARRAY_SIZE(MenuItems));
 			
 			if (nMItem == -1)
 				return nullptr;
@@ -951,9 +953,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		strFullSourcePath = ResolveFullPath(ShCutInfo->HostFile);
 	}
 
-	HANDLE hOpenResult = (strFullSourcePath.size() > 0) ? OpenStorage(strFullSourcePath.c_str(), false, nOpenModuleIndex) : INVALID_HANDLE_VALUE;
+	StorageObject* hOpenResult = OpenStorage(strFullSourcePath, false, nOpenModuleIndex);
 
-	if ( (hOpenResult != INVALID_HANDLE_VALUE) && (strSubPath.size() > 0) )
+	if ( hOpenResult && !strSubPath.empty() )
 	{
 		SetDirectoryInfo sdi = {0};
 		sdi.StructSize = sizeof(SetDirectoryInfo);
@@ -964,7 +966,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		SetDirectoryW(&sdi);
 	}
 
-	return hOpenResult != INVALID_HANDLE_VALUE ? hOpenResult : nullptr;
+	return hOpenResult;
 }
 
 intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
