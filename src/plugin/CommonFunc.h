@@ -7,7 +7,7 @@ bool FileExists(wstring& path, LPWIN32_FIND_DATAW file_data);
 bool DirectoryExists(const wchar_t* path);
 bool IsDiskRoot(const wchar_t* path);
 bool IsEnoughSpaceInPath(const wchar_t* path, __int64 requiredSize);
-bool ForceDirectoryExist(const wchar_t* path);
+bool ForceDirectoryExist(const std::wstring& path);
 
 bool CheckEsc();
 
@@ -19,7 +19,6 @@ void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize);
 void IncludeTrailingPathDelim(std::wstring& pathBuf);
 
 void InsertCommas(wchar_t *Dest);
-void InsertCommas(char *Dest);
 
 std::wstring FormatString(const wchar_t* fmt_str, ...);
 std::wstring FileTimeToString(FILETIME ft);

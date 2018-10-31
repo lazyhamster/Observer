@@ -145,7 +145,7 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 {
 	wchar_t passBuf[100] = {0};
 
-	intptr_t nRet = FarSInfo.InputBox(&OBSERVER_GUID, &GUID_OBS_INPUTBOX, GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_PASS_REQUIRED), NULL, NULL, passBuf, ARRAY_SIZE(passBuf)-1, NULL, FIB_PASSWORD | FIB_NOUSELASTHISTORY);
+	intptr_t nRet = FarSInfo.InputBox(&OBSERVER_GUID, &GUID_OBS_INPUTBOX, GetLocMsg(MSG_PLUGIN_NAME), GetLocMsg(MSG_OPEN_PASS_REQUIRED), nullptr, nullptr, passBuf, ARRAY_SIZE(passBuf)-1, nullptr, FIB_PASSWORD | FIB_NOUSELASTHISTORY);
 	if (nRet == TRUE)
 	{
 		memset(buffer, 0, bufferSize);
@@ -248,7 +248,7 @@ static bool GetCurrentPanelItemName(HANDLE hPanel, wstring& nameStr, bool canBeD
 {
 	bool fResult = false;
 	
-	size_t itemBufSize = FarSInfo.PanelControl(hPanel, FCTL_GETCURRENTPANELITEM, 0, NULL);
+	size_t itemBufSize = FarSInfo.PanelControl(hPanel, FCTL_GETCURRENTPANELITEM, 0, nullptr);
 	PluginPanelItem *PPI = (PluginPanelItem*) malloc(itemBufSize);
 	if (PPI)
 	{
@@ -273,7 +273,7 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 	if (FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi))
 		if ((pi.SelectedItemsNumber == 1) && (pi.PanelType == PTYPE_FILEPANEL))
 		{
-			intptr_t dirBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, NULL);
+			intptr_t dirBufSize = FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELDIRECTORY, 0, nullptr);
 			FarPanelDirectory *panelDir = (FarPanelDirectory*) malloc(dirBufSize);
 			if (panelDir)
 			{
@@ -292,7 +292,7 @@ static bool GetSelectedPanelFilePath(wstring& nameStr)
 			}
 		}
 	
-	return (nameStr.size() > 0);
+	return !nameStr.empty();
 }
 
 static std::wstring FileSizeToString(int64_t fileSize, bool keepBytes)
@@ -409,7 +409,7 @@ static int ExtractError(int errorReason, HANDLE context)
 	InfoLines[5] = GetLocMsg(MSG_BTN_SKIP_ALL);
 	InfoLines[6] = GetLocMsg(MSG_BTN_ABORT);
 
-	intptr_t nMsg = FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_ERROR_MESSAGE, FMSG_WARNING, NULL, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 4);
+	intptr_t nMsg = FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_ERROR_MESSAGE, FMSG_WARNING, nullptr, InfoLines, sizeof(InfoLines) / sizeof(InfoLines[0]), 4);
 
 	switch (nMsg)
 	{
@@ -562,9 +562,9 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	if (!fAlreadyExists)
 	{
 		wstring strTargetDir = GetDirectoryName(destPath, false);
-		if (strTargetDir.length() > 0)
+		if (!strTargetDir.empty())
 		{
-			if (!ForceDirectoryExist(strTargetDir.c_str()))
+			if (!ForceDirectoryExist(strTargetDir))
 			{
 				if (showMessages)
 					DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, strTargetDir.c_str());
@@ -590,7 +590,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		params.ItemIndex = item->StorageIndex;
 		params.Flags = 0;
 		params.DestPath = destPath.c_str();
-		params.Password = (strFilePassword.length() > 0) ? strFilePassword.c_str() : nullptr;
+		params.Password = !strFilePassword.empty() ? strFilePassword.c_str() : nullptr;
 		params.Callbacks.FileProgress = ExtractProgress;
 		params.Callbacks.signalContext = pctx;
 
@@ -658,7 +658,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(items.begin(), items.end(), ItemSortPred);
 
-	if (!ForceDirectoryExist(extParams.strDestPath.c_str()))
+	if (!ForceDirectoryExist(extParams.strDestPath))
 	{
 		if (!extParams.bSilent)
 			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
@@ -697,12 +697,12 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	
 	if (extParams.bShowProgress)
 	{
-		FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? TBPS_NORMAL : TBPS_INDETERMINATE, NULL);
+		FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, (totalExtractSize > 0) ? TBPS_NORMAL : TBPS_INDETERMINATE, nullptr);
 		GetConsoleTitle(wszSaveTitle, ARRAY_SIZE(wszSaveTitle));
 	}
 
 	// Extract all files one by one
-	for (auto cit = items.begin(); cit != items.end(); cit++)
+	for (auto cit = items.begin(); cit != items.end(); ++cit)
 	{
 		if (extParams.bShowProgress)
 		{
@@ -715,7 +715,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 		
 		if (nextItem->IsDir())
 		{
-			if (!ForceDirectoryExist(strFullTargetPath.c_str()))
+			if (!ForceDirectoryExist(strFullTargetPath))
 				return 0;
 		}
 		else

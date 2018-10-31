@@ -78,9 +78,9 @@ bool IsEnoughSpaceInPath(const wchar_t* path, __int64 requiredSize)
 	return true;
 }
 
-bool ForceDirectoryExist(const wchar_t* path)
+bool ForceDirectoryExist(const std::wstring& path)
 {
-	int nDirResult = !IsDiskRoot(path) ? SHCreateDirectory(0, path) : ERROR_SUCCESS;
+	int nDirResult = !IsDiskRoot(path.c_str()) ? SHCreateDirectory(0, path.c_str()) : ERROR_SUCCESS;
 	return (nDirResult == ERROR_SUCCESS) || (nDirResult == ERROR_ALREADY_EXISTS);
 }
 
@@ -146,17 +146,6 @@ void InsertCommas(wchar_t *Dest)
 		if (Dest[I])
 		{
 			wmemmove(Dest+I+2,Dest+I+1,wcslen(Dest+I));
-			Dest[I+1]=',';
-		}
-}
-
-void InsertCommas(char *Dest)
-{
-	int I;
-	for (I=(int)strlen(Dest)-4;I>=0;I-=3)
-		if (Dest[I])
-		{
-			memmove(Dest+I+2,Dest+I+1,strlen(Dest+I));
 			Dest[I+1]=',';
 		}
 }

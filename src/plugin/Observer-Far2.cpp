@@ -622,7 +622,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		wstring strTargetDir = GetDirectoryName(destPath, false);
 		if (strTargetDir.length() > 0)
 		{
-			if (!ForceDirectoryExist(strTargetDir.c_str()))
+			if (!ForceDirectoryExist(strTargetDir))
 			{
 				if (showMessages)
 					DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, strTargetDir.c_str());
@@ -715,7 +715,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	// Items should be sorted (e.g. for access to solid archives)
 	sort(items.begin(), items.end(), ItemSortPred);
 
-	if (!ForceDirectoryExist(extParams.strDestPath.c_str()))
+	if (!ForceDirectoryExist(extParams.strDestPath))
 	{
 		if (!extParams.bSilent)
 			DisplayMessage(true, true, MSG_EXTRACT_ERROR, MSG_EXTRACT_DIR_CREATE_ERROR, NULL);
@@ -773,7 +773,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 		
 		if (nextItem->IsDir())
 		{
-			if (!ForceDirectoryExist(strFullTargetPath.c_str()))
+			if (!ForceDirectoryExist(strFullTargetPath))
 				return 0;
 		}
 		else
