@@ -154,15 +154,6 @@
     <M4_Macro Include="plug_version.h.m4">
       <Filter>Support Files</Filter>
     </M4_Macro>
-    <M4_Macro Include="text\ObserverEng.lng.m4">
-      <Filter>Support Files</Filter>
-    </M4_Macro>
-    <M4_Macro Include="text\ObserverRus.lng.m4">
-      <Filter>Support Files</Filter>
-    </M4_Macro>
-    <M4_Macro Include="text\ObserverSpa.lng.m4">
-      <Filter>Support Files</Filter>
-    </M4_Macro>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\common\todo.txt">
@@ -186,6 +177,15 @@
       <Filter>Support Files</Filter>
     </CustomBuild>
     <CustomBuild Include="text\observer.ini">
+      <Filter>Support Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="text\ObserverEng.lng">
+      <Filter>Support Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="text\ObserverRus.lng">
+      <Filter>Support Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="text\ObserverSpa.lng">
       <Filter>Support Files</Filter>
     </CustomBuild>
   </ItemGroup>

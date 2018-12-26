@@ -524,10 +524,7 @@
     </M4_Macro>
     <M4_Macro Include="text\FILE_ID.DIZ.m4" />
     <M4_Macro Include="text\ObserverEng.hlf.m4" />
-    <M4_Macro Include="text\ObserverEng.lng.m4" />
     <M4_Macro Include="text\ObserverRus.hlf.m4" />
-    <M4_Macro Include="text\ObserverRus.lng.m4" />
-    <M4_Macro Include="text\ObserverSpa.lng.m4" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\common\todo.txt" />
@@ -556,6 +553,24 @@
       <Outputs>$(OutDir)</Outputs>
     </CustomBuild>
     <CustomBuild Include="text\whatsnew_ru.txt">
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(OutDir)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="text\ObserverEng.lng">
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(OutDir)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="text\ObserverRus.lng">
+      <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
+      <Message>Processing %(Identity)</Message>
+      <LinkObjects>false</LinkObjects>
+      <Outputs>$(OutDir)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="text\ObserverSpa.lng">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
