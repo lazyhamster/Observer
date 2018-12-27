@@ -13,6 +13,9 @@
 
 #define _SCL_SECURE_NO_WARNINGS 1
 
+#define _SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING 1
+#define _SILENCE_FPOS_SEEKPOS_DEPRECATION_WARNING 1
+
 // Additional headers
 #include <sstream>
 

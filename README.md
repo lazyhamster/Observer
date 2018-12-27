@@ -25,7 +25,7 @@ Additional requirements:
 
 ## Links ##
 
-[Support Forum](http://forum.farmanager.com/viewforum.php?f=5)
+[Support Forum (in Russian)](https://forum.farmanager.com/viewtopic.php?f=5&t=4644)
 
 ## License ##
 
