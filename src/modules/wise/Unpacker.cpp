@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "zlib/zlib.h"
+#include "zlib.h"
 #include "Unpacker.h"
 
 #define BSIZE 16384

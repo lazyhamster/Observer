@@ -423,9 +423,6 @@
     <ProjectReference Include="..\..\depends\poppler\poppler.vcxproj">
       <Project>{a9013e8a-a631-4cc5-8ee6-1099a667d157}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
-      <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

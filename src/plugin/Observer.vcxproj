@@ -479,6 +479,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\README.md" />
     <None Include="Observer-Far2.def" />
     <None Include="Observer-Far3.def" />
     <CustomBuild Include="text\observer.ini">

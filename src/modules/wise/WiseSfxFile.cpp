@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "WiseSfxFile.h"
 #include "modulecrt/PEHelper.h"
-#include "zlib/zlib.h"
+#include "zlib.h"
 
 CWiseSfxFile::CWiseSfxFile()
 {

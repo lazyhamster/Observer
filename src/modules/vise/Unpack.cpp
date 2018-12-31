@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Unpack.h"
-#include "zlib/zlib.h"
+#include "zlib.h"
 
 #define BSIZE 32*1024
 

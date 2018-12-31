@@ -27,9 +27,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\iconv\win_iconv.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="gmime\gmime-certificate.c">
       <Filter>Source Files\gmime</Filter>
     </ClCompile>

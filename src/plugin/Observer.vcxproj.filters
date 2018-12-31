@@ -76,6 +76,9 @@
     <None Include="Observer-Far2.def">
       <Filter>Source Files</Filter>
     </None>
+    <None Include="..\..\README.md">
+      <Filter>Support Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CommonFunc.h">

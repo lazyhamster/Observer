@@ -10,13 +10,21 @@ Download prebuilt binaries and place them in Plugins directory of your FAR Manag
 
 ## System requirements ##
 
-* MS Visual C++ 2013 Redistributable Package
+* MS Visual C++ 2017 Redistributable Package
 * MS Windows Installer 4 or higher (for .msi files support)
-* MS .NET Framework 3.5 (for virtual disks support)
+* MS .NET Framework 4 (for virtual disks support)
 
 ## How to build from source ##
 
-Project is developed under MS Visual Studio 2013.
+Project is developed under MS Visual Studio 2017.
+
+Observer modules depend on several libraries that are not supplied with sources.
+The easiest way to use these libraries is with [vcpkg](https://github.com/Microsoft/vcpkg) tool.
+Deploy vcpkg and run:
+
+* vcpkg install zlib:x86-windows zlib:x64-windows
+* vcpkg install bzip2:x86-windows bzip2:x64-windows
+* vcpkg install glib:x86-windows glib:x64-windows
 
 Additional requirements:
 

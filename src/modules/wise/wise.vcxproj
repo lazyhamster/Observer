@@ -192,7 +192,6 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(IntDir)..\zlib1\zlib1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>wise.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -214,7 +213,6 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(IntDir)..\zlib1\zlib1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>wise.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -239,7 +237,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(IntDir)..\zlib1\zlib1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>wise.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -264,7 +261,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(IntDir)..\zlib1\zlib1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>wise.def</ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -286,7 +282,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(IntDir)..\zlib1\zlib1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>wise.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -309,7 +304,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(IntDir)..\zlib1\zlib1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>wise.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -335,7 +329,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(IntDir)..\zlib1\zlib1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>wise.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -361,7 +354,6 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>$(IntDir)..\zlib1\zlib1.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ModuleDefinitionFile>wise.def</ModuleDefinitionFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -427,10 +419,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\depends\modulecrt\modulecrt.vcxproj">
       <Project>{cebdd3f1-0d8a-4d3c-b5a9-1fdf98b8507f}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
-      <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

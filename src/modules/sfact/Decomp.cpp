@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Decomp.h"
-#include "zlib/zlib.h"
+#include "zlib.h"
 
 extern "C"
 {

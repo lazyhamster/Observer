@@ -418,19 +418,11 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\depends\bzip2\libbz2.vcxproj">
-      <Project>{d4d55d0b-1cc0-4838-a68f-39b486f1122c}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
     <ProjectReference Include="..\..\depends\modulecrt\modulecrt.vcxproj">
       <Project>{cebdd3f1-0d8a-4d3c-b5a9-1fdf98b8507f}</Project>
     </ProjectReference>
     <ProjectReference Include="..\..\depends\StormLib\stormlib.vcxproj">
       <Project>{2dc37ca3-387c-43ca-8d40-101e24893d6a}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\..\depends\zlib\zlib1.vcxproj">
-      <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

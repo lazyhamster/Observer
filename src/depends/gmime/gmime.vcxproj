@@ -372,7 +372,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\iconv\win_iconv.c" />
     <ClCompile Include="gmime\gmime-certificate.c" />
     <ClCompile Include="gmime\gmime-charset.c" />
     <ClCompile Include="gmime\gmime-common.c" />
@@ -496,22 +495,6 @@
     <ClInclude Include="util\list.h" />
     <ClInclude Include="util\md5-utils.h" />
     <ClInclude Include="util\url-scanner.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\glib\build\gio.vcxproj">
-      <Project>{913d17a4-1585-4733-b91e-8533c65904ef}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\glib\build\glib.vcxproj">
-      <Project>{213e1c4d-556c-4d1f-afa2-1938042920f0}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\glib\build\gobject.vcxproj">
-      <Project>{ad0c1ee1-93c7-460c-8e59-7e8cd0815811}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-    <ProjectReference Include="..\zlib\zlib1.vcxproj">
-      <Project>{c50a5bd9-34c8-4050-ad28-784aec221b1e}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="gmime.def" />
