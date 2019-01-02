@@ -477,7 +477,7 @@ public:
   bool CheckItemExtents(int volIndex, const CItem &item) const;
 
   // Extension functions
-  int DumpFileContent(int itemIndex, int fileIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc);
+  int DumpFileContent(const CFile& fileObj, const wchar_t* destPath, const ExtractProcessCallbacks* epc);
   FILETIME GetCreatedTime() const;
 };
 

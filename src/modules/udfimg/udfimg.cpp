@@ -132,7 +132,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	if (!item.IsDir())
 	{
-		int res = storageRec->arc.DumpFileContent(file.ItemIndex, ref.FileIndex, params.DestPath, &(params.Callbacks));
+		int res = storageRec->arc.DumpFileContent(file, params.DestPath, &(params.Callbacks));
 
 		return res;
 	}

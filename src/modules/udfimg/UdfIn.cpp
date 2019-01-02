@@ -1053,15 +1053,12 @@ int CUdfArchive::GetSubItemByName( const wchar_t* name, int parentIndex )
 	return -1;
 }
 
-int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* destPath, const ExtractProcessCallbacks* epc)
+int CUdfArchive::DumpFileContent(const CFile& fileObj, const wchar_t* destPath, const ExtractProcessCallbacks* epc)
 {
-	if (itemIndex <= 0) return SER_ERROR_SYSTEM;
-
 	HANDLE context = NULL;
 
 	int result = SER_SUCCESS;
-	const CItem &itemObj = Items[itemIndex];
-	const CFile &fileObj = Files[fileIndex];
+	const CItem &itemObj = Items[fileObj.ItemIndex];
 
 	DWORD nOutFileAttr = fileObj.IsHidden ? FILE_ATTRIBUTE_HIDDEN | FILE_ATTRIBUTE_ARCHIVE : FILE_ATTRIBUTE_NORMAL;
 	HANDLE hFile = CreateFileW(destPath, GENERIC_WRITE, FILE_SHARE_READ, NULL, CREATE_ALWAYS, nOutFileAttr, NULL);
@@ -1080,15 +1077,15 @@ int CUdfArchive::DumpFileContent(int itemIndex, int fileIndex, const wchar_t* de
 		}
 		else
 		{
-			size_t nBufSize = 32 * 1024;
+			size_t nBufSize = 64 * 1024;
 			char* buf = (char*) malloc(nBufSize);
 
 			DWORD dwBytesRead, dwBytesWritten;
 			for (int i = 0; i < itemObj.Extents.Size(); i++)
 			{
-				CMyExtent extent = itemObj.Extents[i];
-				CPartition part = Partitions[extent.PartitionRef];
-				CLogVol vol = LogVols[part.VolIndex];
+				const CMyExtent& extent = itemObj.Extents[i];
+				const CPartition& part = Partitions[extent.PartitionRef];
+				const CLogVol& vol = LogVols[part.VolIndex];
 
 				UInt32 bytesLeft = extent.Len;
 				DWORD copySize;
