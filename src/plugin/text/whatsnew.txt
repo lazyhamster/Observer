@@ -1,21 +1,20 @@
 Changes history:
 
 1.12.0
-- Plugin now requires Visual C++ 2013 Redist (instead of VC++ 2010 Redist).
+- Plugin now requires Visual C++ 2017 Redist (instead of VC++ 2010 Redist).
 - Changes in modules API.
 - New extraction progress dialog.
 - New file property exposed: Owner (for containers where applicable).
 - Now you can configure reaction on Enter and Ctrl-PgDn seprately.
-- Updated GLib library to version 2.48.0.
+- Updated several dependency libraries.
 - Updated GMime library to version 2.6.23.
-- Updated ZLib library to version 1.2.11.
-- Updated libmspack to version 0.6alpha.
 - VDISK: Fixed crash after failed files extraction.
 - PDF: Updated Poppler library to version 0.51.0.
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
 - MSI: Fixed inability to extract files from some installers made by WiX.
 - MPQ: Updated StormLib to version 9.22.
 - MPQ: Added support for listfiles.
+- InstallShield: Improved support for SFX files.
 
 1.11.2
 - PST: Fixed invalid path characters in folder names.
