@@ -23,10 +23,9 @@
 
  Для дополнительной информации смотрите файл readme_ru.txt
 
- (c) 2009-2018, Ariman
+ (c) 2009-2019, Ariman
  -----------------------------------------
- Web-site: ~http://ariman.creiac.com~@http://ariman.creiac.com@
- Download link: ~https://sourceforge.net/projects/far-observer~@https://sourceforge.net/projects/far-observer@
+ Сайт плагина: ~https://github.com/lazyhamster/Observer~@https://github.com/lazyhamster/Observer@
  Контактный E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@
 
 @ObserverConfig
