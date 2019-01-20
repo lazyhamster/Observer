@@ -10,16 +10,21 @@ IF "%PVER%" == "" GOTO :EMPTY_VERSION
 ECHO Version detected: %PVER%
 ECHO.
 
-ECHO Verifying prerequisites
+ECHO Searching for Visual Studio
 
 IF DEFINED ProgramFiles(x86) (
-  SET DEVENV_EXE_PATH="%ProgramFiles(x86)%\Microsoft Visual Studio 12.0\Common7\IDE\devenv.exe"
+  SET VS_WHERE_PATH="%ProgramFiles(x86)%\Microsoft Visual Studio\Installer"
 ) ELSE (
-  SET DEVENV_EXE_PATH="%ProgramFiles%\Microsoft Visual Studio 12.0\Common7\IDE\devenv.exe"
+  SET VS_WHERE_PATH="%ProgramFiles%\Microsoft Visual Studio\Installer"
+)
+
+SET PATH=%PATH%;%VS_WHERE_PATH%
+for /f "usebackq tokens=1* delims=: " %%i in (`vswhere.exe -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop`) do (
+	if /i "%%i"=="productPath" set DEVENV_EXE_PATH="%%j"
 )
 
 IF EXIST %DEVENV_EXE_PATH% GOTO VS_FOUND
-ECHO [ERROR] MS Visual Studio 2013 is not found. Exiting.
+ECHO [ERROR] MS Visual Studio 2017 is not found. Exiting.
 PAUSE
 EXIT 1
 
@@ -28,7 +33,7 @@ ECHO Using Visual Studio from
 ECHO %DEVENV_EXE_PATH%
 ECHO.
 
-SET PACKER_CMD=@rar.exe a -y -r -ep1 -apObserver -x*.metagen
+SET PACKER_CMD=@rar.exe a -y -r -ep1 -apObserver -x*.metagen -x*.iobj -x*.ipdb
 SET SOLUTION_FILE=..\Observer.sln
 
 ECHO Building version for Far 2 x86
