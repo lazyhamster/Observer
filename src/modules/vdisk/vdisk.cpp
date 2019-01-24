@@ -199,6 +199,10 @@ const wchar_t* GetDiskType(VirtualDisk ^vdisk)
 		return L"Microsoft Virtual Hard Disk";
 	else if (vdisk->GetType() == Xva::Disk::typeid)
 		return L"Xen Virtual Appliance Disk";
+	else if (vdisk->GetType() == Vhdx::Disk::typeid)
+		return L"Hyper-V virtual hard disk";
+	else if (vdisk->GetType() == Dmg::Disk::typeid)
+		return L"Apple Disk Image";
 
 	switch(vdisk->DiskClass)
 	{
@@ -303,7 +307,7 @@ int MODULE_EXPORT PrepareFiles(HANDLE storage)
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
-	VDisk* vdObj = (VDisk*) storage;
+	VDisk* vdObj = (VDisk*)storage;
 	if (vdObj == NULL || item_index < 0) return GET_ITEM_ERROR;
 
 	if (item_index >= vdObj->vItems->Count)
@@ -311,10 +315,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 	List<VDFileInfo^> ^fileList = vdObj->vItems;
 	VDFileInfo^ fileInfo = fileList[item_index];
-	
+
 	List<String^> ^volLabels = vdObj->vVolLabels;
 	String^ filePath = String::Format("[{0}]\\{1}", volLabels[fileInfo->VolumeIndex], fileInfo->Ref->FullName);
-	
+
 	// Remove trailing backslash if present
 	if (filePath->EndsWith("\\"))
 		filePath = filePath->Remove(filePath->Length - 1);
@@ -328,8 +332,8 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	try
 	{
 		DiscFileSystemInfo^ fsData = fileInfo->Ref;
-		
-		item_info->Attributes = (DWORD) fsData->Attributes;
+
+		item_info->Attributes = (DWORD)fsData->Attributes;
 		item_info->Size = (fsData->GetType() == DiscFileInfo::typeid) ? ((DiscFileInfo^)fsData)->Length : 0;
 
 		if (fsData->GetType() == DiscDirectoryInfo::typeid)
@@ -345,11 +349,18 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 			//Sometimes file has invalid date/time values
 			//This info is not very crucial so let's just ignore the error
 		}
-	
+
 		return GET_ITEM_OK;
 	}
+#ifdef _DEBUG
+	catch (Exception^ ex)
+	{
+		if (optDisplayErrorPopups)
+			DisplayErrorMessage(ex->Message, L"File parameters error");
+#else
 	catch (Exception^)
 	{
+#endif
 		return GET_ITEM_ERROR;
 	}
 }
