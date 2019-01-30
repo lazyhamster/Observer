@@ -68,7 +68,7 @@ private:
 	std::string m_strMetadata;
 
 public:
-	PdfMetadataFile(std::string& data);
+	PdfMetadataFile(const std::string& data);
 
 	virtual const wchar_t* GetPrefix() const { return L""; }
 	virtual __int64 GetSize() const { return m_strMetadata.size(); }
@@ -92,7 +92,5 @@ private:
 	
 	void LoadMetaData(PDFDoc *doc, std::string &output);
 };
-
-bool TryParseDateTime(GooString* strDate, FILETIME *fTime);
 
 #endif // PdfInfo_h__

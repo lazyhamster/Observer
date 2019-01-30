@@ -7,7 +7,7 @@
 
 #define ENDL "\r\n"
 
-static bool TryParseDateTime(GooString* strDate, SYSTEMTIME *sTime)
+static bool TryParseDateTime(const GooString* strDate, SYSTEMTIME *sTime)
 {
 	if (strDate == nullptr)
 		return false;
@@ -34,7 +34,7 @@ static bool TryParseDateTime(GooString* strDate, SYSTEMTIME *sTime)
 	return false;
 }
 
-bool TryParseDateTime( GooString* strDate, FILETIME *fTime )
+static bool TryParseDateTime(const GooString* strDate, FILETIME *fTime)
 {
 	SYSTEMTIME stime = {0};
 	return TryParseDateTime(strDate, &stime)
@@ -303,7 +303,7 @@ static PseudoFileSaveResult DumpStringToFile(const wchar_t* destPath, const std:
 	return rval;
 }
 
-PdfMetadataFile::PdfMetadataFile(std::string& data)
+PdfMetadataFile::PdfMetadataFile(const std::string& data)
 {
 	m_strName = L"{pdf_info}.txt";
 	m_strMetadata = data;
