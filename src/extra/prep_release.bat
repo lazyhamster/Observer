@@ -2,9 +2,7 @@
 
 ECHO Fetching version
 
-m4 -P version.m4 > version.txt
-SET /p PVER=<version.txt
-DEL version.txt
+for /f %%i in ('m4 -P version.m4') do set PVER=%%i
 
 IF "%PVER%" == "" GOTO :EMPTY_VERSION
 ECHO Version detected: %PVER%
