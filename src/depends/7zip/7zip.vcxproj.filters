@@ -66,12 +66,6 @@
     <ClCompile Include="CPP\7zip\Archive\Nsis\NsisDecode.cpp">
       <Filter>Source Files\CPP\7zip</Filter>
     </ClCompile>
-    <ClCompile Include="CPP\7zip\Archive\Nsis\NsisHandler.cpp">
-      <Filter>Source Files\CPP\7zip</Filter>
-    </ClCompile>
-    <ClCompile Include="CPP\7zip\Archive\Nsis\NsisRegister.cpp">
-      <Filter>Source Files\CPP\7zip</Filter>
-    </ClCompile>
     <ClCompile Include="CPP\Windows\FileIO.cpp">
       <Filter>Source Files\CPP\Windows</Filter>
     </ClCompile>
@@ -165,9 +159,6 @@
       <Filter>Header Files\C</Filter>
     </ClInclude>
     <ClInclude Include="CPP\7zip\Archive\Nsis\NsisDecode.h">
-      <Filter>Header Files\CPP\7zip</Filter>
-    </ClInclude>
-    <ClInclude Include="CPP\7zip\Archive\Nsis\NsisHandler.h">
       <Filter>Header Files\CPP\7zip</Filter>
     </ClInclude>
     <ClInclude Include="CPP\Windows\FileDir.h">

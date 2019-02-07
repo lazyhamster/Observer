@@ -36,8 +36,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CPP\7zip\Archive\Nsis\NsisDecode.cpp" />
-    <ClCompile Include="CPP\7zip\Archive\Nsis\NsisHandler.cpp" />
-    <ClCompile Include="CPP\7zip\Archive\Nsis\NsisRegister.cpp" />
     <ClCompile Include="CPP\7zip\Common\FileStreams.cpp" />
     <ClCompile Include="CPP\7zip\Common\FilterCoder.cpp" />
     <ClCompile Include="CPP\7zip\Common\InBuffer.cpp" />
@@ -71,7 +69,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CPP\7zip\Archive\Nsis\NsisDecode.h" />
-    <ClInclude Include="CPP\7zip\Archive\Nsis\NsisHandler.h" />
     <ClInclude Include="CPP\7zip\Common\FileStreams.h" />
     <ClInclude Include="CPP\7zip\Common\FilterCoder.h" />
     <ClInclude Include="CPP\7zip\Common\InBuffer.h" />

@@ -30,6 +30,9 @@
     <ClCompile Include="NsisIn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NsisHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="nsis.def">
@@ -44,6 +47,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NsisHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NsisIn.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
