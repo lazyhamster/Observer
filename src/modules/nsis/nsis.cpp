@@ -5,15 +5,6 @@
 #include "ModuleDef.h"
 #include "NsisArchive.h"
 
-#if defined( _7ZIP_LARGE_PAGES)
-extern "C"
-{
-#include "../C/Alloc.h"
-}
-#endif
-
-#include "7zip/UI/Common/LoadCodecs.h"
-
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	CNsisArchive* arc = new CNsisArchive();
@@ -77,25 +68,6 @@ static const GUID MODULE_GUID = { 0x8a6011c7, 0x565f, 0x41d2, { 0xa5, 0xe6, 0xb0
 
 int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
-#if defined(_7ZIP_LARGE_PAGES)
-	SetLargePageSize();
-#endif
-
-	CCodecs *codecs = new CCodecs;
-	CMyComPtr<
-#ifdef EXTERNAL_CODECS
-		ICompressCodecsInfo
-#else
-		IUnknown
-#endif
-	> compressCodecsInfo = codecs;
-	HRESULT result = codecs->Load();
-	if ((result != S_OK) || (codecs->Formats.Size() == 0))
-	{
-		delete codecs;
-		return FALSE;
-	}
-	
 	LoadParams->ModuleId = MODULE_GUID;
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;

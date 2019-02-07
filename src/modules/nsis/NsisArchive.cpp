@@ -183,13 +183,13 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
 
 	if (_processedFileInfo.isDir)
 	{
-		NFile::NDirectory::CreateComplexDirectory(fullProcessedPath);
+		NFile::NDir::CreateComplexDir(fullProcessedPath);
 	}
 	else
 	{
 		if (NFile::NFind::DoesFileExist(fullProcessedPath))
 		{
-			if (!NFile::NDirectory::DeleteFileAlways(fullProcessedPath))
+			if (!NFile::NDir::DeleteFileAlways(fullProcessedPath))
 			{
 				return E_ABORT;
 			}
@@ -223,7 +223,7 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 	}
 	_outFileStream.Release();
 	if (_extractMode && _processedFileInfo.AttribDefined)
-		NFile::NDirectory::MySetFileAttributes(_diskFilePath, _processedFileInfo.Attrib);
+		NFile::NDir::SetFileAttrib(_diskFilePath, _processedFileInfo.Attrib);
 
 	return S_OK;
 }
@@ -373,8 +373,9 @@ DWORD CNsisArchive::GetItemSize( int itemIndex )
 			res = (DWORD) callback->GetCompleted();
 
 		// Cache value for future use
-		NWindows::NCOM::CPropVariant propSet((UInt32) res);
-		m_handler->SetProperty(itemIndex, kpidSize, &propSet);
+		//NWindows::NCOM::CPropVariant propSet((UInt32) res);
+		//m_handler->SetProperty(itemIndex, kpidSize, &propSet);
+		//TODO: fix
 	}
 
 	return res;

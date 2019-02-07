@@ -16,9 +16,6 @@
     <Filter Include="Source Files\lzma">
       <UniqueIdentifier>{46a8eb0c-5d97-4c60-83ac-d15d4c59afa4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\lzma">
-      <UniqueIdentifier>{63f60ef0-32f1-4fed-b0c3-47845efab60d}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -45,17 +42,17 @@
     <ClCompile Include="SetupFactory8.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\depends\7zipSrc\C\Alloc.c">
-      <Filter>Source Files\lzma</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\depends\7zipSrc\C\LzmaDec.c">
-      <Filter>Source Files\lzma</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\depends\7zipSrc\C\Lzma2Dec.c">
-      <Filter>Source Files\lzma</Filter>
-    </ClCompile>
     <ClCompile Include="SetupFactory7.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zip\C\Alloc.c">
+      <Filter>Source Files\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zip\C\Lzma2Dec.c">
+      <Filter>Source Files\lzma</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\depends\7zip\C\LzmaDec.c">
+      <Filter>Source Files\lzma</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -84,15 +81,6 @@
     </ClInclude>
     <ClInclude Include="SetupFactory8.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\depends\7zipSrc\C\Alloc.h">
-      <Filter>Header Files\lzma</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\depends\7zipSrc\C\LzmaDec.h">
-      <Filter>Header Files\lzma</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\depends\7zipSrc\C\Lzma2Dec.h">
-      <Filter>Header Files\lzma</Filter>
     </ClInclude>
     <ClInclude Include="SetupFactory7.h">
       <Filter>Header Files</Filter>

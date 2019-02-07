@@ -7,9 +7,9 @@ extern "C"
 #include "blast/blast.h"
 }
 
-#include "7zipSrc/C/LzmaDec.h"
-#include "7zipSrc/C/Lzma2Dec.h"
-#include "7zipSrc/C/Alloc.h"
+#include "7zip/C/LzmaDec.h"
+#include "7zip/C/Lzma2Dec.h"
+#include "7zip/C/Alloc.h"
 
 struct InBufPtr
 {
@@ -78,10 +78,6 @@ bool Unstore(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *o
 	if (outCrc) *outCrc = crcVal;
 	return true;
 }
-
-static void *SzAlloc(void *p, size_t size) { p = p; return MyAlloc(size); }
-static void SzFree(void *p, void *address) { p = p; MyFree(address); }
-static ISzAlloc g_Alloc = { SzAlloc, SzFree };
 
 bool LzmaDecomp(AStream* inStream, uint32_t inSize, AStream* outStream, uint32_t *outSize, uint32_t *outCrc)
 {

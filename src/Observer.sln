@@ -63,6 +63,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gea", "depends\gea\gea.vcxp
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libmspack", "depends\libmspack\libmspack.vcxproj", "{14034EFF-D0FF-4E1C-9935-611339B3DAFC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "7zip", "depends\7zip\7zip.vcxproj", "{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug-Unicode|Win32 = Debug-Unicode|Win32
@@ -515,6 +517,22 @@ Global
 		{14034EFF-D0FF-4E1C-9935-611339B3DAFC}.Release-Unicode-3|Win32.Build.0 = Release-Unicode-3|Win32
 		{14034EFF-D0FF-4E1C-9935-611339B3DAFC}.Release-Unicode-3|x64.ActiveCfg = Release-Unicode-3|x64
 		{14034EFF-D0FF-4E1C-9935-611339B3DAFC}.Release-Unicode-3|x64.Build.0 = Release-Unicode-3|x64
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Debug-Unicode|Win32.ActiveCfg = Debug-Unicode|Win32
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Debug-Unicode|Win32.Build.0 = Debug-Unicode|Win32
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Debug-Unicode|x64.ActiveCfg = Debug-Unicode|x64
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Debug-Unicode|x64.Build.0 = Debug-Unicode|x64
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Debug-Unicode-3|Win32.ActiveCfg = Debug-Unicode-3|Win32
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Debug-Unicode-3|Win32.Build.0 = Debug-Unicode-3|Win32
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Debug-Unicode-3|x64.ActiveCfg = Debug-Unicode-3|x64
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Debug-Unicode-3|x64.Build.0 = Debug-Unicode-3|x64
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Release-Unicode|Win32.ActiveCfg = Release-Unicode|Win32
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Release-Unicode|Win32.Build.0 = Release-Unicode|Win32
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Release-Unicode|x64.ActiveCfg = Release-Unicode|x64
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Release-Unicode|x64.Build.0 = Release-Unicode|x64
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Release-Unicode-3|Win32.ActiveCfg = Release-Unicode-3|Win32
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Release-Unicode-3|Win32.Build.0 = Release-Unicode-3|Win32
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Release-Unicode-3|x64.ActiveCfg = Release-Unicode-3|x64
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D}.Release-Unicode-3|x64.Build.0 = Release-Unicode-3|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -547,6 +565,7 @@ Global
 		{FB72223D-A2A6-4477-87F7-0BD159B41636} = {1BABDE8B-21F8-4A33-8564-9472D997F3D6}
 		{94FED1EB-9409-423E-A863-6E9E93E3F5F6} = {DFAD269E-8C1B-4D43-9B97-E24CF06EECE1}
 		{14034EFF-D0FF-4E1C-9935-611339B3DAFC} = {DFAD269E-8C1B-4D43-9B97-E24CF06EECE1}
+		{A1980AF2-B80C-41D9-9AC8-4B19275CD81D} = {DFAD269E-8C1B-4D43-9B97-E24CF06EECE1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9794F25A-F173-4E96-A344-6D2E9CFE85A9}
