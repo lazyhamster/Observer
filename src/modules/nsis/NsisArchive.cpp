@@ -352,11 +352,11 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destFilePa
 	return SER_ERROR_SYSTEM;
 }
 
-DWORD CNsisArchive::GetItemSize( int itemIndex )
+__int64 CNsisArchive::GetItemSize( int itemIndex )
 {
 	NWindows::NCOM::CPropVariant prop;
 	if ( (m_handler->GetProperty(itemIndex, kpidSize, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
-		return prop.ulVal;
+		return prop.hVal.QuadPart;
 
 	DWORD res = 0;
 
@@ -371,11 +371,6 @@ DWORD CNsisArchive::GetItemSize( int itemIndex )
 		HRESULT extResult = m_handler->Extract(&nIndex, 1, 1, callback);
 		if (extResult == S_OK)
 			res = (DWORD) callback->GetCompleted();
-
-		// Cache value for future use
-		//NWindows::NCOM::CPropVariant propSet((UInt32) res);
-		//m_handler->SetProperty(itemIndex, kpidSize, &propSet);
-		//TODO: fix
 	}
 
 	return res;

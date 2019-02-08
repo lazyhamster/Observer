@@ -38,7 +38,7 @@ public:
 
 	int GetItemsCount();
 	int GetItem(int itemIndex, StorageItemInfo* item_info);
-	DWORD GetItemSize(int itemIndex);
+	__int64 GetItemSize(int itemIndex);
 
 	int ExtractArcItem(const int itemIndex, const wchar_t* destFilePath, const ExtractProcessCallbacks* epc);
 };
