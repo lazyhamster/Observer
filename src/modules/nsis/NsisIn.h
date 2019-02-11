@@ -424,13 +424,14 @@ public:
         s += "file";
     }
     
-    const char * const kRemoveStr = "$INSTDIR\\";
-    if (s.IsPrefixedBy_Ascii_NoCase(kRemoveStr))
-    {
-      s.Delete(0, MyStringLen(kRemoveStr));
-      if (s[0] == L'\\')
-        s.DeleteFrontal(1);
-    }
+    //NOTE: This part is disabled in Observer module
+	//const char * const kRemoveStr = "$INSTDIR\\";
+    //if (s.IsPrefixedBy_Ascii_NoCase(kRemoveStr))
+    //{
+    //  s.Delete(0, MyStringLen(kRemoveStr));
+    //  if (s[0] == L'\\')
+    //    s.DeleteFrontal(1);
+    //}
     if (item.IsUninstaller && ExeStub.Size() == 0)
       s += ".nsis";
     return s;
