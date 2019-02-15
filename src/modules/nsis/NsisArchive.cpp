@@ -116,7 +116,7 @@ STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 * completeValue)
 
 	if (_progressCallbacks)
 	{
-		_progressCallbacks->FileProgress(_progressCallbacks->signalContext, _completed - _prevCompleted);
+		return _progressCallbacks->FileProgress(_progressCallbacks->signalContext, _completed - _prevCompleted) ? S_OK : E_ABORT;
 	}
 	
 	return S_OK;
@@ -169,15 +169,6 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
 		}
 
 	}
-	{
-		// Get Size
-		NCOM::CPropVariant prop;
-		RINOK(_archiveHandler->GetProperty(index, kpidSize, &prop));
-		bool newFileSizeDefined = (prop.vt != VT_EMPTY);
-		UInt64 newFileSize;
-		if (newFileSizeDefined)
-			newFileSize = ConvertPropVariantToUInt64(prop);
-	}
 
 	UString fullProcessedPath = _diskFilePath;
 
@@ -191,7 +182,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
 		{
 			if (!NFile::NDir::DeleteFileAlways(fullProcessedPath))
 			{
-				return E_ABORT;
+				return E_FAIL;
 			}
 		}
 
@@ -199,7 +190,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
 		CMyComPtr<ISequentialOutStream> outStreamLoc(_outFileStreamSpec);
 		if (!_outFileStreamSpec->Open(fullProcessedPath, CREATE_ALWAYS))
 		{
-			return E_ABORT;
+			return E_FAIL;
 		}
 		_outFileStream = outStreamLoc;
 		*outStream = outStreamLoc.Detach();
@@ -348,6 +339,8 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destFilePa
 
 	if (extResult == S_OK)
 		return SER_SUCCESS;
+	else if (extResult == E_ABORT)
+		return SER_USERABORT;
 
 	return SER_ERROR_SYSTEM;
 }
