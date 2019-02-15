@@ -38,6 +38,7 @@ struct ProgressContext
 	DWORD nLastDisplayTime;
 
 	DWORD nStartTime;
+	bool bAbortRequested;
 
 	ProgressContext()
 	{
@@ -52,6 +53,7 @@ struct ProgressContext
 		nLastDisplayTime = 0;
 
 		nStartTime = GetTickCount();
+		bAbortRequested = false;
 	}
 };
 

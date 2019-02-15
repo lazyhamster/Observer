@@ -321,12 +321,18 @@ static std::wstring ShortenPath(const std::wstring &path, size_t maxWidth)
 
 static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 {
-	// Check for ESC pressed
-	if (CheckEsc())
-		return FALSE;
-
 	ProgressContext* pc = (ProgressContext*) context;
 	pc->nProcessedFileBytes += ProcessedBytes;
+
+	// Check for ESC pressed
+	if (CheckEsc())
+	{
+		// Some modules can support progress indicator but not user abort feature
+		// In this case Esc key will be intercepted by progress callback and never processed
+		// We remember this request just in case to enforce it after file extraction is complete
+		pc->bAbortRequested = true;
+		return FALSE;
+	}
 
 	int nFileProgress = (pc->nCurrentFileSize > 0) ? (int) ((pc->nProcessedFileBytes * 100) / pc->nCurrentFileSize) : 0;
 	int nTotalProgress = (pc->nTotalSize > 0) ? (int) (((pc->nTotalProcessedBytes + pc->nProcessedFileBytes) * 100) / pc->nTotalSize) : 0;
@@ -597,6 +603,9 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		ExtractStart(pctx, item, destPath);
 		ret = storage->Extract(params);
 		ExtractDone(pctx, ret == SER_SUCCESS);
+
+		if (pctx->bAbortRequested)
+			ret = SER_USERABORT;
 
 		if ((ret == SER_ERROR_WRITE) || (ret == SER_ERROR_READ))
 		{
