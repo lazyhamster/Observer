@@ -31,19 +31,6 @@ static HRESULT IsArchiveItemFolder(IInArchive *archive, UInt32 index, bool &resu
 	return IsArchiveItemProp(archive, index, kpidIsDir, result);
 }
 
-static UInt64 ConvertPropVariantToUInt64(const PROPVARIANT &prop)
-{
-	switch (prop.vt)
-	{
-	case VT_UI1: return prop.bVal;
-	case VT_UI2: return prop.uiVal;
-	case VT_UI4: return prop.ulVal;
-	case VT_UI8: return (UInt64)prop.uhVal.QuadPart;
-	default:
-		return 0;
-	}
-}
-
 class CArchiveExtractCallback:
 	public IArchiveExtractCallback,
 	public CMyUnknownImp
@@ -99,6 +86,7 @@ void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const UString &de
 	_completed = 0;
 	_prevCompleted = 0;
 	_progressCallbacks = progessCallbacks;
+	memset(&_processedFileInfo, 0, sizeof(_processedFileInfo));
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetTotal(UInt64 size)
@@ -200,7 +188,7 @@ STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStre
 
 STDMETHODIMP CArchiveExtractCallback::PrepareOperation(Int32 askExtractMode)
 {
-	_extractMode = true;
+	_extractMode = (askExtractMode == NArchive::NExtract::NAskMode::kExtract);
 	return S_OK;
 }
 
@@ -213,7 +201,7 @@ STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 		RINOK(_outFileStreamSpec->Close());
 	}
 	_outFileStream.Release();
-	if (_extractMode && _processedFileInfo.AttribDefined)
+	if (_extractMode && _processedFileInfo.AttribDefined && !_diskFilePath.IsEmpty())
 		NFile::NDir::SetFileAttrib(_diskFilePath, _processedFileInfo.Attrib);
 
 	return S_OK;
@@ -314,14 +302,16 @@ int CNsisArchive::GetItem(int itemIndex, StorageItemInfo* item_info)
 	memset(item_info, 0, sizeof(*item_info));
 
 	NWindows::NCOM::CPropVariant prop;
-	
+
 	UString name = getItemPath(itemIndex);
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), name);
-	
+
 	item_info->Size = GetItemSize(itemIndex);
-	
-	if ( (m_handler->GetProperty(itemIndex, kpidMTime, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
+
+	if ((m_handler->GetProperty(itemIndex, kpidMTime, &prop) == S_OK) && (prop.vt != VT_EMPTY))
 		item_info->ModificationTime = prop.filetime;
+	if ((m_handler->GetProperty(itemIndex, kpidPackSize, &prop) == S_OK) && (prop.vt != VT_EMPTY))
+		item_info->PackedSize = prop.hVal.QuadPart;
 
 	return TRUE;
 }
