@@ -6,6 +6,8 @@
 #include "Windows/FileFind.h"
 #include "Windows/FileName.h"
 
+#include "7zip/Common/FileStreams.h"
+
 using namespace NWindows;
 
 //////////////////////////////////////////////////////////////
@@ -31,6 +33,60 @@ static HRESULT IsArchiveItemFolder(IInArchive *archive, UInt32 index, bool &resu
 	return IsArchiveItemProp(archive, index, kpidIsDir, result);
 }
 
+class COutStreamWithProgress : public ISequentialOutStream, public CMyUnknownImp
+{
+public:
+	MY_UNKNOWN_IMP1(ISequentialOutStream)
+
+	// ISequentialOutStream
+	STDMETHOD(Write)(const void *data, UInt32 size, UInt32 *processedSize);
+
+	~COutStreamWithProgress() { Close(); }
+
+	Int64 GetProcessedSize() { return _processedBytes; }
+	bool SetMTime(const FILETIME *mTime) { return IsRealFile() ? _file.SetMTime(mTime) : true; }
+
+	bool Open(UString filePath, const ExtractProcessCallbacks *progressCallbacks)
+	{
+		_filePath = filePath;
+		_progressCallbacks = progressCallbacks;
+		_processedBytes = 0;
+		return IsRealFile() ? _file.Open(filePath, CREATE_ALWAYS) : true;
+	}
+	void Close()
+	{
+		if (IsRealFile()) _file.Close();
+		_filePath.Empty();
+	}
+private:
+	UString _filePath;
+	NWindows::NFile::NIO::COutFile _file;
+	Int64 _processedBytes;
+	const ExtractProcessCallbacks *_progressCallbacks;
+
+	bool IsRealFile() { return !_filePath.IsEmpty(); }
+};
+
+HRESULT COutStreamWithProgress::Write(const void *data, UInt32 size, UInt32 *processedSize)
+{
+	_processedBytes += size;
+	if (!IsRealFile())
+	{
+		if (processedSize) *processedSize = size;
+		return S_OK;
+	}
+
+	UInt32 bytesProcessed = 0;
+	bool result = _file.Write(data, size, bytesProcessed);
+	if (result)
+	{
+		if (processedSize) *processedSize = bytesProcessed;
+		if (_progressCallbacks) _progressCallbacks->FileProgress(_progressCallbacks->signalContext, bytesProcessed);
+		return S_OK;
+	}
+	return E_FAIL;
+}
+
 class CArchiveExtractCallback:
 	public IArchiveExtractCallback,
 	public CMyUnknownImp
@@ -51,8 +107,7 @@ private:
 	CMyComPtr<IInArchive> _archiveHandler;
 	UString _diskFilePath;   // full path to file on disk
 	bool _extractMode;
-	UInt64 _completed, _prevCompleted;
-	UInt64 _totalSize;
+	Int64 _completedSize;
 	const ExtractProcessCallbacks *_progressCallbacks;
 
 	struct CProcessedFileInfo
@@ -64,124 +119,116 @@ private:
 		bool MTimeDefined;
 	} _processedFileInfo;
 
-	COutFileStream *_outFileStreamSpec;
-	CMyComPtr<ISequentialOutStream> _outFileStream;
+	COutStreamWithProgress* _outFileStream;
+	void CloseOutStream()
+	{
+		if (_outFileStream)
+		{
+			delete _outFileStream;
+			_outFileStream = nullptr;
+		}
+	}
 
 public:
 	void Init(IInArchive *archiveHandler, const UString &destinationPath, const ExtractProcessCallbacks *progessCallbacks);
-	UInt64 GetCompleted() { return _completed; };
+	Int64 GetCompleted() { return _completedSize; };
 
-	UInt64 NumErrors;
-	
 	CArchiveExtractCallback() {}
 };
 
 void CArchiveExtractCallback::Init(IInArchive *archiveHandler, const UString &destinationPath, const ExtractProcessCallbacks *progessCallbacks)
 {
-	NumErrors = 0;
 	_archiveHandler = archiveHandler;
 	_diskFilePath = destinationPath;
-
-	_totalSize = 0;
-	_completed = 0;
-	_prevCompleted = 0;
 	_progressCallbacks = progessCallbacks;
+	_outFileStream = nullptr;
+	_completedSize = 0;
 	memset(&_processedFileInfo, 0, sizeof(_processedFileInfo));
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetTotal(UInt64 size)
 {
-	_totalSize = size;
-	_completed = 0;
-	_prevCompleted = 0;
 	return S_OK;
 }
 
 STDMETHODIMP CArchiveExtractCallback::SetCompleted(const UInt64 * completeValue)
 {
-	_prevCompleted = _completed;
-	_completed = *completeValue;
-
-	if (_progressCallbacks)
-	{
-		return _progressCallbacks->FileProgress(_progressCallbacks->signalContext, _completed - _prevCompleted) ? S_OK : E_ABORT;
-	}
-	
 	return S_OK;
 }
 
 STDMETHODIMP CArchiveExtractCallback::GetStream(UInt32 index, ISequentialOutStream **outStream, Int32 askExtractMode)
 {
 	*outStream = 0;
-	_outFileStream.Release();
+	CloseOutStream();
 
-	if (askExtractMode != NArchive::NExtract::NAskMode::kExtract)
-		return S_OK;
+	bool extractMode = askExtractMode != NArchive::NExtract::NAskMode::kExtract;
 
+	if (extractMode)
 	{
-		// Get Attrib
-		NCOM::CPropVariant prop;
-		RINOK(_archiveHandler->GetProperty(index, kpidAttrib, &prop));
-		if (prop.vt == VT_EMPTY)
 		{
-			_processedFileInfo.Attrib = 0;
-			_processedFileInfo.AttribDefined = false;
+			// Get Attrib
+			NCOM::CPropVariant prop;
+			RINOK(_archiveHandler->GetProperty(index, kpidAttrib, &prop));
+			if (prop.vt == VT_EMPTY)
+			{
+				_processedFileInfo.Attrib = 0;
+				_processedFileInfo.AttribDefined = false;
+			}
+			else
+			{
+				if (prop.vt != VT_UI4)
+					return E_FAIL;
+				_processedFileInfo.Attrib = prop.ulVal;
+				_processedFileInfo.AttribDefined = true;
+			}
 		}
-		else
+
+		RINOK(IsArchiveItemFolder(_archiveHandler, index, _processedFileInfo.isDir));
+
 		{
-			if (prop.vt != VT_UI4)
+			// Get Modified Time
+			NCOM::CPropVariant prop;
+			RINOK(_archiveHandler->GetProperty(index, kpidMTime, &prop));
+			_processedFileInfo.MTimeDefined = false;
+			switch (prop.vt)
+			{
+			case VT_EMPTY:
+				// _processedFileInfo.MTime = _utcMTimeDefault;
+				break;
+			case VT_FILETIME:
+				_processedFileInfo.MTime = prop.filetime;
+				_processedFileInfo.MTimeDefined = true;
+				break;
+			default:
 				return E_FAIL;
-			_processedFileInfo.Attrib = prop.ulVal;
-			_processedFileInfo.AttribDefined = true;
+			}
+
 		}
 	}
-
-	RINOK(IsArchiveItemFolder(_archiveHandler, index, _processedFileInfo.isDir));
-
-	{
-		// Get Modified Time
-		NCOM::CPropVariant prop;
-		RINOK(_archiveHandler->GetProperty(index, kpidMTime, &prop));
-		_processedFileInfo.MTimeDefined = false;
-		switch(prop.vt)
-		{
-		case VT_EMPTY:
-			// _processedFileInfo.MTime = _utcMTimeDefault;
-			break;
-		case VT_FILETIME:
-			_processedFileInfo.MTime = prop.filetime;
-			_processedFileInfo.MTimeDefined = true;
-			break;
-		default:
-			return E_FAIL;
-		}
-
-	}
-
-	UString fullProcessedPath = _diskFilePath;
 
 	if (_processedFileInfo.isDir)
 	{
-		NFile::NDir::CreateComplexDir(fullProcessedPath);
+		NFile::NDir::CreateComplexDir(_diskFilePath);
 	}
 	else
 	{
-		if (NFile::NFind::DoesFileExist(fullProcessedPath))
+		if (extractMode && NFile::NFind::DoesFileExist(_diskFilePath))
 		{
-			if (!NFile::NDir::DeleteFileAlways(fullProcessedPath))
+			if (!NFile::NDir::DeleteFileAlways(_diskFilePath))
 			{
 				return E_FAIL;
 			}
 		}
 
-		_outFileStreamSpec = new COutFileStream;
-		CMyComPtr<ISequentialOutStream> outStreamLoc(_outFileStreamSpec);
-		if (!_outFileStreamSpec->Open(fullProcessedPath, CREATE_ALWAYS))
+		COutStreamWithProgress* outStreamLoc = new COutStreamWithProgress();
+		if (!outStreamLoc->Open(_diskFilePath, _progressCallbacks))
 		{
+			delete outStreamLoc;
 			return E_FAIL;
 		}
 		_outFileStream = outStreamLoc;
-		*outStream = outStreamLoc.Detach();
+		_completedSize = 0;
+		*outStream = _outFileStream;
 	}
 	return S_OK;
 }
@@ -194,13 +241,13 @@ STDMETHODIMP CArchiveExtractCallback::PrepareOperation(Int32 askExtractMode)
 
 STDMETHODIMP CArchiveExtractCallback::SetOperationResult(Int32 operationResult)
 {
-	if (_outFileStream != NULL)
+	if (_outFileStream != nullptr)
 	{
+		_completedSize = _outFileStream->GetProcessedSize();
 		if (_processedFileInfo.MTimeDefined)
-			_outFileStreamSpec->SetMTime(&_processedFileInfo.MTime);
-		RINOK(_outFileStreamSpec->Close());
+			_outFileStream->SetMTime(&_processedFileInfo.MTime);
+		CloseOutStream();
 	}
-	_outFileStream.Release();
 	if (_extractMode && _processedFileInfo.AttribDefined && !_diskFilePath.IsEmpty())
 		NFile::NDir::SetFileAttrib(_diskFilePath, _processedFileInfo.Attrib);
 

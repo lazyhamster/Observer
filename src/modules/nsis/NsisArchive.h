@@ -3,8 +3,6 @@
 
 #include "ModuleDef.h"
 
-#include "7zip/Common/FileStreams.h"
-
 #include "NsisIn.h"
 #include "NsisHandler.h"
 
