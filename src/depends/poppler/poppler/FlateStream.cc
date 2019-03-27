@@ -5,16 +5,13 @@
 // Copyright (C) 2005, Jeff Muizelaar <jeff@infidigm.net>
 // Copyright (C) 2010, Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2016, William Bader <williambader@hotmail.com>
+// Copyright (C) 2017, Adrian Johnson <ajohnson@redneon.com>
 //
 // This file is under the GPLv2 or later license
 //
 //========================================================================
 
 #include <config.h>
-
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
-#endif
 
 #include "poppler-config.h"
 
@@ -43,7 +40,7 @@ FlateStream::~FlateStream() {
 
 void FlateStream::reset() {
   //FIXME: what are the semantics of reset?
-  //i.e. how much intialization has to happen in the constructor?
+  //i.e. how much initialization has to happen in the constructor?
 
   /* reinitialize zlib */
   inflateEnd(&d_stream);
@@ -91,7 +88,7 @@ int FlateStream::fill_buffer() {
       return -1;
     }
 
-    /* set to the begining of out_buf */
+    /* set to the beginning of out_buf */
     d_stream.avail_out = sizeof(out_buf);
     d_stream.next_out = out_buf;
     out_pos = 0;
@@ -136,8 +133,8 @@ GooString *FlateStream::getPSFilter(int psLevel, const char *indent) {
   return s;
 }
 
-GBool FlateStream::isBinary(GBool last) {
-  return str->isBinary(gTrue);
+bool FlateStream::isBinary(bool last) {
+  return str->isBinary(true);
 }
 
 #endif

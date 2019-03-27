@@ -1,6 +1,6 @@
 //========================================================================
 //
-// NameToCharCode.h
+// UnicodeMapFuncs.h
 //
 // Copyright 2001-2003 Glyph & Cog, LLC
 //
@@ -13,6 +13,8 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
+// Copyright (C) 2008 Koji Otani <sho@bbr.jp>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2018 Albert Astals Cid <aacid@kde.org>
 //
 // To see a description of the changes please see the Changelog file that
@@ -20,34 +22,8 @@
 //
 //========================================================================
 
-#ifndef NAMETOCHARCODE_H
-#define NAMETOCHARCODE_H
+#include "UTF.h"
 
-#include "CharTypes.h"
+int mapUTF8(Unicode u, char *buf, int bufSize);
 
-struct NameToCharCodeEntry;
-
-//------------------------------------------------------------------------
-
-class NameToCharCode {
-public:
-
-  NameToCharCode();
-  ~NameToCharCode();
-
-  NameToCharCode(const NameToCharCode &) = delete;
-  NameToCharCode& operator=(const NameToCharCode &) = delete;
-
-  void add(const char *name, CharCode c);
-  CharCode lookup(const char *name);
-
-private:
-
-  int hash(const char *name);
-
-  NameToCharCodeEntry *tab;
-  int size;
-  int len;
-};
-
-#endif
+int mapUTF16(Unicode u, char *buf, int bufSize);

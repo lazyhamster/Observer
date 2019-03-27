@@ -3,9 +3,10 @@
 // This file is under the GPLv2 or later license
 //
 // Copyright (C) 2005-2006 Kristian Høgsberg <krh@redhat.com>
-// Copyright (C) 2005, 2009, 2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2009, 2013, 2017, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Simon Kellner <kellner@kit.edu>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
+// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -18,14 +19,15 @@
 #include <stdio.h>
 #include <assert.h>
 
+#include <algorithm>
+
 #include "PageLabelInfo.h"
 #include "PageLabelInfo_p.h"
 
 PageLabelInfo::Interval::Interval(Object *dict, int baseA) {
-  Object obj;
-
   style = None;
-  if (dict->dictLookup("S", &obj)->isName()) {
+  Object obj = dict->dictLookup("S");
+  if (obj.isName()) {
     if (obj.isName("D")) {
       style = Arabic;
     } else if (obj.isName("R")) {
@@ -38,126 +40,99 @@ PageLabelInfo::Interval::Interval(Object *dict, int baseA) {
       style = LowercaseLatin;
     }
   }
-  obj.free();
 
-  if (dict->dictLookup("P", &obj)->isString())
-    prefix = obj.getString()->copy();
-  else
-    prefix = new GooString("");
-  obj.free();
+  obj = dict->dictLookup("P");
+  if (obj.isString()) {
+    const auto str = obj.getString();
+    prefix.assign(str->c_str(), str->getLength());
+  }
 
-  if (dict->dictLookup("St", &obj)->isInt())
+  obj = dict->dictLookup("St");
+  if (obj.isInt())
     first = obj.getInt();
   else
     first = 1;
-  obj.free();
 
   base = baseA;
 }
 
-PageLabelInfo::Interval::~Interval() {
-  delete prefix;
-}
-
 PageLabelInfo::PageLabelInfo(Object *tree, int numPages) {
-  int i;
-  Interval *interval, *next;
-
   parse(tree);
 
-  for (i = 0; i < intervals.getLength(); i++) {
-    interval = (Interval *) intervals.get(i);
+  if (intervals.empty())
+    return;
 
-    if (i + 1 < intervals.getLength()) {
-      next = (Interval *) intervals.get(i + 1);
-      interval->length = next->base - interval->base;
-    } else {
-      interval->length = numPages - interval->base;
-    }
-    if (interval->length < 0) interval->length = 0;
+  auto curr = intervals.begin();
+  for(auto next = curr + 1; next != intervals.end(); ++next, ++curr) {
+    curr->length = std::max(0, next->base - curr->base);
   }
-}
-
-PageLabelInfo::~PageLabelInfo() {
-  int i;
-  for (i = 0; i < intervals.getLength(); ++i) {
-    delete (Interval*)intervals.get(i);
-  }
+  curr->length = std::max(0, numPages - curr->base);
 }
 
 void PageLabelInfo::parse(Object *tree) {
-  Object nums, obj;
-  Object kids, kid, limits, low, high;
-  int i, base;
-  Interval *interval;
-
   // leaf node
-  if (tree->dictLookup("Nums", &nums)->isArray()) {
-    for (i = 0; i < nums.arrayGetLength(); i += 2) {
-      if (!nums.arrayGet(i, &obj)->isInt()) {
-	obj.free();
+  Object nums = tree->dictLookup("Nums");
+  if (nums.isArray()) {
+    for (int i = 0; i < nums.arrayGetLength(); i += 2) {
+      Object obj = nums.arrayGet(i);
+      if (!obj.isInt()) {
 	continue;
       }
-      base = obj.getInt();
-      obj.free();
-      if (!nums.arrayGet(i + 1, &obj)->isDict()) {
-	obj.free();
+      int base = obj.getInt();
+      obj = nums.arrayGet(i + 1);
+      if (!obj.isDict()) {
 	continue;
       }
 
-      interval = new Interval(&obj, base);
-      obj.free();
-      intervals.append(interval);
+      intervals.emplace_back(&obj, base);
     }
   }
-  nums.free();
 
-  if (tree->dictLookup("Kids", &kids)->isArray()) {
-    for (i = 0; i < kids.arrayGetLength(); ++i) {
-      if (kids.arrayGet(i, &kid)->isDict())
+  Object kids = tree->dictLookup("Kids");
+  if (kids.isArray()) {
+    for (int i = 0; i < kids.arrayGetLength(); ++i) {
+      Object kid = kids.arrayGet(i);
+      if (kid.isDict())
 	parse(&kid);
-      kid.free();
     }
   }
-  kids.free();
 }
 
-GBool PageLabelInfo::labelToIndex(GooString *label, int *index)
+bool PageLabelInfo::labelToIndex(GooString *label, int *index) const
 {
-  Interval *interval;
-  char *str = label->getCString(), *end;
-  int prefixLength;
-  int i, number;
+  const char *const str = label->c_str();
+  const std::size_t strLen = label->getLength();
+  const bool strUnicode = label->hasUnicodeMarker();
+  int number;
+  bool ok;
 
-  for (i = 0; i < intervals.getLength(); i++) {
-    interval = (Interval *) intervals.get(i);
-    const int base = interval->base;
-    prefixLength = interval->prefix->getLength();
-    if (label->cmpN(interval->prefix, prefixLength) != 0)
+  for (const auto& interval : intervals) {
+    const std::size_t prefixLen = interval.prefix.size();
+    if (strLen < prefixLen || interval.prefix.compare(0, prefixLen, str, prefixLen) != 0)
       continue;
 
-    switch (interval->style) {
+    switch (interval.style) {
     case Interval::Arabic:
-      number = strtol(str + prefixLength, &end, 10);
-      if (*end == '\0' && number - interval->first < interval->length) {
-	*index = base + number - interval->first;
-	return gTrue;
+      std::tie(number, ok) = fromDecimal(str + prefixLen, str + strLen, strUnicode);
+      if (ok && number - interval.first < interval.length) {
+    *index = interval.base + number - interval.first;
+	return true;
       }
       break;
     case Interval::LowercaseRoman:
     case Interval::UppercaseRoman:
-      number = fromRoman(str + prefixLength);
-      if (number >= 0 && number - interval->first < interval->length) {
-	*index = base + number - interval->first;
-	return gTrue;
+      number = fromRoman(str + prefixLen);
+      if (number >= 0 && number - interval.first < interval.length) {
+    *index = interval.base + number - interval.first;
+	return true;
       }
       break;
     case Interval::UppercaseLatin:
     case Interval::LowercaseLatin:
-      number = fromLatin(str + prefixLength);
-      if (number >= 0 && number - interval->first < interval->length) {
-	*index = base + number - interval->first;
-	return gTrue;
+      number = fromLatin(str + prefixLen);
+      if (number >= 0 && number - interval.first < interval.length) {
+    *index = interval.base + number - interval.first;
+	return true;
       }
       break;
     case Interval::None:
@@ -165,52 +140,53 @@ GBool PageLabelInfo::labelToIndex(GooString *label, int *index)
     }
   }
 
-  return gFalse;
+  return false;
 }
 
-GBool PageLabelInfo::indexToLabel(int index, GooString *label)
+bool PageLabelInfo::indexToLabel(int index, GooString *label) const
 {
   char buffer[32];
-  int i, base, number;
-  Interval *interval;
+  int base, number;
+  const Interval *matching_interval;
   GooString number_string;
 
   base = 0;
-  interval = NULL;
-  for (i = 0; i < intervals.getLength(); i++) {
-    interval = (Interval *) intervals.get(i);
-    if (base <= index && index < base + interval->length)
+  matching_interval = nullptr;
+  for (const auto& interval : intervals) {
+    if (base <= index && index < base + interval.length) {
+      matching_interval = &interval;
       break;
-    base += interval->length;
+    }
+    base += interval.length;
   }
 
-  if (i == intervals.getLength())
-    return gFalse;
+  if (!matching_interval)
+    return false;
 
-  number = index - base + interval->first;
-  switch (interval->style) {
+  number = index - base + matching_interval->first;
+  switch (matching_interval->style) {
   case Interval::Arabic:
     snprintf (buffer, sizeof(buffer), "%d", number);
     number_string.append(buffer);
     break;
   case Interval::LowercaseRoman:
-    toRoman(number, &number_string, gFalse);
+    toRoman(number, &number_string, false);
     break;
   case Interval::UppercaseRoman:
-    toRoman(number, &number_string, gTrue);
+    toRoman(number, &number_string, true);
     break;
   case Interval::LowercaseLatin:
-    toLatin(number, &number_string, gFalse);
+    toLatin(number, &number_string, false);
     break;
   case Interval::UppercaseLatin:
-    toLatin(number, &number_string, gTrue);
+    toLatin(number, &number_string, true);
     break;
   case Interval::None:
     break;
   }
 
   label->clear();
-  label->append(interval->prefix);
+  label->append(matching_interval->prefix.c_str(), matching_interval->prefix.size());
   if (label->hasUnicodeMarker()) {
       int i, len;
       char ucs2_char[2];
@@ -226,5 +202,5 @@ GBool PageLabelInfo::indexToLabel(int index, GooString *label)
       label->append(&number_string);
   }
 
-  return gTrue;
+  return true;
 }

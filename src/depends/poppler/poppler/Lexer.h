@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2006, 2007, 2010, 2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2006, 2007, 2010, 2013, 2017, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -25,10 +25,6 @@
 
 #ifndef LEXER_H
 #define LEXER_H
-
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
 
 #include "Object.h"
 #include "Stream.h"
@@ -55,9 +51,13 @@ public:
   // Destructor.
   ~Lexer();
 
+  Lexer(const Lexer &) = delete;
+  Lexer& operator=(const Lexer &) = delete;
+
   // Get the next object from the input stream.
-  Object *getObj(Object *obj, int objNum = -1);
-  Object *getObj(Object *obj, const char *cmdA, int objNum);
+  Object getObj(int objNum = -1);
+  Object getObj(const char *cmdA, int objNum);
+  template<typename T> Object getObj(T) = delete;
 
   // Skip to the beginning of the next line in the input stream.
   void skipToNextLine();
@@ -67,7 +67,7 @@ public:
 
   // Get stream.
   Stream *getStream()
-    { return curStr.isStream() ? curStr.getStream() : (Stream *)NULL; }
+    { return curStr.isStream() ? curStr.getStream() : nullptr; }
 
   // Get current position in file.  This is only used for error
   // messages.
@@ -79,7 +79,7 @@ public:
     { if (curStr.isStream()) curStr.streamSetPos(pos, dir); }
 
   // Returns true if <c> is a whitespace character.
-  static GBool isSpace(int c);
+  static bool isSpace(int c);
 
 
   // often (e.g. ~30% on PDF Refernce 1.6 pdf file from Adobe site) getChar
@@ -93,13 +93,13 @@ public:
 
 private:
 
-  int getChar(GBool comesFromLook = gFalse);
+  int getChar(bool comesFromLook = false);
   int lookChar();
 
   Array *streams;		// array of input streams
   int strPtr;			// index of current stream
   Object curStr;		// current stream
-  GBool freeArray;		// should lexer free the streams array?
+  bool freeArray;		// should lexer free the streams array?
   char tokBuf[tokBufSize];	// temporary token buffer
 
   XRef *xref;

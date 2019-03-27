@@ -15,6 +15,7 @@
 //
 // Copyright (C) 2006 Scott Turner <scotty1024@mac.com>
 // Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017 Vincent Le Garrec <legarrec.vincent@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -22,10 +23,6 @@
 //========================================================================
 
 #include <config.h>
-
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
-#endif
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -65,26 +62,26 @@ PSTokenizer::PSTokenizer(int (*getCharFuncA)(void *), void *dataA) {
 PSTokenizer::~PSTokenizer() {
 }
 
-GBool PSTokenizer::getToken(char *buf, int size, int *length) {
-  GBool comment, backslash;
+bool PSTokenizer::getToken(char *buf, int size, int *length) {
+  bool comment, backslash;
   int c;
   int i;
 
   // skip leading whitespace and comments
-  comment = gFalse;
+  comment = false;
   while (1) {
     if ((c = getChar()) == EOF) {
       buf[0] = '\0';
       *length = 0;
-      return gFalse;
+      return false;
     }
     if (comment) {
       if (c == '\x0a' || c == '\x0d') {
-	comment = gFalse;
+	comment = false;
       }
     } else if (c == '%') {
-      comment = gTrue;
-    } else if (specialChars[c] != 1) {
+      comment = true;
+    } else if (specialChars[static_cast<unsigned char>(c)] != 1) {
       break;
     }
   }
@@ -96,24 +93,24 @@ GBool PSTokenizer::getToken(char *buf, int size, int *length) {
   i = 0;
   buf[i++] = c;
   if (c == '(') {
-    backslash = gFalse;
+    backslash = false;
     while ((c = lookChar()) != EOF) {
       consumeChar();
       if (i < size) {
 	buf[i++] = c;
       }
       if (c == '\\') {
-	backslash = gTrue;
+	backslash = true;
       } else if (!backslash && c == ')') {
 	break;
       } else {
-	backslash = gFalse;
+	backslash = false;
       }
     }
   } else if (c == '<') {
     while ((c = lookChar()) != EOF) {
       consumeChar();
-      if (i < size && specialChars[c] != 1) {
+      if (i < size && specialChars[static_cast<unsigned char>(c)] != 1) {
 	buf[i++] = c;
       }
       if (c == '>') {
@@ -121,7 +118,7 @@ GBool PSTokenizer::getToken(char *buf, int size, int *length) {
       }
     }
   } else if (c != '[' && c != ']') {
-    while ((c = lookChar()) != EOF && !specialChars[c]) {
+    while ((c = lookChar()) != EOF && !specialChars[static_cast<unsigned char>(c)]) {
       consumeChar();
       if (i < size) {
 	buf[i++] = c;
@@ -133,7 +130,7 @@ GBool PSTokenizer::getToken(char *buf, int size, int *length) {
   // Return length of token
   *length = i;
 
-  return gTrue;
+  return true;
 }
 
 int PSTokenizer::lookChar() {

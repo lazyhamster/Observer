@@ -6,6 +6,7 @@
 // Copyright (C) 2005, 2009, 2014 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Simon Kellner <kellner@kit.edu>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
+// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -14,8 +15,42 @@
 
 /* http://mathworld.wolfram.com/RomanNumerals.html */
 
+#include "config.h"
+
+#ifdef HAVE_CODECVT
+#include <locale>
+#include <codecvt>
+#endif
+
 #include "goo/GooString.h"
 #include "Error.h"
+
+static std::pair<int,bool> fromDecimal(const char *const begin, const char *const end, const bool unicode) {
+#ifdef HAVE_CODECVT
+  if (unicode) {
+    std::wstring_convert<std::codecvt_utf16<wchar_t>> converter;
+    const auto str = converter.from_bytes(begin, end);
+
+    // Skip BOM since wcstol seems unable to handle it.
+    const wchar_t *c_str = str.c_str();
+    if (*c_str == wchar_t{0xfeff}) {
+      ++c_str;
+    }
+
+    wchar_t *parsed;
+    const int number = std::wcstol(c_str, &parsed, 10);
+    if (parsed >= str.data() + str.size()) {
+      return std::make_pair(number, true);
+    }
+  }
+#else
+  (void)unicode;
+#endif
+
+  char *parsed;
+  const int number = std::strtol(begin, &parsed, 10);
+  return std::make_pair(number, parsed >= end);
+}
 
 static int fromRoman(const char *buffer) {
   int digit_value, prev_digit_value, value;
@@ -67,7 +102,7 @@ static int fromRoman(const char *buffer) {
   return value;
 }
 
-static void toRoman(int number, GooString *str, GBool uppercase) {
+static void toRoman(int number, GooString *str, bool uppercase) {
   static const char uppercaseNumerals[] = "IVXLCDM";
   static const char lowercaseNumerals[] = "ivxlcdm";
   int divisor;
@@ -136,7 +171,7 @@ static int fromLatin(const char *buffer)
   return -1;
 }
 
-static void toLatin(int number, GooString *str, GBool uppercase) {
+static void toLatin(int number, GooString *str, bool uppercase) {
   char base, letter;
   int i, count;
 

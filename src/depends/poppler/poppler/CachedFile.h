@@ -8,7 +8,7 @@
 //
 // Copyright 2009 Stefan Thomas <thomas@eload24.com>
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
-// Copyright 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2018 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -17,7 +17,6 @@
 
 #include "poppler-config.h"
 
-#include "goo/gtypes.h"
 #include "Object.h"
 #include "Stream.h"
 
@@ -47,7 +46,10 @@ public:
 
   CachedFile(CachedFileLoader *cacheLoader, GooString *uri);
 
-  Guint getLength() { return length; }
+  CachedFile(const CachedFile &) = delete;
+  CachedFile& operator=(const CachedFile &) = delete;
+
+  unsigned int getLength() { return length; }
   long int tell();
   int seek(long int offset, int origin);
   size_t read(void * ptr, size_t unitsize, size_t count);
@@ -127,14 +129,18 @@ class CachedFileLoader {
 
 public:
 
+  CachedFileLoader() = default;
   virtual ~CachedFileLoader() {};
+
+  CachedFileLoader(const CachedFileLoader &) = delete;
+  CachedFileLoader& operator=(const CachedFileLoader &) = delete;
 
   // Initializes the file load.
   // Returns the length of the file.
   // The caller is responsible for deleting uri and cachedFile.
   virtual size_t init(GooString *uri, CachedFile *cachedFile) = 0;
 
-  // Loads speficified byte ranges and passes it to the writer to store them.
+  // Loads specified byte ranges and passes it to the writer to store them.
   // Returns 0 on success, Anything but 0 on failure.
   // The caller is responsible for deleting the writer.
   virtual int load(const std::vector<ByteRange> &ranges, CachedFileWriter *writer) = 0;

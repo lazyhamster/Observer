@@ -18,14 +18,17 @@
 // Copyright (C) 2006 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2006 Krzysztof Kowalczyk <kkowalczyk@gmail.com>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2008-2011, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008-2011, 2016-2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2011 Kenji Uno <ku@digitaldolphins.jp>
 // Copyright (C) 2012, 2013 Fabio D'Urso <fabiodurso@hotmail.it>
-// Copyright (C) 2012 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2012, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2012 Pino Toscano <pino@kde.org>
 // Copyright (C) 2013 Jason Crain <jason@aquaticape.us>
 // Copyright (C) 2015 William Bader <williambader@hotmail.com>
 // Copyright (C) 2016 Jakub Alba <jakubalba@gmail.com>
+// Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
+// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
+// Copyright (C) 2018 Greg Knight <lyngvi@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -34,34 +37,28 @@
 
 #include <config.h>
 
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
-#endif
+#include <cassert>
+#include <cctype>
+#include <cmath>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
 
-#include <stdlib.h>
-#include <stddef.h>
-#include <string.h>
-#include <ctype.h>
-#include <assert.h>
-#include <math.h>
 #include "gmem.h"
 #include "GooString.h"
 
-static const int MAXIMUM_DOUBLE_PREC = 16;
-
 //------------------------------------------------------------------------
+
+namespace
+{
 
 union GooStringFormatArg {
   int i;
-  Guint ui;
+  unsigned int ui;
   long l;
-  Gulong ul;
-#ifdef LLONG_MAX
+  unsigned long ul;
   long long ll;
-#endif
-#ifdef ULLONG_MAX
   unsigned long long ull;
-#endif
   double f;
   char c;
   char *s;
@@ -89,20 +86,16 @@ enum GooStringFormatType {
   fmtULongHexUpper,
   fmtULongOctal,
   fmtULongBinary,
-#ifdef LLONG_MAX
   fmtLongLongDecimal,
   fmtLongLongHex,
   fmtLongLongHexUpper,
   fmtLongLongOctal,
   fmtLongLongBinary,
-#endif
-#ifdef ULLONG_MAX
   fmtULongLongDecimal,
   fmtULongLongHex,
   fmtULongLongHexUpper,
   fmtULongLongOctal,
   fmtULongLongBinary,
-#endif
   fmtDouble,
   fmtDoubleTrimSmallAware,
   fmtDoubleTrim,
@@ -112,193 +105,71 @@ enum GooStringFormatType {
   fmtSpace
 };
 
-static const char *formatStrings[] = {
+const char *const formatStrings[] = {
   "d", "x", "X", "o", "b", "ud", "ux", "uX", "uo", "ub",
   "ld", "lx", "lX", "lo", "lb", "uld", "ulx", "ulX", "ulo", "ulb",
-#ifdef LLONG_MAX
   "lld", "llx", "llX", "llo", "llb",
-#endif
-#ifdef ULLONG_MAX
   "ulld", "ullx", "ullX", "ullo", "ullb",
-#endif
   "f", "gs", "g",
   "c",
   "s",
   "t",
   "w",
-  NULL
+  nullptr
 };
+
+void formatInt(long long x, char *buf, int bufSize,
+	       bool zeroFill, int width, int base,
+	       const char **p, int *len, bool upperCase = false);
+
+void formatUInt(unsigned long long x, char *buf, int bufSize,
+		bool zeroFill, int width, int base,
+		const char **p, int *len, bool upperCase = false);
+
+void formatDouble(double x, char *buf, int bufSize, int prec,
+		  bool trim, const char **p, int *len);
+
+void formatDoubleSmallAware(double x, char *buf, int bufSize, int prec,
+			    bool trim, const char **p, int *len);
+
+}
 
 //------------------------------------------------------------------------
 
-int inline GooString::roundedSize(int len) {
-  int delta;
-  if (len <= STR_STATIC_SIZE-1)
-      return STR_STATIC_SIZE;
-  delta = len < 256 ? 7 : 255;
-  return ((len + 1) + delta) & ~delta;
-}
-
-// Make sure that the buffer is big enough to contain <newLength> characters
-// plus terminating 0.
-// We assume that if this is being called from the constructor, <s> was set
-// to NULL and <length> was set to 0 to indicate unused string before calling us.
-void inline GooString::resize(int newLength) {
-  char *s1 = s;
-
-  if (!s || (roundedSize(length) != roundedSize(newLength))) {
-    // requires re-allocating data for string
-    if (newLength < STR_STATIC_SIZE) {
-      s1 = sStatic;
-    } else {
-      // allocate a rounded amount
-      if (s == sStatic)
-	s1 = (char*)gmalloc(roundedSize(newLength));
-      else
-	s1 = (char*)grealloc(s, roundedSize(newLength));
-    }
-    if (s == sStatic || s1 == sStatic) {
-      // copy the minimum, we only need to if are moving to or
-      // from sStatic.
-      // assert(s != s1) the roundedSize condition ensures this
-      if (newLength < length) {
-	memcpy(s1, s, newLength);
-      } else if (length > 0) {
-	memcpy(s1, s, length);
-      }
-      if (s != sStatic)
-	gfree(s);
-    }
-
-  }
-
-  s = s1;
-  length = newLength;
-  s[length] = '\0';
-}
-
-GooString* GooString::Set(const char *newStr, int newLen)
-{
-    if (!newStr) {
-        clear();
-        return this;
-    }
-
-    if (newLen == CALC_STRING_LEN) {
-        newLen = strlen(newStr);
-    } else {
-        assert(newLen >= 0);
-    }
-
-    resize(newLen);
-    memmove(s, newStr, newLen);
-
-    return this;
-}
-
-GooString::GooString() {
-  s = NULL;
-  length = 0;
-  Set(NULL);
-
-#if __cplusplus >= 201103L
-  static_assert(sizeof(GooString) == GooString::STR_FINAL_SIZE, "You should check memory alignment or STR_STATIC_SIZE calculation.");
-#endif
-}
-
-GooString::GooString(const char *sA) {
-  s = NULL;
-  length = 0;
-  Set(sA, CALC_STRING_LEN);
-}
-
-GooString::GooString(const char *sA, int lengthA) {
-  s = NULL;
-  length = 0;
-  Set(sA, lengthA);
-}
-
-GooString::GooString(GooString *str, int idx, int lengthA) {
-  s = NULL;
-  length = 0;
-  assert(idx + lengthA <= str->length);
-  Set(str->getCString() + idx, lengthA);
-}
-
-GooString::GooString(const GooString *str) {
-  s = NULL;
-  length = 0;
-  Set(str->getCString(), str->length);
-}
-
-GooString::GooString(GooString *str1, GooString *str2) {
-  s = NULL;
-  length = 0;
-  resize(str1->length + str2->length);
-  memcpy(s, str1->getCString(), str1->length);
-  memcpy(s + str1->length, str2->getCString(), str2->length);
-}
-
 GooString *GooString::fromInt(int x) {
   char buf[24]; // enough space for 64-bit ints plus a little extra
-  char *p;
+  const char *p;
   int len;
-  formatInt(x, buf, sizeof(buf), gFalse, 0, 10, &p, &len);
+  formatInt(x, buf, sizeof(buf), false, 0, 10, &p, &len);
+
   return new GooString(p, len);
 }
 
 GooString *GooString::format(const char *fmt, ...) {
-  va_list argList;
-  GooString *s;
+  auto *s = new GooString();
 
-  s = new GooString();
+  va_list argList;
   va_start(argList, fmt);
   s->appendfv(fmt, argList);
   va_end(argList);
+
   return s;
 }
 
 GooString *GooString::formatv(const char *fmt, va_list argList) {
-  GooString *s;
+  auto *s = new GooString();
 
-  s = new GooString();
   s->appendfv(fmt, argList);
+
   return s;
-}
-
-GooString::~GooString() {
-  if (s != sStatic)
-    gfree(s);
-}
-
-GooString *GooString::clear() {
-  resize(0);
-  return this;
-}
-
-GooString *GooString::append(char c) {
-  return append((const char*)&c, 1);
-}
-
-GooString *GooString::append(GooString *str) {
-  return append(str->getCString(), str->getLength());
-}
-
-GooString *GooString::append(const char *str, int lengthA) {
-  int prevLen = length;
-  if (CALC_STRING_LEN == lengthA)
-    lengthA = strlen(str);
-  resize(length + lengthA);
-  memcpy(s + prevLen, str, lengthA);
-  return this;
 }
 
 GooString *GooString::appendf(const char *fmt, ...) {
   va_list argList;
-
   va_start(argList, fmt);
   appendfv(fmt, argList);
   va_end(argList);
+
   return this;
 }
 
@@ -307,12 +178,12 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
   int argsLen, argsSize;
   GooStringFormatArg arg;
   int idx, width, prec;
-  GBool reverseAlign, zeroFill;
+  bool reverseAlign, zeroFill;
   GooStringFormatType ft;
   char buf[65];
   int len, i;
   const char *p0, *p1;
-  char *str;
+  const char *str;
   GooStringFormatArg argsBuf[ 8 ];
 
   argsLen = 0;
@@ -341,10 +212,10 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	}
 	++p0;
 	if (*p0 == '-') {
-	  reverseAlign = gTrue;
+	  reverseAlign = true;
 	  ++p0;
 	} else {
-	  reverseAlign = gFalse;
+	  reverseAlign = false;
 	}
 	width = 0;
 	zeroFill = *p0 == '0';
@@ -408,7 +279,7 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  case fmtUIntHexUpper:
 	  case fmtUIntOctal:
 	  case fmtUIntBinary:
-	    args[argsLen].ui = va_arg(argList, Guint);
+	    args[argsLen].ui = va_arg(argList, unsigned int);
 	    break;
 	  case fmtLongDecimal:
 	  case fmtLongHex:
@@ -422,9 +293,8 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  case fmtULongHexUpper:
 	  case fmtULongOctal:
 	  case fmtULongBinary:
-	    args[argsLen].ul = va_arg(argList, Gulong);
+	    args[argsLen].ul = va_arg(argList, unsigned long);
 	    break;
-#ifdef LLONG_MAX
 	  case fmtLongLongDecimal:
 	  case fmtLongLongHex:
 	  case fmtLongLongHexUpper:
@@ -432,8 +302,6 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  case fmtLongLongBinary:
 	    args[argsLen].ll = va_arg(argList, long long);
 	    break;
-#endif
-#ifdef ULLONG_MAX
 	  case fmtULongLongDecimal:
 	  case fmtULongLongHex:
 	  case fmtULongLongHexUpper:
@@ -441,7 +309,6 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  case fmtULongLongBinary:
 	    args[argsLen].ull = va_arg(argList, unsigned long long);
 	    break;
-#endif
 	  case fmtDouble:
 	  case fmtDoubleTrim:
 	  case fmtDoubleTrimSmallAware:
@@ -471,7 +338,7 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  break;
 	case fmtIntHexUpper:
 	  formatInt(arg.i, buf, sizeof(buf), zeroFill, width, 16, &str, &len,
-		    gTrue);
+		    true);
 	  break;
 	case fmtIntOctal:
 	  formatInt(arg.i, buf, sizeof(buf), zeroFill, width, 8, &str, &len);
@@ -489,7 +356,7 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  break;
 	case fmtUIntHexUpper:
 	  formatUInt(arg.ui, buf, sizeof(buf), zeroFill, width, 16,
-		     &str, &len, gTrue);
+		     &str, &len, true);
 	  break;
 	case fmtUIntOctal:
 	  formatUInt(arg.ui, buf, sizeof(buf), zeroFill, width, 8, &str, &len);
@@ -505,7 +372,7 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  break;
 	case fmtLongHexUpper:
 	  formatInt(arg.l, buf, sizeof(buf), zeroFill, width, 16, &str, &len,
-		    gTrue);
+		    true);
 	  break;
 	case fmtLongOctal:
 	  formatInt(arg.l, buf, sizeof(buf), zeroFill, width, 8, &str, &len);
@@ -523,7 +390,7 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  break;
 	case fmtULongHexUpper:
 	  formatUInt(arg.ul, buf, sizeof(buf), zeroFill, width, 16,
-		     &str, &len, gTrue);
+		     &str, &len, true);
 	  break;
 	case fmtULongOctal:
 	  formatUInt(arg.ul, buf, sizeof(buf), zeroFill, width, 8, &str, &len);
@@ -531,7 +398,6 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	case fmtULongBinary:
 	  formatUInt(arg.ul, buf, sizeof(buf), zeroFill, width, 2, &str, &len);
 	  break;
-#ifdef LLONG_MAX
 	case fmtLongLongDecimal:
 	  formatInt(arg.ll, buf, sizeof(buf), zeroFill, width, 10, &str, &len);
 	  break;
@@ -540,7 +406,7 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  break;
 	case fmtLongLongHexUpper:
 	  formatInt(arg.ll, buf, sizeof(buf), zeroFill, width, 16, &str, &len,
-		    gTrue);
+		    true);
 	  break;
 	case fmtLongLongOctal:
 	  formatInt(arg.ll, buf, sizeof(buf), zeroFill, width, 8, &str, &len);
@@ -548,8 +414,6 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	case fmtLongLongBinary:
 	  formatInt(arg.ll, buf, sizeof(buf), zeroFill, width, 2, &str, &len);
 	  break;
-#endif
-#ifdef ULLONG_MAX
 	case fmtULongLongDecimal:
 	  formatUInt(arg.ull, buf, sizeof(buf), zeroFill, width, 10,
 		     &str, &len);
@@ -560,7 +424,7 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  break;
 	case fmtULongLongHexUpper:
 	  formatUInt(arg.ull, buf, sizeof(buf), zeroFill, width, 16,
-		     &str, &len, gTrue);
+		     &str, &len, true);
 	  break;
 	case fmtULongLongOctal:
 	  formatUInt(arg.ull, buf, sizeof(buf), zeroFill, width, 8,
@@ -570,15 +434,14 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  formatUInt(arg.ull, buf, sizeof(buf), zeroFill, width, 2,
 		     &str, &len);
 	  break;
-#endif
 	case fmtDouble:
-	  formatDouble(arg.f, buf, sizeof(buf), prec, gFalse, &str, &len);
+	  formatDouble(arg.f, buf, sizeof(buf), prec, false, &str, &len);
 	  break;
 	case fmtDoubleTrim:
-	  formatDouble(arg.f, buf, sizeof(buf), prec, gTrue, &str, &len);
+	  formatDouble(arg.f, buf, sizeof(buf), prec, true, &str, &len);
 	  break;
 	case fmtDoubleTrimSmallAware:
-	  formatDoubleSmallAware(arg.f, buf, sizeof(buf), prec, gTrue, &str, &len);
+	  formatDoubleSmallAware(arg.f, buf, sizeof(buf), prec, true, &str, &len);
 	  break;
 	case fmtChar:
 	  buf[0] = arg.c;
@@ -592,7 +455,7 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
 	  reverseAlign = !reverseAlign;
 	  break;
 	case fmtGooString:
-	  str = arg.gs->getCString();
+	  str = arg.gs->c_str();
 	  len = arg.gs->getLength();
 	  reverseAlign = !reverseAlign;
 	  break;
@@ -638,26 +501,19 @@ GooString *GooString::appendfv(const char *fmt, va_list argList) {
   return this;
 }
 
-static const char lowerCaseDigits[17] = "0123456789abcdef";
-static const char upperCaseDigits[17] = "0123456789ABCDEF";
+namespace
+{
 
-#ifdef LLONG_MAX
-void GooString::formatInt(long long x, char *buf, int bufSize,
-                          GBool zeroFill, int width, int base,
-                          char **p, int *len, GBool upperCase) {
-#else
-void GooString::formatInt(long x, char *buf, int bufSize,
-                          GBool zeroFill, int width, int base,
-                          char **p, int *len, GBool upperCase) {
-#endif
+const char lowerCaseDigits[17] = "0123456789abcdef";
+const char upperCaseDigits[17] = "0123456789ABCDEF";
+
+void formatInt(long long x, char *buf, int bufSize,
+	       bool zeroFill, int width, int base,
+	       const char **p, int *len, bool upperCase) {
   const char *vals = upperCase ? upperCaseDigits : lowerCaseDigits;
-  GBool neg;
+  bool neg;
   int start, i, j;
-#ifdef LLONG_MAX
   unsigned long long abs_x;
-#else
-  unsigned long abs_x;
-#endif
 
   i = bufSize;
   if ((neg = x < 0)) {
@@ -686,15 +542,9 @@ void GooString::formatInt(long x, char *buf, int bufSize,
   *len = bufSize - i;
 }
 
-#ifdef ULLONG_MAX
-void GooString::formatUInt(unsigned long long x, char *buf, int bufSize,
-                           GBool zeroFill, int width, int base,
-                           char **p, int *len, GBool upperCase) {
-#else
-void GooString::formatUInt(Gulong x, char *buf, int bufSize,
-                           GBool zeroFill, int width, int base,
-                           char **p, int *len, GBool upperCase) {
-#endif
+void formatUInt(unsigned long long x, char *buf, int bufSize,
+		bool zeroFill, int width, int base,
+		const char **p, int *len, bool upperCase) {
   const char *vals = upperCase ? upperCaseDigits : lowerCaseDigits;
   int i, j;
 
@@ -716,9 +566,9 @@ void GooString::formatUInt(Gulong x, char *buf, int bufSize,
   *len = bufSize - i;
 }
 
-void GooString::formatDouble(double x, char *buf, int bufSize, int prec,
-			   GBool trim, char **p, int *len) {
-  GBool neg, started;
+void formatDouble(double x, char *buf, int bufSize, int prec,
+		  bool trim, const char **p, int *len) {
+  bool neg, started;
   double x2;
   int d, i, j;
 
@@ -733,7 +583,7 @@ void GooString::formatDouble(double x, char *buf, int bufSize, int prec,
     d = (int)floor(x - 10 * x2 + 0.5);
     if (started || d != 0) {
       buf[--i] = '0' + d;
-      started = gTrue;
+      started = true;
     }
     x = x2;
   }
@@ -755,14 +605,14 @@ void GooString::formatDouble(double x, char *buf, int bufSize, int prec,
   *len = bufSize - i;
 }
 
-void GooString::formatDoubleSmallAware(double x, char *buf, int bufSize, int prec,
-				      GBool trim, char **p, int *len)
+void formatDoubleSmallAware(double x, char *buf, int bufSize, int prec,
+			    bool trim, const char **p, int *len)
 {
   double absX = fabs(x);
   if (absX >= 0.1) {
     formatDouble(x, buf, bufSize, prec, trim, p, len);
   } else {
-    while (absX < 0.1 && prec < MAXIMUM_DOUBLE_PREC)
+    while (absX < 0.1 && prec < 16)
     {
       absX = absX * 10;
       prec++;
@@ -771,184 +621,81 @@ void GooString::formatDoubleSmallAware(double x, char *buf, int bufSize, int pre
   }
 }
 
-GooString *GooString::insert(int i, char c) {
-  return insert(i, (const char*)&c, 1);
-}
-
-GooString *GooString::insert(int i, GooString *str) {
-  return insert(i, str->getCString(), str->getLength());
-}
-
-GooString *GooString::insert(int i, const char *str, int lengthA) {
-  int prevLen = length;
-  if (CALC_STRING_LEN == lengthA)
-    lengthA = strlen(str);
-
-  resize(length + lengthA);
-  memmove(s+i+lengthA, s+i, prevLen-i);
-  memcpy(s+i, str, lengthA);
-  return this;
-}
-
-GooString *GooString::del(int i, int n) {
-  int j;
-
-  if (i >= 0 && n > 0 && i + n > 0) {
-    if (i + n > length) {
-      n = length - i;
-    }
-    for (j = i; j <= length - n; ++j) {
-      s[j] = s[j + n];
-    }
-    resize(length - n);
-  }
-  return this;
 }
 
 GooString *GooString::upperCase() {
-  int i;
-
-  for (i = 0; i < length; ++i) {
-    if (islower(s[i]))
-      s[i] = toupper(s[i]);
+  for (auto& c : *this) {
+    if (std::islower(c)) {
+      c = std::toupper(c);
+    }
   }
+
   return this;
 }
 
 GooString *GooString::lowerCase() {
-  int i;
-
-  for (i = 0; i < length; ++i) {
-    if (isupper(s[i]))
-      s[i] = tolower(s[i]);
+  for (auto& c : *this) {
+    if (std::isupper(c)) {
+      c = std::tolower(c);
+    }
   }
+
   return this;
 }
 
-int GooString::cmp(GooString *str) const {
-  int n1, n2, i, x;
-  char *p1, *p2;
-
-  n1 = length;
-  n2 = str->length;
-  for (i = 0, p1 = s, p2 = str->s; i < n1 && i < n2; ++i, ++p1, ++p2) {
-    x = *p1 - *p2;
-    if (x != 0) {
-      return x;
-    }
-  }
-  return n1 - n2;
-}
-
-int GooString::cmpN(GooString *str, int n) const {
-  int n1, n2, i, x;
-  char *p1, *p2;
-
-  n1 = length;
-  n2 = str->length;
-  for (i = 0, p1 = s, p2 = str->s;
-       i < n1 && i < n2 && i < n;
-       ++i, ++p1, ++p2) {
-    x = *p1 - *p2;
-    if (x != 0) {
-      return x;
-    }
-  }
-  if (i == n) {
-    return 0;
-  }
-  return n1 - n2;
-}
-
-int GooString::cmp(const char *sA) const {
-  int n1, i, x;
-  const char *p1, *p2;
-
-  n1 = length;
-  for (i = 0, p1 = s, p2 = sA; i < n1 && *p2; ++i, ++p1, ++p2) {
-    x = *p1 - *p2;
-    if (x != 0) {
-      return x;
-    }
-  }
-  if (i < n1) {
-    return 1;
-  }
-  if (*p2) {
-    return -1;
-  }
-  return 0;
-}
-
-int GooString::cmpN(const char *sA, int n) const {
-  int n1, i, x;
-  const char *p1, *p2;
-
-  n1 = length;
-  for (i = 0, p1 = s, p2 = sA; i < n1 && *p2 && i < n; ++i, ++p1, ++p2) {
-    x = *p1 - *p2;
-    if (x != 0) {
-      return x;
-    }
-  }
-  if (i == n) {
-    return 0;
-  }
-  if (i < n1) {
-    return 1;
-  }
-  if (*p2) {
-    return -1;
-  }
-  return 0;
-}
-
-GBool GooString::endsWith(const char *suffix) const {
-  int suffixLen = strlen(suffix);
-
-  if (length < suffixLen)
-    return gFalse;
-
-  return strcmp(s + length - suffixLen, suffix) == 0;
-}
-
-GBool GooString::hasUnicodeMarker(void) const
+void GooString::prependUnicodeMarker()
 {
-  return length > 1 && (s[0] & 0xff) == 0xfe && (s[1] & 0xff) == 0xff;
+    insert(0, "\xFE\xFF", 2);
 }
 
-GooString *GooString::sanitizedName(GBool psmode)
-{
-  GooString *name;
-  char buf[8];
-  int i;
-  char c;
+bool GooString::startsWith(const char *prefix) const {
+  const auto len = size();
+  const auto prefixLen = std::strlen(prefix);
 
-  name = new GooString();
+  if (len < prefixLen)
+    return false;
+
+  return static_cast<const std::string&>(*this).compare(0, prefixLen, prefix) == 0;
+}
+
+bool GooString::endsWith(const char *suffix) const {
+  const auto len = size();
+  const auto suffixLen = std::strlen(suffix);
+
+  if (len < suffixLen)
+    return false;
+
+  return static_cast<const std::string&>(*this).compare(len - suffixLen, suffixLen, suffix) == 0;
+}
+
+GooString *GooString::sanitizedName(bool psmode) const
+{
+  auto *name = new GooString();
 
   if (psmode)
   {
     // ghostscript chokes on names that begin with out-of-limits
     // numbers, e.g., 1e4foo is handled correctly (as a name), but
     // 1e999foo generates a limitcheck error
-    c = getChar(0);
+    const auto c = getChar(0);
     if (c >= '0' && c <= '9') {
       name->append('f');
     }
   }
 
-  for (i = 0; i < getLength(); ++i) {
-    c = getChar(i);
+  for (const auto c : *this) {
     if (c <= (char)0x20 || c >= (char)0x7f ||
 	c == ' ' ||
 	c == '(' || c == ')' || c == '<' || c == '>' ||
 	c == '[' || c == ']' || c == '{' || c == '}' ||
 	c == '/' || c == '%' || c == '#') {
+      char buf[8];
       sprintf(buf, "#%02x", c & 0xff);
       name->append(buf);
     } else {
       name->append(c);
     }
   }
+
   return name;
 }

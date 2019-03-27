@@ -39,6 +39,45 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="fofi\FoFiBase.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiEncodings.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiIdentifier.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiTrueType.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiType1.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="fofi\FoFiType1C.cc">
+      <Filter>Source Files\fofi</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\JSInfo.cc">
+      <Filter>Source Files\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\gfile.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\glibc.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\GooString.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\GooTimer.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\grandom.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
+    <ClCompile Include="goo\gstrtod.cc">
+      <Filter>Source Files\goo</Filter>
+    </ClCompile>
     <ClCompile Include="poppler\Annot.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
@@ -55,6 +94,9 @@
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\Catalog.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\CertificateInfo.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\CharCodeToUnicode.cc">
@@ -82,6 +124,9 @@
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\FontEncodingTables.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\FontInfo.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\Form.cc">
@@ -123,9 +168,6 @@
     <ClCompile Include="poppler\Link.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
-    <ClCompile Include="poppler\MarkedContentOutputDev.cc">
-      <Filter>Source Files\poppler</Filter>
-    </ClCompile>
     <ClCompile Include="poppler\Movie.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
@@ -141,13 +183,13 @@
     <ClCompile Include="poppler\Outline.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
-    <ClCompile Include="poppler\OutputDev.cc">
-      <Filter>Source Files\poppler</Filter>
-    </ClCompile>
     <ClCompile Include="poppler\Page.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\PageLabelInfo.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\PageTransition.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\Parser.cc">
@@ -159,19 +201,16 @@
     <ClCompile Include="poppler\PDFDocEncoding.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
-    <ClCompile Include="poppler\PopplerCache.cc">
-      <Filter>Source Files\poppler</Filter>
-    </ClCompile>
     <ClCompile Include="poppler\ProfileData.cc">
-      <Filter>Source Files\poppler</Filter>
-    </ClCompile>
-    <ClCompile Include="poppler\PSTokenizer.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\Rendition.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\SecurityHandler.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
+    <ClCompile Include="poppler\SignatureInfo.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
     <ClCompile Include="poppler\Sound.cc">
@@ -189,6 +228,9 @@
     <ClCompile Include="poppler\UnicodeMap.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
+    <ClCompile Include="poppler\UnicodeMapFuncs.cc">
+      <Filter>Source Files\poppler</Filter>
+    </ClCompile>
     <ClCompile Include="poppler\UnicodeTypeTable.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
@@ -201,103 +243,22 @@
     <ClCompile Include="poppler\XRef.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
-    <ClCompile Include="fofi\FoFiBase.cc">
-      <Filter>Source Files\fofi</Filter>
-    </ClCompile>
-    <ClCompile Include="fofi\FoFiEncodings.cc">
-      <Filter>Source Files\fofi</Filter>
-    </ClCompile>
-    <ClCompile Include="fofi\FoFiIdentifier.cc">
-      <Filter>Source Files\fofi</Filter>
-    </ClCompile>
-    <ClCompile Include="fofi\FoFiTrueType.cc">
-      <Filter>Source Files\fofi</Filter>
-    </ClCompile>
-    <ClCompile Include="fofi\FoFiType1.cc">
-      <Filter>Source Files\fofi</Filter>
-    </ClCompile>
-    <ClCompile Include="fofi\FoFiType1C.cc">
-      <Filter>Source Files\fofi</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\gfile.cc">
-      <Filter>Source Files\goo</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\gmem.cc">
-      <Filter>Source Files\goo</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\GooHash.cc">
-      <Filter>Source Files\goo</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\GooList.cc">
-      <Filter>Source Files\goo</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\GooString.cc">
-      <Filter>Source Files\goo</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\GooTimer.cc">
-      <Filter>Source Files\goo</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\grandom.cc">
-      <Filter>Source Files\goo</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\gstrtod.cc">
-      <Filter>Source Files\goo</Filter>
-    </ClCompile>
-    <ClCompile Include="utils\JSInfo.cc">
-      <Filter>Source Files\utils</Filter>
-    </ClCompile>
-    <ClCompile Include="poppler\FontInfo.cc">
+    <ClCompile Include="poppler\PSTokenizer.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
-    <ClCompile Include="poppler\PageTransition.cc">
+    <ClCompile Include="poppler\MarkedContentOutputDev.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
-    <ClCompile Include="poppler\SignatureInfo.cc">
+    <ClCompile Include="poppler\OutputDev.cc">
       <Filter>Source Files\poppler</Filter>
     </ClCompile>
-    <ClCompile Include="poppler\TextOutputDev.cc">
-      <Filter>Source Files\poppler</Filter>
-    </ClCompile>
-    <ClCompile Include="goo\glibc.cc">
+    <ClCompile Include="goo\glibc_strtok_r.cc">
       <Filter>Source Files\goo</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="utils\JSInfo.h">
       <Filter>Header Files\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\gfile.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\gmem.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\GooHash.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\GooLikely.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\GooList.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\GooMutex.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\GooString.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\GooTimer.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\grandom.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\gstrtod.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\gtypes.h">
-      <Filter>Header Files\goo</Filter>
     </ClInclude>
     <ClInclude Include="fofi\FoFiBase.h">
       <Filter>Header Files\fofi</Filter>
@@ -317,6 +278,39 @@
     <ClInclude Include="fofi\FoFiType1C.h">
       <Filter>Header Files\fofi</Filter>
     </ClInclude>
+    <ClInclude Include="config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler-config.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\gfile.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\glibc.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\gmem.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooLikely.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooList.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooString.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\GooTimer.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\grandom.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
+    <ClInclude Include="goo\gstrtod.h">
+      <Filter>Header Files\goo</Filter>
+    </ClInclude>
     <ClInclude Include="poppler\Annot.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
@@ -333,6 +327,9 @@
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
     <ClInclude Include="poppler\Catalog.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\CertificateInfo.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
     <ClInclude Include="poppler\CharCodeToUnicode.h">
@@ -366,6 +363,9 @@
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
     <ClInclude Include="poppler\FontEncodingTables.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\FontInfo.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
     <ClInclude Include="poppler\Form.h">
@@ -410,9 +410,6 @@
     <ClInclude Include="poppler\Link.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
-    <ClInclude Include="poppler\MarkedContentOutputDev.h">
-      <Filter>Header Files\poppler</Filter>
-    </ClInclude>
     <ClInclude Include="poppler\Movie.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
@@ -431,9 +428,6 @@
     <ClInclude Include="poppler\Outline.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
-    <ClInclude Include="poppler\OutputDev.h">
-      <Filter>Header Files\poppler</Filter>
-    </ClInclude>
     <ClInclude Include="poppler\Page.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
@@ -441,6 +435,9 @@
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
     <ClInclude Include="poppler\PageLabelInfo_p.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\PageTransition.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
     <ClInclude Include="poppler\Parser.h">
@@ -467,6 +464,9 @@
     <ClInclude Include="poppler\SecurityHandler.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
+    <ClInclude Include="poppler\SignatureInfo.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
     <ClInclude Include="poppler\Sound.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
@@ -482,9 +482,6 @@
     <ClInclude Include="poppler\StructTreeRoot.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
-    <ClInclude Include="poppler\TextOutputDev.h">
-      <Filter>Header Files\poppler</Filter>
-    </ClInclude>
     <ClInclude Include="poppler\UnicodeCClassTables.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
@@ -497,6 +494,9 @@
     <ClInclude Include="poppler\UnicodeMap.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
+    <ClInclude Include="poppler\UnicodeMapFuncs.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
     <ClInclude Include="poppler\UnicodeMapTables.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
@@ -506,38 +506,23 @@
     <ClInclude Include="poppler\UTF.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
-    <ClInclude Include="poppler\UTF8.h">
-      <Filter>Header Files\poppler</Filter>
-    </ClInclude>
     <ClInclude Include="poppler\ViewerPreferences.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
     <ClInclude Include="poppler\XRef.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
-    <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="poppler-config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="poppler\FontInfo.h">
+    <ClInclude Include="poppler\OutputDev.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
-    <ClInclude Include="poppler\PageTransition.h">
+    <ClInclude Include="poppler\MarkedContentOutputDev.h">
+      <Filter>Header Files\poppler</Filter>
+    </ClInclude>
+    <ClInclude Include="poppler\TextOutputDev.h">
       <Filter>Header Files\poppler</Filter>
     </ClInclude>
     <ClInclude Include="poppler\PSOutputDev.h">
       <Filter>Header Files\poppler</Filter>
-    </ClInclude>
-    <ClInclude Include="poppler\SignatureInfo.h">
-      <Filter>Header Files\poppler</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\glibc.h">
-      <Filter>Header Files\goo</Filter>
-    </ClInclude>
-    <ClInclude Include="goo\gtypes_p.h">
-      <Filter>Header Files\goo</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

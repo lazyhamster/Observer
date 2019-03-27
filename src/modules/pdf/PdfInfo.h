@@ -54,7 +54,7 @@ private:
 	std::string m_strText;
 
 public:
-	PdfScriptFile(const char* name, const char* text, size_t textSize);
+	PdfScriptFile(const char* name, const GooString* text);
 
 	virtual const wchar_t* GetPrefix() const { return L"{scripts}\\"; }
 	virtual __int64 GetSize() const { return m_strText.size(); }

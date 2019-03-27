@@ -43,9 +43,7 @@
     <ClCompile Include="fofi\FoFiType1C.cc" />
     <ClCompile Include="goo\gfile.cc" />
     <ClCompile Include="goo\glibc.cc" />
-    <ClCompile Include="goo\gmem.cc" />
-    <ClCompile Include="goo\GooHash.cc" />
-    <ClCompile Include="goo\GooList.cc" />
+    <ClCompile Include="goo\glibc_strtok_r.cc" />
     <ClCompile Include="goo\GooString.cc" />
     <ClCompile Include="goo\GooTimer.cc" />
     <ClCompile Include="goo\grandom.cc" />
@@ -56,6 +54,7 @@
     <ClCompile Include="poppler\BuiltinFontTables.cc" />
     <ClCompile Include="poppler\CachedFile.cc" />
     <ClCompile Include="poppler\Catalog.cc" />
+    <ClCompile Include="poppler\CertificateInfo.cc" />
     <ClCompile Include="poppler\CharCodeToUnicode.cc" />
     <ClCompile Include="poppler\CMap.cc" />
     <ClCompile Include="poppler\DateInfo.cc" />
@@ -92,7 +91,6 @@
     <ClCompile Include="poppler\Parser.cc" />
     <ClCompile Include="poppler\PDFDoc.cc" />
     <ClCompile Include="poppler\PDFDocEncoding.cc" />
-    <ClCompile Include="poppler\PopplerCache.cc" />
     <ClCompile Include="poppler\ProfileData.cc" />
     <ClCompile Include="poppler\PSTokenizer.cc" />
     <ClCompile Include="poppler\Rendition.cc" />
@@ -102,8 +100,8 @@
     <ClCompile Include="poppler\Stream.cc" />
     <ClCompile Include="poppler\StructElement.cc" />
     <ClCompile Include="poppler\StructTreeRoot.cc" />
-    <ClCompile Include="poppler\TextOutputDev.cc" />
     <ClCompile Include="poppler\UnicodeMap.cc" />
+    <ClCompile Include="poppler\UnicodeMapFuncs.cc" />
     <ClCompile Include="poppler\UnicodeTypeTable.cc" />
     <ClCompile Include="poppler\UTF.cc" />
     <ClCompile Include="poppler\ViewerPreferences.cc" />
@@ -121,16 +119,12 @@
     <ClInclude Include="goo\gfile.h" />
     <ClInclude Include="goo\glibc.h" />
     <ClInclude Include="goo\gmem.h" />
-    <ClInclude Include="goo\GooHash.h" />
     <ClInclude Include="goo\GooLikely.h" />
     <ClInclude Include="goo\GooList.h" />
-    <ClInclude Include="goo\GooMutex.h" />
     <ClInclude Include="goo\GooString.h" />
     <ClInclude Include="goo\GooTimer.h" />
     <ClInclude Include="goo\grandom.h" />
     <ClInclude Include="goo\gstrtod.h" />
-    <ClInclude Include="goo\gtypes.h" />
-    <ClInclude Include="goo\gtypes_p.h" />
     <ClInclude Include="poppler-config.h" />
     <ClInclude Include="poppler\Annot.h" />
     <ClInclude Include="poppler\Array.h" />
@@ -138,6 +132,7 @@
     <ClInclude Include="poppler\BuiltinFontTables.h" />
     <ClInclude Include="poppler\CachedFile.h" />
     <ClInclude Include="poppler\Catalog.h" />
+    <ClInclude Include="poppler\CertificateInfo.h" />
     <ClInclude Include="poppler\CharCodeToUnicode.h" />
     <ClInclude Include="poppler\CharTypes.h" />
     <ClInclude Include="poppler\CMap.h" />
@@ -196,10 +191,10 @@
     <ClInclude Include="poppler\UnicodeCompTables.h" />
     <ClInclude Include="poppler\UnicodeDecompTables.h" />
     <ClInclude Include="poppler\UnicodeMap.h" />
+    <ClInclude Include="poppler\UnicodeMapFuncs.h" />
     <ClInclude Include="poppler\UnicodeMapTables.h" />
     <ClInclude Include="poppler\UnicodeTypeTable.h" />
     <ClInclude Include="poppler\UTF.h" />
-    <ClInclude Include="poppler\UTF8.h" />
     <ClInclude Include="poppler\ViewerPreferences.h" />
     <ClInclude Include="poppler\XRef.h" />
     <ClInclude Include="utils\JSInfo.h" />

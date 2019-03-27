@@ -12,15 +12,6 @@
 #ifndef FLATESTREAM_H
 #define FLATESTREAM_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
-
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
-#endif
-
 #include "poppler-config.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -46,14 +37,14 @@ public:
 
   FlateStream(Stream *strA, int predictor, int columns, int colors, int bits);
   virtual ~FlateStream();
-  virtual StreamKind getKind() { return strFlate; }
-  virtual void reset();
-  virtual int getChar();
-  virtual int lookChar();
-  virtual int getRawChar();
-  virtual void getRawChars(int nChars, int *buffer);
-  virtual GooString *getPSFilter(int psLevel, const char *indent);
-  virtual GBool isBinary(GBool last = gTrue);
+  virtual StreamKind getKind() override { return strFlate; }
+  virtual void reset() override;
+  virtual int getChar() override;
+  virtual int lookChar() override;
+  virtual int getRawChar() override;
+  virtual void getRawChars(int nChars, int *buffer) override;
+  virtual GooString *getPSFilter(int psLevel, const char *indent) override;
+  virtual bool isBinary(bool last = true) override;
 
 private:
   inline int doGetRawChar() {

@@ -14,7 +14,7 @@
 // under GPL version 2 or later
 //
 // Copyright (C) 2005, 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2005 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2005, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2014 Fabio D'Urso <fabiodurso@hotmail.it>
@@ -27,13 +27,9 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
 #include <stdarg.h>
 #include "poppler-config.h"
-#include "goo/gtypes.h"
+#include "goo/gfile.h"
 #include "goo/GooString.h"
 
 enum ErrorCategory {
@@ -52,7 +48,7 @@ enum ErrorCategory {
 };
 
 extern void setErrorCallback(void (*cbk)(void *data, ErrorCategory category,
-					 Goffset pos, char *msg),
+					 Goffset pos, const char *msg),
 			     void *data);
 
 extern void CDECL error(ErrorCategory category, Goffset pos, const char *msg, ...) GOOSTRING_FORMAT;

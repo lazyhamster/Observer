@@ -15,7 +15,9 @@
 //
 // Copyright (C) 2008 Ed Avis <eda@waniasset.com>
 // Copyright (C) 2011 Jim Meyering <jim@meyering.net>
-// Copyright (C) 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2016, 2018 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2019 Christian Persch <chpe@src.gnome.org>
+// Copyright (C) 2019 LE GARREC Vincent <legarrec.vincent@gmail.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -24,12 +26,9 @@
 
 #include <config.h>
 
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
-#endif
-
 #include <stdio.h>
 #include <limits.h>
+#include "goo/gfile.h"
 #include "goo/gmem.h"
 #include "poppler/Error.h"
 #include "FoFiBase.h"
@@ -38,59 +37,59 @@
 // FoFiBase
 //------------------------------------------------------------------------
 
-FoFiBase::FoFiBase(char *fileA, int lenA, GBool freeFileDataA) {
-  fileData = file = (Guchar *)fileA;
+FoFiBase::FoFiBase(const char *fileA, int lenA, bool freeFileDataA) {
+  file = (const unsigned char *)fileA;
   len = lenA;
   freeFileData = freeFileDataA;
 }
 
 FoFiBase::~FoFiBase() {
   if (freeFileData) {
-    gfree(fileData);
+    gfree((char*)file);
   }
 }
 
-char *FoFiBase::readFile(char *fileName, int *fileLen) {
+char *FoFiBase::readFile(const char *fileName, int *fileLen) {
   FILE *f;
   char *buf;
   int n;
 
-  if (!(f = fopen(fileName, "rb"))) {
+  if (!(f = openFile(fileName, "rb"))) {
     error(errIO, -1, "Cannot open '{0:s}'", fileName);
-    return NULL;
+    return nullptr;
   }
   if (fseek(f, 0, SEEK_END) != 0) {
     error(errIO, -1, "Cannot seek to end of '{0:s}'", fileName);
     fclose(f);
-    return NULL;
+    return nullptr;
   }
   n = (int)ftell(f);
   if (n < 0) {
     error(errIO, -1, "Cannot determine length of '{0:s}'", fileName);
     fclose(f);
-    return NULL;
+    return nullptr;
   }
   if (fseek(f, 0, SEEK_SET) != 0) {
     error(errIO, -1, "Cannot seek to start of '{0:s}'", fileName);
     fclose(f);
-    return NULL;
+    return nullptr;
   }
   buf = (char *)gmalloc(n);
   if ((int)fread(buf, 1, n, f) != n) {
     gfree(buf);
     fclose(f);
-    return NULL;
+    return nullptr;
   }
   fclose(f);
   *fileLen = n;
   return buf;
 }
 
-int FoFiBase::getS8(int pos, GBool *ok) {
+int FoFiBase::getS8(int pos, bool *ok) const {
   int x;
 
   if (pos < 0 || pos >= len) {
-    *ok = gFalse;
+    *ok = false;
     return 0;
   }
   x = file[pos];
@@ -100,19 +99,19 @@ int FoFiBase::getS8(int pos, GBool *ok) {
   return x;
 }
 
-int FoFiBase::getU8(int pos, GBool *ok) {
+int FoFiBase::getU8(int pos, bool *ok) const {
   if (pos < 0 || pos >= len) {
-    *ok = gFalse;
+    *ok = false;
     return 0;
   }
   return file[pos];
 }
 
-int FoFiBase::getS16BE(int pos, GBool *ok) {
+int FoFiBase::getS16BE(int pos, bool *ok) const {
   int x;
 
   if (pos < 0 || pos+1 >= len || pos > INT_MAX - 1) {
-    *ok = gFalse;
+    *ok = false;
     return 0;
   }
   x = file[pos];
@@ -123,11 +122,11 @@ int FoFiBase::getS16BE(int pos, GBool *ok) {
   return x;
 }
 
-int FoFiBase::getU16BE(int pos, GBool *ok) {
+int FoFiBase::getU16BE(int pos, bool *ok) const {
   int x;
 
   if (pos < 0 || pos+1 >= len || pos > INT_MAX - 1) {
-    *ok = gFalse;
+    *ok = false;
     return 0;
   }
   x = file[pos];
@@ -135,11 +134,11 @@ int FoFiBase::getU16BE(int pos, GBool *ok) {
   return x;
 }
 
-int FoFiBase::getS32BE(int pos, GBool *ok) {
+int FoFiBase::getS32BE(int pos, bool *ok) const {
   int x;
 
   if (pos < 0 || pos+3 >= len || pos > INT_MAX - 3) {
-    *ok = gFalse;
+    *ok = false;
     return 0;
   }
   x = file[pos];
@@ -152,11 +151,11 @@ int FoFiBase::getS32BE(int pos, GBool *ok) {
   return x;
 }
 
-Guint FoFiBase::getU32BE(int pos, GBool *ok) {
-  Guint x;
+unsigned int FoFiBase::getU32BE(int pos, bool *ok) const {
+  unsigned int x;
 
   if (pos < 0 || pos+3 >= len || pos > INT_MAX - 3) {
-    *ok = gFalse;
+    *ok = false;
     return 0;
   }
   x = file[pos];
@@ -166,11 +165,11 @@ Guint FoFiBase::getU32BE(int pos, GBool *ok) {
   return x;
 }
 
-Guint FoFiBase::getU32LE(int pos, GBool *ok) {
-  Guint x;
+unsigned int FoFiBase::getU32LE(int pos, bool *ok) const {
+  unsigned int x;
 
   if (pos < 0 || pos+3 >= len || pos > INT_MAX - 3) {
-    *ok = gFalse;
+    *ok = false;
     return 0;
   }
   x = file[pos+3];
@@ -180,12 +179,12 @@ Guint FoFiBase::getU32LE(int pos, GBool *ok) {
   return x;
 }
 
-Guint FoFiBase::getUVarBE(int pos, int size, GBool *ok) {
-  Guint x;
+unsigned int FoFiBase::getUVarBE(int pos, int size, bool *ok) const {
+  unsigned int x;
   int i;
 
   if (pos < 0 || pos + size > len || pos > INT_MAX - size) {
-    *ok = gFalse;
+    *ok = false;
     return 0;
   }
   x = 0;
@@ -195,8 +194,9 @@ Guint FoFiBase::getUVarBE(int pos, int size, GBool *ok) {
   return x;
 }
 
-GBool FoFiBase::checkRegion(int pos, int size) {
+bool FoFiBase::checkRegion(int pos, int size) const {
   return pos >= 0 &&
+         size >= 0 &&
          pos < INT_MAX - size &&
          size < INT_MAX - pos &&
          pos + size >= pos &&

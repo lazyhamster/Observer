@@ -8,10 +8,6 @@
 
 #include <config.h>
 
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
-#endif
-
 #include <stdlib.h>
 #include <string.h>
 #include "goo/gmem.h"
@@ -26,7 +22,7 @@ BuiltinFontWidths::BuiltinFontWidths(BuiltinFontWidth *widths, int sizeA) {
   size = sizeA;
   tab = (BuiltinFontWidth **)gmallocn(size, sizeof(BuiltinFontWidth *));
   for (i = 0; i < size; ++i) {
-    tab[i] = NULL;
+    tab[i] = nullptr;
   }
   for (i = 0; i < sizeA; ++i) {
     h = hash(widths[i].name);
@@ -39,7 +35,7 @@ BuiltinFontWidths::~BuiltinFontWidths() {
   gfree(tab);
 }
 
-GBool BuiltinFontWidths::getWidth(const char *name, Gushort *width) {
+bool BuiltinFontWidths::getWidth(const char *name, unsigned short *width) {
   int h;
   BuiltinFontWidth *p;
 
@@ -47,10 +43,10 @@ GBool BuiltinFontWidths::getWidth(const char *name, Gushort *width) {
   for (p = tab[h]; p; p = p->next) {
     if (!strcmp(p->name, name)) {
       *width = p->width;
-      return gTrue;
+      return true;
     }
   }
-  return gFalse;
+  return false;
 }
 
 int BuiltinFontWidths::hash(const char *name) {

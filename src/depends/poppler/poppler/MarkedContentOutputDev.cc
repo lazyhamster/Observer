@@ -5,6 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2013 Igalia S.L.
+// Copyright 2018 Albert Astals Cid <aacid@kde.org>
 //
 //========================================================================
 
@@ -18,12 +19,12 @@
 
 
 MarkedContentOutputDev::MarkedContentOutputDev(int mcidA):
-  currentFont(NULL),
-  currentText(NULL),
+  currentFont(nullptr),
+  currentText(nullptr),
   mcid(mcidA),
   pageWidth(0.0),
   pageHeight(0.0),
-  unicodeMap(NULL)
+  unicodeMap(nullptr)
 {
   currentColor.r = currentColor.g = currentColor.b = 0;
 }
@@ -48,7 +49,7 @@ void MarkedContentOutputDev::endSpan()
                                  currentFont,
                                  currentColor));
   }
-  currentText = NULL;
+  currentText = nullptr;
 }
 
 
@@ -69,11 +70,11 @@ void MarkedContentOutputDev::endPage()
 }
 
 
-void MarkedContentOutputDev::beginMarkedContent(char *name, Dict *properties)
+void MarkedContentOutputDev::beginMarkedContent(const char *name, Dict *properties)
 {
   int id = -1;
   if (properties)
-    properties->lookupInt("MCID", NULL, &id);
+    properties->lookupInt("MCID", nullptr, &id);
 
   if (id == -1)
     return;
@@ -96,23 +97,23 @@ void MarkedContentOutputDev::endMarkedContent(GfxState *state)
 }
 
 
-bool MarkedContentOutputDev::needFontChange(GfxFont* font) const
+bool MarkedContentOutputDev::needFontChange(const GfxFont* font) const
 {
   if (currentFont == font)
-    return gFalse;
+    return false;
 
   if (!currentFont)
-    return font != NULL && font->isOk();
+    return font != nullptr && font->isOk();
 
-  if (font == NULL)
-    return gTrue;
+  if (font == nullptr)
+    return true;
 
   // Two non-null valid fonts are the same if they point to the same Ref
   if (currentFont->getID()->num == font->getID()->num &&
       currentFont->getID()->gen == font->getID()->gen)
-    return gFalse;
+    return false;
 
-  return gTrue;
+  return true;
 }
 
 
@@ -130,7 +131,7 @@ void MarkedContentOutputDev::drawChar(GfxState *state,
   // Color changes are tracked here so the color can be chosen depending on
   // the render mode (for mode 1 stroke color is used), so there is no need
   // to implement both updateFillColor() and updateStrokeColor().
-  GBool colorChange = gFalse;
+  bool colorChange = false;
   GfxRGB color;
   if ((state->getRender() & 3) == 1)
     state->getStrokeRGB(&color);
@@ -142,7 +143,7 @@ void MarkedContentOutputDev::drawChar(GfxState *state,
                  color.b != currentColor.b);
 
   // Check also for font changes.
-  GBool fontChange = needFontChange(state->getFont());
+  bool fontChange = needFontChange(state->getFont());
 
   // Save a span with the current changes.
   if (colorChange || fontChange) {
@@ -154,11 +155,11 @@ void MarkedContentOutputDev::drawChar(GfxState *state,
     currentColor = color;
 
   if (fontChange) {
-    if (currentFont != NULL) {
+    if (currentFont != nullptr) {
       currentFont->decRefCnt();
-      currentFont = NULL;
+      currentFont = nullptr;
     }
-    if (state->getFont() != NULL) {
+    if (state->getFont() != nullptr) {
       currentFont = state->getFont();
       currentFont->incRefCnt();
     }
@@ -197,7 +198,7 @@ void MarkedContentOutputDev::drawChar(GfxState *state,
       char buf[8];
       int n = unicodeMap->mapUnicode(u[i], buf, sizeof(buf));
       if (n > 0) {
-        if (currentText == NULL)
+        if (currentText == nullptr)
           currentText = new GooString();
         currentText->append(buf, n);
       }

@@ -20,10 +20,6 @@
 #ifndef PAGE_TRANSITION_H
 #define PAGE_TRANSITION_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
 #include "Object.h"
 
 //------------------------------------------------------------------------
@@ -67,7 +63,7 @@ public:
   ~PageTransition ();
 
   // Was the Page Transition created successfully?
-  GBool isOk() { return ok; }
+  bool isOk() { return ok; }
 
   // Get type
   PageTransitionType getType() { return type; }
@@ -88,7 +84,7 @@ public:
   double getScale() { return scale; }
 
   // Is rectangular?
-  GBool isRectangular() { return rectangular; }
+  bool isRectangular() { return rectangular; }
 
 private:
   
@@ -98,8 +94,8 @@ private:
   PageTransitionDirection direction; // direction of motion
   int angle;                         // direction in degrees
   double scale;                      // scale
-  GBool rectangular;                 // is the area to be flown in rectangular?
-  GBool ok;                          // set if created successfully
+  bool rectangular;                 // is the area to be flown in rectangular?
+  bool ok;                          // set if created successfully
 };
 
 #endif /* PAGE_TRANSITION_H */

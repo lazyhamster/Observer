@@ -121,7 +121,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
 	globalParams = new GlobalParams();
-	globalParams->setErrQuiet(gTrue);
+	globalParams->setErrQuiet(true);
 
 	return TRUE;
 }

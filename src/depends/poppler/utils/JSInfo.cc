@@ -5,7 +5,8 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
-// Copyright (C) 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2016, 2017 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -24,6 +25,7 @@
 #include "Form.h"
 #include "UnicodeMap.h"
 #include "UTF.h"
+// #include "Win32Console.h"
 
 JSInfo::JSInfo(PDFDoc *docA, int firstPage) {
   doc = docA;
@@ -33,12 +35,12 @@ JSInfo::JSInfo(PDFDoc *docA, int firstPage) {
 JSInfo::~JSInfo() {
 }
 
-void JSInfo::printJS(GooString *js) {
-  Unicode *u;
+void JSInfo::printJS(const GooString *js) {
+  Unicode *u =  nullptr;
   char buf[8];
   int i, n, len;
 
-  if (!js || !js->getCString())
+  if (!js || !js->c_str())
     return;
 
   len = TextStringToUCS4(js, &u);
@@ -46,6 +48,7 @@ void JSInfo::printJS(GooString *js) {
     n = uniMap->mapUnicode(u[i], buf, sizeof(buf));
     fwrite(buf, 1, n, file);
   }
+  gfree(u);
 }
 
 void JSInfo::scanLinkAction(LinkAction *link, const char *action, bool deleteLink) {
@@ -53,11 +56,11 @@ void JSInfo::scanLinkAction(LinkAction *link, const char *action, bool deleteLin
     return;
 
   if (link->getKind() == actionJavaScript) {
-    hasJS = gTrue;
+    hasJS = true;
     if (print) {
       LinkJavaScript *linkjs = static_cast<LinkJavaScript *>(link);
-      GooString *s = linkjs->getScript();
-      if (s && s->getCString()) {
+      const GooString *s = linkjs->getScript();
+      if (s && s->c_str()) {
 	fprintf(file, "%s:\n", action);
 	printJS(s);
 	fputs("\n\n", file);
@@ -68,10 +71,10 @@ void JSInfo::scanLinkAction(LinkAction *link, const char *action, bool deleteLin
   if (link->getKind() == actionRendition) {
     LinkRendition *linkr = static_cast<LinkRendition *>(link);
     if (linkr->getScript()) {
-      hasJS = gTrue;
+      hasJS = true;
       if (print) {
-        GooString *s = linkr->getScript();
-        if (s && s->getCString()) {
+        const GooString *s = linkr->getScript();
+        if (s && s->c_str()) {
           fprintf(file, "%s (Rendition):\n", action);
           printJS(s);
           fputs("\n\n", file);
@@ -84,13 +87,13 @@ void JSInfo::scanLinkAction(LinkAction *link, const char *action, bool deleteLin
 }
 
 void JSInfo::scanJS(int nPages) {
-  print = gFalse;
-  file = NULL;
+  print = false;
+  file = nullptr;
   scan(nPages);
 }
 
 void JSInfo::scanJS(int nPages, FILE *fout, UnicodeMap *uMap) {
-  print = gTrue;
+  print = true;
   file = fout;
   uniMap = uMap;
   scan(nPages);
@@ -99,19 +102,20 @@ void JSInfo::scanJS(int nPages, FILE *fout, UnicodeMap *uMap) {
 void JSInfo::scan(int nPages) {
   Page *page;
   Annots *annots;
-  Object obj1, obj2;
   int lastPage;
 
-  hasJS = gFalse;
+  hasJS = false;
 
   // Names
   int numNames = doc->getCatalog()->numJS();
   if (numNames > 0) {
-    hasJS = gTrue;
+    hasJS = true;
     if (print) {
       for (int i = 0; i < numNames; i++) {
-	fprintf(file, "Name Dictionary \"%s\":\n", doc->getCatalog()->getJSName(i)->getCString());
-	printJS(doc->getCatalog()->getJS(i));
+	fprintf(file, "Name Dictionary \"%s\":\n", doc->getCatalog()->getJSName(i)->c_str());
+	GooString *js = doc->getCatalog()->getJS(i);
+	printJS(js);
+	delete js;
 	fputs("\n\n", file);
       }
     }
@@ -231,6 +235,6 @@ void JSInfo::scan(int nPages) {
   currentPage = lastPage;
 }
 
-GBool JSInfo::containsJS() {
+bool JSInfo::containsJS() {
   return hasJS;
-};
+}

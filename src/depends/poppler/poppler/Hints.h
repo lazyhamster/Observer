@@ -5,7 +5,7 @@
 // This file is licensed under the GPLv2 or later
 //
 // Copyright 2010 Hib Eris <hib@hiberis.nl>
-// Copyright 2010, 2013, 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright 2010, 2013, 2016, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright 2013 Adrian Johnson <ajohnson@redneon.com>
 //
 //========================================================================
@@ -14,7 +14,6 @@
 #define HINTS_H
 
 #include <string.h>
-#include "goo/gtypes.h"
 #include <vector>
 #include "PDFDoc.h"
 
@@ -33,7 +32,10 @@ public:
   Hints(BaseStream *str, Linearization *linearization, XRef *xref, SecurityHandler *secHdlr);
   ~Hints();
 
-  GBool isOk() const;
+  Hints(const Hints &) = delete;
+  Hints& operator=(const Hints &) = delete;
+
+  bool isOk() const;
 
   int getPageObjectNum(int page);
   Goffset getPageOffset(int page);
@@ -42,49 +44,49 @@ public:
 private:
 
   void readTables(BaseStream *str, Linearization *linearization, XRef *xref, SecurityHandler *secHdlr);
-  GBool readPageOffsetTable(Stream *str);
-  GBool readSharedObjectsTable(Stream *str);
+  bool readPageOffsetTable(Stream *str);
+  bool readSharedObjectsTable(Stream *str);
 
-  Guint hintsOffset;
-  Guint hintsLength;
-  Guint hintsOffset2;
-  Guint hintsLength2;
-  Guint mainXRefEntriesOffset;
+  unsigned int hintsOffset;
+  unsigned int hintsLength;
+  unsigned int hintsOffset2;
+  unsigned int hintsLength2;
+  unsigned int mainXRefEntriesOffset;
 
   int nPages;
   int pageFirst;
   int pageObjectFirst;
   Goffset pageOffsetFirst;
-  Guint pageEndFirst;
+  unsigned int pageEndFirst;
 
-  Guint nObjectLeast;
-  Guint objectOffsetFirst;
-  Guint nBitsDiffObjects;
-  Guint pageLengthLeast;
-  Guint nBitsDiffPageLength;
-  Guint OffsetStreamLeast;
-  Guint nBitsOffsetStream;
-  Guint lengthStreamLeast;
-  Guint nBitsLengthStream;
-  Guint nBitsNumShared;
-  Guint nBitsShared;
-  Guint nBitsNumerator;
-  Guint denominator;
+  unsigned int nObjectLeast;
+  unsigned int objectOffsetFirst;
+  unsigned int nBitsDiffObjects;
+  unsigned int pageLengthLeast;
+  unsigned int nBitsDiffPageLength;
+  unsigned int OffsetStreamLeast;
+  unsigned int nBitsOffsetStream;
+  unsigned int lengthStreamLeast;
+  unsigned int nBitsLengthStream;
+  unsigned int nBitsNumShared;
+  unsigned int nBitsShared;
+  unsigned int nBitsNumerator;
+  unsigned int denominator;
 
-  Guint *nObjects;
+  unsigned int *nObjects;
   int *pageObjectNum;
-  Guint *xRefOffset;
-  Guint *pageLength;
+  unsigned int *xRefOffset;
+  unsigned int *pageLength;
   Goffset *pageOffset;
-  Guint *numSharedObject;
-  Guint **sharedObjectId;
+  unsigned int *numSharedObject;
+  unsigned int **sharedObjectId;
 
-  Guint *groupLength;
-  Guint *groupOffset;
-  Guint *groupHasSignature;
-  Guint *groupNumObjects;
-  Guint *groupXRefOffset;
-  GBool ok;
+  unsigned int *groupLength;
+  unsigned int *groupOffset;
+  unsigned int *groupHasSignature;
+  unsigned int *groupNumObjects;
+  unsigned int *groupXRefOffset;
+  bool ok;
 };
 
 #endif

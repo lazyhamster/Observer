@@ -13,8 +13,9 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2008, 2010, 2012 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2010, 2012, 2017, 2019 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -22,10 +23,6 @@
 //========================================================================
 
 #include <config.h>
-
-#ifdef USE_GCC_PRAGMAS
-#pragma implementation
-#endif
 
 #include <stddef.h>
 #include "Object.h"
@@ -54,47 +51,23 @@ static const char *objTypeNames[numObjTypes] = {
   "error",
   "eof",
   "none",
-  "integer64"
+  "integer64",
+  "dead"
 };
 
-#ifdef DEBUG_MEM
-int Object::numAlloc[numObjTypes] =
-  {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
-#endif
+Object Object::copy() const {
+  CHECK_NOT_DEAD;
 
-Object *Object::initArray(XRef *xref) {
-  initObj(objArray);
-  array = new Array(xref);
-  return this;
-}
+  Object obj;
+  std::memcpy(reinterpret_cast<void*>(&obj), this, sizeof(Object));
 
-Object *Object::initDict(XRef *xref) {
-  initObj(objDict);
-  dict = new Dict(xref);
-  return this;
-}
-
-Object *Object::initDict(Dict *dictA) {
-  initObj(objDict);
-  dict = dictA;
-  dict->incRef();
-  return this;
-}
-
-Object *Object::initStream(Stream *streamA) {
-  initObj(objStream);
-  stream = streamA;
-  return this;
-}
-
-Object *Object::copy(Object *obj) {
-  *obj = *this;
   switch (type) {
   case objString:
-    obj->string = string->copy();
+    obj.string = string->copy();
     break;
   case objName:
-    obj->name = copyString(name);
+  case objCmd:
+    obj.cString = copyString(cString);
     break;
   case objArray:
     array->incRef();
@@ -105,21 +78,18 @@ Object *Object::copy(Object *obj) {
   case objStream:
     stream->incRef();
     break;
-  case objCmd:
-    obj->cmd = copyString(cmd);
-    break;
   default:
     break;
   }
-#ifdef DEBUG_MEM
-  ++numAlloc[type];
-#endif
+
   return obj;
 }
 
-Object *Object::fetch(XRef *xref, Object *obj, int recursion) {
+Object Object::fetch(XRef *xref, int recursion) const {
+  CHECK_NOT_DEAD;
+
   return (type == objRef && xref) ?
-         xref->fetch(ref.num, ref.gen, obj, recursion) : copy(obj);
+         xref->fetch(ref, recursion) : copy();
 }
 
 void Object::free() {
@@ -128,7 +98,8 @@ void Object::free() {
     delete string;
     break;
   case objName:
-    gfree(name);
+  case objCmd:
+    gfree(cString);
     break;
   case objArray:
     if (!array->decRef()) {
@@ -145,24 +116,17 @@ void Object::free() {
       delete stream;
     }
     break;
-  case objCmd:
-    gfree(cmd);
-    break;
   default:
     break;
   }
-#ifdef DEBUG_MEM
-  --numAlloc[type];
-#endif
   type = objNone;
 }
 
-const char *Object::getTypeName() {
+const char *Object::getTypeName() const {
   return objTypeNames[type];
 }
 
-void Object::print(FILE *f) {
-  Object obj;
+void Object::print(FILE *f) const {
   int i;
 
   switch (type) {
@@ -177,11 +141,11 @@ void Object::print(FILE *f) {
     break;
   case objString:
     fprintf(f, "(");
-    fwrite(string->getCString(), 1, string->getLength(), f);
+    fwrite(string->c_str(), 1, string->getLength(), f);
     fprintf(f, ")");
     break;
   case objName:
-    fprintf(f, "/%s", name);
+    fprintf(f, "/%s", cString);
     break;
   case objNull:
     fprintf(f, "null");
@@ -191,9 +155,8 @@ void Object::print(FILE *f) {
     for (i = 0; i < arrayGetLength(); ++i) {
       if (i > 0)
 	fprintf(f, " ");
-      arrayGetNF(i, &obj);
+      const Object &obj = arrayGetNF(i);
       obj.print(f);
-      obj.free();
     }
     fprintf(f, "]");
     break;
@@ -201,9 +164,8 @@ void Object::print(FILE *f) {
     fprintf(f, "<<");
     for (i = 0; i < dictGetLength(); ++i) {
       fprintf(f, " /%s ", dictGetKey(i));
-      dictGetValNF(i, &obj);
+      const Object &obj = dictGetValNF(i);
       obj.print(f);
-      obj.free();
     }
     fprintf(f, " >>");
     break;
@@ -214,7 +176,7 @@ void Object::print(FILE *f) {
     fprintf(f, "%d %d R", ref.num, ref.gen);
     break;
   case objCmd:
-    fprintf(f, "%s", cmd);
+    fprintf(f, "%s", cString);
     break;
   case objError:
     fprintf(f, "<error>");
@@ -225,28 +187,11 @@ void Object::print(FILE *f) {
   case objNone:
     fprintf(f, "<none>");
     break;
+    case objDead:
+    fprintf(f, "<dead>");
+    break;
   case objInt64:
     fprintf(f, "%lld", int64g);
     break;
   }
-}
-
-void Object::memCheck(FILE *f) {
-#ifdef DEBUG_MEM
-  int i;
-  int t;
-
-  t = 0;
-  for (i = 0; i < numObjTypes; ++i)
-    t += numAlloc[i];
-  if (t > 0) {
-    fprintf(f, "Allocated objects:\n");
-    for (i = 0; i < numObjTypes; ++i) {
-      if (numAlloc[i] > 0)
-	fprintf(f, "  %-20s: %6d\n", objTypeNames[i], numAlloc[i]);
-    }
-  }
-#else
-  (void)f;
-#endif
 }

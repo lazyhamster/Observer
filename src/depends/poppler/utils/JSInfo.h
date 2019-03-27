@@ -6,6 +6,7 @@
 //
 // Copyright (C) 2013 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2016 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -18,7 +19,6 @@
 #include <stdio.h>
 #include "Object.h"
 #include "PDFDoc.h"
-#include "goo/gtypes.h"
 
 #include "Link.h"
 #include "UnicodeMap.h"
@@ -41,20 +41,20 @@ public:
   void scanJS(int nPages, FILE *fout, UnicodeMap *uMap);
 
   // return true if PDF contains JavaScript
-  GBool containsJS();
+  bool containsJS();
 
 private:
 
   PDFDoc *doc;
   int currentPage;
-  GBool hasJS;
-  GBool print;
+  bool hasJS;
+  bool print;
   FILE *file;
   UnicodeMap *uniMap;
 
   void scan(int nPages);
   void scanLinkAction(LinkAction *link, const char *action, bool deleteLink = true);
-  void printJS(GooString *js);
+  void printJS(const GooString *js);
 
 };
 

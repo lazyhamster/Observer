@@ -2,7 +2,7 @@
 #include "PdfInfo.h"
 #include "poppler/DateInfo.h"
 #include "poppler/UTF.h"
-#include "poppler/UTF8.h"
+#include "poppler/UnicodeMapFuncs.h"
 #include "utils/JSInfo.h"
 
 #define ENDL "\r\n"
@@ -18,7 +18,7 @@ static bool TryParseDateTime(const GooString* strDate, SYSTEMTIME *sTime)
 	char tz;
 
 	//TODO: deal with timezone
-	if (parseDateString(strDate->getCString(), &year, &month, &day, &hour, &minute, &sec, &tz, &tzhour, &tzmin))
+	if (parseDateString(strDate->c_str(), &year, &month, &day, &hour, &minute, &sec, &tz, &tzhour, &tzmin))
 	{
 		memset(sTime, 0, sizeof(SYSTEMTIME));
 		sTime->wYear = year;
@@ -84,14 +84,14 @@ bool PdfInfo::LoadInfo( PDFDoc* doc, bool openAllFiles )
 		GooString* jsText = cat->getJS(i);
 		if (jsText)
 		{
-			char* scriptName = jsName && jsName->getLength() ? jsName->getCString() : nullptr;
-			if (!scriptName || !*scriptName)
+			std::string scriptName = jsName ? jsName->toStr() : "";
+			if (scriptName.empty())
 			{
 				sprintf_s(scriptNameBuf, MAX_PATH, "script%04d", i);
 				scriptName = scriptNameBuf;
 			}
 
-			m_vFiles.push_back(new PdfScriptFile(scriptName, jsText->getCString(), jsText->getLength()));
+			m_vFiles.push_back(new PdfScriptFile(scriptName.c_str(), jsText));
 		}
 	}
 
@@ -126,10 +126,10 @@ void PdfInfo::Cleanup()
 
 static void PrintEntry(Dict* dict, const char* key, const char* header, std::stringstream& output)
 {
-	Object obj;
-	if (dict->lookup(key, &obj) && obj.isString())
+	Object obj = dict->lookup(key);
+	if (obj.isString())
 	{
-		GooString* gstr = obj.getString();
+		const GooString* gstr = obj.getString();
 		Unicode *u;
 		char buf[8];
 		
@@ -143,39 +143,36 @@ static void PrintEntry(Dict* dict, const char* key, const char* header, std::str
 		}
 		output  << ENDL;
 	}
-	obj.free();
 }
 
 static void PrintDateEntry(Dict* dict, const char* key, const char* header, std::stringstream& output)
 {
-	Object obj;
-	if (dict->lookup(key, &obj) && obj.isString())
+	Object obj = dict->lookup(key);
+	if (obj.isString())
 	{
-		GooString* gstr = obj.getString();
+		const GooString* gstr = obj.getString();
 		SYSTEMTIME stime;
 		
 		output << header;
 		if (TryParseDateTime(gstr, &stime))
 		{
 			GooString* timeStr = GooString::format("{0:-0d}-{1:02d}-{2:02d} {3:02d}:{4:02d}:{5:02d}", stime.wYear, stime.wMonth, stime.wDay, stime.wHour, stime.wMinute, stime.wSecond);
-			output << timeStr->getCString();
+			output << timeStr->c_str();
 			delete timeStr;
 		}
 		else
 		{
-			output << gstr->getCString();
+			output << gstr->toStr();
 		}
 		output << ENDL;
 	}
-	obj.free();
 }
 
 void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 {
 	std::stringstream sstr;
 	
-	Object info;
-	doc->getDocInfo(&info);
+	Object info = doc->getDocInfo();
 	if (info.isDict())
 	{
 		Dict* infoDict = info.getDict();
@@ -189,7 +186,6 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 		PrintDateEntry(infoDict, "CreationDate", "CreationDate:   ", sstr);
 		PrintDateEntry(infoDict, "ModDate",      "ModDate:        ", sstr);
 	}
-	info.free();
 
 	Catalog* catalog = doc->getCatalog();
 
@@ -232,7 +228,7 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 	sstr << "Encrypted:      ";
 	if (doc->isEncrypted())
 	{
-		Guchar *fileKey;
+		unsigned char* fileKey;
 		CryptAlgorithm encAlgorithm;
 		int keyLength;
 		doc->getXRef()->getEncryptionParameters(&fileKey, &encAlgorithm, &keyLength);
@@ -253,10 +249,10 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 
 		char tmpBuf[512] = {0};
 		sprintf_s(tmpBuf, sizeof(tmpBuf), "yes (print:%s copy:%s change:%s addNotes:%s algorithm:%s)",
-			doc->okToPrint(gTrue) ? "yes" : "no",
-			doc->okToCopy(gTrue) ? "yes" : "no",
-			doc->okToChange(gTrue) ? "yes" : "no",
-			doc->okToAddNotes(gTrue) ? "yes" : "no",
+			doc->okToPrint(true) ? "yes" : "no",
+			doc->okToCopy(true) ? "yes" : "no",
+			doc->okToChange(true) ? "yes" : "no",
+			doc->okToAddNotes(true) ? "yes" : "no",
 			encAlgorithmName);
 		sstr << tmpBuf << ENDL;
 	} else {
@@ -270,10 +266,10 @@ void PdfInfo::LoadMetaData( PDFDoc *doc, std::string &output )
 	sstr << "PDF version:    " << doc->getPDFMajorVersion() << "." << doc->getPDFMinorVersion() << ENDL;
 
 	// print the metadata
-	GooString* strMeta = doc->readMetadata();
+	const GooString* strMeta = doc->readMetadata();
 	if (strMeta)
 	{
-		sstr << ENDL << "Metadata:" << ENDL << strMeta->getCString() << ENDL;
+		sstr << ENDL << "Metadata:" << ENDL << strMeta->toStr() << ENDL;
 		delete strMeta;
 	}
 
@@ -314,10 +310,10 @@ PseudoFileSaveResult PdfMetadataFile::Save(const wchar_t* filePath) const
 	return DumpStringToFile(filePath, m_strMetadata);
 }
 
-PdfScriptFile::PdfScriptFile(const char* name, const char* text, size_t textSize)
+PdfScriptFile::PdfScriptFile(const char* name, const GooString* text)
 {
 	m_strName = ConvertNameToUnicode(name, -1);
-	m_strText = std::string(text, textSize);
+	m_strText = text->toStr();
 }
 
 PseudoFileSaveResult PdfScriptFile::Save(const wchar_t* filePath) const
@@ -330,14 +326,14 @@ PdfEmbeddedFile::PdfEmbeddedFile(FileSpec* spec)
 	m_pSpec = spec;
 	m_pEmbFile = spec->getEmbeddedFile();
 
-	GooString* strName = m_pSpec->getFileName();
+	const GooString* strName = m_pSpec->getFileName();
 	if (strName->hasUnicodeMarker())
 	{
 		wchar_t tmpBuf[MAX_PATH] = { 0 };
 		
 		int numWChars = (strName->getLength() - 2) / 2;
 		size_t nextCharPos = 0;
-		char* pChar = strName->getCString() + 2;
+		const char* pChar = strName->c_str() + 2;
 		for (int i = 0; i < numWChars; i++)
 		{
 			tmpBuf[nextCharPos] = (pChar[0] << 8) | pChar[1];
@@ -350,7 +346,7 @@ PdfEmbeddedFile::PdfEmbeddedFile(FileSpec* spec)
 	}
 	else
 	{
-		m_strName = ConvertNameToUnicode(strName->getCString(), strName->getLength());
+		m_strName = ConvertNameToUnicode(strName->c_str(), strName->getLength());
 	}
 }
 
@@ -375,6 +371,9 @@ PseudoFileSaveResult PdfEmbeddedFile::Save(const wchar_t* filePath) const
 	if (!m_pEmbFile->isOk())
 		return PseudoFileSaveResult::PFSR_ERROR_READ;
 
-	GBool ret = m_pEmbFile->save(filePath);
+	FILE* outF = _wfopen(filePath, L"wb");
+	if (!outF) return PseudoFileSaveResult::PFSR_ERROR_WRITE;
+
+	bool ret = m_pEmbFile->save2(outF);
 	return ret ? PseudoFileSaveResult::PFSR_OK : PseudoFileSaveResult::PFSR_ERROR_WRITE;
 }

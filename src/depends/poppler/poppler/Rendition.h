@@ -5,6 +5,7 @@
 //---------------------------------------------------------------------------------
 // Hugo Mercier <hmercier31[at]gmail.com> (c) 2008
 // Carlos Garcia Campos <carlosgc@gnome.org> (c) 2010
+// Albert Astals Cid <aacid@kde.org> (C) 2017, 2018
 //
 // This program is free software; you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -61,9 +62,9 @@ struct MediaWindowParameters {
   double XPosition;                      // 0.5
   double YPosition;                      // 0.5
 
-  GBool hasTitleBar;                      // true
-  GBool hasCloseButton;                   // true
-  GBool isResizeable;                     // true
+  bool hasTitleBar;                      // true
+  bool hasCloseButton;                   // true
+  bool isResizeable;                     // true
 };
 
 
@@ -98,7 +99,7 @@ struct MediaParameters {
   // correspond to 'fit' SMIL's attribute
   MediaFittingPolicy fittingPolicy;        // fittingUndefined
 
-  GBool autoPlay;                          // true
+  bool autoPlay;                          // true
 
   // repeat count, can be real values, 0 means forever
   double repeatCount;                      // 1.0
@@ -110,7 +111,7 @@ struct MediaParameters {
   double opacity;                          // 1.0
   
 
-  GBool showControls;                      // false
+  bool showControls;                      // false
 
   MediaWindowParameters windowParams;
 };
@@ -118,37 +119,40 @@ struct MediaParameters {
 class MediaRendition {
  public:
   MediaRendition(Object *obj);
+  MediaRendition(const MediaRendition &other);
   ~MediaRendition();
+  MediaRendition& operator=(const MediaRendition &) = delete;
 
-  GBool isOk () { return ok; }
+  bool isOk () const { return ok; }
 
-  MediaParameters* getMHParameters() { return &MH; }
-  MediaParameters* getBEParameters() { return &BE; }
+  const MediaParameters* getMHParameters() const { return &MH; }
+  const MediaParameters* getBEParameters() const { return &BE; }
 
-  GooString* getContentType() { return contentType; }
-  GooString* getFileName() { return fileName; }
+  const GooString* getContentType() const { return contentType; }
+  const GooString* getFileName() const { return fileName; }
 
-  GBool getIsEmbedded() { return isEmbedded; }
-  Stream* getEmbbededStream() { return embeddedStream; }
+  bool getIsEmbedded() const { return isEmbedded; }
+  Stream* getEmbbededStream() const { return isEmbedded ? embeddedStreamObject.getStream() : nullptr; }
+  const Object* getEmbbededStreamObject() const { return isEmbedded ? &embeddedStreamObject : nullptr; }
   // write embedded stream to file
   void outputToFile(FILE*);
 
-  MediaRendition* copy();
+  MediaRendition* copy() const;
 
  private:
-  GBool ok;
+  bool ok;
 
   // "Must Honor" parameters
   MediaParameters MH;
   // "Best Effort" parameters
   MediaParameters BE;
 
-  GBool isEmbedded;
+  bool isEmbedded;
 
   GooString* contentType;
 
   // if it's embedded
-  Stream* embeddedStream;
+  Object embeddedStreamObject;
 
   // if it's not embedded
   GooString* fileName;

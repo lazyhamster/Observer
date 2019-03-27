@@ -2,11 +2,11 @@
 //
 // DateInfo.cc
 //
-// Copyright (C) 2008 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2008, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2009 Carlos Garcia Campos <carlosgc@gnome.org>
 // Copyright (C) 2015 André Guerreiro <aguerreiro1985@gmail.com>
 // Copyright (C) 2015 André Esser <bepandre@hotmail.com>
-// Copyright (C) 2016 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2016, 2018 Adrian Johnson <ajohnson@redneon.com>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -30,10 +30,10 @@
 #include <string.h>
 
 /* See PDF Reference 1.3, Section 3.8.2 for PDF Date representation */
-GBool parseDateString(const char *dateString, int *year, int *month, int *day, int *hour, int *minute, int *second, char *tz, int *tzHour, int *tzMinute)
+bool parseDateString(const char *dateString, int *year, int *month, int *day, int *hour, int *minute, int *second, char *tz, int *tzHour, int *tzMinute)
 {
-    if ( dateString == NULL ) return gFalse;
-    if ( strlen(dateString) < 2 ) return gFalse;
+    if ( dateString == nullptr ) return false;
+    if ( strlen(dateString) < 2 ) return false;
 
     if ( dateString[0] == 'D' && dateString[1] == ':' )
         dateString += 2;
@@ -64,66 +64,53 @@ GBool parseDateString(const char *dateString, int *year, int *month, int *day, i
            }
            else
            {
-               return gFalse;
+               return false;
            }
        }
 
-       if (*year <= 0) return gFalse;
+       if (*year <= 0) return false;
 
-       return gTrue;
+       return true;
    }
 
-   return gFalse;
+   return false;
 }
 
-// Convert time to PDF date string
-GooString *timeToDateString(time_t *timet) {
-  GooString *dateString;
-  char s[5];
-  struct tm *gt;
-  size_t len;
-  time_t timep = timet ? *timet : time(NULL);
-  struct tm t;
+GooString *timeToDateString(time_t *timeA)
+{
+  const time_t timet = timeA ? *timeA : time(nullptr);
 
-  gt = gmtime_r (&timep, &t);
+  struct tm localtime_tm;
+  localtime_r (&timet, &localtime_tm);
 
-  dateString = new GooString ("D:");
+  char buf[50];
+  strftime (buf, sizeof(buf), "D:%Y%m%d%H%M%S", &localtime_tm);
+  GooString *dateString = new GooString(buf);
 
-  /* Year YYYY */
-  len = strftime (s, sizeof(s), "%Y", gt);
-  dateString->append (s, len);
-
-  /* Month MM */
-  len = strftime (s, sizeof(s), "%m", gt);
-  dateString->append (s, len);
-
-  /* Day DD */
-  len = strftime (s, sizeof(s), "%d", gt);
-  dateString->append (s, len);
-
-  /* Hour HH */
-  len = strftime (s, sizeof(s), "%H", gt);
-  dateString->append (s, len);
-
-  /* Minute mm */
-  len = strftime (s, sizeof(s), "%M", gt);
-  dateString->append (s, len);
-
-  /* Second SS */
-  len = strftime (s, sizeof(s), "%S", gt);
-  dateString->append (s, len);
+  // strftime "%z" does not work on windows (it prints zone name, not offset)
+  // calculate time zone offset by comparing local and gmtime time_t value for same
+  // time.
+  const time_t timeg = timegm(&localtime_tm);
+  const time_t offset = difftime(timeg, timet); // find time zone offset in seconds
+  if (offset > 0) {
+    dateString->appendf("+{0:02d}'{1:02d}", offset/3600, (offset%3600)/60);
+  } else if (offset < 0) {
+    dateString->appendf("-{0:02d}'{1:02d}", -offset/3600, (-offset%3600)/60);
+  } else {
+    dateString->append("Z");
+  }
 
   return dateString;
 }
 
 // Convert PDF date string to time. Returns -1 if conversion fails.
-time_t dateStringToTime(GooString *dateString) {
+time_t dateStringToTime(const GooString *dateString) {
   int year, mon, day, hour, min, sec, tz_hour, tz_minute;
   char tz;
   struct tm tm;
   time_t time;
 
-  if (!parseDateString (dateString->getCString(), &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute))
+  if (!parseDateString (dateString->c_str(), &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute))
     return -1;
 
   tm.tm_year = year - 1900;

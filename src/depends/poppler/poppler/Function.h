@@ -13,7 +13,7 @@
 // All changes made under the Poppler project to this file are licensed
 // under GPL version 2 or later
 //
-// Copyright (C) 2009, 2010 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2010, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2011 Andrea Canciani <ranma42@gmail.com>
 // Copyright (C) 2012 Thomas Freitag <Thomas.Freitag@alfa.de>
@@ -27,11 +27,6 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
-#include "goo/gtypes.h"
 #include "Object.h"
 #include <set>
 
@@ -39,7 +34,6 @@ class Dict;
 class Stream;
 struct PSObject;
 class PSStack;
-class PopplerCache;
 
 //------------------------------------------------------------------------
 // Function
@@ -56,13 +50,16 @@ public:
 
   virtual ~Function();
 
+  Function(const Function &) = delete;
+  Function& operator=(const Function &other) = delete;
+
   // Construct a function.  Returns NULL if unsuccessful.
   static Function *parse(Object *funcObj);
 
   // Initialize the entries common to all function types.
-  GBool init(Dict *dict);
+  bool init(Dict *dict);
 
-  virtual Function *copy() = 0;
+  virtual Function *copy() const = 0;
 
   // Return the function type:
   //   -1 : identity
@@ -70,23 +67,23 @@ public:
   //    2 : exponential
   //    3 : stitching
   //    4 : PostScript
-  virtual int getType() = 0;
+  virtual int getType() const = 0;
 
   // Return size of input and output tuples.
-  int getInputSize() { return m; }
-  int getOutputSize() { return n; }
+  int getInputSize() const { return m; }
+  int getOutputSize() const { return n; }
 
-  double getDomainMin(int i) { return domain[i][0]; }
-  double getDomainMax(int i) { return domain[i][1]; }
-  double getRangeMin(int i) { return range[i][0]; }
-  double getRangeMax(int i) { return range[i][1]; }
-  GBool getHasRange() { return hasRange; }
-  virtual GBool hasDifferentResultSet(Function *func) { return gFalse; }
+  double getDomainMin(int i) const { return domain[i][0]; }
+  double getDomainMax(int i) const { return domain[i][1]; }
+  double getRangeMin(int i) const { return range[i][0]; }
+  double getRangeMax(int i) const { return range[i][1]; }
+  bool getHasRange() const { return hasRange; }
+  virtual bool hasDifferentResultSet(const Function *func) const { return false; }
 
   // Transform an input tuple into an output tuple.
-  virtual void transform(double *in, double *out) = 0;
+  virtual void transform(const double *in, double *out) const = 0;
 
-  virtual GBool isOk() = 0;
+  virtual bool isOk() const = 0;
 
 protected:
   static Function *parse(Object *funcObj, std::set<int> *usedParents);
@@ -98,7 +95,7 @@ protected:
     domain[funcMaxInputs][2];
   double			// min and max values for function range
     range[funcMaxOutputs][2];
-  GBool hasRange;		// set if range is defined
+  bool hasRange;		// set if range is defined
 };
 
 //------------------------------------------------------------------------
@@ -109,11 +106,11 @@ class IdentityFunction: public Function {
 public:
 
   IdentityFunction();
-  virtual ~IdentityFunction();
-  virtual Function *copy() { return new IdentityFunction(); }
-  virtual int getType() { return -1; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return gTrue; }
+  ~IdentityFunction();
+  Function *copy() const override { return new IdentityFunction(); }
+  int getType() const override { return -1; }
+  void transform(const double *in, double *out) const override;
+  bool isOk() const override { return true; }
 
 private:
 };
@@ -126,20 +123,20 @@ class SampledFunction: public Function {
 public:
 
   SampledFunction(Object *funcObj, Dict *dict);
-  virtual ~SampledFunction();
-  virtual Function *copy() { return new SampledFunction(this); }
-  virtual int getType() { return 0; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return ok; }
-  virtual GBool hasDifferentResultSet(Function *func);
+  ~SampledFunction();
+  Function *copy() const override { return new SampledFunction(this); }
+  int getType() const override { return 0; }
+  void transform(const double *in, double *out) const override;
+  bool isOk() const override { return ok; }
+  bool hasDifferentResultSet(const Function *func) const override;
 
-  int getSampleSize(int i) { return sampleSize[i]; }
-  double getEncodeMin(int i) { return encode[i][0]; }
-  double getEncodeMax(int i) { return encode[i][1]; }
-  double getDecodeMin(int i) { return decode[i][0]; }
-  double getDecodeMax(int i) { return decode[i][1]; }
-  double *getSamples() { return samples; }
-  int getSampleNumber() { return nSamples; }
+  int getSampleSize(int i) const { return sampleSize[i]; }
+  double getEncodeMin(int i) const { return encode[i][0]; }
+  double getEncodeMax(int i) const { return encode[i][1]; }
+  double getDecodeMin(int i) const { return decode[i][0]; }
+  double getDecodeMax(int i) const { return decode[i][1]; }
+  const double *getSamples() const { return samples; }
+  int getSampleNumber() const { return nSamples; }
 
 private:
 
@@ -157,9 +154,9 @@ private:
   double *samples;		// the samples
   int nSamples;			// size of the samples array
   double *sBuf;			// buffer for the transform function
-  double cacheIn[funcMaxInputs];
-  double cacheOut[funcMaxOutputs];
-  GBool ok;
+  mutable double cacheIn[funcMaxInputs];
+  mutable double cacheOut[funcMaxOutputs];
+  bool ok;
 };
 
 //------------------------------------------------------------------------
@@ -170,15 +167,15 @@ class ExponentialFunction: public Function {
 public:
 
   ExponentialFunction(Object *funcObj, Dict *dict);
-  virtual ~ExponentialFunction();
-  virtual Function *copy() { return new ExponentialFunction(this); }
-  virtual int getType() { return 2; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return ok; }
+  ~ExponentialFunction();
+  Function *copy() const override { return new ExponentialFunction(this); }
+  int getType() const override { return 2; }
+  void transform(const double *in, double *out) const override;
+  bool isOk() const override { return ok; }
 
-  double *getC0() { return c0; }
-  double *getC1() { return c1; }
-  double getE() { return e; }
+  const double *getC0() const { return c0; }
+  const double *getC1() const { return c1; }
+  double getE() const { return e; }
 
 private:
 
@@ -188,7 +185,7 @@ private:
   double c1[funcMaxOutputs];
   double e;
   bool isLinear;
-  GBool ok;
+  bool ok;
 };
 
 //------------------------------------------------------------------------
@@ -199,17 +196,17 @@ class StitchingFunction: public Function {
 public:
 
   StitchingFunction(Object *funcObj, Dict *dict, std::set<int> *usedParents);
-  virtual ~StitchingFunction();
-  virtual Function *copy() { return new StitchingFunction(this); }
-  virtual int getType() { return 3; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return ok; }
+  ~StitchingFunction();
+  Function *copy() const override { return new StitchingFunction(this); }
+  int getType() const override { return 3; }
+  void transform(const double *in, double *out) const override;
+  bool isOk() const override { return ok; }
 
-  int getNumFuncs() { return k; }
-  Function *getFunc(int i) { return funcs[i]; }
-  double *getBounds() { return bounds; }
-  double *getEncode() { return encode; }
-  double *getScale() { return scale; }
+  int getNumFuncs() const { return k; }
+  const Function *getFunc(int i) const { return funcs[i]; }
+  const double *getBounds() const { return bounds; }
+  const double *getEncode() const { return encode; }
+  const double *getScale() const { return scale; }
 
 private:
 
@@ -220,7 +217,7 @@ private:
   double *bounds;
   double *encode;
   double *scale;
-  GBool ok;
+  bool ok;
 };
 
 //------------------------------------------------------------------------
@@ -231,28 +228,28 @@ class PostScriptFunction: public Function {
 public:
 
   PostScriptFunction(Object *funcObj, Dict *dict);
-  virtual ~PostScriptFunction();
-  virtual Function *copy() { return new PostScriptFunction(this); }
-  virtual int getType() { return 4; }
-  virtual void transform(double *in, double *out);
-  virtual GBool isOk() { return ok; }
+  ~PostScriptFunction();
+  Function *copy() const override { return new PostScriptFunction(this); }
+  int getType() const override { return 4; }
+  void transform(const double *in, double *out) const override;
+  bool isOk() const override { return ok; }
 
-  GooString *getCodeString() { return codeString; }
+  const GooString *getCodeString() const { return codeString; }
 
 private:
 
   PostScriptFunction(const PostScriptFunction *func);
-  GBool parseCode(Stream *str, int *codePtr);
+  bool parseCode(Stream *str, int *codePtr);
   GooString *getToken(Stream *str);
   void resizeCode(int newSize);
-  void exec(PSStack *stack, int codePtr);
+  void exec(PSStack *stack, int codePtr) const;
 
   GooString *codeString;
   PSObject *code;
   int codeSize;
-  double cacheIn[funcMaxInputs];
-  double cacheOut[funcMaxOutputs];
-  GBool ok;
+  mutable double cacheIn[funcMaxInputs];
+  mutable double cacheOut[funcMaxOutputs];
+  bool ok;
 };
 
 #endif

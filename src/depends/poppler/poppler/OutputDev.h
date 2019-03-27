@@ -16,13 +16,16 @@
 // Copyright (C) 2005 Jonathan Blandford <jrb@redhat.com>
 // Copyright (C) 2006 Thorkild Stray <thorkild@ifi.uio.no>
 // Copyright (C) 2007 Jeff Muizelaar <jeff@infidigm.net>
-// Copyright (C) 2007, 2011 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2007, 2011, 2017 Adrian Johnson <ajohnson@redneon.com>
 // Copyright (C) 2009-2013, 2015 Thomas Freitag <Thomas.Freitag@alfa.de>
 // Copyright (C) 2009, 2011 Carlos Garcia Campos <carlosgc@gnome.org>
-// Copyright (C) 2009, 2012, 2013 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2009, 2012, 2013, 2018 Albert Astals Cid <aacid@kde.org>
 // Copyright (C) 2010 Christian Feuersänger <cfeuersaenger@googlemail.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2012 William Bader <williambader@hotmail.com>
+// Copyright (C) 2017, 2018 Oliver Sander <oliver.sander@tu-dresden.de>
+// Copyright (C) 2018 Klarälvdalens Datakonsult AB, a KDAB Group company, <info@kdab.com>. Work sponsored by the LiMux project of the city of Munich
+// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -32,24 +35,25 @@
 #ifndef OUTPUTDEV_H
 #define OUTPUTDEV_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
-
 #include "poppler-config.h"
-#include "goo/gtypes.h"
 #include "CharTypes.h"
 #include "Object.h"
 #include "PopplerCache.h"
+#include "ProfileData.h"
+#include <memory>
+#include <unordered_map>
+#include <string>
 
 class Annot;
 class Dict;
-class GooHash;
 class GooString;
 class GfxState;
 class Gfx;
 struct GfxColor;
 class GfxColorSpace;
+#ifdef USE_CMS
+class GfxICCBasedColorSpace;
+#endif
 class GfxImageColorMap;
 class GfxFunctionShading;
 class GfxAxialShading;
@@ -73,75 +77,69 @@ class OutputDev {
 public:
 
   // Constructor.
-  OutputDev() 
-#ifdef USE_CMS
- : iccColorSpaceCache(5)
-#endif
-  {
-      profileHash = NULL;
-  }
+  OutputDev();
 
   // Destructor.
-  virtual ~OutputDev() {}
+  virtual ~OutputDev();
 
   //----- get info about output device
 
   // Does this device use upside-down coordinates?
   // (Upside-down means (0,0) is the top left corner of the page.)
-  virtual GBool upsideDown() = 0;
+  virtual bool upsideDown() = 0;
 
   // Does this device use drawChar() or drawString()?
-  virtual GBool useDrawChar() = 0;
+  virtual bool useDrawChar() = 0;
 
   // Does this device use tilingPatternFill()?  If this returns false,
   // tiling pattern fills will be reduced to a series of other drawing
   // operations.
-  virtual GBool useTilingPatternFill() { return gFalse; }
+  virtual bool useTilingPatternFill() { return false; }
 
   // Does this device support specific shading types?
   // see gouraudTriangleShadedFill() and patchMeshShadedFill()
-  virtual GBool useShadedFills(int type) { return gFalse; }
+  virtual bool useShadedFills(int type) { return false; }
 
   // Does this device use FillColorStop()?
-  virtual GBool useFillColorStop() { return gFalse; }
+  virtual bool useFillColorStop() { return false; }
 
   // Does this device use drawForm()?  If this returns false,
   // form-type XObjects will be interpreted (i.e., unrolled).
-  virtual GBool useDrawForm() { return gFalse; }
+  virtual bool useDrawForm() { return false; }
 
   // Does this device use beginType3Char/endType3Char?  Otherwise,
   // text in Type 3 fonts will be drawn with drawChar/drawString.
-  virtual GBool interpretType3Chars() = 0;
+  virtual bool interpretType3Chars() = 0;
 
   // Does this device need non-text content?
-  virtual GBool needNonText() { return gTrue; }
+  virtual bool needNonText() { return true; }
 
   // Does this device require incCharCount to be called for text on
   // non-shown layers?
-  virtual GBool needCharCount() { return gFalse; }
+  virtual bool needCharCount() { return false; }
   
   // Does this device need to clip pages to the crop box even when the
   // box is the crop box?
-  virtual GBool needClipToCropBox() { return gFalse; }
+  virtual bool needClipToCropBox() { return false; }
 
   //----- initialization and control
 
   // Set default transform matrix.
-  virtual void setDefaultCTM(double *ctm);
+  virtual void setDefaultCTM(const double *ctm);
 
   // Check to see if a page slice should be displayed.  If this
   // returns false, the page display is aborted.  Typically, an
   // OutputDev will use some alternate means to display the page
   // before returning false.
-  virtual GBool checkPageSlice(Page *page, double hDPI, double vDPI,
-			       int rotate, GBool useMediaBox, GBool crop,
+  virtual bool checkPageSlice(Page *page, double hDPI, double vDPI,
+			       int rotate, bool useMediaBox, bool crop,
 			       int sliceX, int sliceY, int sliceW, int sliceH,
-			       GBool printing,
-			       GBool (* abortCheckCbk)(void *data) = NULL,
-			       void * abortCheckCbkData = NULL,
-			       GBool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = NULL,
-			       void *annotDisplayDecideCbkData = NULL)
-    { return gTrue; }
+			       bool printing,
+			       bool (* abortCheckCbk)(void *data) = nullptr,
+			       void * abortCheckCbkData = nullptr,
+			       bool (*annotDisplayDecideCbk)(Annot *annot, void *user_data) = nullptr,
+			       void *annotDisplayDecideCbkData = nullptr)
+    { return true; }
 
   // Start a page.
   virtual void startPage(int pageNum, GfxState *state, XRef *xref) {}
@@ -158,8 +156,8 @@ public:
   virtual void cvtDevToUser(double dx, double dy, double *ux, double *uy);
   virtual void cvtUserToDev(double ux, double uy, int *dx, int *dy);
 
-  double *getDefCTM() { return defCTM; }
-  double *getDefICTM() { return defICTM; }
+  const double *getDefCTM() const { return defCTM; }
+  const double *getDefICTM() const { return defICTM; }
 
   //----- save/restore graphics state
   virtual void saveState(GfxState * /*state*/) {}
@@ -167,6 +165,12 @@ public:
 
   //----- update graphics state
   virtual void updateAll(GfxState *state);
+
+  // Update the Current Transformation Matrix (CTM), i.e., the new matrix
+  // given in m11, ..., m32 is combined with the current value of the CTM.
+  // At the same time, when this method is called, state->getCTM() already
+  // contains the correct new CTM, so one may as well replace the
+  // CTM of the renderer with that.
   virtual void updateCTM(GfxState * /*state*/, double /*m11*/, double /*m12*/,
 			 double /*m21*/, double /*m22*/, double /*m31*/, double /*m32*/) {}
   virtual void updateLineDash(GfxState * /*state*/) {}
@@ -210,89 +214,116 @@ public:
   virtual void stroke(GfxState * /*state*/) {}
   virtual void fill(GfxState * /*state*/) {}
   virtual void eoFill(GfxState * /*state*/) {}
-  virtual GBool tilingPatternFill(GfxState * /*state*/, Gfx * /*gfx*/, Catalog * /*cat*/, Object * /*str*/,
-				  double * /*pmat*/, int /*paintType*/, int /*tilingType*/, Dict * /*resDict*/,
-				  double * /*mat*/, double * /*bbox*/,
+  virtual bool tilingPatternFill(GfxState * /*state*/, Gfx * /*gfx*/, Catalog * /*cat*/, Object * /*str*/,
+				  const double * /*pmat*/, int /*paintType*/, int /*tilingType*/, Dict * /*resDict*/,
+				  const double * /*mat*/, const double * /*bbox*/,
 				  int /*x0*/, int /*y0*/, int /*x1*/, int /*y1*/,
 				  double /*xStep*/, double /*yStep*/)
-    { return gFalse; }
-  virtual GBool functionShadedFill(GfxState * /*state*/,
+    { return false; }
+  virtual bool functionShadedFill(GfxState * /*state*/,
 				   GfxFunctionShading * /*shading*/)
-    { return gFalse; }
-  virtual GBool axialShadedFill(GfxState * /*state*/, GfxAxialShading * /*shading*/, double /*tMin*/, double /*tMax*/)
-    { return gFalse; }
-  virtual GBool axialShadedSupportExtend(GfxState * /*state*/, GfxAxialShading * /*shading*/)
-    { return gFalse; }
-  virtual GBool radialShadedFill(GfxState * /*state*/, GfxRadialShading * /*shading*/, double /*sMin*/, double /*sMax*/)
-    { return gFalse; }
-  virtual GBool radialShadedSupportExtend(GfxState * /*state*/, GfxRadialShading * /*shading*/)
-    { return gFalse; }
-  virtual GBool gouraudTriangleShadedFill(GfxState *state, GfxGouraudTriangleShading *shading)
-    { return gFalse; }
-  virtual GBool patchMeshShadedFill(GfxState *state, GfxPatchMeshShading *shading)
-    { return gFalse; }
+    { return false; }
+  virtual bool axialShadedFill(GfxState * /*state*/, GfxAxialShading * /*shading*/, double /*tMin*/, double /*tMax*/)
+    { return false; }
+  virtual bool axialShadedSupportExtend(GfxState * /*state*/, GfxAxialShading * /*shading*/)
+    { return false; }
+  virtual bool radialShadedFill(GfxState * /*state*/, GfxRadialShading * /*shading*/, double /*sMin*/, double /*sMax*/)
+    { return false; }
+  virtual bool radialShadedSupportExtend(GfxState * /*state*/, GfxRadialShading * /*shading*/)
+    { return false; }
+  virtual bool gouraudTriangleShadedFill(GfxState *state, GfxGouraudTriangleShading *shading)
+    { return false; }
+  virtual bool patchMeshShadedFill(GfxState *state, GfxPatchMeshShading *shading)
+    { return false; }
 
   //----- path clipping
+
+  // Update the clipping path.  The new path is the intersection of the old path
+  // with the path given in 'state'.
+  // Additionally, set the clipping mode to the 'nonzero winding number rule'.
+  // That is, a point is inside the clipping region if its winding number
+  // with respect to the clipping path is nonzero.
   virtual void clip(GfxState * /*state*/) {}
+
+  // Update the clipping path.  The new path is the intersection of the old path
+  // with the path given in 'state'.
+  // Additionally, set the clipping mode to the 'even-odd rule'.  That is, a point is
+  // inside the clipping region if a ray from it to infinity will cross the clipping
+  // path an odd number of times (disregarding the path orientation).
   virtual void eoClip(GfxState * /*state*/) {}
   virtual void clipToStrokePath(GfxState * /*state*/) {}
 
   //----- text drawing
   virtual void beginStringOp(GfxState * /*state*/) {}
   virtual void endStringOp(GfxState * /*state*/) {}
-  virtual void beginString(GfxState * /*state*/, GooString * /*s*/) {}
+  virtual void beginString(GfxState * /*state*/, const GooString * /*s*/) {}
   virtual void endString(GfxState * /*state*/) {}
+
+  // Draw one glyph at a specified position
+  //
+  // Arguments are:
+  // CharCode code: This is the character code in the content stream. It needs to be mapped back to a glyph index.
+  // int nBytes: The text strings in the content stream can consists of either 8-bit or 16-bit
+  //             character codes depending on the font. nBytes is the number of bytes in the character code.
+  // Unicode *u: The UCS-4 mapping used for text extraction (TextOutputDev).
+  // int uLen: The number of unicode entries in u.  Usually '1', for a single character,
+  //           but it may also have larger values, for example for ligatures.
   virtual void drawChar(GfxState * /*state*/, double /*x*/, double /*y*/,
 			double /*dx*/, double /*dy*/,
 			double /*originX*/, double /*originY*/,
 			CharCode /*code*/, int /*nBytes*/, Unicode * /*u*/, int /*uLen*/) {}
-  virtual void drawString(GfxState * /*state*/, GooString * /*s*/) {}
-  virtual GBool beginType3Char(GfxState * /*state*/, double /*x*/, double /*y*/,
+  virtual void drawString(GfxState * /*state*/, const GooString * /*s*/) {}
+  virtual bool beginType3Char(GfxState * /*state*/, double /*x*/, double /*y*/,
 			       double /*dx*/, double /*dy*/,
 			       CharCode /*code*/, Unicode * /*u*/, int /*uLen*/);
   virtual void endType3Char(GfxState * /*state*/) {}
   virtual void beginTextObject(GfxState * /*state*/) {}
   virtual void endTextObject(GfxState * /*state*/) {}
   virtual void incCharCount(int /*nChars*/) {}
-  virtual void beginActualText(GfxState * /*state*/, GooString * /*text*/ ) {}
+  virtual void beginActualText(GfxState * /*state*/, const GooString * /*text*/ ) {}
   virtual void endActualText(GfxState * /*state*/) {}
 
   //----- image drawing
+  // Draw an image mask.  An image mask is a one-bit-per-pixel image, where each pixel
+  // can only be 'fill color' or 'transparent'.
+  //
+  // If 'invert' is false, a sample value of 0 marks the page with the current color,
+  // and a 1 leaves the previous contents unchanged. If 'invert' is true, these meanings are reversed.
   virtual void drawImageMask(GfxState *state, Object *ref, Stream *str,
-			     int width, int height, GBool invert, GBool interpolate,
-			     GBool inlineImg);
+			     int width, int height, bool invert, bool interpolate,
+			     bool inlineImg);
   virtual void setSoftMaskFromImageMask(GfxState *state,
 					Object *ref, Stream *str,
-					int width, int height, GBool invert,
-					GBool inlineImg, double *baseMatrix);
+					int width, int height, bool invert,
+					bool inlineImg, double *baseMatrix);
   virtual void unsetSoftMaskFromImageMask(GfxState *state, double *baseMatrix);
   virtual void drawImage(GfxState *state, Object *ref, Stream *str,
 			 int width, int height, GfxImageColorMap *colorMap,
-			 GBool interpolate, int *maskColors, GBool inlineImg);
+			 bool interpolate, int *maskColors, bool inlineImg);
   virtual void drawMaskedImage(GfxState *state, Object *ref, Stream *str,
 			       int width, int height,
-			       GfxImageColorMap *colorMap, GBool interpolate,
+			       GfxImageColorMap *colorMap, bool interpolate,
 			       Stream *maskStr, int maskWidth, int maskHeight,
-			       GBool maskInvert, GBool maskInterpolate);
+			       bool maskInvert, bool maskInterpolate);
   virtual void drawSoftMaskedImage(GfxState *state, Object *ref, Stream *str,
 				   int width, int height,
 				   GfxImageColorMap *colorMap,
-				   GBool interpolate,
+				   bool interpolate,
 				   Stream *maskStr,
 				   int maskWidth, int maskHeight,
 				   GfxImageColorMap *maskColorMap,
-				   GBool maskInterpolate);
+				   bool maskInterpolate);
 
   //----- grouping operators
 
   virtual void endMarkedContent(GfxState *state);
-  virtual void beginMarkedContent(char *name, Dict *properties);
-  virtual void markPoint(char *name);
-  virtual void markPoint(char *name, Dict *properties);
+  virtual void beginMarkedContent(const char *name, Dict *properties);
+  virtual void markPoint(const char *name);
+  virtual void markPoint(const char *name, Dict *properties);
 
 
 
-#if OPI_SUPPORT
+#ifdef OPI_SUPPORT
   //----- OPI functions
   virtual void opiBegin(GfxState *state, Dict *opiDict);
   virtual void opiEnd(GfxState *state, Dict *opiDict);
@@ -310,19 +341,19 @@ public:
   virtual void psXObject(Stream * /*psStream*/, Stream * /*level1Stream*/) {}
 
   //----- Profiling
-  virtual void startProfile();
-  virtual GooHash *getProfileHash() {return profileHash; }
-  virtual GooHash *endProfile();
+  void startProfile();
+  std::unordered_map<std::string, ProfileData>* getProfileHash() const { return profileHash.get(); }
+  std::unique_ptr<std::unordered_map<std::string, ProfileData>> endProfile();
 
   //----- transparency groups and soft masks
-  virtual GBool checkTransparencyGroup(GfxState * /*state*/, GBool /*knockout*/) { return gTrue; }
-  virtual void beginTransparencyGroup(GfxState * /*state*/, double * /*bbox*/,
+  virtual bool checkTransparencyGroup(GfxState * /*state*/, bool /*knockout*/) { return true; }
+  virtual void beginTransparencyGroup(GfxState * /*state*/, const double * /*bbox*/,
 				      GfxColorSpace * /*blendingColorSpace*/,
-				      GBool /*isolated*/, GBool /*knockout*/,
-				      GBool /*forSoftMask*/) {}
+				      bool /*isolated*/, bool /*knockout*/,
+				      bool /*forSoftMask*/) {}
   virtual void endTransparencyGroup(GfxState * /*state*/) {}
-  virtual void paintTransparencyGroup(GfxState * /*state*/, double * /*bbox*/) {}
-  virtual void setSoftMask(GfxState * /*state*/, double * /*bbox*/, GBool /*alpha*/,
+  virtual void paintTransparencyGroup(GfxState * /*state*/, const double * /*bbox*/) {}
+  virtual void setSoftMask(GfxState * /*state*/, const double * /*bbox*/, bool /*alpha*/,
 			   Function * /*transferFunc*/, GfxColor * /*backdropColor*/) {}
   virtual void clearSoftMask(GfxState * /*state*/) {}
 
@@ -330,22 +361,22 @@ public:
   virtual void processLink(AnnotLink * /*link*/) {}
 
 #if 1 //~tmp: turn off anti-aliasing temporarily
-  virtual GBool getVectorAntialias() { return gFalse; }
-  virtual void setVectorAntialias(GBool /*vaa*/) {}
+  virtual bool getVectorAntialias() { return false; }
+  virtual void setVectorAntialias(bool /*vaa*/) {}
 #endif
 
 #ifdef USE_CMS
-  PopplerCache *getIccColorSpaceCache();
+  PopplerCache<Ref, GfxICCBasedColorSpace> *getIccColorSpaceCache() { return &iccColorSpaceCache; }
 #endif
 
 private:
 
   double defCTM[6];		// default coordinate transform matrix
   double defICTM[6];		// inverse of default CTM
-  GooHash *profileHash;
+  std::unique_ptr<std::unordered_map<std::string, ProfileData>> profileHash;
 
 #ifdef USE_CMS
-  PopplerCache iccColorSpaceCache;
+  PopplerCache<Ref, GfxICCBasedColorSpace> iccColorSpaceCache;
 #endif
 };
 

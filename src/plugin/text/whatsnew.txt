@@ -7,9 +7,7 @@ Changes history:
 - New file property exposed: Owner (for containers where applicable).
 - Now you can configure reaction on Enter and Ctrl-PgDn seprately.
 - Updated several dependency libraries.
-- Updated GMime library to version 2.6.23.
 - VDISK: Fixed crash after failed files extraction.
-- PDF: Updated Poppler library to version 0.51.0.
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
 - MSI: Fixed inability to extract files from some installers made by WiX.
 - MPQ: Updated StormLib to version 9.22.

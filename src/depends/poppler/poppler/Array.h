@@ -16,6 +16,9 @@
 // Copyright (C) 2005 Kristian Høgsberg <krh@redhat.com>
 // Copyright (C) 2012 Fabio D'Urso <fabiodurso@hotmail.it>
 // Copyright (C) 2013 Thomas Freitag <Thomas.Freitag@alfa.de>
+// Copyright (C) 2017-2019 Albert Astals Cid <aacid@kde.org>
+// Copyright (C) 2017 Adrian Johnson <ajohnson@redneon.com>
+// Copyright (C) 2018 Adam Reichold <adam.reichold@t-online.de>
 //
 // To see a description of the changes please see the Changelog file that
 // came with your tarball or type make ChangeLog if you are building from git
@@ -25,13 +28,12 @@
 #ifndef ARRAY_H
 #define ARRAY_H
 
-#ifdef USE_GCC_PRAGMAS
-#pragma interface
-#endif
+#include <atomic>
+#include <mutex>
+#include <vector>
 
 #include "poppler-config.h"
 #include "Object.h"
-#include "goo/GooMutex.h"
 
 class XRef;
 
@@ -48,37 +50,39 @@ public:
   // Destructor.
   ~Array();
 
-  // Reference counting.
-  int incRef();
-  int decRef();
+  Array(const Array &) = delete;
+  Array& operator=(const Array &) = delete;
 
   // Get number of elements.
-  int getLength() { return length; }
+  int getLength() const { return elems.size(); }
 
   // Copy array with new xref
-  Object *copy(XRef *xrefA, Object *obj);
+  Object copy(XRef *xrefA) const;
 
-  // Add an element.
-  void add(Object *elem);
+  // Add an element
+  // elem becomes a dead object after this call
+  void add(Object &&elem);
 
   // Remove an element by position
   void remove(int i);
 
   // Accessors.
-  Object *get(int i, Object *obj, int resursion = 0);
-  Object *getNF(int i, Object *obj);
-  GBool getString(int i, GooString *string);
+  Object get(int i, int recursion = 0) const;
+  Object get(int i, Ref *returnRef, int recursion = 0) const;
+  const Object &getNF(int i) const;
+  bool getString(int i, GooString *string) const;
 
 private:
+  friend class Object; // for incRef/decRef
+
+  // Reference counting.
+  int incRef() { return ++ref; }
+  int decRef() { return --ref; }
 
   XRef *xref;			// the xref table for this PDF file
-  Object *elems;		// array of elements
-  int size;			// size of <elems> array
-  int length;			// number of elements in array
-  int ref;			// reference count
-#if MULTITHREADED
-  GooMutex mutex;
-#endif
+  std::vector<Object> elems;		// array of elements
+  std::atomic_int ref;			// reference count
+  mutable std::recursive_mutex mutex;
 };
 
 #endif
