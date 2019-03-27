@@ -100,7 +100,8 @@ static void *msp_alloc(struct mspack_system *self, size_t bytes) {
 }
 
 static void msp_free(void *buffer) {
-	free(buffer);
+	if (buffer)
+		free(buffer);
 }
 
 static void msp_copy(void *src, void *dest, size_t bytes) {

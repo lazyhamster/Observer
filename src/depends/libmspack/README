@@ -1,4 +1,4 @@
-libmspack 0.6alpha
+libmspack 0.10.1alpha
 
 The purpose of libmspack is to provide compressors and decompressors,
 archivers and dearchivers for Microsoft compression formats: CAB, CHM, WIM,
@@ -24,7 +24,7 @@ DOCUMENTATION
 
 The API documentation is stored in the doc/ directory. It is generated
 automatically from mspack.h with doxygen. It is also available online at
-http://www.cabextract.org.uk/libmspack/doc/
+https://www.cabextract.org.uk/libmspack/doc/
 
 
 BUILDING / INSTALLING
@@ -36,15 +36,14 @@ make install
 This will install the main libmspack library and mspack.h header file.
 Some other libraries and executables are built, but not installed.
 
-If building from the Subversion repository, running rebuild.sh will create
-all the automatically generated files like the configure script, and will
-then ./configure, make and make distcheck. Running cleanup.sh will perform
-a thorough clean, deleting all automatically generated files.
+If building from the Git repository, running rebuild.sh will create all the
+auto-generated files, then run ./configure && make. Running cleanup.sh will
+perform a thorough clean, deleting all auto-generated files.
 
-In addition to gcc, you also need the following for building from Subversion:
+In addition to gcc, you also need the following for building from repository:
 
 - at least autoconf 2.57
-- at least automake 1.7
+- at least automake 1.11
 - libtool
 
 This is an alpha release. Unless you are in a position to package the
@@ -56,7 +55,7 @@ source files directly in your application's build environment.
 
 LEGAL ISSUES
 
-The the best of my knowledge, libmspack does not infringe on any
+To the best of my knowledge, libmspack does not infringe on any
 compression or decompression patents. However, this is not legal
 advice, and it is recommended that you perform your own patent search.
 
@@ -85,17 +84,16 @@ examples/multifh.c     - an mspack_system that can simultaneously work on
                          in-memory images, raw file descriptors, open file
                          handles and regular disk files
 
-src/cabrip.c           - extracts any CAB files embedded in another file
-src/chmextract.c       - extracts all files in a CHM file to disk
-src/msexpand.c         - expands an SZDD or KWAJ file
-src/oabextract.c       - extracts an Outlook Address Book (.LZX) file
+examples/cabrip.c       - extracts any CAB files embedded in another file
+examples/chmextract.c   - extracts all files in a CHM file to disk
+examples/msexpand.c     - expands an SZDD or KWAJ file
+examples/oabextract.c   - extracts an Exchange Offline Address Book (.LZX) file
 
 test/cabd_c10          - tests the CAB decompressor on the C10 collection
 test/cabd_compare      - compares libmspack with Microsoft's EXTRACT.EXE
 test/cabd_md5          - shows MD5 checksums of all files in a CAB file/set
-test/cabd_test.c       - regression tests for libmspack's CAB decompression
 test/chmd_compare      - compares libmspack with Microsoft's HH.EXE
-test/chmd_find.c       - fast-finds a file within a CHM file.
+test/chmd_find.c       - checks all files in a CHM file can be fast-found
 test/chmd_md5.c        - shows MD5 checksums of all files within a CHM file
 test/chmd_order.c      - extracts files in a CHM file in four different ways
 test/chminfo.c         - prints verbose information about CHM file structures
