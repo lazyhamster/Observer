@@ -15,7 +15,7 @@
 #define _ALLOW_KEYWORD_MACROS 1
 
 // Additional headers
-#include "config.h"
+#define ssize_t intptr_t
 #include "gmime/gmime.h"
 
 #include <vector>

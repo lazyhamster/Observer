@@ -31,7 +31,6 @@ int CMboxReader::Scan()
 
 		const char* strFrom = g_mime_message_get_sender(message);
 		const char* strSubj = g_mime_message_get_subject(message);
-		const char* strDate = g_mime_message_get_date_as_string(message);
 
 		MBoxItem item;
 		item.StartPos = g_mime_parser_get_headers_begin(parser);
