@@ -529,49 +529,49 @@
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
     </CustomBuild>
     <CustomBuild Include="text\readme.txt">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
     </CustomBuild>
     <CustomBuild Include="text\readme_ru.txt">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
     </CustomBuild>
     <CustomBuild Include="text\whatsnew.txt">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
     </CustomBuild>
     <CustomBuild Include="text\whatsnew_ru.txt">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
     </CustomBuild>
     <CustomBuild Include="text\ObserverEng.lng">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
     </CustomBuild>
     <CustomBuild Include="text\ObserverRus.lng">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
     </CustomBuild>
     <CustomBuild Include="text\ObserverSpa.lng">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
       <LinkObjects>false</LinkObjects>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
     </CustomBuild>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
