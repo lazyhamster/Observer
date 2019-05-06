@@ -16,6 +16,11 @@ using namespace DiscUtils;
 static int optDefaultCodepage = CP_OEMCP;
 static bool optDisplayErrorPopups = true;
 
+static void InitDiscUtils()
+{
+	Setup::SetupHelper::RegisterAssembly(Assembly::GetExecutingAssembly());
+}
+
 static void DisplayErrorMessage(String^ text, const wchar_t* caption)
 {
 	if (optDisplayErrorPopups)
@@ -141,7 +146,7 @@ static void PrepareFileList(VDisk* vdisk)
 		
 		if (volInfo->Status != LogicalVolumeStatus::Healthy) continue;
 
-		array<DiscUtils::FileSystemInfo^> ^fsinfo = FileSystemManager::DetectDefaultFileSystems(volInfo);
+		array<DiscUtils::FileSystemInfo^> ^fsinfo = FileSystemManager::DetectFileSystems(volInfo);
 		if (fsinfo == nullptr || fsinfo->Length == 0) continue;
 
 		FileSystemParameters^ fsParams = gcnew FileSystemParameters();
@@ -242,7 +247,7 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 			// Skip failed volumes
 			if (logvol[i]->Status != LogicalVolumeStatus::Healthy) continue;
 			
-			array<DiscUtils::FileSystemInfo^> ^fsinfo = FileSystemManager::DetectDefaultFileSystems(logvol[i]);
+			array<DiscUtils::FileSystemInfo^> ^fsinfo = FileSystemManager::DetectFileSystems(logvol[i]);
 			if (fsinfo != nullptr && fsinfo->Length > 0)
 			{
 				fHaveValidVolumes = true;
@@ -465,6 +470,8 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	{
 		AppDomain::CurrentDomain->AssemblyResolve += gcnew ResolveEventHandler(AssemblyLoaderEx::AssemblyResolveEventHandler);
 		AppDomain::CurrentDomain->UnhandledException += gcnew UnhandledExceptionEventHandler(AssemblyLoaderEx::UnhandledExceptionHandler);
+
+		InitDiscUtils();
 
 		return TRUE;
 	}

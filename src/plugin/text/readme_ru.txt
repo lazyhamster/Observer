@@ -189,7 +189,7 @@ archivers and dearchivers for Microsoft compression formats.
 Бибилотека для Half-Life которая абстрагирует несколько пакетных форматов и предоставляет простой интерфейс для доступа к ним.
 Распространяется по лицензии GNU LGPL.
 
-- DiscUtils (http://discutils.codeplex.com/)
+- DiscUtils (https://github.com/DiscUtils/DiscUtils)
 Библиотека для чтения и записи файлов ISO и образов жестких дисков для виртуальных машин (VHD, VDI, XVA, VMDK, etc).
 Распространяется по лицензии MIT.
 

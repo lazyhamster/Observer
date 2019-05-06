@@ -189,7 +189,7 @@ Used as a reference, minor portions of code directly ported from Delphi to C++.
 HLLib is a package library for Half-Life that abstracts several package formats and provides a simple interface for all of them.
 Distributed under LGPL license.
 
-- DiscUtils (http://discutils.codeplex.com/)
+- DiscUtils (https://github.com/DiscUtils/DiscUtils)
 DiscUtils is a .NET library to read and write ISO files and Virtual Machine disk files (VHD, VDI, XVA, VMDK, etc).
 Distributed under MIT license.
 

@@ -1,1 +1,29 @@
-Hg version: d28401caab1c
+https://github.com/DiscUtils/DiscUtils.git
+Git commit: c31ba41f7beed3b957dfcc3f8256f0999c39dcb1
+
+Merged to single dll with ILMerge from:
+DiscUtils.BootConfig.dll
+DiscUtils.Btrfs.dll
+DiscUtils.Core.dll
+DiscUtils.Dmg.dll
+DiscUtils.Ext.dll
+DiscUtils.Fat.dll
+DiscUtils.HfsPlus.dll
+DiscUtils.Lvm.dll
+DiscUtils.Ntfs.dll
+DiscUtils.Registry.dll
+DiscUtils.Sdi.dll
+DiscUtils.SquashFs.dll
+DiscUtils.Streams.dll
+DiscUtils.Swap.dll
+DiscUtils.Vdi.dll
+DiscUtils.Vhd.dll
+DiscUtils.Vhdx.dll
+DiscUtils.Vmdk.dll
+DiscUtils.Wim.dll
+DiscUtils.Xfs.dll
+DiscUtils.Xva.dll
+lzo.net.dll
+
+Merge command:
+%MERGE_CMD% /copyattrs /ndebug /wildcards /xmldocs /out:DiscUtils.dll /target:library /targetplatform:v4,C:\Windows\Microsoft.NET\Framework64\v4.0.30319 /log:merge.log /keyfile:SigningKey.snk DiscUtils.*.dll lzo.net.dll

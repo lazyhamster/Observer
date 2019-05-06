@@ -8,6 +8,7 @@ Changes history:
 - Now you can configure reaction on Enter and Ctrl-PgDn seprately.
 - Updated several dependency libraries.
 - VDISK: Fixed crash after failed files extraction.
+- VDISK: Migrated to newer fork of DiscUtils library (original project is abandoned).
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
 - MSI: Fixed inability to extract files from some installers made by WiX.
 - MPQ: Updated StormLib to version 9.22.
