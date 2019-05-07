@@ -5,12 +5,12 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerDebuggerType>Mixed</LocalDebuggerDebuggerType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|Win32'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|Win32'">
     <LocalDebuggerCommand>$(FAR3_DBG)\..\..\Far.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
     <LocalDebuggerDebuggerType>Mixed</LocalDebuggerDebuggerType>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode-3|x64'">
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|x64'">
     <LocalDebuggerCommand>$(FAR3_DBG_x64)\..\..\Far.exe</LocalDebuggerCommand>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>

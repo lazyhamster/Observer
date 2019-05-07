@@ -51,19 +51,19 @@ ECHO Packing release
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x86
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|Win32" "%SOLUTION_FILE%"
+%DEVENV_EXE_PATH% /Rebuild "Release-Far3|Win32" "%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-%PACKER_CMD% -- Observer_Far3_x86_%PVER%.rar "..\..\bin\Release-Unicode-3\*" > nul
+%PACKER_CMD% -- Observer_Far3_x86_%PVER%.rar "..\..\bin\Release-Far3\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x64
-%DEVENV_EXE_PATH% /Rebuild "Release-Unicode-3|x64" "%SOLUTION_FILE%"
+%DEVENV_EXE_PATH% /Rebuild "Release-Far3|x64" "%SOLUTION_FILE%"
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-%PACKER_CMD% -- Observer_Far3_x64_%PVER%.rar "..\..\bin\Release-Unicode-3-x64\*" > nul
+%PACKER_CMD% -- Observer_Far3_x64_%PVER%.rar "..\..\bin\Release-Far3-x64\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO [SUCCESS] Global build complete !!!
