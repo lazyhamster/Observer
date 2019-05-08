@@ -30,18 +30,19 @@ matrix:
 install:
   - SET PATH=%PATH%;C:\msys64\usr\bin
   - cd src\extra
-  - m4 -P version.txt.m4 > version.txt
+  - m4 -P version.m4 > version.txt
   - SET /p PVER=<version.txt
   - appveyor UpdateBuild -Version %PVER%.%APPVEYOR_BUILD_NUMBER%
   - DEL version.txt
   - IF "%platform%" == "Win32" (SET P_ARCH=x86) ELSE (SET P_ARCH=%platform%)
   - cd C:\Tools\vcpkg
-  - git pull
+  - git pull --quiet
   - .\bootstrap-vcpkg.bat
   - vcpkg integrate install
   - vcpkg install zlib:%P_ARCH%-windows
   - vcpkg install bzip2:%P_ARCH%-windows
   - vcpkg install glib:%P_ARCH%-windows
+  - vcpkg install boost-iostreams:%P_ARCH%-windows
   - cd %APPVEYOR_BUILD_FOLDER%
 
 cache:
