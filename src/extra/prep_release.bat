@@ -39,7 +39,7 @@ ECHO Building version for Far 2 x86
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-%PACKER_CMD% -- Observer_Far2_x86_%PVER%.rar "..\..\bin\Release-Unicode\*" > nul
+%PACKER_CMD% -- Observer_Far2_x86_%PVER%.rar "..\..\bin\Release-Unicode-Win32\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 2 x64
@@ -55,7 +55,7 @@ ECHO Building version for Far 3 x86
 if NOT ERRORLEVEL == 0 GOTO BUILD_ERROR
 
 ECHO Packing release
-%PACKER_CMD% -- Observer_Far3_x86_%PVER%.rar "..\..\bin\Release-Far3\*" > nul
+%PACKER_CMD% -- Observer_Far3_x86_%PVER%.rar "..\..\bin\Release-Far3-Win32\*" > nul
 if NOT ERRORLEVEL == 0 GOTO PACK_ERROR
 
 ECHO Building version for Far 3 x64
