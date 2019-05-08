@@ -1,0 +1,59 @@
+version: 1.0.{build}
+
+branches:
+  only:
+    - master
+
+image: Visual Studio 2017
+
+shallow_clone: true
+clone_depth: 1
+
+skip_tags: true
+
+configuration:
+  - Release-Far3
+
+platform:
+  - Win32
+  - x64
+
+build:
+  project: src\Observer.sln
+  verbosity: minimal
+
+test: off
+
+matrix:
+  fast_finish: true
+
+install:
+  - SET PATH=%PATH%;C:\msys64\usr\bin
+  - cd src\extra
+  - m4 -P version.txt.m4 > version.txt
+  - SET /p PVER=<version.txt
+  - appveyor UpdateBuild -Version %PVER%.%APPVEYOR_BUILD_NUMBER%
+  - DEL version.txt
+  - IF "%platform%" == "Win32" (SET P_ARCH=x86) ELSE (SET P_ARCH=%platform%)
+  - cd C:\Tools\vcpkg
+  - git pull
+  - .\bootstrap-vcpkg.bat
+  - vcpkg integrate install
+  - vcpkg install zlib:%P_ARCH%-windows
+  - vcpkg install bzip2:%P_ARCH%-windows
+  - vcpkg install glib:%P_ARCH%-windows
+  - cd %APPVEYOR_BUILD_FOLDER%
+
+cache:
+  - c:\tools\vcpkg\installed\ -> appveyor.yml
+
+after_build:
+- cmd: >-
+    cd %APPVEYOR_BUILD_FOLDER%
+
+    xcopy bin\%configuration%-%platform%\* export\Observer /E /I /Y > nul
+
+    7z a -r -sdel -bd -x!*.ipdb -x!*.iobj -x!*.metagen -- Observer_%configuration:~-4%_%P_ARCH%_%PVER%.7z .\export\*
+
+artifacts:
+  - path: '*.7z'
