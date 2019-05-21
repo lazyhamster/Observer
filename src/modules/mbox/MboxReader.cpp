@@ -11,6 +11,7 @@ int CMboxReader::Scan()
 	GMimeParser* parser = g_mime_parser_new_with_stream(stream);
 	g_mime_parser_set_persist_stream(parser, TRUE);
 	g_mime_parser_set_scan_from(parser, TRUE);
+	g_mime_parser_set_respect_content_length(parser, TRUE);
 
 	GMimeMessage* message;
 	gint64 msgStart;
