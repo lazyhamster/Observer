@@ -52,9 +52,7 @@ int MODULE_EXPORT PrepareFiles(HANDLE storage)
 	IMailReader* reader = (IMailReader*) storage;
 	if (!reader) return FALSE;
 
-	reader->Scan();
-
-	return TRUE;
+	return (reader->Scan() >= 0) ? TRUE : FALSE;
 }
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)

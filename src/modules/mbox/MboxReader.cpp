@@ -14,7 +14,6 @@ int CMboxReader::Scan()
 
 	GMimeMessage* message;
 	gint64 msgStart;
-	int nFoundItems = 0;
 
 	m_vItems.clear();
 	while (!g_mime_parser_eos(parser))
@@ -24,8 +23,7 @@ int CMboxReader::Scan()
 
 		if (!message)
 		{
-			nFoundItems = -1;
-			m_vItems.clear();
+			// If we could not parse next message then just exit and keep what we have
 			break;
 		}
 
@@ -43,7 +41,6 @@ int CMboxReader::Scan()
 		SanitizeString(item.Subject);
 		
 		m_vItems.push_back(item);
-		nFoundItems++;
 
 		g_object_unref (message);
 	}
@@ -51,7 +48,7 @@ int CMboxReader::Scan()
 	g_object_unref(stream);
 	g_object_unref(parser);
 	
-	return nFoundItems;
+	return (int) m_vItems.size();
 }
 
 bool CMboxReader::IsValidFile( FILE* f )
