@@ -28,8 +28,6 @@ protected:
 	FILE* m_pSrcFile;
 	std::vector<MBoxItem> m_vItems;
 
-	virtual bool IsValidFile(FILE* f) = 0;
-
 public:
 	IMailReader() : m_pSrcFile(NULL) {}
 	virtual ~IMailReader() { Close(); }
@@ -38,6 +36,7 @@ public:
 	void Close();
 
 	virtual int Scan() = 0;
+	virtual bool CheckSample(const void* sampleBuffer, size_t sampleSize) = 0;
 	virtual const wchar_t* GetFormatName() const { return L"Mail Container"; }
 
 	int GetItemsCount() const { return (int) m_vItems.size(); }

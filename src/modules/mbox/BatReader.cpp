@@ -24,31 +24,24 @@ struct TbbMessageRec
 
 #pragma pack(pop)
 
-bool CBatReader::IsValidFile( FILE* f )
-{
-	char fileMagic[4] = {0};
-	if (fread(fileMagic, 1, sizeof(fileMagic), f) != sizeof(fileMagic) || strncmp(fileMagic, TBB_FILE_MAGIC, 4) != 0)
-		return false;
-
-	uint16_t fileHeaderSize;
-	if (fread(&fileHeaderSize, sizeof(fileHeaderSize), 1, f) != 1)
-		return false;
-
-	if (fseek(f, fileHeaderSize, SEEK_SET) != 0)
-		return false;
-
-	m_nDataStartPos = fileHeaderSize;
-	return true;
-}
-
 int CBatReader::Scan()
 {
-	if (!m_pSrcFile || m_nDataStartPos <= 0) return -1;
+	if (!m_pSrcFile) return -1;
+
+	char fileMagic[4] = { 0 };
+	if (fread(fileMagic, 1, sizeof(fileMagic), m_pSrcFile) != sizeof(fileMagic) || strncmp(fileMagic, TBB_FILE_MAGIC, 4) != 0)
+		return -1;
+
+	uint16_t fileHeaderSize;
+	if (fread(&fileHeaderSize, sizeof(fileHeaderSize), 1, m_pSrcFile) != 1)
+		return -1;
+
+	if (_fseeki64(m_pSrcFile, fileHeaderSize, SEEK_SET) != 0)
+		return -1;
 
 	GMimeStream* stream = g_mime_stream_file_new(m_pSrcFile);
 	g_mime_stream_file_set_owner((GMimeStreamFile*)stream, FALSE);
 
-	_fseeki64(m_pSrcFile, m_nDataStartPos, SEEK_SET);
 	int nFoundItems = 0;
 
 	m_vItems.clear();
@@ -100,4 +93,9 @@ int CBatReader::Scan()
 	g_object_unref(stream);
 
 	return nFoundItems;
+}
+
+bool CBatReader::CheckSample(const void* sampleBuffer, size_t sampleSize)
+{
+	return (sampleSize > 4) && (strncmp((const char*)sampleBuffer, TBB_FILE_MAGIC, 4) == 0);
 }

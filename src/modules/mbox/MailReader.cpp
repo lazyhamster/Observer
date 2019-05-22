@@ -50,16 +50,21 @@ bool IMailReader::Open( const wchar_t* filepath )
 	FILE* fp = NULL;
 	errno_t err = _wfopen_s(&fp, filepath, L"rb");
 
-	if ((err == 0) && IsValidFile(fp))
-	{
-		m_pSrcFile = fp;
-		return true;
-	}
-	else
+	if (err != 0) return false;
+
+	char* sampleBuf[100] = {0};
+	size_t sampleSize = _countof(sampleBuf);
+
+	if ((fread(sampleBuf, 1, sampleSize, fp) != sampleSize) || !CheckSample(sampleBuf, sampleSize))
 	{
 		if (fp) fclose(fp);
 		return false;
 	}
+
+	m_pSrcFile = fp;
+	fseek(fp, 0, SEEK_SET);
+	
+	return true;
 }
 
 void IMailReader::Close()

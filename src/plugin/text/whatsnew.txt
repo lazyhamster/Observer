@@ -10,10 +10,12 @@ Changes history:
 - VDISK: Fixed crash after failed files extraction.
 - VDISK: Migrated to newer fork of DiscUtils library (original project is abandoned).
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
+- MBOX: If mbox container wasn't fully parsed then just show what we have.
 - MSI: Fixed inability to extract files from some installers made by WiX.
 - MPQ: Updated StormLib to version 9.22.
 - MPQ: Added support for listfiles.
 - InstallShield: Improved support for SFX files.
+- Minor changes.
 
 1.11.2
 - PST: Fixed invalid path characters in folder names.

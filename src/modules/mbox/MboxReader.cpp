@@ -52,14 +52,7 @@ int CMboxReader::Scan()
 	return (int) m_vItems.size();
 }
 
-bool CMboxReader::IsValidFile( FILE* f )
+bool CMboxReader::CheckSample(const void* sampleBuffer, size_t sampleSize)
 {
-	char testBuf[100] = {0};
-	
-	int fSavePos = fseek(f, 0, SEEK_CUR); // Save file position
-	char* retVal = fgets(testBuf, sizeof(testBuf), f);
-	fseek(f, fSavePos, SEEK_SET); // Restore file position
-
-	return (retVal != NULL) && (strncmp(testBuf, "From ", 5) == 0);
+	return (sampleSize > 5) && (strncmp((const char*)sampleBuffer, "From ", 5) == 0);
 }
-

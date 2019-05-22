@@ -5,15 +5,10 @@
 
 class CBatReader : public IMailReader
 {
-private:
-	__int64 m_nDataStartPos;
-
-protected:
-	virtual bool IsValidFile( FILE* f );
-
 public:
-	virtual int Scan();
-	virtual const wchar_t* GetFormatName() const { return L"The Bat! Mail Base"; }
+	int Scan() override;
+	bool CheckSample(const void* sampleBuffer, size_t sampleSize) override;
+	const wchar_t* GetFormatName() const override { return L"The Bat! Mail Base"; }
 };
 
 #endif // BatReader_h__

@@ -8,26 +8,31 @@
 #include "MboxReader.h"
 #include "BatReader.h"
 
-static IMailReader* TryContainer(const wchar_t* path)
+template<class T>
+T* TryContainerFormat(const wchar_t* path, const void* sampleData, size_t sampleSize)
 {
-	CMboxReader* mbr = new CMboxReader();
-	if (mbr->Open(path))
-		return mbr;
-	else
-		delete mbr;
-
-	CBatReader* btr = new CBatReader();
-	if (btr->Open(path))
-		return btr;
-	else
-		delete btr;
+	T* reader = new T();
+	if ((!sampleData || reader->CheckSample(sampleData, sampleSize)) && reader->Open(path))
+		return reader;
 	
-	return NULL;
+	delete reader;
+	return nullptr;
+}
+
+static IMailReader* TryContainer(const wchar_t* path, const void* sampleData, size_t sampleSize)
+{
+	auto mbr = TryContainerFormat<CMboxReader>(path, sampleData, sampleSize);
+	if (mbr) return mbr;
+
+	auto btr = TryContainerFormat<CBatReader>(path, sampleData, sampleSize);
+	if (btr) return btr;
+	
+	return nullptr;
 }
 
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
-	IMailReader* reader = TryContainer(params.FilePath);
+	IMailReader* reader = TryContainer(params.FilePath, params.Data, params.DataSize);
 	if (reader == NULL)
 		return SOR_INVALID_FILE;
 
