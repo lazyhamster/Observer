@@ -36,8 +36,8 @@ install:
   - DEL version.txt
   - IF "%platform%" == "Win32" (SET P_ARCH=x86) ELSE (SET P_ARCH=%platform%)
   - cd C:\Tools\vcpkg
-  - git pull --quiet
-  - .\bootstrap-vcpkg.bat
+  - git pull --prune --quiet
+  - .\bootstrap-vcpkg.bat -disableMetrics
   - vcpkg integrate install
   - vcpkg install zlib:%P_ARCH%-windows
   - vcpkg install bzip2:%P_ARCH%-windows

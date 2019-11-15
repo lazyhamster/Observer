@@ -8,18 +8,6 @@ const wchar_t* ConfigSection::GetName() const
 	return m_SectionName.c_str();
 }
 
-StringList ConfigSection::GetKeys() const
-{
-	StringList keys(m_Items.size());
-
-	for (auto cit = m_Items.cbegin(); cit != m_Items.cend(); cit++)
-	{
-		keys.push_back(cit->Key);
-	}
-
-	return keys;
-}
-
 bool ConfigSection::GetValueByKey( const wchar_t* Key, wstring &FoundValue ) const
 {
 	for (auto cit = m_Items.cbegin(); cit != m_Items.cend(); cit++)
@@ -64,18 +52,6 @@ bool ConfigSection::GetValue( const wchar_t* Key, wchar_t *Value, size_t MaxValu
 	if (GetValueByKey(Key, strValue) && (strValue.length() < MaxValueSize))
 	{
 		wcscpy_s(Value, MaxValueSize, strValue.c_str());
-		return true;
-	}
-
-	return false;
-}
-
-bool ConfigSection::GetValue( const wchar_t* Key, char *Value, size_t MaxValueSize ) const
-{
-	wstring strValue;
-	if (GetValueByKey(Key, strValue))
-	{
-		WideCharToMultiByte(CP_UTF8, 0, strValue.c_str(), -1, Value, (int) MaxValueSize, NULL, NULL);
 		return true;
 	}
 

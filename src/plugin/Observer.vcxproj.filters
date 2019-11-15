@@ -159,11 +159,6 @@
     </M4_Macro>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\common\todo.txt">
-      <Filter>Support Files</Filter>
-    </Text>
-  </ItemGroup>
-  <ItemGroup>
     <CustomBuild Include="text\readme.txt">
       <Filter>Support Files</Filter>
     </CustomBuild>

@@ -524,7 +524,6 @@
     <M4_Macro Include="text\ObserverRus.hlf.m4" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\common\todo.txt" />
     <CustomBuild Include="text\license.txt">
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
