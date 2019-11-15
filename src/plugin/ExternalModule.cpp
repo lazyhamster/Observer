@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "ExternalModule.h"
 
-ExternalModule::ExternalModule(const std::wstring& Name, const std::wstring& Library)
+ExternalModule::ExternalModule(const std::wstring& Name, const std::wstring& Library) : m_pExtensionFilter(true)
 {
 	m_sModuleName = Name;
 	m_sLibraryFile = Library;
@@ -117,42 +117,12 @@ bool ExternalModule::IsModuleOk(const ModuleLoadParameters &params)
 		&& (params.ApiFuncs.PrepareFiles != nullptr) && (params.ApiFuncs.GetItem != nullptr) && (params.ApiFuncs.ExtractItem != nullptr);
 }
 
-int ExternalModule::AddExtensionFilter(std::wstring& filterStr)
+void ExternalModule::AddExtensionFilter(std::wstring& filterStr)
 {
-	if (filterStr.empty()) return 0;
-
-	wchar_t* context = NULL;
-	wchar_t* strList = _wcsdup(filterStr.c_str());
-	int numAdded = 0;
-
-	wchar_t* token = wcstok_s(strList, L";", &context);
-	while (token)
-	{
-		if (wcslen(token) > 0)
-		{
-			while (!token[0]) token++;
-			m_vExtensionFilter.push_back(token);
-			numAdded++;
-		}
-
-		token = wcstok_s(NULL, L";", &context);
-	}
-	free(strList);
-
-	return numAdded;
+	m_pExtensionFilter.SetFilter(filterStr);
 }
 
 bool ExternalModule::DoesPathMatchFilter(const wchar_t* path) const
 {
-	// Empty filter means match all
-	if (m_vExtensionFilter.empty())
-		return true;
-
-	for (size_t i = 0; i < m_vExtensionFilter.size(); ++i)
-	{
-		if (PathMatchSpec(path, m_vExtensionFilter[i].c_str()))
-			return true;
-	}
-
-	return false;
+	return m_pExtensionFilter.DoesPathMatch(path);
 }

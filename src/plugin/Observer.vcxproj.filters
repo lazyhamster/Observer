@@ -65,6 +65,9 @@
     <ClCompile Include="Observer-Far2.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ExtFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="version.m4i">
@@ -137,6 +140,9 @@
     </ClInclude>
     <ClInclude Include="..\depends\far3\PluginSettings.hpp">
       <Filter>Header Files\far3</Filter>
+    </ClInclude>
+    <ClInclude Include="ExtFilter.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

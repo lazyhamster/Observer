@@ -2,6 +2,7 @@
 #define ExternalModule_h__
 
 #include "ModuleDef.h"
+#include "ExtFilter.h"
 
 enum class ModuleLoadStatus
 {
@@ -31,7 +32,7 @@ struct ExternalModule
 	bool Load(const wchar_t* basePath, const wchar_t* moduleSettings, ModuleLoadResult& loadResult);
 	void Unload();
 	
-	int AddExtensionFilter(std::wstring& filterStr);
+	void AddExtensionFilter(std::wstring& filterStr);
 	bool DoesPathMatchFilter(const wchar_t* path) const;
 
 	const wchar_t* Name() const { return m_sModuleName.c_str(); }
@@ -49,7 +50,7 @@ private:
 	GUID m_ModuleId;
 	DWORD m_nModuleVersion;
 
-	std::vector<std::wstring> m_vExtensionFilter;
+	ExtensionsFilter m_pExtensionFilter;
 
 	ExternalModule() = delete;
 	ExternalModule(const ExternalModule& other) = delete;

@@ -446,6 +446,7 @@
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Far3|x64'">false</CompileAsManaged>
     </ClCompile>
     <ClCompile Include="ExternalModule.cpp" />
+    <ClCompile Include="ExtFilter.cpp" />
     <ClCompile Include="FarStorage.cpp" />
     <ClCompile Include="InterfaceCommon.cpp" />
     <ClCompile Include="ModulesController.cpp" />
@@ -495,6 +496,7 @@
     <ClInclude Include="Config.h" />
     <ClInclude Include="ContentStructures.h" />
     <ClInclude Include="ExternalModule.h" />
+    <ClInclude Include="ExtFilter.h" />
     <ClInclude Include="FarStorage.h" />
     <ClInclude Include="..\common\ModuleCRT.h" />
     <ClInclude Include="..\common\ModuleDef.h" />

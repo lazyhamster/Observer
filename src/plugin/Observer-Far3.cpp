@@ -13,6 +13,7 @@
 #include "InterfaceCommon.h"
 
 #include "Config.h"
+#include "ExtFilter.h"
 
 #include <InitGuid.h>
 #include "Guids.h"
@@ -32,11 +33,12 @@ static int optOpenOnEnter = TRUE;
 static int optOpenOnCtrlPgDn = TRUE;
 static int optUsePrefix = TRUE;
 static int optUseExtensionFilters = TRUE;
-static int optVerboseModuleLoad = FALSE;
 static wchar_t optPrefix[MAX_PREFIX_SIZE] = L"observe";
 
 // Extended settings
+static int optVerboseModuleLoad = FALSE;
 static wchar_t optPanelHeaderPrefix[MAX_PREFIX_SIZE] = L"";
+static ExtensionsFilter optIgnoreFilter(false);
 
 //-----------------------------------  Local functions ----------------------------------------
 
@@ -51,20 +53,21 @@ static void LoadSettings(Config* cfg)
 	ConfigSection* generalCfg = cfg->GetSection(L"General");
 	if (generalCfg != NULL)
 	{
-		generalCfg->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE);
-		generalCfg->GetValue(L"UseExtensionFilters", optUseExtensionFilters);
+		generalCfg->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, _countof(optPanelHeaderPrefix));
 		generalCfg->GetValue(L"VerboseModuleLoad", optVerboseModuleLoad);
+
+		std::wstring strIgnoreFilter;
+		if (generalCfg->GetValue(L"IgnoreFilter", strIgnoreFilter))
+			optIgnoreFilter.SetFilter(strIgnoreFilter);
 	}
 
-	// Load dynamic settings from registry (they will overwrite static ones)
+	// Load dynamic settings from Far db (available in config dialog)
 	PluginSettings ps(OBSERVER_GUID, FarSInfo.SettingsControl);
 
 	optOpenOnEnter = ps.Get(0, L"OpenOnEnter", optOpenOnEnter);
 	optOpenOnCtrlPgDn = ps.Get(0, L"OpenOnCtrlPgdn", optOpenOnCtrlPgDn);
 	optUsePrefix = ps.Get(0, L"UsePrefix", optUsePrefix);
 	ps.Get(0, L"Prefix", optPrefix, MAX_PREFIX_SIZE, optPrefix);
-
-	ps.Get(0, L"PanelHeaderPrefix", optPanelHeaderPrefix, MAX_PREFIX_SIZE, optPanelHeaderPrefix);
 	optUseExtensionFilters = ps.Get(0, L"UseExtensionFilters", optUseExtensionFilters);
 }
 
@@ -884,6 +887,9 @@ HANDLE WINAPI AnalyseW(const AnalyseInfo* AInfo)
 	bool isCtrlPgdn = (AInfo->OpMode & OPM_PGDN) != 0;
 
 	if ((isCtrlPgdn && !optOpenOnCtrlPgDn) || (!isCtrlPgdn && !optOpenOnEnter))
+		return nullptr;
+
+	if (optIgnoreFilter.DoesPathMatch(AInfo->FileName))
 		return nullptr;
 
 	int nAnalizeResult = AnalizeStorage(AInfo->FileName, optUseExtensionFilters != 0, AInfo->Buffer, AInfo->BufferSize);
