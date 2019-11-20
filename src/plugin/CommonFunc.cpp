@@ -18,7 +18,7 @@ bool CheckEsc()
 		return false;
 }
 
-bool FileExists(wstring& path, LPWIN32_FIND_DATAW file_data)
+bool FileExists(const std::wstring& path, LPWIN32_FIND_DATAW file_data)
 {
 	WIN32_FIND_DATAW fdata;
 

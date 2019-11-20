@@ -163,7 +163,7 @@ int CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
 		READ_STR(hDirRec, 2, dirEntry.ParentKey);
 		READ_STR(hDirRec, 3, dirEntry.DefaultName);
 
-		WStringMap::const_iterator citer = appSearch.find(dirEntry.Key);
+		auto citer = appSearch.find(dirEntry.Key);
 		bool fIsAppSearch = (citer != appSearch.end());
 
 		DirectoryNode *node = new DirectoryNode();
@@ -397,8 +397,7 @@ int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecia
 {
 	int numSpecFolders = processSpecialDirs ? sizeof(MsiSpecialFolders) / sizeof(MsiSpecialFolders[0]) : 0;
 	
-	DirectoryNodesMap::iterator dirIter;
-	for (dirIter = nodemap.begin(); dirIter != nodemap.end(); dirIter++)
+	for (auto dirIter = nodemap.begin(); dirIter != nodemap.end(); ++dirIter)
 	{
 		DirectoryNode* node = dirIter->second;
 		DirectoryNode* parent = (node->ParentKey) ? nodemap[node->ParentKey] : m_pRootDir;
@@ -451,8 +450,7 @@ void CMsiViewer::removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolde
 {
 	if (root->SubDirs.size() == 0) return;
 	
-	vector<DirectoryNode*>::iterator iter;
-	for (iter = root->SubDirs.begin(); iter != root->SubDirs.end();)
+	for (auto iter = root->SubDirs.begin(); iter != root->SubDirs.end();)
 	{
 		DirectoryNode* subDir = *iter;
 		removeEmptyFolders(subDir, forcedFolders);
@@ -510,7 +508,7 @@ void CMsiViewer::mergeDotFolders( DirectoryNode *root )
 
 void CMsiViewer::checkShortNames(DirectoryNode *root)
 {
-	for (vector<DirectoryNode*>::iterator iter = root->SubDirs.begin(); iter != root->SubDirs.end();)
+	for (auto iter = root->SubDirs.begin(); iter != root->SubDirs.end();)
 	{
 		DirectoryNode* subdir = *iter;
 

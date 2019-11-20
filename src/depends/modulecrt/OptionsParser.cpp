@@ -82,8 +82,7 @@ bool OptionsList::GetValue( const wchar_t* Key, int &Value ) const
 
 bool OptionsList::GetValue( const wchar_t* Key, wchar_t *Value, size_t MaxValueSize ) const
 {
-	std::vector<OptionsItem>::const_iterator cit;
-	for (cit = m_vValues.begin(); cit != m_vValues.end(); cit++)
+	for (auto cit = m_vValues.begin(); cit != m_vValues.end(); ++cit)
 	{
 		if (_wcsicmp(cit->key, Key) == 0)
 		{
@@ -93,20 +92,6 @@ bool OptionsList::GetValue( const wchar_t* Key, wchar_t *Value, size_t MaxValueS
 			return true;
 		}
 	} // for
-
-	return false;
-}
-
-bool OptionsList::GetValue( const wchar_t* Key, char *Value, size_t MaxValueSize ) const
-{
-	wchar_t* tmpBuf = (wchar_t*) malloc(MaxValueSize * sizeof(wchar_t));
-	memset(tmpBuf, 0, MaxValueSize * sizeof(wchar_t));
-
-	if ( GetValue(Key, tmpBuf, MaxValueSize) )
-	{
-		WideCharToMultiByte(CP_ACP, 0, tmpBuf, -1, Value, (int)MaxValueSize, NULL, NULL);
-		return true;
-	}
 
 	return false;
 }

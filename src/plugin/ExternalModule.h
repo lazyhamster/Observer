@@ -32,7 +32,7 @@ struct ExternalModule
 	bool Load(const wchar_t* basePath, const wchar_t* moduleSettings, ModuleLoadResult& loadResult);
 	void Unload();
 	
-	void AddExtensionFilter(std::wstring& filterStr);
+	void AddExtensionFilter(const std::wstring& filterStr);
 	bool DoesPathMatchFilter(const wchar_t* path) const;
 
 	const wchar_t* Name() const { return m_sModuleName.c_str(); }

@@ -82,16 +82,16 @@ static void SaveSettings()
 	ps.Set(0, L"UseExtensionFilters", optUseExtensionFilters);
 }
 
-static wstring ResolveFullPath(const wchar_t* input)
+static std::wstring ResolveFullPath(const wchar_t* input)
 {
 	wstring strFull;
 	size_t nLen = FSF.ConvertPath(CPM_FULL, input, NULL, 0);
 	if (nLen > 0)
 	{
-		wchar_t* pszFull = (wchar_t*) calloc(nLen, sizeof(*input));
+		wchar_t* pszFull = new wchar_t[nLen];
 		FSF.ConvertPath(CPM_FULL, input, pszFull, nLen);
 		strFull = pszFull;
-		free(pszFull);
+		delete[] pszFull;
 	}
 	else
 	{
@@ -383,7 +383,7 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 	return TRUE;
 }
 
-static int CALLBACK ExtractStart(ProgressContext* context, const ContentTreeNode* item, std::wstring& itemDestPath)
+static int CALLBACK ExtractStart(ProgressContext* context, const ContentTreeNode* item, const std::wstring& itemDestPath)
 {
 	context->nCurrentFileNumber++;
 	context->nCurrentFileSize = item->GetSize();
@@ -968,6 +968,9 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 		strFullSourcePath = ResolveFullPath(ShCutInfo->HostFile);
 	}
 
+	if (strFullSourcePath.empty() || !FileExists(strFullSourcePath, nullptr))
+		return 0;
+
 	StorageObject* hOpenResult = OpenStorage(strFullSourcePath, false, nOpenModuleIndex);
 
 	if ( hOpenResult && !strSubPath.empty() )
@@ -986,7 +989,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 {
-	StorageObject* info = (StorageObject *) fdInfo->hPanel;
+	StorageObject* info = reinterpret_cast<StorageObject*>(fdInfo->hPanel);
 	if (!info || !info->CurrentDir()) return FALSE;
 
 	size_t nTotalItems = info->CurrentDir()->GetChildCount();
@@ -995,11 +998,11 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 	// Zero items - exit now
 	if (nTotalItems == 0) return TRUE;
 
-	fdInfo->PanelItem = (PluginPanelItem *) malloc(nTotalItems * sizeof(PluginPanelItem));
+	fdInfo->PanelItem = new PluginPanelItem[nTotalItems];
 	PluginPanelItem *panelItem = fdInfo->PanelItem;
 
 	// Display all directories
-	for (auto cit = info->CurrentDir()->subdirs.cbegin(); cit != info->CurrentDir()->subdirs.cend(); cit++)
+	for (auto cit = info->CurrentDir()->subdirs.cbegin(); cit != info->CurrentDir()->subdirs.cend(); ++cit)
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
@@ -1016,7 +1019,7 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 	}
 
 	// Display all files
-	for (auto cit = info->CurrentDir()->files.cbegin(); cit != info->CurrentDir()->files.cend(); cit++)
+	for (auto cit = info->CurrentDir()->files.cbegin(); cit != info->CurrentDir()->files.cend(); ++cit)
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
@@ -1037,7 +1040,7 @@ intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 
 void WINAPI FreeFindDataW(const FreeFindDataInfo* info)
 {
-	free(info->PanelItem);
+	delete[] info->PanelItem;
 }
 
 intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
@@ -1045,12 +1048,10 @@ intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 	if (sdInfo->hPanel == NULL || sdInfo->hPanel == INVALID_HANDLE_VALUE)
 		return FALSE;
 
-	StorageObject* info = (StorageObject *) sdInfo->hPanel;
-	if (!info) return FALSE;
-
+	StorageObject* info = reinterpret_cast<StorageObject*>(sdInfo->hPanel);
 	if (!sdInfo->Dir || !sdInfo->Dir[0]) return TRUE;
 
-	return info->ChangeCurrentDir(sdInfo->Dir);
+	return info->ChangeCurrentDir(sdInfo->Dir) ? 1 : 0;
 }
 
 void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)

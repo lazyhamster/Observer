@@ -28,7 +28,6 @@ public:
 	bool GetValue(const wchar_t* Key, bool &Value) const;
 	bool GetValue(const wchar_t* Key, int &Value) const;
 	bool GetValue(const wchar_t* Key, wchar_t *Value, size_t MaxValueSize) const;
-	bool GetValue(const wchar_t* Key, char *Value, size_t MaxValueSize) const;
 
 	OptionsItem GetOption(size_t index) { return m_vValues.at(index); }
 	size_t NumOptions() const { return m_vValues.size(); }

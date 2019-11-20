@@ -63,8 +63,7 @@ int WcxLoader::LoadModules( const wchar_t* basePath, bool recursive )
 
 void WcxLoader::UnloadModules()
 {
-	vector<IWcxModule*>::iterator it;
-	for (it = Modules.begin(); it != Modules.end(); it++)
+	for (auto it = Modules.begin(); it != Modules.end(); ++it)
 	{
 		IWcxModule* module = *it;
 		module->Unload();

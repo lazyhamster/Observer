@@ -149,7 +149,7 @@ ContentTreeNode* ContentTreeNode::insertDummyDirectory(const wchar_t *name)
 
 ContentTreeNode* ContentTreeNode::GetSubDir(const wchar_t* name)
 {
-	SubNodesMap::iterator it = subdirs.find(name);
+	auto it = subdirs.find(name);
 	if (it == subdirs.end())
 		return NULL;
 	else
@@ -183,7 +183,7 @@ ContentTreeNode* ContentTreeNode::GetChildByName(const wchar_t* name)
 		ContentTreeNode* child = GetSubDir(name);
 		if (child) return child;
 
-		SubNodesMap::iterator it = files.find(name);
+		auto it = files.find(name);
 		return (it == files.end()) ? NULL : (*it).second;
 	}
 

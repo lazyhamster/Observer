@@ -414,7 +414,7 @@ static int CALLBACK ExtractProgress(HANDLE context, __int64 ProcessedBytes)
 	return TRUE;
 }
 
-static int CALLBACK ExtractStart(ProgressContext* context, const ContentTreeNode* item, std::wstring& itemDestPath)
+static int CALLBACK ExtractStart(ProgressContext* context, const ContentTreeNode* item, const std::wstring& itemDestPath)
 {
 	context->nCurrentFileNumber++;
 	context->nCurrentFileSize = item->GetSize();
@@ -760,7 +760,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 	}
 
 	// Extract all files one by one
-	for (ContentNodeList::const_iterator cit = items.begin(); cit != items.end(); cit++)
+	for (auto cit = items.begin(); cit != items.end(); ++cit)
 	{
 		if (extParams.bShowProgress)
 		{
@@ -1025,7 +1025,7 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 	PluginPanelItem *panelItem = *pPanelItem;
 
 	// Display all directories
-	for (SubNodesMap::const_iterator cit = info->CurrentDir()->subdirs.begin(); cit != info->CurrentDir()->subdirs.end(); cit++)
+	for (auto cit = info->CurrentDir()->subdirs.begin(); cit != info->CurrentDir()->subdirs.end(); ++cit)
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 
@@ -1042,7 +1042,7 @@ int WINAPI GetFindDataW(HANDLE hPlugin, struct PluginPanelItem **pPanelItem, int
 	}
 
 	// Display all files
-	for (SubNodesMap::const_iterator cit = info->CurrentDir()->files.begin(); cit != info->CurrentDir()->files.end(); cit++)
+	for (auto cit = info->CurrentDir()->files.begin(); cit != info->CurrentDir()->files.end(); ++cit)
 	{
 		memset(panelItem, 0, sizeof(PluginPanelItem));
 

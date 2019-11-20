@@ -3,7 +3,7 @@
 
 #define PATH_BUFFER_SIZE 4096
 
-bool FileExists(wstring& path, LPWIN32_FIND_DATAW file_data);
+bool FileExists(const std::wstring& path, LPWIN32_FIND_DATAW file_data);
 bool DirectoryExists(const wchar_t* path);
 bool IsDiskRoot(const wchar_t* path);
 bool IsEnoughSpaceInPath(const wchar_t* path, __int64 requiredSize);

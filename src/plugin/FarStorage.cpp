@@ -98,7 +98,7 @@ void StorageObject::Close()
 
 	m_pCurrentDir = NULL;
 	m_nTotalSize = 0;
-	m_nTotalPackedSize;
+	m_nTotalPackedSize = 0;
 	m_nNumFiles = 0;
 	m_nNumDirectories = 0;
 
@@ -202,53 +202,45 @@ int StorageObject::Extract( ExtractOperationParams &params )
 	return module->ModuleFunctions.ExtractItem(m_pStoragePtr, params);
 }
 
-int StorageObject::ChangeCurrentDir( const wchar_t* path )
+bool StorageObject::ChangeCurrentDir( const wchar_t* path )
 {
-	if (!path || !path[0]) return FALSE;
+	if (!path || !path[0]) return false;
 	
-	wchar_t delim[] = L"\\";
-	wchar_t *path_str = _wcsdup(path);
+	std::wstring path_str = path;
 
 	// Normalize delimiters
-	for (size_t i = 0; i < wcslen(path_str); i++)
-	{
-		if (path_str[i] == '/') path_str[i] = '\\';
-	}
+	std::replace(path_str.begin(), path_str.end(), '/', '\\');
 
 	ContentTreeNode* baseDir = (path_str[0] == '\\') ? m_pRootDir : m_pCurrentDir;
-	if (baseDir == NULL) return FALSE;
+	if (baseDir == NULL) return false;
 	
-	wchar_t* context = NULL;
-	wchar_t* token = wcstok_s(path_str, delim, &context);
-	while (token)
+	std::wistringstream iss(path_str);
+	std::wstring token;
+	while (std::getline(iss, token, L'\\'))
 	{
-		if (wcslen(token) > 0)
+		if (token.empty()) continue;
+
+		if (token == L"..")
 		{
-			if (wcscmp(token, L"..") == 0)
-			{
-				baseDir = baseDir->parent;
-				if (!baseDir) break;
-			}
-			else if (wcscmp(token, L".") == 0)
-			{
-				// Do nothing, stay in same directory
-			}
-			else
-			{
-				baseDir = baseDir->GetChildByName(token);
-				if (!baseDir) break;
-			}
+			baseDir = baseDir->parent;
+			if (!baseDir) break;
 		}
-
-		token = wcstok_s(NULL, delim, &context);
+		else if (token == L".")
+		{
+			// Do nothing, stay in same directory
+		}
+		else
+		{
+			baseDir = baseDir->GetChildByName(token.c_str());
+			if (!baseDir) break;
+		}
 	}
-	free(path_str);
-
+	
 	if (baseDir)
 	{
 		m_pCurrentDir = baseDir;
-		return TRUE;
+		return true;
 	}
 
-	return FALSE;
+	return false;
 }

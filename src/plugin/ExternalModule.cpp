@@ -1,11 +1,9 @@
 #include "stdafx.h"
 #include "ExternalModule.h"
 
-ExternalModule::ExternalModule(const std::wstring& Name, const std::wstring& Library) : m_pExtensionFilter(true)
+ExternalModule::ExternalModule(const std::wstring& Name, const std::wstring& Library)
+	: m_pExtensionFilter(true), m_sModuleName(Name), m_sLibraryFile(Library)
 {
-	m_sModuleName = Name;
-	m_sLibraryFile = Library;
-	
 	m_pLoadModule = nullptr;
 	m_pUnloadModule = nullptr;
 	m_hModuleHandle = NULL;
@@ -117,7 +115,7 @@ bool ExternalModule::IsModuleOk(const ModuleLoadParameters &params)
 		&& (params.ApiFuncs.PrepareFiles != nullptr) && (params.ApiFuncs.GetItem != nullptr) && (params.ApiFuncs.ExtractItem != nullptr);
 }
 
-void ExternalModule::AddExtensionFilter(std::wstring& filterStr)
+void ExternalModule::AddExtensionFilter(const std::wstring& filterStr)
 {
 	m_pExtensionFilter.SetFilter(filterStr);
 }

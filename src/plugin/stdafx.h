@@ -23,6 +23,7 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <sstream>
 using namespace std;
 
 #define ARRAY_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
