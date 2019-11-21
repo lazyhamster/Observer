@@ -158,8 +158,10 @@ ContentTreeNode* ContentTreeNode::GetSubDir(const wchar_t* name)
 
 ContentTreeNode* ContentTreeNode::GetChildByName(const wchar_t* name)
 {
+	if (!name) return nullptr;
+	
 	// If name is not NULL but empty or equal to \ return self
-	if (name && (!*name || !wcscmp(name, L"\\")))
+	if (!*name || (wcscmp(name, L"\\") == 0))
 		return this;
 	
 	const wchar_t* slash = wcschr(name, L'\\');
@@ -184,10 +186,11 @@ ContentTreeNode* ContentTreeNode::GetChildByName(const wchar_t* name)
 		if (child) return child;
 
 		auto it = files.find(name);
-		return (it == files.end()) ? NULL : (*it).second;
+		if (it != files.end())
+			return (*it).second;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 size_t ContentTreeNode::GetSubDirectoriesNum( bool recursive )

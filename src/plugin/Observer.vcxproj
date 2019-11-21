@@ -415,7 +415,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\depends\modulecrt\OptionsParser.cpp" />
     <ClCompile Include="CommonFunc.cpp" />
     <ClCompile Include="Config.cpp" />
     <ClCompile Include="ContentStructures.cpp" />
@@ -462,7 +461,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release-Unicode|x64'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="OptionsFile.cpp" />
     <ClCompile Include="RegistrySettings.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Unicode|Win32'">Create</PrecompiledHeader>
@@ -503,7 +501,6 @@
     <ClInclude Include="Guids.h" />
     <ClInclude Include="InterfaceCommon.h" />
     <ClInclude Include="ModulesController.h" />
-    <ClInclude Include="OptionsFile.h" />
     <ClInclude Include="PlugLang.h" />
     <ClInclude Include="RegistrySettings.h" />
     <ClInclude Include="resource.h" />

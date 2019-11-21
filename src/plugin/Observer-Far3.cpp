@@ -242,12 +242,12 @@ static StorageObject* OpenStorage(const std::wstring& Name, bool applyExtFilters
 
 static void CloseStorage(HANDLE hStorage)
 {
-	StorageObject *sobj = (StorageObject*) hStorage;
+	StorageObject *sobj = reinterpret_cast<StorageObject*>(hStorage);
 	sobj->Close();
 	delete sobj;
 }
 
-static bool GetCurrentPanelItemName(HANDLE hPanel, wstring& nameStr, bool canBeDir)
+static bool GetCurrentPanelItemName(HANDLE hPanel, std::wstring& nameStr, bool canBeDir)
 {
 	bool fResult = false;
 	
@@ -268,7 +268,7 @@ static bool GetCurrentPanelItemName(HANDLE hPanel, wstring& nameStr, bool canBeD
 	return fResult;
 }
 
-static bool GetSelectedPanelFilePath(wstring& nameStr)
+static bool GetSelectedPanelFilePath(std::wstring& nameStr)
 {
 	nameStr.clear();
 	
@@ -1145,15 +1145,14 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 
 intptr_t WINAPI GetFilesW(GetFilesInfo *gfInfo)
 {
-	if (gfInfo->Move || !gfInfo->DestPath || (gfInfo->ItemsNumber == 0))
+	if (gfInfo->Move || !gfInfo->DestPath || (gfInfo->ItemsNumber == 0) || !gfInfo->hPanel)
 		return 0;
 
 	// Check for single '..' item, do not show confirm dialog
 	if ((gfInfo->ItemsNumber == 1) && (wcscmp(gfInfo->PanelItem[0].FileName, L"..") == 0))
 		return 0;
 
-	StorageObject* info = (StorageObject *) gfInfo->hPanel;
-	if (!info) return 0;
+	StorageObject* info = reinterpret_cast<StorageObject*>(gfInfo->hPanel);
 
 	ContentNodeList vcExtractItems;
 	__int64 nTotalExtractSize = 0;
@@ -1214,7 +1213,7 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 	KEY_EVENT_RECORD evtRec = piInfo->Rec.Event.KeyEvent;
 	if (evtRec.bKeyDown && evtRec.wVirtualKeyCode == VK_F6 && ((evtRec.dwControlKeyState & LEFT_ALT_PRESSED) || (evtRec.dwControlKeyState & RIGHT_ALT_PRESSED)))
 	{
-		StorageObject* info = (StorageObject *) piInfo->hPanel;
+		StorageObject* info = reinterpret_cast<StorageObject*>(piInfo->hPanel);
 		if (!info) return FALSE;
 		
 		PanelInfo pi = {sizeof(PanelInfo)};
