@@ -13,22 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
     </Filter>
-    <Filter Include="pstsdk">
+    <Filter Include="Header Files\pstsdk">
       <UniqueIdentifier>{2db7efbf-23bb-4462-9854-b22abe375989}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pstsdk\disk">
+    <Filter Include="Header Files\pstsdk\disk">
       <UniqueIdentifier>{f44f2dee-d825-44cd-b6ac-9f39d2f7d277}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pstsdk\ltp">
+    <Filter Include="Header Files\pstsdk\ltp">
       <UniqueIdentifier>{787a5dce-9edf-483e-b75f-8ed60ad4969f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pstsdk\ndb">
+    <Filter Include="Header Files\pstsdk\ndb">
       <UniqueIdentifier>{55e7634d-4805-4ba9-8d63-9849b84fb277}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pstsdk\pst">
+    <Filter Include="Header Files\pstsdk\pst">
       <UniqueIdentifier>{0656c4dd-3132-4828-92c3-24bf27edb535}</UniqueIdentifier>
     </Filter>
-    <Filter Include="pstsdk\util">
+    <Filter Include="Header Files\pstsdk\util">
       <UniqueIdentifier>{aac753a2-60f8-4f90-9d5b-bebfeaa2ae3e}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -64,77 +64,80 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="pstsdk\disk.h">
-      <Filter>pstsdk</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ltp.h">
-      <Filter>pstsdk</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ndb.h">
-      <Filter>pstsdk</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\pst.h">
-      <Filter>pstsdk</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\util.h">
-      <Filter>pstsdk</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\disk\disk.h">
-      <Filter>pstsdk\disk</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ltp\heap.h">
-      <Filter>pstsdk\ltp</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ltp\nameid.h">
-      <Filter>pstsdk\ltp</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ltp\object.h">
-      <Filter>pstsdk\ltp</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ltp\propbag.h">
-      <Filter>pstsdk\ltp</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ltp\table.h">
-      <Filter>pstsdk\ltp</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ndb\database.h">
-      <Filter>pstsdk\ndb</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ndb\database_iface.h">
-      <Filter>pstsdk\ndb</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ndb\node.h">
-      <Filter>pstsdk\ndb</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\ndb\page.h">
-      <Filter>pstsdk\ndb</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\pst\folder.h">
-      <Filter>pstsdk\pst</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\pst\message.h">
-      <Filter>pstsdk\pst</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\pst\pst.h">
-      <Filter>pstsdk\pst</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\util\btree.h">
-      <Filter>pstsdk\util</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\util\errors.h">
-      <Filter>pstsdk\util</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\util\primitives.h">
-      <Filter>pstsdk\util</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\util\util.h">
-      <Filter>pstsdk\util</Filter>
-    </ClInclude>
-    <ClInclude Include="pstsdk\util\mapi.h">
-      <Filter>pstsdk\util</Filter>
-    </ClInclude>
     <ClInclude Include="rtfcomp.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\disk.h">
+      <Filter>Header Files\pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ltp.h">
+      <Filter>Header Files\pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ndb.h">
+      <Filter>Header Files\pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\pst.h">
+      <Filter>Header Files\pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\util.h">
+      <Filter>Header Files\pstsdk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\disk\disk.h">
+      <Filter>Header Files\pstsdk\disk</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ltp\heap.h">
+      <Filter>Header Files\pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ltp\nameid.h">
+      <Filter>Header Files\pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ltp\object.h">
+      <Filter>Header Files\pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ltp\propbag.h">
+      <Filter>Header Files\pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ltp\table.h">
+      <Filter>Header Files\pstsdk\ltp</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ndb\context.h">
+      <Filter>Header Files\pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ndb\database.h">
+      <Filter>Header Files\pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ndb\database_iface.h">
+      <Filter>Header Files\pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ndb\node.h">
+      <Filter>Header Files\pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\ndb\page.h">
+      <Filter>Header Files\pstsdk\ndb</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\pst\folder.h">
+      <Filter>Header Files\pstsdk\pst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\pst\message.h">
+      <Filter>Header Files\pstsdk\pst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\pst\pst.h">
+      <Filter>Header Files\pstsdk\pst</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\util\btree.h">
+      <Filter>Header Files\pstsdk\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\util\errors.h">
+      <Filter>Header Files\pstsdk\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\util\mapi.h">
+      <Filter>Header Files\pstsdk\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\util\primitives.h">
+      <Filter>Header Files\pstsdk\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\depends\pstsdk\util\util.h">
+      <Filter>Header Files\pstsdk\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

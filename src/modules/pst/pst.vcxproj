@@ -404,33 +404,34 @@
     <None Include="pst.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\depends\pstsdk\disk.h" />
+    <ClInclude Include="..\..\depends\pstsdk\disk\disk.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ltp.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ltp\heap.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ltp\nameid.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ltp\object.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ltp\propbag.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ltp\table.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ndb.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ndb\context.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ndb\database.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ndb\database_iface.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ndb\node.h" />
+    <ClInclude Include="..\..\depends\pstsdk\ndb\page.h" />
+    <ClInclude Include="..\..\depends\pstsdk\pst.h" />
+    <ClInclude Include="..\..\depends\pstsdk\pst\folder.h" />
+    <ClInclude Include="..\..\depends\pstsdk\pst\message.h" />
+    <ClInclude Include="..\..\depends\pstsdk\pst\pst.h" />
+    <ClInclude Include="..\..\depends\pstsdk\util.h" />
+    <ClInclude Include="..\..\depends\pstsdk\util\btree.h" />
+    <ClInclude Include="..\..\depends\pstsdk\util\errors.h" />
+    <ClInclude Include="..\..\depends\pstsdk\util\mapi.h" />
+    <ClInclude Include="..\..\depends\pstsdk\util\primitives.h" />
+    <ClInclude Include="..\..\depends\pstsdk\util\util.h" />
     <ClInclude Include="PstProcessing.h" />
-    <ClInclude Include="pstsdk\util\mapi.h" />
     <ClInclude Include="rtfcomp.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="pstsdk\disk.h" />
-    <ClInclude Include="pstsdk\ltp.h" />
-    <ClInclude Include="pstsdk\ndb.h" />
-    <ClInclude Include="pstsdk\pst.h" />
-    <ClInclude Include="pstsdk\util.h" />
-    <ClInclude Include="pstsdk\disk\disk.h" />
-    <ClInclude Include="pstsdk\ltp\heap.h" />
-    <ClInclude Include="pstsdk\ltp\nameid.h" />
-    <ClInclude Include="pstsdk\ltp\object.h" />
-    <ClInclude Include="pstsdk\ltp\propbag.h" />
-    <ClInclude Include="pstsdk\ltp\table.h" />
-    <ClInclude Include="pstsdk\ndb\database.h" />
-    <ClInclude Include="pstsdk\ndb\database_iface.h" />
-    <ClInclude Include="pstsdk\ndb\node.h" />
-    <ClInclude Include="pstsdk\ndb\page.h" />
-    <ClInclude Include="pstsdk\pst\folder.h" />
-    <ClInclude Include="pstsdk\pst\message.h" />
-    <ClInclude Include="pstsdk\pst\pst.h" />
-    <ClInclude Include="pstsdk\util\btree.h" />
-    <ClInclude Include="pstsdk\util\errors.h" />
-    <ClInclude Include="pstsdk\util\primitives.h" />
-    <ClInclude Include="pstsdk\util\util.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\depends\modulecrt\modulecrt.vcxproj">
