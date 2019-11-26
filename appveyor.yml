@@ -68,7 +68,7 @@ deploy:
     subject: lazyhamster
     repo: FAR-Plugins
     package: Observer
-    version: %PVER%
+    version: $(PVER)
     publish: true
     override: true
     explode: false
