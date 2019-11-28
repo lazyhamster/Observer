@@ -121,7 +121,7 @@ bool ContentTreeNode::AddChild(wchar_t* path, ContentTreeNode* child)
 		if (child->IsDir())
 		{
 			if (!GetSubDir(path))
-				subdirs.insert(pair<wstring, ContentTreeNode* > (child->Name(), child));
+				subdirs.insert(std::pair<std::wstring, ContentTreeNode* > (child->Name(), child));
 		}
 		else
 		{
@@ -141,7 +141,7 @@ ContentTreeNode* ContentTreeNode::insertDummyDirectory(const wchar_t *name)
 	dummyDir->m_strName = name;
 	dummyDir->m_nAttributes = FILE_ATTRIBUTE_DIRECTORY;
 
-	this->subdirs.insert(pair<wstring, ContentTreeNode*> (name, dummyDir));
+	this->subdirs.insert(std::pair<std::wstring, ContentTreeNode*> (name, dummyDir));
 	m_dummyFolders.push_back(dummyDir);
 	
 	return dummyDir;
@@ -233,5 +233,5 @@ void ContentTreeNode::AddFile( ContentTreeNode* child )
 		child->SetName(tmpBuf);
 	} //if
 
-	files.insert(pair<wstring, ContentTreeNode*> (child->Name(), child));
+	files.insert(std::pair<std::wstring, ContentTreeNode*> (child->Name(), child));
 }

@@ -3,19 +3,6 @@
 
 #define SETTINGS_KEY_REGISTRY L"Observer"
 
-static wstring ConvertString(const char* Input)
-{
-	int nNumWChars = MultiByteToWideChar(CP_ACP, 0, Input, -1, NULL, NULL);
-	wchar_t* buf = new wchar_t[nNumWChars + 1];
-	MultiByteToWideChar(CP_ACP, 0, Input, -1, buf, nNumWChars + 1);
-	wstring strResult(buf);
-	delete [] buf;
-
-	return strResult;
-}
-
-//////////////////////////////////////////////////////////////////////////
-
 RegistrySettings::RegistrySettings( const wchar_t* RootKey )
 {
 	m_strRegKeyName = RootKey;

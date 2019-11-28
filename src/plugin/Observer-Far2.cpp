@@ -77,9 +77,9 @@ static void SaveSettings()
 	}
 }
 
-static wstring ResolveFullPath(const wchar_t* input)
+static std::wstring ResolveFullPath(const wchar_t* input)
 {
-	wstring strVal(input);
+	std::wstring strVal(input);
 
 	DWORD nBufSize = ExpandEnvironmentStrings(strVal.c_str(), NULL, 0);
 	if (nBufSize > 0)
@@ -91,7 +91,7 @@ static wstring ResolveFullPath(const wchar_t* input)
 		delete [] tmpBuf1;
 	}
 
-	wstring strFull;
+	std::wstring strFull;
 	size_t nLen = FSF.ConvertPath(CPM_FULL, strVal.c_str(), NULL, 0);
 	if (nLen > 0)
 	{
@@ -140,7 +140,7 @@ static int DlgHlp_GetCheckBoxState(HANDLE hDlg, int ctrlIndex)
 	return retVal;
 }
 
-static void DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wstring &buf)
+static void DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, std::wstring &buf)
 {
 	FarDialogItem *dlgItem;
 
@@ -154,7 +154,7 @@ static void DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wstring &buf)
 
 static bool DlgHlp_GetEditBoxText(HANDLE hDlg, int ctrlIndex, wchar_t* buf, size_t bufSize)
 {
-	wstring tmpStr;
+	std::wstring tmpStr;
 	DlgHlp_GetEditBoxText(hDlg, ctrlIndex, tmpStr);
 	
 	if (tmpStr.size() < bufSize)
@@ -171,7 +171,7 @@ static int SelectModuleToOpenFileAs()
 	size_t nNumModules = g_pController.NumModules();
 	
 	FarMenuItem* MenuItems = new FarMenuItem[nNumModules];
-	vector<wstring> MenuStrings(nNumModules);
+	std::vector<std::wstring> MenuStrings(nNumModules);
 
 	memset(MenuItems, 0, nNumModules * sizeof(FarMenuItem));
 	for (size_t i = 0; i < nNumModules; i++)
@@ -203,7 +203,7 @@ static bool StoragePasswordQuery(char* buffer, size_t bufferSize)
 	return fRet;
 }
 
-void ReportFailedModules(vector<FailedModuleInfo> &failedModules)
+void ReportFailedModules(const std::vector<FailedModuleInfo> &failedModules)
 {
 	if (!optVerboseModuleLoad || failedModules.empty()) return;
 
@@ -295,7 +295,7 @@ static void CloseStorage(HANDLE hStorage)
 	delete sobj;
 }
 
-static bool GetSelectedPanelFilePath(wstring& nameStr)
+static bool GetSelectedPanelFilePath(std::wstring& nameStr)
 {
 	nameStr.clear();
 	
@@ -477,7 +477,7 @@ enum FileOverwriteOptions
 	OverwriteRename = 5
 };
 
-static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, wstring &destPath, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
+static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, std::wstring &destPath, const WIN32_FIND_DATAW* existingFile, const ContentTreeNode* newFile)
 {
 	__int64 nOldSize = ((__int64) existingFile->nFileSizeHigh >> 32) + existingFile->nFileSizeLow;
 	__int64 nNewSize = newFile->GetSize();
@@ -543,7 +543,7 @@ static bool AskExtractOverwrite(FileOverwriteOptions &overwrite, wstring &destPa
 	return retVal;
 }
 
-static void AskRename(wstring &filePath)
+static void AskRename(std::wstring &filePath)
 {
 	wchar_t tmpBuf[MAX_PATH] = {0};
 	wcscpy_s(tmpBuf, MAX_PATH, ExtractFileName(filePath.c_str()));
@@ -571,7 +571,7 @@ static void AskRename(wstring &filePath)
 	}
 }
 
-static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, wstring &destPath, bool showMessages, FileOverwriteOptions &doOverwrite, bool &skipOnError, ProgressContext* pctx)
+static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* item, std::wstring &destPath, bool showMessages, FileOverwriteOptions &doOverwrite, bool &skipOnError, ProgressContext* pctx)
 {
 	if (!item || !storage || item->IsDir())
 		return SER_ERROR_READ;
@@ -619,7 +619,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 	// Create directory if needed
 	if (!fAlreadyExists)
 	{
-		wstring strTargetDir = GetDirectoryName(destPath, false);
+		auto strTargetDir = GetDirectoryName(destPath, false);
 		if (strTargetDir.length() > 0)
 		{
 			if (!ForceDirectoryExist(strTargetDir))
@@ -638,7 +638,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		SetFileAttributes(destPath.c_str(), fdExistingFile.dwFileAttributes & ~FILE_ATTRIBUTE_READONLY);
 	}
 
-	string strFilePassword;
+	char szPassBuffer[100] = { 0 };
 
 	int ret;
 	do
@@ -648,7 +648,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		params.ItemIndex = item->StorageIndex;
 		params.Flags = 0;
 		params.DestPath = destPath.c_str();
-		params.Password = (strFilePassword.length() > 0) ? strFilePassword.c_str() : nullptr;
+		params.Password = szPassBuffer;
 		params.Callbacks.FileProgress = ExtractProgress;
 		params.Callbacks.signalContext = pctx;
 
@@ -684,10 +684,7 @@ static int ExtractStorageItem(StorageObject* storage, const ContentTreeNode* ite
 		}
 		else if (ret == SER_PASSWORD_REQUIRED)
 		{
-			char passBuffer[100] = {0};
-			if (StoragePasswordQuery(passBuffer, sizeof(passBuffer)))
-				strFilePassword = passBuffer;
-			else
+			if (!StoragePasswordQuery(szPassBuffer, _countof(szPassBuffer)))
 				ret = SER_USERABORT;
 		}
 
@@ -769,7 +766,7 @@ int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtra
 		}
 		
 		ContentTreeNode* nextItem = *cit;
-		wstring strFullTargetPath = GetFinalExtractionPath(info, nextItem, extParams.strDestPath.c_str(), extParams.nPathProcessing);
+		auto strFullTargetPath = GetFinalExtractionPath(info, nextItem, extParams.strDestPath.c_str(), extParams.nPathProcessing);
 		
 		if (nextItem->IsDir())
 		{
@@ -863,7 +860,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 		wmemset(wszPluginLocation, 0, MAX_PATH);
 	}
 
-	wstring strConfigLocation(wszPluginLocation);
+	std::wstring strConfigLocation(wszPluginLocation);
 
 	Config cfg;
 	cfg.ParseFile(strConfigLocation + CONFIG_FILE);
@@ -871,7 +868,7 @@ void WINAPI SetStartupInfoW(const struct PluginStartupInfo *Info)
 
 	LoadSettings(&cfg);
 
-	vector<FailedModuleInfo> fails;
+	std::vector<FailedModuleInfo> fails;
 	g_pController.Init(wszPluginLocation, &cfg, fails);
 	ReportFailedModules(fails);
 }
@@ -946,8 +943,8 @@ HANDLE WINAPI OpenPluginW(int OpenFrom, INT_PTR Item)
 	if (g_pController.NumModules() == 0)
 		return 0;
 	
-	wstring strFullSourcePath;
-	wstring strSubPath;
+	std::wstring strFullSourcePath;
+	std::wstring strSubPath;
 	int nOpenModuleIndex = -1;
 	
 	if ((OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)

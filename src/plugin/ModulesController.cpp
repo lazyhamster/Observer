@@ -24,7 +24,7 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 		const std::wstring& moduleLibrary = nextModuleInfo.Value;
 
 		ConfigSection* moduleOpts = cfg->GetSection(moduleName);
-		wstring moduleLoadError;
+		std::wstring moduleLoadError;
 
 		ExternalModule* module = LoadModule(basePath, moduleName, moduleLibrary, moduleOpts, moduleLoadError);
 		if (module)
@@ -32,7 +32,7 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 			// Read extensions filter for each module
 			if (mFiltersList != NULL)
 			{
-				wstring extList;
+				std::wstring extList;
 				if (mFiltersList->GetValue(module->Name(), extList))
 				{
 					module->AddExtensionFilter(extList);
@@ -103,7 +103,7 @@ void ModulesController::Cleanup()
 ExternalModule* ModulesController::LoadModule(const wchar_t* basePath, const std::wstring& moduleName, const std::wstring& moduleLibrary, ConfigSection* moduleSettings, std::wstring &errorMsg)
 {
 	ModuleLoadResult loadResult;
-	wstring moduleSettingsStr = moduleSettings ? moduleSettings->GetAll() : L"";
+	std::wstring moduleSettingsStr = moduleSettings ? moduleSettings->GetAll() : L"";
 
 	ExternalModule* module = new ExternalModule(moduleName, moduleLibrary);
 

@@ -8,7 +8,7 @@ const wchar_t* ConfigSection::GetName() const
 	return m_SectionName.c_str();
 }
 
-bool ConfigSection::GetValueByKey( const wchar_t* Key, wstring &FoundValue ) const
+bool ConfigSection::GetValueByKey( const wchar_t* Key, std::wstring &FoundValue ) const
 {
 	for (auto cit = m_Items.cbegin(); cit != m_Items.cend(); cit++)
 	{
@@ -24,7 +24,7 @@ bool ConfigSection::GetValueByKey( const wchar_t* Key, wstring &FoundValue ) con
 
 bool ConfigSection::GetValue( const wchar_t* Key, bool &Value ) const
 {
-	wstring strValue;
+	std::wstring strValue;
 	if (GetValueByKey(Key, strValue))
 	{
 		Value = wcscmp(strValue.c_str(), L"1") == 0 || _wcsicmp(strValue.c_str(), L"true") == 0;
@@ -36,7 +36,7 @@ bool ConfigSection::GetValue( const wchar_t* Key, bool &Value ) const
 
 bool ConfigSection::GetValue( const wchar_t* Key, int &Value ) const
 {
-	wstring strValue;
+	std::wstring strValue;
 	if (GetValueByKey(Key, strValue))
 	{
 		Value = wcstol(strValue.c_str(), NULL, 10);
@@ -48,7 +48,7 @@ bool ConfigSection::GetValue( const wchar_t* Key, int &Value ) const
 
 bool ConfigSection::GetValue( const wchar_t* Key, wchar_t *Value, size_t MaxValueSize ) const
 {
-	wstring strValue;
+	std::wstring strValue;
 	if (GetValueByKey(Key, strValue) && (strValue.length() < MaxValueSize))
 	{
 		wcscpy_s(Value, MaxValueSize, strValue.c_str());
@@ -65,7 +65,7 @@ bool ConfigSection::GetValue( const wchar_t* Key, std::wstring &Value ) const
 
 bool ConfigSection::GetValue( const wchar_t* Key, wchar_t &Value ) const
 {
-	wstring strValue;
+	std::wstring strValue;
 	if (GetValueByKey(Key, strValue) && (strValue.length() >= 1))
 	{
 		Value = strValue[0];
@@ -99,7 +99,7 @@ void ConfigSection::AddItem( const wchar_t* Key, const wchar_t* Value )
 
 std::wstring ConfigSection::GetAll() const
 {
-	wstring val;
+	std::wstring val;
 	for (size_t i = 0; i < m_Items.size(); i++)
 	{
 		const ConfigItem& item = m_Items[i];
@@ -155,7 +155,7 @@ ConfigSection* Config::AddSection( const wchar_t* sectionName )
 	return pSection;
 }
 
-bool Config::ParseFile(const wstring& path)
+bool Config::ParseFile(const std::wstring& path)
 {
 	return ParseFile(path.c_str());
 }

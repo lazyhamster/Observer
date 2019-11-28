@@ -15,7 +15,6 @@
 // Additional headers
 #include <stdint.h>
 #include <wchar.h>
-#include <ShlObj.h>
 #include <Shlwapi.h>
 
 // STL
@@ -24,6 +23,6 @@
 #include <map>
 #include <algorithm>
 #include <sstream>
-using namespace std;
+//using namespace std;
 
 #define ARRAY_SIZE(x) ( sizeof(x) / sizeof(x[0]) )

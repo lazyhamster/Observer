@@ -18,7 +18,7 @@ private:
 	std::wstring m_SectionName;
 	std::vector<ConfigItem> m_Items;
 
-	bool GetValueByKey(const wchar_t* Key, wstring &FoundValue) const;
+	bool GetValueByKey(const wchar_t* Key, std::wstring &FoundValue) const;
 
 public:
 	ConfigSection(const wchar_t* Name) : m_SectionName(Name) {}

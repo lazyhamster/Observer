@@ -12,7 +12,7 @@ bool ForceDirectoryExist(const std::wstring& path);
 bool CheckEsc();
 
 const wchar_t* ExtractFileName(const wchar_t* fullPath);
-wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim);
+std::wstring GetDirectoryName(const std::wstring &fullPath, bool includeTrailingDelim);
 void CutFileNameFromPath(wchar_t* fullPath, bool includeTrailingDelim);
 
 void IncludeTrailingPathDelim(wchar_t *pathBuf, size_t bufMaxSize);

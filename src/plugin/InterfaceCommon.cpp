@@ -5,7 +5,7 @@
 
 std::wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt)
 {
-	wstring strResult(baseDir);
+	std::wstring strResult(baseDir);
 	IncludeTrailingPathDelim(strResult);
 
 	ContentTreeNode* pSubRoot = NULL;

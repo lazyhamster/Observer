@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "CommonFunc.h"
 
+#include <ShlObj.h>
+
 bool CheckEsc()
 {
 	DWORD dwNumEvents;
@@ -93,12 +95,12 @@ const wchar_t* ExtractFileName(const wchar_t* fullPath)
 		return fullPath;
 }
 
-wstring GetDirectoryName(const wstring &fullPath, bool includeTrailingDelim)
+std::wstring GetDirectoryName(const std::wstring &fullPath, bool includeTrailingDelim)
 {
-	wstring strResult;
+	std::wstring strResult;
 
 	size_t nLastSlash = fullPath.find_last_of('\\');
-	if (nLastSlash != wstring::npos)
+	if (nLastSlash != std::wstring::npos)
 	{
 		size_t nCount = includeTrailingDelim ? nLastSlash + 1 : nLastSlash;
 		strResult = fullPath.substr(0, nCount);
