@@ -5,7 +5,7 @@
 /*
 DlgBuilder.hpp
 
-Dynamic construction of dialogs for FAR Manager 3.0 build 5000
+Dynamic construction of dialogs for FAR Manager 3.0 build 5454
 */
 /*
 Copyright © 2009 Far Group
@@ -39,6 +39,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #error C++ only
 #endif
 
+#include "plugin.hpp"
+
 // Элемент выпадающего списка в диалоге.
 struct DialogBuilderListItem
 {
@@ -62,7 +64,7 @@ struct DialogItemBinding
 
 	virtual ~DialogItemBinding()
 	{
-	};
+	}
 
 	virtual void SaveValue(T *Item, int RadioGroupIndex)
 	{
@@ -79,7 +81,7 @@ struct CheckBoxBinding: public DialogItemBinding<T>
 	public:
 		CheckBoxBinding(int *aValue, int aMask) : Value(aValue), Mask(aMask) { }
 
-		virtual void SaveValue(T *Item, int RadioGroupIndex) override
+		void SaveValue(T *Item, int RadioGroupIndex) override
 		{
 			if (!Mask)
 			{
@@ -104,7 +106,7 @@ struct RadioButtonBinding: public DialogItemBinding<T>
 	public:
 		explicit RadioButtonBinding(int *aValue) : Value(aValue) { }
 
-		virtual void SaveValue(T *Item, int RadioGroupIndex) override
+		void SaveValue(T *Item, int RadioGroupIndex) override
 		{
 			if (Item->Selected)
 				*Value = RadioGroupIndex;
@@ -263,7 +265,7 @@ class DialogBuilderBase
 				{//BUGBUG: two columns items are not supported
 					m_DialogItems[i].X2 = m_DialogItems[i].X1 + MaxWidth - 1;
 				}
-				
+
 				if (m_DialogItems[i].Y2 > MaxHeight)
 				{
 					MaxHeight = m_DialogItems[i].Y2;
@@ -400,9 +402,7 @@ class DialogBuilderBase
 		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
 		T *AddText(int LabelId)
 		{
-			T *Item = AddDialogItem(DI_TEXT, LabelId == -1 ? L"" : GetLangString(LabelId));
-			SetNextY(Item);
-			return Item;
+			return AddText(LabelId == -1 ? L"" : GetLangString(LabelId));
 		}
 
 		// Добавляет статический текст, расположенный на отдельной строке в диалоге.
@@ -414,9 +414,9 @@ class DialogBuilderBase
 		}
 
 		// Добавляет чекбокс.
-		T *AddCheckbox(int TextMessageId, int *Value, int Mask=0, bool ThreeState=false)
+		T *AddCheckbox(const wchar_t* TextMessage, int *Value, int Mask=0, bool ThreeState=false)
 		{
-			T *Item = AddDialogItem(DI_CHECKBOX, GetLangString(TextMessageId));
+			T *Item = AddDialogItem(DI_CHECKBOX, TextMessage);
 			if (ThreeState && !Mask)
 				Item->Flags |= DIF_3STATE;
 			SetNextY(Item);
@@ -429,16 +429,26 @@ class DialogBuilderBase
 			return Item;
 		}
 
-		// Добавляет группу радиокнопок.
-		void AddRadioButtons(int *Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected=false)
+		// Добавляет чекбокс.
+		T *AddCheckbox(int TextMessageId, int *Value, int Mask = 0, bool ThreeState = false)
 		{
+			return AddCheckbox(GetLangString(TextMessageId), Value, Mask, ThreeState);
+		}
+
+		// Добавляет группу радиокнопок.
+		T* AddRadioButtons(int *Value, int OptionCount, const int MessageIDs[], bool FocusOnSelected=false)
+		{
+			T* firstButton = nullptr;
 			for(int i=0; i<OptionCount; i++)
 			{
 				T *Item = AddDialogItem(DI_RADIOBUTTON, GetLangString(MessageIDs[i]));
 				SetNextY(Item);
 				Item->X2 = Item->X1 + ItemWidth(*Item);
 				if (!i)
+				{
 					Item->Flags |= DIF_GROUP;
+					firstButton = Item;
+				}
 				if (*Value == i)
 				{
 					Item->Selected = TRUE;
@@ -447,6 +457,7 @@ class DialogBuilderBase
 				}
 				SetLastItemBinding(CreateRadioButtonBinding(Value));
 			}
+			return firstButton;
 		}
 
 		// Добавляет поле типа DI_FIXEDIT для редактирования указанного числового значения.
@@ -461,9 +472,9 @@ class DialogBuilderBase
 		}
 
 		// Добавляет указанную текстовую строку слева от элемента RelativeTo.
-		T *AddTextBefore(T *RelativeTo, int LabelId)
+		T *AddTextBefore(T *RelativeTo, const wchar_t* Label)
 		{
-			T *Item = AddDialogItem(DI_TEXT, GetLangString(LabelId));
+			T *Item = AddDialogItem(DI_TEXT, Label);
 			Item->Y1 = Item->Y2 = RelativeTo->Y1;
 			Item->X1 = 5 + m_Indent;
 			Item->X2 = Item->X1 + ItemWidth(*Item) - 1;
@@ -477,6 +488,12 @@ class DialogBuilderBase
 				Binding->BeforeLabelID = GetItemID(Item);
 
 			return Item;
+		}
+
+		// Добавляет указанную текстовую строку слева от элемента RelativeTo.
+		T *AddTextBefore(T *RelativeTo, int LabelId)
+		{
+			return AddTextBefore(RelativeTo, GetLangString(LabelId));
 		}
 
 		// Добавляет указанную текстовую строку справа от элемента RelativeTo.
@@ -499,9 +516,9 @@ class DialogBuilderBase
 		}
 
 		// Добавляет кнопку справа от элемента RelativeTo.
-		T *AddButtonAfter(T *RelativeTo, int LabelId)
+		T *AddButtonAfter(T *RelativeTo, const wchar_t* Label)
 		{
-			T *Item = AddDialogItem(DI_BUTTON, GetLangString(LabelId));
+			T *Item = AddDialogItem(DI_BUTTON, Label);
 			Item->Y1 = Item->Y2 = RelativeTo->Y1;
 			Item->X1 = RelativeTo->X1 + ItemWidth(*RelativeTo) - 1 + 2;
 
@@ -510,6 +527,12 @@ class DialogBuilderBase
 				Binding->AfterLabelID = GetItemID(Item);
 
 			return Item;
+		}
+
+		// Добавляет кнопку справа от элемента RelativeTo.
+		T *AddButtonAfter(T *RelativeTo, int LabelId)
+		{
+			return AddButtonAfter(RelativeTo, GetLangString(LabelId));
 		}
 
 		// Начинает располагать поля диалога в две колонки.
@@ -598,8 +621,8 @@ class DialogBuilderBase
 			if (Separator)
 				AddSeparator();
 
-			int MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
-			int NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
+			int const MsgIDs[] = { OKMessageId, CancelMessageId, ExtraMessageId };
+			int const NumButtons = (ExtraMessageId != -1) ? 3 : (CancelMessageId != -1? 2 : 1);
 
 			AddButtons(NumButtons, MsgIDs, 0, 1);
 		}
@@ -689,7 +712,7 @@ public:
 	{
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		int Selected = static_cast<int>(Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr));
 		if (!Mask)
@@ -718,7 +741,7 @@ class PluginRadioButtonBinding: public DialogAPIBinding
 		{
 		}
 
-		virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+		void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 		{
 			if (Info.SendDlgMessage(*DialogHandle, DM_GETCHECK, ID, nullptr))
 				*Value = RadioGroupIndex;
@@ -737,7 +760,7 @@ public:
 	{
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		lstrcpynW(Value, DataPtr, MaxSize);
@@ -765,7 +788,7 @@ public:
 		Mask[MaskWidth] = L'\0';
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = Info.FSF->atoi(DataPtr);
@@ -803,7 +826,7 @@ public:
 		Mask[MaskWidth] = L'\0';
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		const wchar_t *DataPtr = reinterpret_cast<const wchar_t*>(Info.SendDlgMessage(*DialogHandle, DM_GETCONSTTEXTPTR, ID, nullptr));
 		*Value = static_cast<unsigned int>(Info.FSF->atoi64(DataPtr));
@@ -826,7 +849,7 @@ private:
 	int *SelectedIndex;
 	wchar_t *TextBuf;
 	FarList *List;
-	
+
 public:
 	PluginListControlBinding(const PluginStartupInfo &aInfo, HANDLE *aHandle, int aID, int *aValue, wchar_t *aText, FarList *aList)
 		: DialogAPIBinding(aInfo, aHandle, aID), SelectedIndex(aValue), TextBuf(aText), List(aList)
@@ -838,7 +861,7 @@ public:
 	{
 	}
 
-	~PluginListControlBinding()
+	~PluginListControlBinding() override
 	{
 		if (List)
 		{
@@ -847,7 +870,7 @@ public:
 		delete List;
 	}
 
-	virtual void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
+	void SaveValue(FarDialogItem *Item, int RadioGroupIndex) override
 	{
 		if (SelectedIndex)
 		{
@@ -876,23 +899,23 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 		void* UserParam;
 		FARDIALOGFLAGS Flags;
 
-		virtual void InitDialogItem(FarDialogItem *Item, const wchar_t *Text) override
+		void InitDialogItem(FarDialogItem *Item, const wchar_t *Text) override
 		{
 			memset(Item, 0, sizeof(FarDialogItem));
 			Item->Data = Text;
 		}
 
-		virtual int TextWidth(const FarDialogItem &Item) override
+		int TextWidth(const FarDialogItem &Item) override
 		{
 			return lstrlenW(Item.Data);
 		}
 
-		virtual const wchar_t *GetLangString(int MessageID) override
+		const wchar_t *GetLangString(int MessageID) override
 		{
 			return Info.GetMsg(&PluginId, MessageID);
 		}
 
-		virtual intptr_t DoShowDialog() override
+		intptr_t DoShowDialog() override
 		{
 			intptr_t Width = m_DialogItems[0].X2+4;
 			intptr_t Height = m_DialogItems[0].Y2+2;
@@ -900,17 +923,17 @@ class PluginDialogBuilder: public DialogBuilderBase<FarDialogItem>
 			return Info.DialogRun(DialogHandle);
 		}
 
-		virtual DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(int *Value, int Mask) override
+		DialogItemBinding<FarDialogItem> *CreateCheckBoxBinding(int *Value, int Mask) override
 		{
 			return new PluginCheckBoxBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Mask);
 		}
 
-		virtual DialogItemBinding<FarDialogItem> *CreateRadioButtonBinding(BOOL *Value) override
+		DialogItemBinding<FarDialogItem> *CreateRadioButtonBinding(BOOL *Value) override
 		{
 			return new PluginRadioButtonBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value);
 		}
 
-		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const wchar_t* ItemsText [], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListControl(FARDIALOGITEMTYPES Type, int *SelectedItem, wchar_t *Text, int Width, int Height, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			FarDialogItem *Item = AddDialogItem(Type, Text ? Text : L"");
 			SetNextY(Item);
@@ -972,17 +995,16 @@ public:
 			AddBorder(TitleMessage);
 		}
 
-		~PluginDialogBuilder()
+		~PluginDialogBuilder() override
 		{
 			Info.DialogFree(DialogHandle);
 		}
 
-		virtual FarDialogItem *AddIntEditField(int *Value, int Width) override
+		FarDialogItem *AddIntEditField(int *Value, int Width) override
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;
-			PluginIntEditFieldBinding *Binding;
-			Binding = new PluginIntEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Width);
+			PluginIntEditFieldBinding* Binding = new PluginIntEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Width);
 			Item->Data = Binding->GetBuffer();
 			Item->Mask = Binding->GetMask();
 			SetNextY(Item);
@@ -991,12 +1013,11 @@ public:
 			return Item;
 		}
 
-		virtual FarDialogItem *AddUIntEditField(unsigned int *Value, int Width) override
+		FarDialogItem *AddUIntEditField(unsigned int *Value, int Width) override
 		{
 			FarDialogItem *Item = AddDialogItem(DI_FIXEDIT, L"");
 			Item->Flags |= DIF_MASKEDIT;
-			PluginUIntEditFieldBinding *Binding;
-			Binding = new PluginUIntEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Width);
+			PluginUIntEditFieldBinding* Binding = new PluginUIntEditFieldBinding(Info, &DialogHandle, m_DialogItemsCount-1, Value, Width);
 			Item->Data = Binding->GetBuffer();
 			Item->Mask = Binding->GetMask();
 			SetNextY(Item);
@@ -1047,22 +1068,22 @@ public:
 			return Item;
 		}
 
-		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text, int Width, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, ItemsText, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddComboBox(int *SelectedItem, wchar_t *Text,  int Width, const int* MessageIDs, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_COMBOBOX, SelectedItem, Text, Width, 0, MessageIDs, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const wchar_t* ItemsText[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const wchar_t* const* ItemsText, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, ItemsText, ItemCount, ItemFlags);
 		}
 
-		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const int MessageIDs[], size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
+		FarDialogItem *AddListBox(int *SelectedItem, int Width, int Height, const int* MessageIDs, size_t ItemCount, FARDIALOGITEMFLAGS ItemFlags)
 		{
 			return AddListControl(DI_LISTBOX, SelectedItem, nullptr, Width, Height, MessageIDs, ItemCount, ItemFlags);
 		}
