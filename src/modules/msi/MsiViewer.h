@@ -4,9 +4,9 @@
 #include "CabControl.h"
 #include "ModuleDef.h"
 
-typedef std::map<wstring, DirectoryNode*> DirectoryNodesMap;
-typedef std::map<wstring, ComponentEntry> ComponentEntryMap;
-typedef std::map<wstring, wstring> WStringMap;
+typedef std::map<std::wstring, DirectoryNode*> DirectoryNodesMap;
+typedef std::map<std::wstring, ComponentEntry> ComponentEntryMap;
+typedef std::map<std::wstring, std::wstring> WStringMap;
 
 #define MSI_OPENFLAG_KEEPUNIQUEDIRS 1
 #define MSI_OPENFLAG_SHOWSPECIALS 2
@@ -28,15 +28,15 @@ private:
 	MSIHANDLE m_hMsi;
 	DirectoryNode* m_pRootDir;
 	std::vector <MediaEntry> m_vMedias;
-	wstring m_strStorageLocation;
+	std::wstring m_strStorageLocation;
 	std::vector <BasicNode*> m_vFlatIndex;
 	int m_nSummaryWordCount;
 	FILETIME m_ftCreateTime;
 	MsiFileType m_eType;
 	
 	CCabControl* m_pCabControl;
-	wstring m_strStreamCacheLocation;
-	std::map<wstring, wstring> m_mStreamCache;
+	std::wstring m_strStreamCacheLocation;
+	std::map<std::wstring, std::wstring> m_mStreamCache;
 
 	int readDirectories(DirectoryNodesMap &nodemap);
 	int readComponents(ComponentEntryMap &componentmap);

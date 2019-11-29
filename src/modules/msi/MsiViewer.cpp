@@ -455,8 +455,8 @@ void CMsiViewer::removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolde
 		DirectoryNode* subDir = *iter;
 		removeEmptyFolders(subDir, forcedFolders);
 
-		WStringMap::const_iterator citer = forcedFolders.find(subDir->Key);
-		bool fIsAllowedEmpty = (citer != forcedFolders.cend());
+		auto citer = forcedFolders.find(subDir->Key);
+		bool fIsAllowedEmpty = (citer != forcedFolders.end());
 		
 		if ((subDir->SubDirs.size() == 0) && (subDir->Files.size() == 0) && !fIsAllowedEmpty)
 		{
@@ -580,8 +580,10 @@ int CMsiViewer::generateInfoText()
 		wchar_t* PropName;
 		UINT PropID;
 	};
-	PropDescription SUMMARY_PROPS[] = {{L"Title", 2}, {L"Subject", 3}, {L"Author", 4}, {L"Codepage", 1},
-	{L"Keywords", 5}, {L"Comments", 6}, {L"Template", 7}, {L"Revision Number", 9}};
+	PropDescription SUMMARY_PROPS[] = {
+		{L"Title", PID_TITLE}, {L"Subject", PID_SUBJECT}, {L"Author", PID_AUTHOR}, {L"Codepage", PID_CODEPAGE},
+		{L"Keywords", PID_KEYWORDS}, {L"Comments", PID_COMMENTS}, {L"Template", PID_TEMPLATE}, {L"Revision Number", PID_REVNUMBER}
+	};
 	
 	wstringstream sstr;
 	UINT res;
@@ -615,12 +617,12 @@ int CMsiViewer::generateInfoText()
 
 	// Read "Word Count" property to save default compression info
 	int nPropVal;
-	if (MsiSummaryInfoGetPropertyW(hSummary, 15, &nDataType, &nPropVal, NULL, NULL, NULL) == ERROR_SUCCESS)
+	if (MsiSummaryInfoGetPropertyW(hSummary, PID_WORDCOUNT, &nDataType, &nPropVal, NULL, NULL, NULL) == ERROR_SUCCESS)
 		m_nSummaryWordCount = nPropVal;
 	
 	// Save "Create Time/Date" property for future use
 	FILETIME ftPropVal;
-	if (MsiSummaryInfoGetPropertyW(hSummary, 12, &nDataType, NULL, &ftPropVal, NULL, NULL) == ERROR_SUCCESS)
+	if (MsiSummaryInfoGetPropertyW(hSummary, PID_CREATE_DTM, &nDataType, NULL, &ftPropVal, NULL, NULL) == ERROR_SUCCESS)
 		m_ftCreateTime = ftPropVal;
 
 	// Content info
@@ -657,7 +659,7 @@ int CMsiViewer::generateInfoText()
 
 	// Read "Last Save Time/Date" property
 	FILETIME ftSaveTimeVal = {0};
-	MsiSummaryInfoGetPropertyW(hSummary, 13, &nDataType, NULL, &ftSaveTimeVal, NULL, NULL);
+	MsiSummaryInfoGetPropertyW(hSummary, PID_LASTSAVE_DTM, &nDataType, NULL, &ftSaveTimeVal, NULL, NULL);
 	
 	// Add fake file with general info to root folder
 	FileNode *fake = new FileNode();
@@ -1376,7 +1378,7 @@ int CMsiViewer::GetCompressionType()
 		return MSI_COMPRESSION_CAB;
 
 	bool fFoundUncomp = false, fFoundComp = false;
-	for (auto cit = m_vFlatIndex.begin(); cit != m_vFlatIndex.end(); cit++)
+	for (auto cit = m_vFlatIndex.cbegin(); cit != m_vFlatIndex.cend(); ++cit)
 	{
 		BasicNode* node = *cit;
 		if (!node->IsDir())

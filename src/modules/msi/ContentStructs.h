@@ -26,8 +26,8 @@ public:
 	~BasicNode();
 
 	virtual DWORD GetSytemAttributes() = 0;
-	virtual wstring GetSourcePath() = 0;
-	virtual wstring GetTargetPath() = 0;
+	virtual std::wstring GetSourcePath() = 0;
+	virtual std::wstring GetTargetPath() = 0;
 	virtual __int64 GetSize() = 0;
 
 	bool IsDir() { return (Attributes & FILE_ATTRIBUTE_DIRECTORY) > 0; };
@@ -35,6 +35,10 @@ public:
 
 class FileNode : public BasicNode
 {
+private:
+	FileNode(const FileNode &node) = delete;
+	FileNode &operator=(const FileNode &a) = delete;
+
 public:
 	INT32 FileSize;
 	int SequenceMark;
@@ -49,8 +53,8 @@ public:
 	bool Init(FileEntry *entry);
 
 	DWORD GetSytemAttributes();
-	wstring GetSourcePath();
-	wstring GetTargetPath();
+	std::wstring GetSourcePath();
+	std::wstring GetTargetPath();
 	__int64 GetSize();
 };
 
@@ -80,8 +84,8 @@ public:
 	__int64 GetTotalSize();
 
 	DWORD GetSytemAttributes();
-	wstring GetSourcePath();
-	wstring GetTargetPath();
+	std::wstring GetSourcePath();
+	std::wstring GetTargetPath();
 	__int64 GetSize();
 };
 
