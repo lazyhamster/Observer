@@ -198,3 +198,15 @@ void UpdateFileTime(const wchar_t* path, const FILETIME* createTime, const FILET
 		}
 	}
 }
+
+static inline bool CheckSingleState(bool isNeeded, DWORD dwState, DWORD dwControlFlags)
+{
+	return isNeeded == ((dwState & dwControlFlags) != 0);
+}
+
+bool CheckControlKeys(const KEY_EVENT_RECORD &evtRec, bool needCtrl, bool needAlt, bool needShift)
+{
+	return CheckSingleState(needCtrl, evtRec.dwControlKeyState, LEFT_CTRL_PRESSED | RIGHT_CTRL_PRESSED)
+		&& CheckSingleState(needAlt, evtRec.dwControlKeyState, LEFT_ALT_PRESSED | RIGHT_ALT_PRESSED)
+		&& CheckSingleState(needShift, evtRec.dwControlKeyState, SHIFT_PRESSED);
+}

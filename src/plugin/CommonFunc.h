@@ -25,4 +25,6 @@ std::wstring FileTimeToString(FILETIME ft);
 
 void UpdateFileTime(const wchar_t* path, const FILETIME* createTime, const FILETIME* modTime);
 
+bool CheckControlKeys(const KEY_EVENT_RECORD &evtRec, bool needCtrl, bool needAlt, bool needShift);
+
 #endif // CommonFunc_h__

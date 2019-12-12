@@ -5,6 +5,7 @@
 #include <far3/plugin.hpp>
 #include <far3/DlgBuilder.hpp>
 #include <far3/PluginSettings.hpp>
+#include <far3/farcolor.hpp>
 
 #include "ModulesController.h"
 #include "PlugLang.h"
@@ -185,6 +186,116 @@ static void ReportFailedModules(const std::vector<FailedModuleInfo> &failedModul
 	delete [] boxList;
 }
 
+static std::wstring FileSizeToString(int64_t fileSize, bool keepBytes)
+{
+	wchar_t tmpBuf[64] = { 0 };
+	FSF.FormatFileSize(fileSize, 0, keepBytes ? FFFS_COMMAS : FFFS_FLOATSIZE, tmpBuf, _countof(tmpBuf));
+	return tmpBuf;
+}
+
+static void AddAttrLine(PluginDialogBuilder& Builder, const wchar_t* labelText, const wchar_t* valueText)
+{
+	const int cnLabelWidth = 16;
+	
+	auto dlgItem = Builder.AddReadonlyEditField(valueText, 36);
+	auto x1 = dlgItem->X1;
+	auto x2 = dlgItem->X2;
+	Builder.AddTextBefore(dlgItem, labelText);
+	dlgItem->X1 = x1 + cnLabelWidth;
+	dlgItem->X2 = x2 + cnLabelWidth;
+}
+
+static std::wstring FormatNodeSize(__int64 sizeVal)
+{
+	if (sizeVal > 0)
+	{
+		auto strFormattedSize = FileSizeToString(sizeVal, false);
+		auto strRawSize = std::to_wstring(sizeVal);
+
+		if (strFormattedSize != strRawSize)
+			return strFormattedSize + L" = " + strRawSize;
+		else 
+			return strRawSize;
+	}
+	
+	return L"0";
+}
+
+static intptr_t WINAPI AttrDlgProc(HANDLE hDlg, intptr_t Msg, intptr_t Param1, void* Param2)
+{
+	if (Msg == DN_CTLCOLORDLGITEM)
+	{
+		FarDialogItem dlgItem;
+		if (FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &dlgItem) && (dlgItem.Type == DI_EDIT))
+		{
+			FarColor color;
+			if (FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_GETCOLOR, COL_DIALOGTEXT, &color))
+			{
+				FarDialogItemColors* itemColors = static_cast<FarDialogItemColors*>(Param2);
+				if (itemColors->ColorsCount >= 4)
+					itemColors->Colors[0] = itemColors->Colors[2] = color;
+			}
+		}
+	}
+	else if (Msg == DN_BTNCLICK)
+	{
+		FarDialogItem dlgITem;
+		if (FarSInfo.SendDlgMessage(hDlg, DM_GETDLGITEMSHORT, Param1, &dlgITem) && (dlgITem.Type == DI_CHECKBOX))
+			return FALSE;
+	}
+
+	return FarSInfo.DefDlgProc(hDlg, Msg, Param1, Param2);
+}
+
+static void ShowAttributes(const ContentTreeNode* node)
+{
+	if (!node) return;
+
+	std::wstring strNodeSize = FormatNodeSize(node->GetSize());
+	std::wstring strNodePackedSize = FormatNodeSize(node->GetPackedSize());
+	std::wstring strNodeHardLinks = std::to_wstring(node->GetNumberOfHardLinks());
+	std::wstring strModTime = FileTimeToString(node->LastModificationTime);
+	std::wstring strCreateTime = FileTimeToString(node->CreationTime);
+	std::wstring strPath = node->GetPath();
+
+	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, L"Properties", nullptr, AttrDlgProc);
+
+	Builder.AddText(node->Name())->Flags |= DIF_CENTERTEXT;
+	Builder.AddSeparator();
+
+	AddAttrLine(Builder, L"Path", strPath.c_str());
+	if (!node->IsDir())
+	{
+		AddAttrLine(Builder, L"Size", strNodeSize.c_str());
+		AddAttrLine(Builder, L"Packed Size", strNodePackedSize.c_str());
+		if (node->GetNumberOfHardLinks() > 0)
+		{
+			AddAttrLine(Builder, L"Hardlinks", strNodeHardLinks.c_str());
+		}
+	}
+	AddAttrLine(Builder, L"Created", strCreateTime.c_str());
+	AddAttrLine(Builder, L"Modified", strModTime.c_str());
+	AddAttrLine(Builder, L"Owner", node->GetOwner());
+
+	int isReadOnly = node->GetAttributes() & FILE_ATTRIBUTE_READONLY;
+	int isHidden = node->GetAttributes() & FILE_ATTRIBUTE_HIDDEN;
+	int isSystem = node->GetAttributes() & FILE_ATTRIBUTE_SYSTEM;
+	int isSymlink = node->GetAttributes() & FILE_ATTRIBUTE_REPARSE_POINT;
+	int isEncrypted = node->GetAttributes() & FILE_ATTRIBUTE_ENCRYPTED;
+
+	Builder.AddSeparator();
+	Builder.StartColumns();
+	Builder.AddCheckbox(L"ReadOnly", &isReadOnly);
+	Builder.AddCheckbox(L"Hidden", &isHidden);
+	Builder.AddCheckbox(L"System", &isSystem);
+	Builder.ColumnBreak();
+	Builder.AddCheckbox(L"Encrypted", &isEncrypted);
+	Builder.AddCheckbox(L"Symlink", &isSymlink);
+	Builder.EndColumns();
+	   
+	Builder.ShowDialog();
+}
+
 //-----------------------------------  Content functions ----------------------------------------
 
 static int AnalizeStorage(const wchar_t* Name, bool applyExtFilters, void* startBuffer, size_t startBufferSize)
@@ -298,23 +409,19 @@ static bool GetSelectedPanelFilePath(std::wstring& nameStr)
 	return !nameStr.empty();
 }
 
-static std::wstring FileSizeToString(int64_t fileSize, bool keepBytes)
-{
-	wchar_t tmpBuf[64] = { 0 };
-	FSF.FormatFileSize(fileSize, 0, keepBytes ? FFFS_COMMAS : FFFS_FLOATSIZE, tmpBuf, _countof(tmpBuf));
-	return tmpBuf;
-}
-
 static std::wstring ShortenPath(const std::wstring &path, size_t maxWidth)
 {
 	if (path.length() > maxWidth)
 	{
 		wchar_t* tmpBuf = _wcsdup(path.c_str());
-		FSF.TruncPathStr(tmpBuf, maxWidth);
+		if (tmpBuf)
+		{
+			FSF.TruncPathStr(tmpBuf, maxWidth);
 
-		std::wstring result(tmpBuf);
-		free(tmpBuf);
-		return result;
+			std::wstring result(tmpBuf);
+			free(tmpBuf);
+			return result;
+		}
 	}
 
 	return path;
@@ -1205,14 +1312,13 @@ intptr_t WINAPI GetFilesW(GetFilesInfo *gfInfo)
 
 intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 {
-	if (piInfo->Rec.EventType != KEY_EVENT) return FALSE;
+	if (!piInfo->hPanel || (piInfo->Rec.EventType != KEY_EVENT)) return FALSE;
 	
-	KEY_EVENT_RECORD evtRec = piInfo->Rec.Event.KeyEvent;
-	if (evtRec.bKeyDown && evtRec.wVirtualKeyCode == VK_F6 && ((evtRec.dwControlKeyState & LEFT_ALT_PRESSED) || (evtRec.dwControlKeyState & RIGHT_ALT_PRESSED)))
+	const KEY_EVENT_RECORD &evtRec = piInfo->Rec.Event.KeyEvent;
+	StorageObject* storage = reinterpret_cast<StorageObject*>(piInfo->hPanel);
+
+	if (evtRec.bKeyDown && evtRec.wVirtualKeyCode == VK_F6 && CheckControlKeys(evtRec, false, true, false))
 	{
-		StorageObject* info = reinterpret_cast<StorageObject*>(piInfo->hPanel);
-		if (!info) return FALSE;
-		
 		PanelInfo pi = {sizeof(PanelInfo)};
 		if (!FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETPANELINFO, 0, &pi)) return FALSE;
 		if (pi.SelectedItemsNumber == 0) return FALSE;
@@ -1230,7 +1336,7 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 			FarSInfo.PanelControl(PANEL_ACTIVE, FCTL_GETSELECTEDPANELITEM, i, &gppi);
 			if (wcscmp(pItem->FileName, L"..") != 0)
 			{
-				ContentTreeNode* child = info->CurrentDir()->GetChildByName(pItem->FileName);
+				ContentTreeNode* child = storage->CurrentDir()->GetChildByName(pItem->FileName);
 				if (child) CollectFileList(child, vcExtractItems, nTotalExtractSize, true);
 			}
 			
@@ -1240,16 +1346,27 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 		// Check if we have something to extract
 		if (vcExtractItems.size() == 0) return TRUE;
 
-		wchar_t *wszTargetDir = _wcsdup(info->StoragePath());
+		wchar_t *wszTargetDir = _wcsdup(storage->StoragePath());
 		CutFileNameFromPath(wszTargetDir, true);
 		
 		ExtractSelectedParams extParams;
 		extParams.strDestPath = wszTargetDir;
 		extParams.bSilent = true;
 
-		BatchExtract(info, vcExtractItems, nTotalExtractSize, extParams);
+		BatchExtract(storage, vcExtractItems, nTotalExtractSize, extParams);
 
 		free(wszTargetDir);
+		
+		return TRUE;
+	}
+	else if (evtRec.bKeyDown && evtRec.wVirtualKeyCode == 'A' && CheckControlKeys(evtRec, true, false, false))
+	{
+		std::wstring itemName;
+		if (GetCurrentPanelItemName(PANEL_ACTIVE, itemName, true) && (itemName != L".."))
+		{
+			ContentTreeNode* selectedItem = storage->CurrentDir()->GetChildByName(itemName.c_str());
+			ShowAttributes(selectedItem);
+		}
 		
 		return TRUE;
 	}
