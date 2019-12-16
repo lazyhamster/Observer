@@ -62,9 +62,10 @@
 
 "Properties"
 "Path"
-"Is Folder"
 "Size"
 "Packed Size"
 "Attributes"
 "Created"
 "Modified"
+"Owner"
+"Hardlinks"

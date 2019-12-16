@@ -195,14 +195,14 @@ static std::wstring FileSizeToString(int64_t fileSize, bool keepBytes)
 
 static void AddAttrLine(PluginDialogBuilder& Builder, const wchar_t* labelText, const wchar_t* valueText)
 {
-	const int cnLabelWidth = 16;
+	const int cnLabelWidth = 18;
 	
-	auto dlgItem = Builder.AddReadonlyEditField(valueText, 36);
-	auto x1 = dlgItem->X1;
-	auto x2 = dlgItem->X2;
-	Builder.AddTextBefore(dlgItem, labelText);
-	dlgItem->X1 = x1 + cnLabelWidth;
-	dlgItem->X2 = x2 + cnLabelWidth;
+	auto dlgValueField = Builder.AddReadonlyEditField(valueText, 36);
+	auto x1 = dlgValueField->X1;
+	auto x2 = dlgValueField->X2;
+	Builder.AddTextBefore(dlgValueField, labelText);
+	dlgValueField->X1 = x1 + cnLabelWidth;
+	dlgValueField->X2 = x2 + cnLabelWidth;
 }
 
 static std::wstring FormatNodeSize(__int64 sizeVal)
@@ -258,24 +258,24 @@ static void ShowAttributes(const ContentTreeNode* node)
 	std::wstring strCreateTime = FileTimeToString(node->CreationTime);
 	std::wstring strPath = node->GetPath();
 
-	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, L"Properties", nullptr, AttrDlgProc);
+	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, GetLocMsg(MSG_PROPS_HEADER), nullptr, AttrDlgProc);
 
 	Builder.AddText(node->Name())->Flags |= DIF_CENTERTEXT;
 	Builder.AddSeparator();
 
-	AddAttrLine(Builder, L"Path", strPath.c_str());
+	AddAttrLine(Builder, GetLocMsg(MSG_PROPS_PATH), strPath.c_str());
 	if (!node->IsDir())
 	{
-		AddAttrLine(Builder, L"Size", strNodeSize.c_str());
-		AddAttrLine(Builder, L"Packed Size", strNodePackedSize.c_str());
+		AddAttrLine(Builder, GetLocMsg(MSG_PROPS_SIZE), strNodeSize.c_str());
+		AddAttrLine(Builder, GetLocMsg(MSG_PROPS_PACKEDSIZE), strNodePackedSize.c_str());
 		if (node->GetNumberOfHardLinks() > 0)
 		{
-			AddAttrLine(Builder, L"Hardlinks", strNodeHardLinks.c_str());
+			AddAttrLine(Builder, GetLocMsg(MSG_PROPS_HARDLINKS), strNodeHardLinks.c_str());
 		}
 	}
-	AddAttrLine(Builder, L"Created", strCreateTime.c_str());
-	AddAttrLine(Builder, L"Modified", strModTime.c_str());
-	AddAttrLine(Builder, L"Owner", node->GetOwner());
+	AddAttrLine(Builder, GetLocMsg(MSG_PROPS_CREATETIME), strCreateTime.c_str());
+	AddAttrLine(Builder, GetLocMsg(MSG_PROPS_MODIFYTIME), strModTime.c_str());
+	AddAttrLine(Builder, GetLocMsg(MSG_PROPS_OWNER), node->GetOwner());
 
 	int isReadOnly = node->GetAttributes() & FILE_ATTRIBUTE_READONLY;
 	int isHidden = node->GetAttributes() & FILE_ATTRIBUTE_HIDDEN;
