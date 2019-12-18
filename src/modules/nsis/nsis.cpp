@@ -16,10 +16,10 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 	*storage = arc;
 	
-	wcscpy_s(info->Format, STORAGE_FORMAT_NAME_MAX_LEN, L"NSIS");
-	wcscpy_s(info->Compression, STORAGE_PARAM_MAX_LEN, arc->GetSubType());
+	memset(info, 0, sizeof(StorageGeneralInfo));
+	arc->GetSubtypeName(info->Format, STORAGE_FORMAT_NAME_MAX_LEN);
+	arc->GetCompressionName(info->Compression, STORAGE_PARAM_MAX_LEN);
 	wcscpy_s(info->Comment, STORAGE_PARAM_MAX_LEN, L"-");
-	memset(&info->Created, 0, sizeof(info->Created));
 
 	return SOR_SUCCESS;
 }

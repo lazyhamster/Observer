@@ -18,7 +18,6 @@ private:
 	int m_numFiles;
 	int m_numDirectories;
 	__int64 m_totalSize;
-	wchar_t m_archSubtype[STORAGE_PARAM_MAX_LEN];
 
 	UString getItemPath(int itemIndex);
 
@@ -32,7 +31,8 @@ public:
 	int GetTotalFiles() { return m_numFiles; };
 	int GetTotalDirectories() { return m_numDirectories; };
 	__int64 GetTotalSize() { return m_totalSize; };
-	const wchar_t* GetSubType() { return m_archSubtype; };
+	void GetCompressionName(wchar_t* nameBuf, size_t nameBufSize);
+	void GetSubtypeName(wchar_t* nameBuf, size_t nameBufSize);
 
 	int GetItemsCount();
 	int GetItem(int itemIndex, StorageItemInfo* item_info);

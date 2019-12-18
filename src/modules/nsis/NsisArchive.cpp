@@ -266,8 +266,6 @@ CNsisArchive::CNsisArchive()
 	m_numFiles = 0;
 	m_numDirectories = 0;
 	m_totalSize = 0;
-
-	memset(m_archSubtype, 0, sizeof(m_archSubtype));
 }
 
 CNsisArchive::~CNsisArchive()
@@ -299,17 +297,6 @@ int CNsisArchive::Open(const wchar_t* path)
 	m_handler->GetNumberOfItems(&nNumFiles);
 	m_numFiles = nNumFiles;
 
-	if (nNumFiles > 0)
-	{
-		NWindows::NCOM::CPropVariant prop;
-
-		if ( (m_handler->GetArchiveProperty(kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL) )
-			if (prop.boolVal) wcscat_s(m_archSubtype, STORAGE_PARAM_MAX_LEN, L"Solid ");
-		
-		if ( (m_handler->GetArchiveProperty(kpidMethod, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
-			wcscat_s(m_archSubtype, STORAGE_PARAM_MAX_LEN, prop.bstrVal);
-	}
-
 	return TRUE;
 }
 
@@ -327,7 +314,6 @@ void CNsisArchive::Close()
 	m_numFiles = 0;
 	m_numDirectories = 0;
 	m_totalSize = 0;
-	memset(m_archSubtype, 0, sizeof(m_archSubtype));
 }
 
 UString CNsisArchive::getItemPath( int itemIndex )
@@ -404,6 +390,35 @@ __int64 CNsisArchive::GetItemSize( int itemIndex )
 	}
 
 	return res;
+}
+
+void CNsisArchive::GetCompressionName(wchar_t* nameBuf, size_t nameBufSize)
+{
+	if (m_handler && (m_numFiles > 0))
+	{
+		NWindows::NCOM::CPropVariant prop;
+
+		if ((m_handler->GetArchiveProperty(kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL))
+			if (prop.boolVal) wcscat_s(nameBuf, nameBufSize, L"Solid ");
+
+		if ((m_handler->GetArchiveProperty(kpidMethod, &prop) == S_OK) && (prop.vt != VT_EMPTY))
+			wcscat_s(nameBuf, nameBufSize, prop.bstrVal);
+		else
+			wcscat_s(nameBuf, nameBufSize, L"Unknown");
+	}
+	else
+	{
+		wcscpy_s(nameBuf, nameBufSize, L"None");
+	}
+}
+
+void CNsisArchive::GetSubtypeName(wchar_t* nameBuf, size_t nameBufSize)
+{
+	NWindows::NCOM::CPropVariant prop;
+	if ((m_handler->GetArchiveProperty(kpidSubType, &prop) == S_OK) && (prop.vt != VT_EMPTY))
+		wcscpy_s(nameBuf, nameBufSize, prop.bstrVal);
+	else
+		wcscpy_s(nameBuf, nameBufSize, L"NSIS");
 }
 
 int CNsisArchive::GetItemsCount()
