@@ -345,6 +345,8 @@ int CNsisArchive::GetItem(int itemIndex, StorageItemInfo* item_info)
 		item_info->ModificationTime = prop.filetime;
 	if ((m_handler->GetProperty(itemIndex, kpidPackSize, &prop) == S_OK) && (prop.vt != VT_EMPTY))
 		item_info->PackedSize = prop.hVal.QuadPart;
+	if ((m_handler->GetProperty(itemIndex, kpidAttrib, &prop) == S_OK) && (prop.vt != VT_EMPTY))
+		item_info->Attributes = prop.uintVal;
 
 	return TRUE;
 }
