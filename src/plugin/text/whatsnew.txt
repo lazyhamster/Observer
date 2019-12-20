@@ -6,6 +6,7 @@ Changes history:
 - New extraction progress dialog.
 - New file property exposed: Owner (for containers where applicable).
 - Now you can configure reaction on Enter and Ctrl-PgDn seprately.
+- Added ignore by extension filter to ini file.
 - Updated several dependency libraries.
 - VDISK: Fixed crash after failed files extraction.
 - VDISK: Migrated to newer fork of DiscUtils library (original project is abandoned).
@@ -15,6 +16,7 @@ Changes history:
 - MPQ: Updated StormLib to version 9.22.
 - MPQ: Added support for listfiles.
 - InstallShield: Improved support for SFX files.
+- NSIS: Added support for NSIS-3 and Unicode file names (migrated to newer 7zip code).
 - Minor changes.
 
 1.11.2
