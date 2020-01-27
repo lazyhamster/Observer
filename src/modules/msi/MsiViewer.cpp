@@ -14,10 +14,40 @@
 #define OK_MISS(f) res=f; \
 	if(res == ERROR_BAD_QUERY_SYNTAX) return ERROR_SUCCESS; \
 	else if(res != ERROR_SUCCESS) return res;
-#define READ_STR(rec,ind,s) nCellSize = sizeof(s)/sizeof(s[0]); OK( MsiRecordGetStringW(rec, ind, s, &nCellSize) );
 #define READ_STR_V(rec,ind,s, rv) nCellSize = sizeof(s)/sizeof(s[0]); OK_V( MsiRecordGetStringW(rec, ind, s, &nCellSize), rv );
 
 #define FCOPY_BUF_SIZE 32*1024
+
+static std::wstring GetCellString(MSIHANDLE hRec, unsigned int iField)
+{
+	UINT rc;
+	std::vector<wchar_t> vBuf(256);
+
+	while(true)
+	{
+		DWORD nDataSize = (DWORD)vBuf.size();
+
+		rc = MsiRecordGetString(hRec, iField, &vBuf[0], &nDataSize);
+		if (rc == ERROR_MORE_DATA)
+		{
+			vBuf.resize(nDataSize + 1);
+			continue;
+		}
+
+		break;
+	};
+
+	return (rc == ERROR_SUCCESS) ? vBuf.data() : L"";
+}
+
+template<typename K, typename V>
+static V GetMappedValue(std::map<K, V> data, K key, V defValue)
+{
+	if (data.find(key) != data.end())
+		return data[key];
+
+	return defValue;
+}
 
 //TODO: display features in tree structure
 
@@ -153,15 +183,17 @@ int CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
 
 	// Retrieve all directory entries and convert to nodes
 	PMSIHANDLE hDirRec;
-	DirectoryEntry dirEntry;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQueryDirs, &hDirRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hDirRec, 1, dirEntry.Key);
-		READ_STR(hDirRec, 2, dirEntry.ParentKey);
-		READ_STR(hDirRec, 3, dirEntry.DefaultName);
+		DirectoryEntry dirEntry;
+		
+		dirEntry.Key = GetCellString(hDirRec, 1);
+		dirEntry.ParentKey = GetCellString(hDirRec, 2);
+		dirEntry.DefaultDir = GetCellString(hDirRec, 3);
+
+		if (dirEntry.Key.empty()) continue;
 
 		auto citer = appSearch.find(dirEntry.Key);
 		bool fIsAppSearch = (citer != appSearch.end());
@@ -186,21 +218,20 @@ int CMsiViewer::readComponents( ComponentEntryMap &componentmap )
 
 	// Retrieve all component entries
 	PMSIHANDLE hCompRec;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQueryComp, &hCompRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
 		ComponentEntry compEntry;
 
-		READ_STR(hCompRec, 1, compEntry.Key);
-		READ_STR(hCompRec, 2, compEntry.ID);
-		READ_STR(hCompRec, 3, compEntry.Directory);
+		compEntry.Key = GetCellString(hCompRec, 1);
+		compEntry.Directory_ = GetCellString(hCompRec, 3);
 		compEntry.Attributes = MsiRecordGetInteger(hCompRec, 4);
 		if (compEntry.Attributes == MSI_NULL_INTEGER)
 			return ERROR_INVALID_DATA;
 
-		componentmap[compEntry.Key] = compEntry;
+		if (!compEntry.Key.empty())
+			componentmap[compEntry.Key] = compEntry;
 	}
 
 	return ERROR_SUCCESS;
@@ -220,38 +251,38 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 
 	// Retrieve all file entries
 	PMSIHANDLE hFileRec;
-	FileEntry fileEntry;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQueryFile, &hFileRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 		
-		READ_STR(hFileRec, 1, fileEntry.Key);
-		READ_STR(hFileRec, 2, fileEntry.Component);
-		READ_STR(hFileRec, 3, fileEntry.FileName);
+		FileEntry fileEntry;
+		
+		fileEntry.Key = GetCellString(hFileRec, 1);
+		fileEntry.Component_ = GetCellString(hFileRec, 2);
+		fileEntry.FileName = GetCellString(hFileRec, 3);
 		fileEntry.FileSize = MsiRecordGetInteger(hFileRec, 4);
 		fileEntry.Attributes = MsiRecordGetInteger(hFileRec, 7);
 		fileEntry.Sequence = MsiRecordGetInteger(hFileRec, 8);
 
 		// Sometimes there are strange files with empty component, let's just skip them
-		if (!fileEntry.Component[0] || !wcscmp(fileEntry.Component, L" "))
+		if (fileEntry.Component_.empty() || (fileEntry.Component_ == L" "))
 			continue;
 
 		// If file refers to non-existing component then skip it
-		if (componentmap.find(fileEntry.Component) == componentmap.end())
+		if (componentmap.find(fileEntry.Component_) == componentmap.end())
 			continue;
 
 		FileNode *node = new FileNode();
 		node->Init(&fileEntry);
 
-		const ComponentEntry &component = componentmap[fileEntry.Component];
-		DirectoryNode *dir = nodemap[component.Directory];
+		const ComponentEntry &component = componentmap[fileEntry.Component_];
+		DirectoryNode *dir = nodemap[component.Directory_];
 		
 		if (!dir)
 		{
 			dir = new DirectoryNode();
-			dir->Init(component.Directory);
-			nodemap[component.Directory] = dir;
+			dir->Init(component.Directory_);
+			nodemap[component.Directory_] = dir;
 		}
 		dir->AddFile(node);
 	}
@@ -267,21 +298,17 @@ int CMsiViewer::readAppSearch(WStringMap &entries)
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM AppSearch", &hQueryAppSearch) );
 	OK( MsiViewExecute(hQueryAppSearch, 0) );
 
-	wchar_t key[150];
-	wchar_t signature[150];
-
 	// Retrieve all component entries
 	PMSIHANDLE hAppRec;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQueryAppSearch, &hAppRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hAppRec, 1, key);
-		READ_STR(hAppRec, 2, signature);
+		auto strKey = GetCellString(hAppRec, 1);
+		auto strSignature = GetCellString(hAppRec, 2);
 
-		if (key[0])
-			entries[key] = signature;
+		if (!strKey.empty())
+			entries[strKey] = strSignature;
 	}
 
 	return ERROR_SUCCESS;
@@ -295,21 +322,17 @@ int CMsiViewer::readCreateFolder(WStringMap &entries)
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM CreateFolder", &hQueryCreateFolder) );
 	OK( MsiViewExecute(hQueryCreateFolder, 0) );
 
-	wchar_t dir[256];
-	wchar_t component[256];
-
 	// Retrieve all component entries
 	PMSIHANDLE hFolderRec;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQueryCreateFolder, &hFolderRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hFolderRec, 1, dir);
-		READ_STR(hFolderRec, 2, component);
+		auto strDir = GetCellString(hFolderRec, 1);
+		auto strComponent = GetCellString(hFolderRec, 2);
 
-		if (dir[0])
-			entries[dir] = component;
+		if (!strDir.empty())
+			entries[strDir] = strComponent;
 	}
 
 	return ERROR_SUCCESS;
@@ -324,24 +347,21 @@ int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 	OK( MsiViewExecute(hQueryBinaries, 0) );
 
 	// Add base dir for fake embedded files
-	DirectoryEntry dirEntry = {0};
-	wcscpy_s(dirEntry.Key, sizeof(dirEntry.Key) / sizeof(dirEntry.Key[0]), L"$embedded-v07g1k$");
-	wcscpy_s(dirEntry.DefaultName, sizeof(dirEntry.DefaultName) / sizeof(dirEntry.DefaultName[0]), L"{embedded}");
+	DirectoryEntry dirEntry;
+	dirEntry.Key = L"$embedded-v07g1k$";
+	dirEntry.DefaultDir = L"{embedded}";
 	
 	DirectoryNode *dirNode = new DirectoryNode();
 	if (dirNode->Init(&dirEntry, false))
 		nodemap[dirEntry.Key] = dirNode;
 
-	wchar_t name[128];
-
 	// Retrieve all component entries
 	PMSIHANDLE hBinRec;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQueryBinaries, &hBinRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hBinRec, 1, name);
+		auto strName = GetCellString(hBinRec, 1);
 		
 		// Cache entire stream content in memory
 		DWORD nStreamSize = MsiRecordDataSize(hBinRec, 2);
@@ -349,8 +369,8 @@ int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 		MsiRecordReadStream(hBinRec, 2, pStreamData, &nStreamSize);
 
 		FileNode *embFile = new FileNode();
-		embFile->TargetName = _wcsdup(name);
-		embFile->TargetShortName = _wcsdup(L"");
+		embFile->TargetName = strName;
+		embFile->TargetShortName = L"";
 		embFile->Attributes = 0;
 		embFile->IsFake = true;
 		embFile->FileSize = nStreamSize;
@@ -375,15 +395,12 @@ int CMsiViewer::readPackageType()
 	OK( MsiViewExecute(hQuery, 0) );
 
 	PMSIHANDLE hCompRec;
-	wchar_t wszStreamName[256] = {0};
-	DWORD nCellSize;
-
 	while ((res = MsiViewFetch(hQuery, &hCompRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hCompRec, 1, wszStreamName);
-		if (wcscmp(wszStreamName, L"MergeModule.CABinet") == 0)
+		auto strStreamName = GetCellString(hCompRec, 1);
+		if (strStreamName == L"MergeModule.CABinet")
 		{
 			m_eType = MsiFileType::MergeModule;
 			break;
@@ -400,7 +417,7 @@ int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecia
 	for (auto dirIter = nodemap.begin(); dirIter != nodemap.end(); ++dirIter)
 	{
 		DirectoryNode* node = dirIter->second;
-		DirectoryNode* parent = (node->ParentKey) ? nodemap[node->ParentKey] : m_pRootDir;
+		DirectoryNode* parent = (!node->ParentKey.empty()) ? nodemap[node->ParentKey] : m_pRootDir;
 
 		// This should not occur under normal circumstances but happens sometimes
 		if (!parent && (parent != m_pRootDir))
@@ -417,7 +434,7 @@ int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecia
 		int i = 0;
 		for (i = 0; i < numSpecFolders; i++)
 		{
-			cmpRes = wcscmp(MsiSpecialFolders[i].Name, node->Key);
+			cmpRes = wcscmp(MsiSpecialFolders[i].Name, node->Key.c_str());
 			if (cmpRes >= 0) break;
 		} //while
 
@@ -425,19 +442,17 @@ int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecia
 		{
 			// Avoid merging special folders to root dir (causes confusion)
 			node->IsSpecial = true;
-			if (wcscmp(node->TargetName, L".") == 0)
+			if (node->TargetName ==  L".")
 			{
-				free(node->TargetName);
-				if (node->SourceName && wcscmp(node->SourceName, L"."))
-					node->TargetName = _wcsdup(node->SourceName);
+				if (!node->SourceName.empty() && (node->SourceName != L"."))
+					node->TargetName = node->SourceName;
 				else
-					node->TargetName = _wcsdup(node->Key);
+					node->TargetName = node->Key;
 
-				free(node->TargetShortName);
-				if (node->SourceShortName && wcscmp(node->SourceShortName, L"."))
-					node->TargetShortName = _wcsdup(node->SourceShortName);
+				if (!node->SourceShortName.empty() && (node->SourceShortName != L"."))
+					node->TargetShortName = node->SourceShortName;
 				else
-					node->TargetShortName = _wcsdup(MsiSpecialFolders[i].ShortName);
+					node->TargetShortName = MsiSpecialFolders[i].ShortName;
 			}
 		}
 		parent->AddSubdir(node);
@@ -476,7 +491,7 @@ void CMsiViewer::mergeDotFolders( DirectoryNode *root )
 		DirectoryNode* subdir = root->SubDirs.at(i);
 		mergeDotFolders(subdir);
 
-		if (wcscmp(subdir->TargetName, L".") == 0)
+		if (subdir->TargetName == L".")
 		{
 			if (subdir->SubDirs.size() > 0)
 			{
@@ -512,13 +527,13 @@ void CMsiViewer::checkShortNames(DirectoryNode *root)
 	{
 		DirectoryNode* subdir = *iter;
 
-		if (subdir->TargetShortName && (wcslen(subdir->TargetShortName) >= MAX_SHORT_NAME_LEN))
+		if (subdir->TargetShortName.size() >= MAX_SHORT_NAME_LEN)
 		{
 			if (subdir->GetFilesCount() == 0)
 				iter = root->SubDirs.erase(iter);
 			else
 			{
-				*(subdir->TargetShortName) = 0;
+				subdir->TargetShortName = L"";
 				iter++;
 			}
 		}
@@ -543,7 +558,7 @@ void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
 		{
 			DirectoryNode* nextdir = root->SubDirs[inner_i];
 
-			if (_wcsicmp(subdir->TargetName, nextdir->TargetName) == 0)
+			if (_wcsicmp(subdir->TargetName.c_str(), nextdir->TargetName.c_str()) == 0)
 			{
 				// Move subdirs from second folder to first one and update parent pointer
 				subdir->SubDirs.insert(subdir->SubDirs.end(), nextdir->SubDirs.begin(), nextdir->SubDirs.end());
@@ -600,7 +615,7 @@ int CMsiViewer::generateInfoText()
 	UINT nDataType;
 	INT nIntVal;
 	DWORD len;
-	vector<wchar_t> propdata(512);
+	std::vector<wchar_t> propdata(512);
 	for (int i = 0; i < sizeof(SUMMARY_PROPS) / sizeof(SUMMARY_PROPS[0]); i++)
 	{
 		while ((res = MsiSummaryInfoGetPropertyW(hSummary, SUMMARY_PROPS[i].PropID, &nDataType, &nIntVal, NULL, &propdata[0], &(len = (DWORD) propdata.size()))) == ERROR_MORE_DATA)
@@ -663,8 +678,8 @@ int CMsiViewer::generateInfoText()
 	
 	// Add fake file with general info to root folder
 	FileNode *fake = new FileNode();
-	fake->TargetName = _wcsdup(L"{msi_info}.txt");
-	fake->TargetShortName = _wcsdup(L"msi_info.txt");
+	fake->TargetName = L"{msi_info}.txt";
+	fake->TargetShortName = L"msi_info.txt";
 	fake->Attributes = FILE_ATTRIBUTE_NORMAL;
 	fake->IsFake = true;
 	fake->FileSize = (INT32) (content.size() * sizeof(wchar_t) + 2);	// sizeof BOM = 2
@@ -688,27 +703,22 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 
 	// Retrieve all registry entries
 	PMSIHANDLE hRegRec;
-	DWORD nCellSize;
-	DWORD nVlen = 0;
-	vector<wchar_t> regval(512);
-	RegistryEntry regEntry;
-	wchar_t wszPrevRegKeyName[512] = {0};
+	std::wstring strPrevRegKeyName;
 	UINT16 nPrevRegRoot = UINT16(-1);
 	while ((res = MsiViewFetch(hQueryReg, &hRegRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hRegRec, 1, regEntry.Key);
-		regEntry.Root = MsiRecordGetInteger(hRegRec, 2);
-		READ_STR(hRegRec, 3, regEntry.RegKeyName);
-		READ_STR(hRegRec, 4, regEntry.Name);
+		RegistryEntry regEntry;
 
-		while ((res = MsiRecordGetStringW(hRegRec, 5, &regval[0], &(nVlen = (DWORD)regval.size()))) == ERROR_MORE_DATA)
-			regval.resize(nVlen + 1);
-		OK (res);
+		regEntry.Key = GetCellString(hRegRec, 1);
+		regEntry.Root = MsiRecordGetInteger(hRegRec, 2);
+		regEntry.RegKeyName = GetCellString(hRegRec, 3);
+		regEntry.Name = GetCellString(hRegRec, 4);
+		regEntry.Value = GetCellString(hRegRec, 5);
 
 		// Print registry key name (if not equal to previous one)
-		if (nPrevRegRoot != regEntry.Root || wcscmp(wszPrevRegKeyName, regEntry.RegKeyName) != 0)
+		if ((nPrevRegRoot != regEntry.Root) || (strPrevRegKeyName != regEntry.RegKeyName))
 		{
 			sstr << L"[";
 			switch (regEntry.Root)
@@ -732,15 +742,15 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 			sstr << L"\\" << regEntry.RegKeyName << L"]" << endl;
 
 			nPrevRegRoot = regEntry.Root;
-			wcscpy_s(wszPrevRegKeyName, sizeof(wszPrevRegKeyName) / sizeof(wszPrevRegKeyName[0]), regEntry.RegKeyName);
+			strPrevRegKeyName = regEntry.RegKeyName;
 		}
 
 		// Print registry key value
-		if (regEntry.Name[0])
+		if (!regEntry.Name.empty())
 			sstr << L"\"" << regEntry.Name << L"\"";
 		else
 			sstr << L"@";
-		sstr << L" = \"" << &regval[0] << L"\"" << endl;
+		sstr << L" = \"" << regEntry.Value << L"\"" << endl;
 	}
 	
 	return ERROR_SUCCESS;
@@ -756,28 +766,27 @@ int CMsiViewer::dumpFeatures(wstringstream &sstr)
 
 	// Retrieve all feature entries
 	PMSIHANDLE hFeatRec;
-	DWORD nCellSize;
-	FeatureEntry featEntry;
 	while ((res = MsiViewFetch(hQueryFeat, &hFeatRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hFeatRec, 1, featEntry.Key);
-		READ_STR(hFeatRec, 2, featEntry.Parent);
-		READ_STR(hFeatRec, 3, featEntry.Title);
-		READ_STR(hFeatRec, 4, featEntry.Description);
+		FeatureEntry featEntry;
+
+		featEntry.Key = GetCellString(hFeatRec, 1);
+		featEntry.Parent = GetCellString(hFeatRec, 2);
+		featEntry.Title = GetCellString(hFeatRec, 3);
+		featEntry.Description = GetCellString(hFeatRec, 4);
 		featEntry.Display = MsiRecordGetInteger(hFeatRec, 5);
 		featEntry.Level = MsiRecordGetInteger(hFeatRec, 6);
-		READ_STR(hFeatRec, 7, featEntry.Directory);
 
 		if (featEntry.Level > 0 && featEntry.Display > 0)
 		{
-			if (wcslen(featEntry.Title) > 0)
+			if (!featEntry.Title.empty())
 				sstr << L"- " << featEntry.Title << L"\n";
 			else
 				sstr << L"- <" << featEntry.Key << L">\n";
 
-			if (wcslen(featEntry.Description) > 0)
+			if (!featEntry.Description.empty())
 				sstr << L"    " << featEntry.Description << L"\n";
 		}
 	}
@@ -795,26 +804,26 @@ int CMsiViewer::dumpShortcuts(wstringstream &sstr)
 
 	// Retrieve all feature entries
 	PMSIHANDLE hShortcutRec;
-	DWORD nCellSize;
-	ShortcutEntry sEntry;
 	while ((res = MsiViewFetch(hQueryShortcut, &hShortcutRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hShortcutRec, 1, sEntry.Key);
-		READ_STR(hShortcutRec, 2, sEntry.Directory);
-		READ_STR(hShortcutRec, 3, sEntry.Name);
-		READ_STR(hShortcutRec, 4, sEntry.Component);
-		READ_STR(hShortcutRec, 5, sEntry.Target);
-		READ_STR(hShortcutRec, 6, sEntry.Arguments);
-		READ_STR(hShortcutRec, 7, sEntry.Description);
+		ShortcutEntry sEntry;
 
-		wchar_t *wszNamePtr = wcschr(sEntry.Name, '|');
-		wszNamePtr = (wszNamePtr != NULL) ? wszNamePtr + 1 : sEntry.Name;
+		sEntry.Key = GetCellString(hShortcutRec, 1);
+		sEntry.Directory_ = GetCellString(hShortcutRec, 2);
+		sEntry.Name = GetCellString(hShortcutRec, 3);
+		sEntry.Component_ = GetCellString(hShortcutRec, 4);
+		sEntry.Target = GetCellString(hShortcutRec, 5);
+		sEntry.Arguments = GetCellString(hShortcutRec, 6);
+		sEntry.Description = GetCellString(hShortcutRec, 7);
 
-		sstr << L"- " << sEntry.Key << L" (" << wszNamePtr << L")\n";
-		sstr << sEntry.Directory << L" -> " << sEntry.Target;
-		if (wcslen(sEntry.Arguments) > 0)
+		auto separator = sEntry.Name.find('|');
+		std::wstring strName = (separator != std::wstring::npos) ? sEntry.Name.substr(separator + 1) : sEntry.Name;
+
+		sstr << L"- " << sEntry.Key << L" (" << strName << L")\n";
+		sstr << sEntry.Directory_ << L" -> " << sEntry.Target;
+		if (!sEntry.Arguments.empty())
 			sstr << L" " << sEntry.Arguments;
 		sstr << L"\n";
 	}
@@ -830,23 +839,17 @@ int CMsiViewer::dumpProperties(wstringstream &sstr)
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Property", &hQueryProps) );
 	OK( MsiViewExecute(hQueryProps, 0) );
 
-	wchar_t wszPropertyName[512];
-	vector<wchar_t> vPropertyData(1024);
-
 	// Retrieve all feature entries
 	PMSIHANDLE hPropRec;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQueryProps, &hPropRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hPropRec, 1, wszPropertyName);
+		auto strPropertyName = GetCellString(hPropRec, 1);
+		auto strPropertyData = GetCellString(hPropRec, 2);
 		
-		while (MsiRecordGetString(hPropRec, 2, &vPropertyData[0], &(nCellSize = (DWORD) vPropertyData.size())) == ERROR_MORE_DATA)
-			vPropertyData.resize(nCellSize + 1);
-
-		if (wszPropertyName[0])
-			sstr << wszPropertyName << L" = " << &vPropertyData[0] << endl;
+		if (!strPropertyName.empty())
+			sstr << strPropertyName << L" = " << strPropertyData << endl;
 	}
 
 	return ERROR_SUCCESS;
@@ -857,52 +860,62 @@ int CMsiViewer::dumpServices(wstringstream &sstr)
 	UINT res;
 	PMSIHANDLE hQuerySvc;
 
+	static std::map<DoubleInteger, const wchar_t*> cmServiceTypeNames = {
+		{SERVICE_WIN32_OWN_PROCESS, L"SERVICE_WIN32_OWN_PROCESS"},
+		{SERVICE_WIN32_SHARE_PROCESS, L"SERVICE_WIN32_SHARE_PROCESS"},
+		{SERVICE_INTERACTIVE_PROCESS, L"Interactive Process"},
+		{SERVICE_KERNEL_DRIVER, L"Kernel Driver"},
+		{SERVICE_FILE_SYSTEM_DRIVER, L"File System Driver"}
+	};
+	
+	static std::map<DoubleInteger, const wchar_t*> cmStartTypeNames = {
+		{SERVICE_AUTO_START, L"Automatic"},
+		{SERVICE_DEMAND_START, L" Manual"},
+		{SERVICE_DISABLED, L" Disabled"},
+		{SERVICE_BOOT_START, L" Boot Start"},
+		{SERVICE_SYSTEM_START, L" System Start"}
+	};
+
 	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM ServiceInstall", &hQuerySvc) );
 	OK( MsiViewExecute(hQuerySvc, 0) );
 
-	ServiceInstallEntry siEntry;
-
 	// Retrieve all feature entries
 	PMSIHANDLE hSvcRec;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQuerySvc, &hSvcRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
-		READ_STR(hSvcRec, 2, siEntry.Name);
-		READ_STR(hSvcRec, 3, siEntry.DisplayName);
+		ServiceInstallEntry siEntry;
+
+		siEntry.Name = GetCellString(hSvcRec, 2);
+		siEntry.DisplayName = GetCellString(hSvcRec, 3);
 		siEntry.ServiceType = MsiRecordGetInteger(hSvcRec, 4);
 		siEntry.StartType = MsiRecordGetInteger(hSvcRec, 5);
-		READ_STR(hSvcRec, 9, siEntry.StartName);
-		READ_STR(hSvcRec, 10, siEntry.Password);
-		READ_STR(hSvcRec, 11, siEntry.Arguments);
-		READ_STR(hSvcRec, 12, siEntry.Component);
-		READ_STR(hSvcRec, 13, siEntry.Description);
+		siEntry.StartName = GetCellString(hSvcRec, 9);
+		siEntry.Password = GetCellString(hSvcRec, 10);
+		siEntry.Arguments = GetCellString(hSvcRec, 11);
+		siEntry.Component = GetCellString(hSvcRec, 12);
+		siEntry.Description = GetCellString(hSvcRec, 13);
+
+		if (siEntry.Name.empty() || siEntry.Component.empty())
+		{
+			sstr << L"[Invalid Service Entry]" << endl;
+			continue;
+		}
 
 		sstr << siEntry.Name << endl;
-		if (siEntry.DisplayName[0]) sstr << L"\tDisplay Name: " << siEntry.DisplayName << endl;
+		if (!siEntry.DisplayName.empty()) sstr << L"\tDisplay Name: " << siEntry.DisplayName << endl;
 		sstr << L"\tDescription: " << siEntry.Description << endl;
 		sstr << L"\tCommand: " << siEntry.Component << L" " << siEntry.Arguments << endl;
 
-		sstr << L"\tService Type:";
-		if (siEntry.ServiceType & SERVICE_WIN32_OWN_PROCESS) sstr << L" SERVICE_WIN32_OWN_PROCESS";
-		if (siEntry.ServiceType & SERVICE_WIN32_SHARE_PROCESS) sstr << L" SERVICE_WIN32_SHARE_PROCESS";
-		if (siEntry.ServiceType & SERVICE_INTERACTIVE_PROCESS) sstr << L" SERVICE_INTERACTIVE_PROCESS";
-		if (siEntry.ServiceType & SERVICE_KERNEL_DRIVER) sstr << L" SERVICE_KERNEL_DRIVER";
-		if (siEntry.ServiceType & SERVICE_FILE_SYSTEM_DRIVER) sstr << L" SERVICE_FILE_SYSTEM_DRIVER";
-		sstr << endl;
+		sstr << L"\tService Type: ";
+		sstr << GetMappedValue(cmServiceTypeNames, siEntry.ServiceType, L"Unknown") << endl;
 
-		sstr << L"\tStart Type:";
-		if (siEntry.StartType & SERVICE_AUTO_START) sstr << L" Automatic";
-		else if (siEntry.StartType & SERVICE_DEMAND_START) sstr << L" Manual";
-		else if (siEntry.StartType & SERVICE_DISABLED) sstr << L" Disabled";
-		else if (siEntry.StartType & SERVICE_BOOT_START) sstr << L" Boot Start";
-		else if (siEntry.StartType & SERVICE_SYSTEM_START) sstr << L" System Start";
-		else sstr << L" Unknown";
-		sstr << endl;
+		sstr << L"\tStart Type: ";
+		sstr << GetMappedValue(cmStartTypeNames, siEntry.StartType, L"Unknown") << endl;
 
-		sstr << L"\tAccount: " << (siEntry.StartName[0] ? siEntry.StartName : L"[LocalSystem]") << endl;
-		if (siEntry.Password[0]) sstr << L"\tPassword: " << siEntry.Password << endl;
+		sstr << L"\tAccount: " << (!siEntry.StartName.empty() ? siEntry.StartName : L"[LocalSystem]") << endl;
+		if (!siEntry.Password.empty()) sstr << L"\tPassword: " << siEntry.Password << endl;
 	}
 
 	return ERROR_SUCCESS;
@@ -919,7 +932,7 @@ int CMsiViewer::generateLicenseText()
 	// Retrieve all registry entries
 	PMSIHANDLE hLicRec;
 	DWORD nVlen = 0;
-	vector<char> val(512);
+	std::vector<char> val(512);
 	while ((res = MsiViewFetch(hQueryLicense, &hLicRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
@@ -935,19 +948,19 @@ int CMsiViewer::generateLicenseText()
 
 	if (nVlen > 0)
 	{
-		const char* cntText = &val[0];
+		const char* cntText = val.data();
 
 		// Add fake file with general info to root folder
 		FileNode *fake = new FileNode();
 		if (_strnicmp(cntText, "{\\rtf", 4) == 0)
 		{
-			fake->TargetName = _wcsdup(L"{license}.rtf");
-			fake->TargetShortName = _wcsdup(L"license.rtf");
+			fake->TargetName = L"{license}.rtf";
+			fake->TargetShortName = L"license.rtf";
 		}
 		else
 		{
-			fake->TargetName = _wcsdup(L"{license}.txt");
-			fake->TargetShortName = _wcsdup(L"license.txt");
+			fake->TargetName = L"{license}.txt";
+			fake->TargetShortName = L"license.txt";
 		}
 		fake->Attributes = 0;
 		fake->IsFake = true;
@@ -969,15 +982,15 @@ int CMsiViewer::readMediaSources()
 
 	// Retrieve all media entries
 	PMSIHANDLE hMediaRec;
-	MediaEntry mEntry;
-	DWORD nCellSize;
 	while ((res = MsiViewFetch(hQueryMedia, &hMediaRec)) != ERROR_NO_MORE_ITEMS)
 	{
 		OK(res);
 
+		MediaEntry mEntry;
+
 		mEntry.DiskId = MsiRecordGetInteger(hMediaRec, 1);
 		mEntry.LastSequence = MsiRecordGetInteger(hMediaRec, 2);
-		READ_STR(hMediaRec, 4, mEntry.Cabinet);
+		mEntry.Cabinet = GetCellString(hMediaRec, 4);
 
 		m_vMedias.push_back(mEntry);
 		MsiCloseHandle(hMediaRec);
@@ -1005,7 +1018,7 @@ DirectoryNode* CMsiViewer::GetDirectory( const wchar_t* path )
 		for (size_t i = 0; i < curNode->SubDirs.size(); i++)
 		{
 			DirectoryNode *nextNode = curNode->SubDirs[i];
-			if (_wcsicmp(dir, nextNode->TargetName) == 0)
+			if (_wcsicmp(dir, nextNode->TargetName.c_str()) == 0)
 				child = nextNode;
 		}
 
@@ -1044,7 +1057,7 @@ const wchar_t* CMsiViewer::getFileStorageName( FileNode* file )
 	// Check flags first to filter uncompressed files
 	if ((file->Attributes & msidbFileAttributesNoncompressed) ||
 		((file->Attributes & msidbFileAttributesCompressed) == 0 && (m_nSummaryWordCount & 2) == 0))
-		return NULL;
+		return nullptr;
 
 	int mediaIndex = -1;
 	for (int i = (int) m_vMedias.size() - 1; i >= 0; i--)
@@ -1055,7 +1068,7 @@ const wchar_t* CMsiViewer::getFileStorageName( FileNode* file )
 			break;
 	}
 
-	return (mediaIndex < 0) ? NULL : m_vMedias[mediaIndex].Cabinet;
+	return (mediaIndex < 0) ? nullptr : m_vMedias[mediaIndex].Cabinet.c_str();
 }
 
 int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, ExtractProcessCallbacks callbacks )
@@ -1147,7 +1160,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 
 			if (strCabPath.length() > 0)
 			{
-				bool extr_res = m_pCabControl->ExtractFile(cab, strCabPath.c_str(), file->Key, destFilePath);
+				bool extr_res = m_pCabControl->ExtractFile(cab, strCabPath.c_str(), file->Key.c_str(), destFilePath);
 				result = extr_res ? SER_SUCCESS : SER_ERROR_READ;
 			}
 		}
@@ -1313,7 +1326,7 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 	{
 		// For files in internal cab
 		WIN32_FIND_DATAW fd;
-		if (m_pCabControl->GetFileAttributes(cab, NULL, file->Key, fd))
+		if (m_pCabControl->GetFileAttributes(cab, NULL, file->Key.c_str(), fd))
 		{
 			file->ftCreationTime = fd.ftCreationTime;
 			file->ftModificationTime = fd.ftLastWriteTime;
@@ -1330,7 +1343,7 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 		strCabPath.append(cab);
 
 		WIN32_FIND_DATAW fd;
-		if (m_pCabControl->GetFileAttributes(cab, strCabPath.c_str(), file->Key, fd))
+		if (m_pCabControl->GetFileAttributes(cab, strCabPath.c_str(), file->Key.c_str(), fd))
 		{
 			file->ftCreationTime = fd.ftCreationTime;
 			file->ftModificationTime = fd.ftLastWriteTime;

@@ -3,27 +3,20 @@
 
 #include <MsiDefs.h>
 
-#define KILLSTR(wstr) if(wstr){free(wstr); wstr = NULL;}
-
-void SplitEntryWithAlloc(wchar_t* source, wchar_t delim, wchar_t* &shortName, wchar_t* &longName)
+static void SplitEntryName(const std::wstring& source, wchar_t delim, std::wstring& shortName, std::wstring& longName)
 {
-	wchar_t *delimPos = wcschr(source, delim);
-	
-	if (delimPos)
+	auto delimPos = source.find(delim);
+
+	if (delimPos != std::wstring::npos)
 	{
-		*delimPos = 0;
-		if (wcslen(source) < MAX_SHORT_NAME_LEN)
-			shortName = _wcsdup(source);
-		else
-			shortName = _wcsdup(L"");
-		longName = _wcsdup(delimPos + 1);
-		*delimPos = delim;
+		longName = source.substr(delimPos + 1);
+		shortName = (delimPos < MAX_SHORT_NAME_LEN) ? source.substr(0, delimPos) : L"";
 	}
 	else
 	{
 		// Short name can not be more then 14 symbols
-		shortName = (wcslen(source) < MAX_SHORT_NAME_LEN) ? _wcsdup(source) : _wcsdup(L"");
-		longName = _wcsdup(source);
+		shortName = (source.size() < MAX_SHORT_NAME_LEN) ? source : L"";
+		longName = source;
 	}
 }
 
@@ -33,27 +26,11 @@ void SplitEntryWithAlloc(wchar_t* source, wchar_t delim, wchar_t* &shortName, wc
 
 BasicNode::BasicNode()
 {
-	Key = NULL;
-	Parent = NULL;
+	Parent = nullptr;
 	Attributes = 0;
-
-	SourceName = NULL;
-	SourceShortName = NULL;
-	TargetName = NULL;
-	TargetShortName = NULL;
 
 	ftCreationTime = ZERO_FILE_TIME;
 	ftModificationTime = ZERO_FILE_TIME;
-}
-
-BasicNode::~BasicNode()
-{
-	KILLSTR(Key);
-
-	KILLSTR(SourceName);
-	KILLSTR(SourceShortName);
-	KILLSTR(TargetName);
-	KILLSTR(TargetShortName);
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -62,14 +39,7 @@ BasicNode::~BasicNode()
 
 DirectoryNode::DirectoryNode()
 {
-	Key = NULL;
-	ParentKey = NULL;
-	Parent = NULL;
-
-	SourceName = NULL;
-	SourceShortName = NULL;
-	TargetName = NULL;
-	TargetShortName = NULL;
+	Parent = nullptr;
 	IsSpecial = false;
 
 	Attributes = FILE_ATTRIBUTE_DIRECTORY;
@@ -77,13 +47,6 @@ DirectoryNode::DirectoryNode()
 
 DirectoryNode::~DirectoryNode()
 {
-	KILLSTR(Key);
-	KILLSTR(ParentKey);
-	KILLSTR(SourceName);
-	KILLSTR(SourceShortName);
-	KILLSTR(TargetName);
-	KILLSTR(TargetShortName);
-
 	for (size_t i = 0; i < Files.size(); i++)
 		delete Files[i];
 	for (size_t i = 0; i < SubDirs.size(); i++)
@@ -92,48 +55,49 @@ DirectoryNode::~DirectoryNode()
 
 bool DirectoryNode::Init(DirectoryEntry *entry, bool substDotTargetWithSource)
 {
-	if (!entry || !*entry->Key)
+	if (!entry || entry->Key.empty())
 		return false;
 
-	Key = _wcsdup(entry->Key);
+	Key = entry->Key;
 	if (entry->ParentKey[0])
-		ParentKey = _wcsdup(entry->ParentKey);
+		ParentKey = entry->ParentKey;
 	
-	wchar_t *colonPos = wcschr(entry->DefaultName, ':');
-	if (colonPos)
+	auto colonPos = entry->DefaultDir.find(':');
+	if (colonPos != std::wstring::npos)
 	{
-		*colonPos = 0;
-		if (substDotTargetWithSource && !wcscmp(entry->DefaultName, L".") && wcscmp(colonPos + 1, L"."))
+		auto strSourcePart = entry->DefaultDir.substr(colonPos + 1);
+		auto strTargetPath = entry->DefaultDir.substr(colonPos);
+		
+		if (substDotTargetWithSource && (strTargetPath == L".") && (strSourcePart != L"."))
 		{
 			// This is for special folders when using . as target path is undesirable
 			// If target is . but source is not then use source in both name pairs
-			SplitEntryWithAlloc(colonPos + 1, '|', TargetShortName, TargetName);
-			SplitEntryWithAlloc(colonPos + 1, '|', SourceShortName, SourceName);
+			SplitEntryName(strSourcePart, '|', TargetShortName, TargetName);
+			SplitEntryName(strSourcePart, '|', SourceShortName, SourceName);
 		}
 		else
 		{
-			SplitEntryWithAlloc(entry->DefaultName, '|', TargetShortName, TargetName);
-			SplitEntryWithAlloc(colonPos + 1, '|', SourceShortName, SourceName);
+			SplitEntryName(strTargetPath, '|', TargetShortName, TargetName);
+			SplitEntryName(strSourcePart, '|', SourceShortName, SourceName);
 		}
-		*colonPos = ':';
 	}
 	else
 	{
-		SplitEntryWithAlloc(entry->DefaultName, '|', TargetShortName, TargetName);
+		SplitEntryName(entry->DefaultDir, '|', TargetShortName, TargetName);
 	}
 	
 	return true;
 }
 
-bool DirectoryNode::Init( const wchar_t *dirName )
+bool DirectoryNode::Init( const std::wstring& dirName )
 {
-	if (!dirName || !*dirName)
+	if (dirName.empty())
 		return false;
 
-	Key = _wcsdup(dirName);
-	ParentKey = NULL;
-	SourceName = _wcsdup(dirName);
-	TargetName = _wcsdup(dirName);
+	Key = dirName;
+	ParentKey = L"";
+	SourceName = dirName;
+	TargetName = dirName;
 	
 	return true;
 }
@@ -184,9 +148,9 @@ std::wstring DirectoryNode::GetSourcePath()
 		if (strResult.size() > 0)
 			strResult.append(L"\\");
 	}
-	if (SourceName)
+	if (!SourceName.empty())
 		strResult.append(SourceName);
-	else if (TargetName && wcscmp(Key, L"TARGETDIR"))
+	else if (!TargetName.empty() && (Key != L"TARGETDIR"))
 		strResult.append(TargetName);
 
 	return strResult;
@@ -201,7 +165,7 @@ std::wstring DirectoryNode::GetTargetPath()
 		if (strResult.size() > 0)
 			strResult.append(L"\\");
 	}
-	if (TargetName /*&& wcscmp(Key, L"TARGETDIR")*/)
+	if (!TargetName.empty() /*&& wcscmp(Key, L"TARGETDIR")*/)
 		strResult.append(TargetName);
 
 	return strResult;
@@ -236,13 +200,7 @@ __int64 DirectoryNode::GetSize()
 
 FileNode::FileNode()
 {
-	Key = NULL;
-	Parent = NULL;
-
-	SourceName = NULL;
-	SourceShortName = NULL;
-	TargetName = NULL;
-	TargetShortName = NULL;
+	Parent = nullptr;
 
 	FileSize = 0;
 	Attributes = 0;
@@ -254,33 +212,26 @@ FileNode::FileNode()
 
 FileNode::~FileNode()
 {
-	KILLSTR(Key);
-	KILLSTR(SourceName);
-	KILLSTR(SourceShortName);
-	KILLSTR(TargetName);
-	KILLSTR(TargetShortName);
-
-	KILLSTR(FakeFileContent);
+	if (FakeFileContent)
+		free(FakeFileContent);
 }
 
 bool FileNode::Init( FileEntry *entry )
 {
-	if (!entry || !*entry->Key)
+	if (!entry || entry->Key.empty())
 		return false;
 
-	Key = _wcsdup(entry->Key);
+	Key = entry->Key;
 
-	wchar_t *colonPos = wcschr(entry->FileName, ':');
-	if (colonPos)
+	auto colonPos = entry->FileName.find(':');
+	if (colonPos != std::wstring::npos)
 	{
-		*colonPos = 0;
-		SplitEntryWithAlloc(entry->FileName, '|', TargetShortName, TargetName);
-		SplitEntryWithAlloc(colonPos + 1, '|', SourceShortName, SourceName);
-		*colonPos = ':';
+		SplitEntryName(entry->FileName.substr(0, colonPos), '|', TargetShortName, TargetName);
+		SplitEntryName(entry->FileName.substr(colonPos + 1), '|', SourceShortName, SourceName);
 	}
 	else
 	{
-		SplitEntryWithAlloc(entry->FileName, '|', TargetShortName, TargetName);
+		SplitEntryName(entry->FileName, '|', TargetShortName, TargetName);
 	}
 
 	FileSize = entry->FileSize;
@@ -311,7 +262,7 @@ std::wstring FileNode::GetSourcePath()
 {
 	wstring strResult = Parent->GetSourcePath();
 	strResult.append(L"\\");
-	if (SourceName)
+	if (!SourceName.empty())
 		strResult.append(SourceName);
 	else
 		strResult.append(TargetName);

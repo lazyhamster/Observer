@@ -9,21 +9,20 @@ const FILETIME ZERO_FILE_TIME = {0};
 class BasicNode
 {
 public:
-	wchar_t* Key;
+	std::wstring Key;
 	BasicNode* Parent;
 	DWORD Attributes;
 
-	wchar_t* SourceName;
-	wchar_t* SourceShortName;
-	wchar_t* TargetName;
-	wchar_t* TargetShortName;
+	std::wstring SourceName;
+	std::wstring SourceShortName;
+	std::wstring TargetName;
+	std::wstring TargetShortName;
 
 	FILETIME ftCreationTime;
 	FILETIME ftModificationTime;
 
 public:
 	BasicNode();
-	~BasicNode();
 
 	virtual DWORD GetSytemAttributes() = 0;
 	virtual std::wstring GetSourcePath() = 0;
@@ -65,7 +64,7 @@ private:
 	DirectoryNode &operator=(const DirectoryNode &a) = delete;
 
 public:
-	wchar_t* ParentKey;
+	std::wstring ParentKey;
 	bool IsSpecial;
 
 	std::vector<DirectoryNode*> SubDirs;
@@ -75,7 +74,7 @@ public:
 	~DirectoryNode();
 
 	bool Init(DirectoryEntry *entry, bool substDotTargetWithSource);
-	bool Init(const wchar_t *dirName);
+	bool Init(const std::wstring& dirName);
 	void AddSubdir(DirectoryNode *child);
 	void AddFile(FileNode *file) { Files.push_back(file); file->Parent = this; }
 

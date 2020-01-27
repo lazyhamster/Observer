@@ -1,58 +1,78 @@
 #ifndef _PACKAGE_STRUCT_H_
 #define _PACKAGE_STRUCT_H_
 
+// Aliases for MSI types
+typedef std::wstring Identifier;
+typedef std::wstring Formatted;
+typedef std::wstring Text;
+typedef std::wstring Version;
+typedef std::wstring Language;
+typedef std::wstring Filename;
+typedef std::wstring DefaultDir;
+typedef std::wstring Shortcut;
+typedef std::wstring RegPath;
+typedef int16_t Integer;
+typedef int32_t DoubleInteger;
+
+// Data structures have all fields that are present in docs.
+// Ones that are not needed by reader are commented out.
+// Date type names are taken from docs.
+
 // Table: Directory
 struct DirectoryEntry
 {
-	wchar_t Key[256];			// s72
-	wchar_t ParentKey[256];		// S72
-	wchar_t DefaultName[512];	// l255
+	Identifier Key;
+	Identifier ParentKey;
+	DefaultDir DefaultDir;
 };
 
 // Table: Component
 struct ComponentEntry
 {
-	wchar_t Key[256];			// s72
-	wchar_t ID[39];				// S38
-	wchar_t Directory[256];		// s72
-	INT16 Attributes;			// i2
+	Identifier Key;
+	//GUID ComponentId;
+	Identifier Directory_;
+	Integer Attributes;
+	//Condition Condition;
+	//Identifier KeyPath;
 };
 
 // Table: File
 struct FileEntry
 {
-	wchar_t Key[256];			// s72
-	wchar_t Component[256];		// s72
-	wchar_t FileName[512];		// l255
-	INT32 FileSize;				// i4
-	//wchar_t Version[73];		// S72
-	//wchar_t Language[21];		// S20
-	INT16 Attributes;			// i2
-	INT16 Sequence;				// i2
+	Identifier Key;
+	Identifier Component_;
+	Filename FileName;
+	DoubleInteger FileSize;
+	//Version	Version;
+	//Language Language;
+	Integer Attributes;
+	Integer Sequence;
 };
 
 // Table: Feature
 struct FeatureEntry
 {
-	wchar_t Key[72];			// s38
-	wchar_t Parent[72];			// S38
-	wchar_t Title[128];			// L64
-	wchar_t Description[512];	// L255
-	UINT16 Display;				// i2
-	UINT16 Level;				// i2
-	wchar_t Directory[256];		// S72
+	Identifier Key;
+	Identifier Parent;
+	Text Title;
+	Text Description;
+	Integer Display;
+	Integer Level;
+	//Identifier Directory;
+	//Integer Attributes;
 };
 
 
-// Table: Entry
+// Table: Media
 struct MediaEntry
 {
-	UINT16 DiskId;				// i2
-	UINT16 LastSequence;		// i2
-	//wchar_t DiskPrompt[65];	// L64
-	wchar_t Cabinet[256];		// S255
-	//wchar_t VolumeLabel[33];	// S32
-	//wchar_t Source[73];		// S72
+	Integer DiskId;
+	Integer LastSequence;
+	//Text DiskPrompt;
+	Identifier Cabinet;
+	//Text VolumeLabel;
+	//Property Source;
 };
 
 // Table: _Streams
@@ -65,51 +85,50 @@ struct StreamEntry
 // Table: Registry
 struct RegistryEntry
 {
-	wchar_t Key[256];			// s72
-	UINT16 Root;				// i2
-	wchar_t RegKeyName[512];	// l255
-	wchar_t Name[512];			// L255
-	wchar_t* Value;				// L0 (variable len)
-	wchar_t Component[73];		// s72
+	Identifier Key;
+	Integer Root;
+	RegPath RegKeyName;
+	Formatted Name;
+	Formatted Value;
+	Identifier Component_;
 };
 
 // Table: Shortcut
 struct ShortcutEntry
 {
-	wchar_t Key[256];			// s72
-	wchar_t Directory[256];		// s72
-	wchar_t Name[512];			// l128
-	wchar_t Component[256];		// s72
-	wchar_t Target[256];		// s72
-	wchar_t Arguments[512];		// S255
-	wchar_t Description[512];	// L255
-	// Hotkey	I2
-	// Icon_S72
-	// IconIndex I2
-	// ShowCmd I2
-	// WkDir S72
-	// DisplayResourceDLL S255
-	// DisplayResourceId I2
-	// DescriptionResourceDLL S255
-	// DescriptionResourceId I2
+	Identifier Key;
+	Identifier Directory_;
+	Filename Name;
+	Identifier Component_;
+	Shortcut Target;
+	Formatted Arguments;
+	Text Description;
+	//Integer Hotkey;
+	//Identifier Icon_;
+	//Integer IconIndex;
+	//Identifier WkDir;
+	//Formatted DisplayResourceDLL;
+	//Integer DisplayResourceId;
+	//Formatted DescriptionResourceDLL;
+	//Integer DescriptionResourceId;
 };
 
 // Table: ServiceInstall
 struct ServiceInstallEntry
 {
-	// ServiceInstall s72
-	wchar_t Name[512];			// s255
-	wchar_t DisplayName[256];	// L255
-	int ServiceType;			// i4
-	int StartType;				// i4
-	// ErrorControl i4
-	// LoadOrderGroup S255
-	// Dependencies S255
-	wchar_t StartName[256];		// S255
-	wchar_t Password[256];		// S255
-	wchar_t Arguments[256];		// S255
-	wchar_t Component[128];		// s72
-	wchar_t Description[512];	// L255
+	Identifier Key;
+	Formatted Name;
+	Formatted DisplayName;
+	DoubleInteger ServiceType;
+	DoubleInteger StartType;
+	//DoubleInteger ErrorControl;
+	//Formatted LoadOrderGroup;
+	//Formatted Dependencies;
+	Formatted StartName;
+	Formatted Password;
+	Formatted Arguments;
+	Identifier Component;
+	Formatted Description;
 };
 
 #endif //_PACKAGE_STRUCT_H_
