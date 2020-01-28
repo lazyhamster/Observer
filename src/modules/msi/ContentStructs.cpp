@@ -190,10 +190,6 @@ __int64 DirectoryNode::GetTotalSize()
 	return nResult;
 }
 
-__int64 DirectoryNode::GetSize()
-{
-	return 0;
-}
 //////////////////////////////////////////////////////////////////////////
 //                           FileNode
 //////////////////////////////////////////////////////////////////////////
@@ -237,6 +233,7 @@ bool FileNode::Init( FileEntry *entry )
 	FileSize = entry->FileSize;
 	Attributes = entry->Attributes;
 	SequenceMark = entry->Sequence;
+	Component = entry->Component_;
 
 	return true;
 }
@@ -276,9 +273,4 @@ std::wstring FileNode::GetTargetPath()
 	strResult.append(TargetName);
 
 	return strResult;
-}
-
-__int64 FileNode::GetSize()
-{
-	return FileSize;
 }

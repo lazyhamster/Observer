@@ -55,11 +55,11 @@ private:
 
 	int generateInfoText();
 	int generateLicenseText();
-	int dumpRegistryKeys(wstringstream &sstr);
-	int dumpFeatures(wstringstream &sstr);
-	int dumpShortcuts(wstringstream &sstr);
-	int dumpProperties(wstringstream &sstr);
-	int dumpServices(wstringstream &sstr);
+	int dumpRegistryKeys(std::wstringstream &sstr);
+	int dumpFeatures(std::wstringstream &sstr);
+	int dumpShortcuts(std::wstringstream &sstr);
+	int dumpProperties(std::wstringstream &sstr);
+	int dumpServices(std::wstringstream &sstr);
 
 	wstring getStoragePath();
 	bool AcquireStreamCachePath();
@@ -69,6 +69,7 @@ private:
 
 	const wchar_t* getFileStorageName(FileNode* file);
 	bool readRealFileAttributes(FileNode* file);
+	FileNode* getFileByComponentName(const DirectoryNode* dir, const std::wstring& compName);
 
 public:
 	CMsiViewer(void);

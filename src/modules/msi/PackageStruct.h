@@ -127,7 +127,7 @@ struct ServiceInstallEntry
 	Formatted StartName;
 	Formatted Password;
 	Formatted Arguments;
-	Identifier Component;
+	Identifier Component_;
 	Formatted Description;
 };
 

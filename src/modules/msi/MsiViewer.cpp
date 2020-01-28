@@ -693,7 +693,7 @@ int CMsiViewer::generateInfoText()
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
+int CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
 {
 	UINT res;
 	PMSIHANDLE hQueryReg;
@@ -756,7 +756,7 @@ int CMsiViewer::dumpRegistryKeys(wstringstream &sstr)
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::dumpFeatures(wstringstream &sstr)
+int CMsiViewer::dumpFeatures(std::wstringstream &sstr)
 {
 	UINT res;
 	PMSIHANDLE hQueryFeat;
@@ -794,7 +794,7 @@ int CMsiViewer::dumpFeatures(wstringstream &sstr)
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::dumpShortcuts(wstringstream &sstr)
+int CMsiViewer::dumpShortcuts(std::wstringstream &sstr)
 {
 	UINT res;
 	PMSIHANDLE hQueryShortcut;
@@ -831,7 +831,7 @@ int CMsiViewer::dumpShortcuts(wstringstream &sstr)
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::dumpProperties(wstringstream &sstr)
+int CMsiViewer::dumpProperties(std::wstringstream &sstr)
 {
 	UINT res;
 	PMSIHANDLE hQueryProps;
@@ -855,7 +855,7 @@ int CMsiViewer::dumpProperties(wstringstream &sstr)
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::dumpServices(wstringstream &sstr)
+int CMsiViewer::dumpServices(std::wstringstream &sstr)
 {
 	UINT res;
 	PMSIHANDLE hQuerySvc;
@@ -894,19 +894,24 @@ int CMsiViewer::dumpServices(wstringstream &sstr)
 		siEntry.StartName = GetCellString(hSvcRec, 9);
 		siEntry.Password = GetCellString(hSvcRec, 10);
 		siEntry.Arguments = GetCellString(hSvcRec, 11);
-		siEntry.Component = GetCellString(hSvcRec, 12);
+		siEntry.Component_ = GetCellString(hSvcRec, 12);
 		siEntry.Description = GetCellString(hSvcRec, 13);
 
-		if (siEntry.Name.empty() || siEntry.Component.empty())
+		if (siEntry.Name.empty() || siEntry.Component_.empty())
 		{
 			sstr << L"[Invalid Service Entry]" << endl;
 			continue;
 		}
 
+		FileNode* compFile = getFileByComponentName(m_pRootDir, siEntry.Component_);
+		auto strCommandFile = compFile ? compFile->GetTargetPath() : siEntry.Component_;
+		//TODO: find actual file name
+
 		sstr << siEntry.Name << endl;
 		if (!siEntry.DisplayName.empty()) sstr << L"\tDisplay Name: " << siEntry.DisplayName << endl;
 		sstr << L"\tDescription: " << siEntry.Description << endl;
-		sstr << L"\tCommand: " << siEntry.Component << L" " << siEntry.Arguments << endl;
+		sstr << L"\tCommand: " << strCommandFile << endl;
+		sstr << L"\tArguments: " << siEntry.Arguments << endl;
 
 		sstr << L"\tService Type: ";
 		sstr << GetMappedValue(cmServiceTypeNames, siEntry.ServiceType, L"Unknown") << endl;
@@ -952,7 +957,7 @@ int CMsiViewer::generateLicenseText()
 
 		// Add fake file with general info to root folder
 		FileNode *fake = new FileNode();
-		if (_strnicmp(cntText, "{\\rtf", 4) == 0)
+		if ((nVlen > 4) && (_strnicmp(cntText, "{\\rtf", 4) == 0))
 		{
 			fake->TargetName = L"{license}.rtf";
 			fake->TargetShortName = L"license.rtf";
@@ -1352,6 +1357,24 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 		}
 	}
 	return false;
+}
+
+FileNode* CMsiViewer::getFileByComponentName(const DirectoryNode* dir, const std::wstring& compName)
+{
+	for (auto it = dir->Files.cbegin(); it != dir->Files.cend(); ++it)
+	{
+		FileNode* file = *it;
+		if (file->Component == compName)
+			return file;
+	}
+
+	for (auto it = dir->SubDirs.cbegin(); it != dir->SubDirs.cend(); ++it)
+	{
+		FileNode* file = getFileByComponentName(*it, compName);
+		if (file) return file;
+	}
+	
+	return nullptr;
 }
 
 bool CMsiViewer::FindNodeDataByIndex(int itemIndex, StorageItemInfo* item_info)

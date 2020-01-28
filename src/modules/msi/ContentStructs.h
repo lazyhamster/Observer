@@ -8,6 +8,10 @@ const FILETIME ZERO_FILE_TIME = {0};
 
 class BasicNode
 {
+private:
+	BasicNode(const BasicNode &node) = delete;
+	BasicNode &operator=(const BasicNode &a) = delete;
+
 public:
 	std::wstring Key;
 	BasicNode* Parent;
@@ -27,9 +31,9 @@ public:
 	virtual DWORD GetSytemAttributes() = 0;
 	virtual std::wstring GetSourcePath() = 0;
 	virtual std::wstring GetTargetPath() = 0;
-	virtual __int64 GetSize() = 0;
+	virtual __int64 GetSize() const = 0;
 
-	bool IsDir() { return (Attributes & FILE_ATTRIBUTE_DIRECTORY) > 0; };
+	bool IsDir() const { return (Attributes & FILE_ATTRIBUTE_DIRECTORY) > 0; };
 };
 
 class FileNode : public BasicNode
@@ -39,6 +43,7 @@ private:
 	FileNode &operator=(const FileNode &a) = delete;
 
 public:
+	std::wstring Component;
 	INT32 FileSize;
 	int SequenceMark;
 	
@@ -54,7 +59,7 @@ public:
 	DWORD GetSytemAttributes();
 	std::wstring GetSourcePath();
 	std::wstring GetTargetPath();
-	__int64 GetSize();
+	__int64 GetSize() const { return FileSize; };
 };
 
 class DirectoryNode : public BasicNode
@@ -85,7 +90,7 @@ public:
 	DWORD GetSytemAttributes();
 	std::wstring GetSourcePath();
 	std::wstring GetTargetPath();
-	__int64 GetSize();
+	__int64 GetSize() const { return 0; };
 };
 
 #endif //_CONTENT_STRUCTS_H_
