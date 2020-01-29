@@ -53,6 +53,8 @@ private:
 	void checkShortNames(DirectoryNode *root);
 	void mergeSameNamedFolders(DirectoryNode *root);
 
+	int iterateOptionalMsiTable(const wchar_t* tableName, std::function<void(MSIHANDLE)> func);
+
 	int generateInfoText();
 	int generateLicenseText();
 	int dumpRegistryKeys(std::wstringstream &sstr);
@@ -60,6 +62,7 @@ private:
 	int dumpShortcuts(std::wstringstream &sstr);
 	int dumpProperties(std::wstringstream &sstr);
 	int dumpServices(std::wstringstream &sstr);
+	int dumpEnvironmentVars(std::wstringstream &sstr);
 
 	std::wstring getStoragePath();
 	bool AcquireStreamCachePath();

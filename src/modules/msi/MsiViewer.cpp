@@ -590,6 +590,28 @@ void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
 	}
 }
 
+int CMsiViewer::iterateOptionalMsiTable(const wchar_t* tableName, std::function<void(MSIHANDLE)> iterFunc)
+{
+	UINT res;
+	PMSIHANDLE hQuery;
+
+	std::wstring strQuery = std::wstring(L"SELECT * FROM ") + tableName;
+
+	OK_MISS(MsiDatabaseOpenViewW(m_hMsi, strQuery.c_str(), &hQuery));
+	OK(MsiViewExecute(hQuery, 0));
+
+	// Retrieve all entries
+	PMSIHANDLE hRec;
+	while ((res = MsiViewFetch(hQuery, &hRec)) != ERROR_NO_MORE_ITEMS)
+	{
+		OK(res);
+
+		iterFunc(hRec);
+	}
+
+	return ERROR_SUCCESS;
+}
+
 int CMsiViewer::generateInfoText()
 {
 	struct PropDescription
@@ -646,26 +668,13 @@ int CMsiViewer::generateInfoText()
 	sstr << L"Total directories: " << GetTotalDirectories() << ENDL;
 	sstr << L"Total files: " << GetTotalFiles() << ENDL;
 
-	// Features list
-	sstr << ENDL << L"[Available Features]" << ENDL;
-	OK( dumpFeatures(sstr) );
-
-	// Registry keys
-	sstr << ENDL << L"[Registry]" << ENDL;
-	OK ( dumpRegistryKeys(sstr) );
-
-	// Shortcuts list
-	sstr << ENDL <<  L"[Shortcuts]" << ENDL;
-	OK ( dumpShortcuts(sstr) );
-
-	// Services list
-	sstr << ENDL << L"[Installable Services]" << ENDL;
-	OK ( dumpServices(sstr) );
-
-	// Properties
-	sstr << ENDL << L"[Properties]" << ENDL;
-	OK ( dumpProperties(sstr) );
-
+	OK(dumpFeatures(sstr));
+	OK(dumpRegistryKeys(sstr));
+	OK(dumpShortcuts(sstr));
+	OK(dumpServices(sstr));
+	OK(dumpEnvironmentVars(sstr));
+	OK(dumpProperties(sstr));
+	
 	auto content = sstr.str();
 
 	// Read "Last Save Time/Date" property
@@ -691,20 +700,12 @@ int CMsiViewer::generateInfoText()
 
 int CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
 {
-	UINT res;
-	PMSIHANDLE hQueryReg;
-	
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Registry", &hQueryReg) );
-	OK( MsiViewExecute(hQueryReg, 0) );
+	sstr << ENDL << L"[Registry]" << ENDL;
 
-	// Retrieve all registry entries
-	PMSIHANDLE hRegRec;
 	std::wstring strPrevRegKeyName;
 	UINT16 nPrevRegRoot = UINT16(-1);
-	while ((res = MsiViewFetch(hQueryReg, &hRegRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
 
+	return iterateOptionalMsiTable(L"Registry", [&sstr, &strPrevRegKeyName, &nPrevRegRoot](MSIHANDLE hRegRec) {
 		RegistryEntry regEntry;
 
 		regEntry.Key = GetCellString(hRegRec, 1);
@@ -719,21 +720,21 @@ int CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
 			sstr << L"[";
 			switch (regEntry.Root)
 			{
-				case msidbRegistryRootClassesRoot:
-					sstr << L"HKEY_CLASSES_ROOT";
-					break;
-				case msidbRegistryRootCurrentUser:
-					sstr << L"HKEY_CURRENT_USER";
-					break;
-				case msidbRegistryRootLocalMachine:
-					sstr << L"HKEY_LOCAL_MACHINE";
-					break;
-				case msidbRegistryRootUsers:
-					sstr << L"HKEY_USERS";
-					break;
-				default:
-					sstr << L"HKEY_CURRENT_USER";
-					break;
+			case msidbRegistryRootClassesRoot:
+				sstr << L"HKEY_CLASSES_ROOT";
+				break;
+			case msidbRegistryRootCurrentUser:
+				sstr << L"HKEY_CURRENT_USER";
+				break;
+			case msidbRegistryRootLocalMachine:
+				sstr << L"HKEY_LOCAL_MACHINE";
+				break;
+			case msidbRegistryRootUsers:
+				sstr << L"HKEY_USERS";
+				break;
+			default:
+				sstr << L"HKEY_CURRENT_USER";
+				break;
 			}
 			sstr << L"\\" << regEntry.RegKeyName << L"]" << ENDL;
 
@@ -747,25 +748,14 @@ int CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
 		else
 			sstr << L"@";
 		sstr << L" = \"" << regEntry.Value << L"\"" << ENDL;
-	}
-	
-	return ERROR_SUCCESS;
+	});
 }
 
 int CMsiViewer::dumpFeatures(std::wstringstream &sstr)
 {
-	UINT res;
-	PMSIHANDLE hQueryFeat;
-	
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Feature", &hQueryFeat) );
-	OK( MsiViewExecute(hQueryFeat, 0) );
+	sstr << ENDL << L"[Available Features]" << ENDL;
 
-	// Retrieve all feature entries
-	PMSIHANDLE hFeatRec;
-	while ((res = MsiViewFetch(hQueryFeat, &hFeatRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
-
+	return iterateOptionalMsiTable(L"Feature", [&sstr](MSIHANDLE hFeatRec) {
 		FeatureEntry featEntry;
 
 		featEntry.Key = GetCellString(hFeatRec, 1);
@@ -785,25 +775,14 @@ int CMsiViewer::dumpFeatures(std::wstringstream &sstr)
 			if (!featEntry.Description.empty())
 				sstr << L"    " << featEntry.Description << ENDL;
 		}
-	}
-
-	return ERROR_SUCCESS;
+	});
 }
 
 int CMsiViewer::dumpShortcuts(std::wstringstream &sstr)
 {
-	UINT res;
-	PMSIHANDLE hQueryShortcut;
+	sstr << ENDL << L"[Shortcuts]" << ENDL;
 
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Shortcut", &hQueryShortcut) );
-	OK( MsiViewExecute(hQueryShortcut, 0) );
-
-	// Retrieve all feature entries
-	PMSIHANDLE hShortcutRec;
-	while ((res = MsiViewFetch(hQueryShortcut, &hShortcutRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
-
+	return iterateOptionalMsiTable(L"Shortcut", [&sstr](MSIHANDLE hShortcutRec){
 		ShortcutEntry sEntry;
 
 		sEntry.Key = GetCellString(hShortcutRec, 1);
@@ -822,40 +801,24 @@ int CMsiViewer::dumpShortcuts(std::wstringstream &sstr)
 		if (!sEntry.Arguments.empty())
 			sstr << L" " << sEntry.Arguments;
 		sstr << ENDL;
-	}
-
-	return ERROR_SUCCESS;
+	});
 }
 
 int CMsiViewer::dumpProperties(std::wstringstream &sstr)
 {
-	UINT res;
-	PMSIHANDLE hQueryProps;
-
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Property", &hQueryProps) );
-	OK( MsiViewExecute(hQueryProps, 0) );
-
-	// Retrieve all feature entries
-	PMSIHANDLE hPropRec;
-	while ((res = MsiViewFetch(hQueryProps, &hPropRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
-
+	sstr << ENDL << L"[Properties]" << ENDL;
+	
+	return iterateOptionalMsiTable(L"Property", [&sstr](MSIHANDLE hPropRec) {
 		auto strPropertyName = GetCellString(hPropRec, 1);
 		auto strPropertyData = GetCellString(hPropRec, 2);
-		
+
 		if (!strPropertyName.empty())
 			sstr << strPropertyName << L" = " << strPropertyData << ENDL;
-	}
-
-	return ERROR_SUCCESS;
+	});
 }
 
 int CMsiViewer::dumpServices(std::wstringstream &sstr)
 {
-	UINT res;
-	PMSIHANDLE hQuerySvc;
-
 	static std::map<DoubleInteger, const wchar_t*> cmServiceTypeNames = {
 		{SERVICE_WIN32_OWN_PROCESS, L"SERVICE_WIN32_OWN_PROCESS"},
 		{SERVICE_WIN32_SHARE_PROCESS, L"SERVICE_WIN32_SHARE_PROCESS"},
@@ -872,15 +835,11 @@ int CMsiViewer::dumpServices(std::wstringstream &sstr)
 		{SERVICE_SYSTEM_START, L" System Start"}
 	};
 
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM ServiceInstall", &hQuerySvc) );
-	OK( MsiViewExecute(hQuerySvc, 0) );
+	static const wchar_t* csIndentStr = L"    ";
 
-	// Retrieve all feature entries
-	PMSIHANDLE hSvcRec;
-	while ((res = MsiViewFetch(hQuerySvc, &hSvcRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
+	sstr << ENDL << L"[Installable Services]" << ENDL;
 
+	return iterateOptionalMsiTable(L"ServiceInstall", [this, &sstr](MSIHANDLE hSvcRec) {
 		ServiceInstallEntry siEntry;
 
 		siEntry.Name = GetCellString(hSvcRec, 2);
@@ -896,30 +855,40 @@ int CMsiViewer::dumpServices(std::wstringstream &sstr)
 		if (siEntry.Name.empty() || siEntry.Component_.empty())
 		{
 			sstr << L"[Invalid Service Entry]" << ENDL;
-			continue;
 		}
+		else
+		{
+			FileNode* compFile = getFileByComponentName(m_pRootDir, siEntry.Component_);
+			auto strCommandFile = compFile ? compFile->GetTargetPath() : siEntry.Component_;
 
-		FileNode* compFile = getFileByComponentName(m_pRootDir, siEntry.Component_);
-		auto strCommandFile = compFile ? compFile->GetTargetPath() : siEntry.Component_;
-		//TODO: find actual file name
+			sstr << siEntry.Name << ENDL;
+			if (!siEntry.DisplayName.empty()) sstr << csIndentStr << L"Display Name: " << siEntry.DisplayName << ENDL;
+			sstr << csIndentStr << L"Description: " << siEntry.Description << ENDL;
+			sstr << csIndentStr << L"Command: " << strCommandFile << ENDL;
+			sstr << csIndentStr << L"Arguments: " << siEntry.Arguments << ENDL;
 
-		sstr << siEntry.Name << ENDL;
-		if (!siEntry.DisplayName.empty()) sstr << L"\tDisplay Name: " << siEntry.DisplayName << ENDL;
-		sstr << L"\tDescription: " << siEntry.Description << ENDL;
-		sstr << L"\tCommand: " << strCommandFile << ENDL;
-		sstr << L"\tArguments: " << siEntry.Arguments << ENDL;
+			sstr << csIndentStr << L"Service Type: ";
+			sstr << GetMappedValue(cmServiceTypeNames, siEntry.ServiceType, L"Unknown") << ENDL;
 
-		sstr << L"\tService Type: ";
-		sstr << GetMappedValue(cmServiceTypeNames, siEntry.ServiceType, L"Unknown") << ENDL;
+			sstr << csIndentStr << L"Start Type: ";
+			sstr << GetMappedValue(cmStartTypeNames, siEntry.StartType, L"Unknown") << ENDL;
 
-		sstr << L"\tStart Type: ";
-		sstr << GetMappedValue(cmStartTypeNames, siEntry.StartType, L"Unknown") << ENDL;
+			sstr << csIndentStr << L"Account: " << (!siEntry.StartName.empty() ? siEntry.StartName : L"[LocalSystem]") << ENDL;
+			if (!siEntry.Password.empty()) sstr << csIndentStr << L"Password: " << siEntry.Password << ENDL;
+		}
+	});
+}
 
-		sstr << L"\tAccount: " << (!siEntry.StartName.empty() ? siEntry.StartName : L"[LocalSystem]") << ENDL;
-		if (!siEntry.Password.empty()) sstr << L"\tPassword: " << siEntry.Password << ENDL;
-	}
+int CMsiViewer::dumpEnvironmentVars(std::wstringstream &sstr)
+{
+	sstr << ENDL << L"[Environment]" << ENDL;
+	
+	return iterateOptionalMsiTable(L"Environment", [&sstr](MSIHANDLE hEnvRec) {
+		auto strName = GetCellString(hEnvRec, 2);
+		auto strValue = GetCellString(hEnvRec, 3);
 
-	return ERROR_SUCCESS;
+		sstr << strName << L" => " << strValue << ENDL;
+	});
 }
 
 int CMsiViewer::generateLicenseText()

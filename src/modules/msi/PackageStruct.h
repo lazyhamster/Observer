@@ -131,4 +131,13 @@ struct ServiceInstallEntry
 	Formatted Description;
 };
 
+// Table: Environment
+struct EnvironmentEntry
+{
+	Identifier Environment;
+	Text Name;
+	Formatted Value;
+	Identifier Component_;
+};
+
 #endif //_PACKAGE_STRUCT_H_
