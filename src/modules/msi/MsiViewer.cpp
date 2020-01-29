@@ -294,60 +294,28 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 
 int CMsiViewer::readAppSearch(WStringMap &entries)
 {
-	UINT res;
-	PMSIHANDLE hQueryAppSearch;
-
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM AppSearch", &hQueryAppSearch) );
-	OK( MsiViewExecute(hQueryAppSearch, 0) );
-
-	// Retrieve all component entries
-	PMSIHANDLE hAppRec;
-	while ((res = MsiViewFetch(hQueryAppSearch, &hAppRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
-
+	return iterateOptionalMsiTable(L"AppSearch", [&entries](MSIHANDLE hAppRec) {
 		auto strKey = GetCellString(hAppRec, 1);
 		auto strSignature = GetCellString(hAppRec, 2);
 
 		if (!strKey.empty())
 			entries[strKey] = strSignature;
-	}
-
-	return ERROR_SUCCESS;
+	});
 }
 
 int CMsiViewer::readCreateFolder(WStringMap &entries)
 {
-	UINT res;
-	PMSIHANDLE hQueryCreateFolder;
-
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM CreateFolder", &hQueryCreateFolder) );
-	OK( MsiViewExecute(hQueryCreateFolder, 0) );
-
-	// Retrieve all component entries
-	PMSIHANDLE hFolderRec;
-	while ((res = MsiViewFetch(hQueryCreateFolder, &hFolderRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
-
+	return iterateOptionalMsiTable(L"CreateFolder", [&entries](MSIHANDLE hFolderRec) {
 		auto strDir = GetCellString(hFolderRec, 1);
 		auto strComponent = GetCellString(hFolderRec, 2);
 
 		if (!strDir.empty())
 			entries[strDir] = strComponent;
-	}
-
-	return ERROR_SUCCESS;
+	});
 }
 
 int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 {
-	UINT res;
-	PMSIHANDLE hQueryBinaries;
-
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Binary", &hQueryBinaries) );
-	OK( MsiViewExecute(hQueryBinaries, 0) );
-
 	// Add base dir for fake embedded files
 	DirectoryEntry dirEntry;
 	dirEntry.Key = L"$embedded-v07g1k$";
@@ -357,17 +325,12 @@ int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 	if (dirNode->Init(&dirEntry, false))
 		nodemap[dirEntry.Key] = dirNode;
 
-	// Retrieve all component entries
-	PMSIHANDLE hBinRec;
-	while ((res = MsiViewFetch(hQueryBinaries, &hBinRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
-
+	return iterateOptionalMsiTable(L"Binary", [dirNode](MSIHANDLE hBinRec) {
 		auto strName = GetCellString(hBinRec, 1);
-		
+
 		// Cache entire stream content in memory
 		DWORD nStreamSize = MsiRecordDataSize(hBinRec, 2);
-		char* pStreamData = (char*) malloc(nStreamSize);
+		char* pStreamData = (char*)malloc(nStreamSize);
 		MsiRecordReadStream(hBinRec, 2, pStreamData, &nStreamSize);
 
 		FileNode *embFile = new FileNode();
@@ -378,9 +341,7 @@ int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 		embFile->FileSize = nStreamSize;
 		embFile->FakeFileContent = pStreamData;
 		dirNode->AddFile(embFile);
-	}
-
-	return ERROR_SUCCESS;
+	});
 }
 
 int CMsiViewer::readPackageType()
@@ -606,7 +567,7 @@ int CMsiViewer::iterateOptionalMsiTable(const wchar_t* tableName, std::function<
 	{
 		OK(res);
 
-		iterFunc(hRec);
+		if (hRec != 0) iterFunc(hRec);
 	}
 
 	return ERROR_SUCCESS;
