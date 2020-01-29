@@ -61,7 +61,7 @@ private:
 	int dumpProperties(std::wstringstream &sstr);
 	int dumpServices(std::wstringstream &sstr);
 
-	wstring getStoragePath();
+	std::wstring getStoragePath();
 	bool AcquireStreamCachePath();
 	bool cacheInternalStream(const wchar_t* streamName);
 

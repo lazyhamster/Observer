@@ -7,7 +7,7 @@ struct CabCacheItem;
 class CCabControl
 {
 private:
-	std::map<wstring, CabCacheItem*> m_mCabCache;
+	std::map<std::wstring, CabCacheItem*> m_mCabCache;
 	MSIHANDLE m_hOwner;
 
 	CabCacheItem* getCacheItem(const wchar_t* cabName, const wchar_t* cabPath);

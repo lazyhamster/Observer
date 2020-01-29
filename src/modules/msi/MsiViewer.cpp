@@ -18,6 +18,8 @@
 
 #define FCOPY_BUF_SIZE 32*1024
 
+#define ENDL std::endl
+
 static std::wstring GetCellString(MSIHANDLE hRec, unsigned int iField)
 {
 	UINT rc;
@@ -600,14 +602,13 @@ int CMsiViewer::generateInfoText()
 		{L"Keywords", PID_KEYWORDS}, {L"Comments", PID_COMMENTS}, {L"Template", PID_TEMPLATE}, {L"Revision Number", PID_REVNUMBER}
 	};
 	
-	wstringstream sstr;
+	std::wstringstream sstr;
 	UINT res;
 
-	sstr << L"Installation package general info\n\n";
+	sstr << L"Installation package general info" << ENDL << ENDL;
 
 	// Summary info
-	sstr << endl;
-	sstr << L"[Summary Info]" << endl;
+	sstr << ENDL << L"[Summary Info]" << ENDL;
 	
 	PMSIHANDLE hSummary;
 	OK ( MsiGetSummaryInformationW(m_hMsi, NULL, 0, &hSummary) );
@@ -624,9 +625,9 @@ int CMsiViewer::generateInfoText()
 		if (res == ERROR_SUCCESS)
 		{
 			if ((nDataType == 30 /*VT_LPSTR*/) || (nDataType == 31 /*VT_LPWSTR*/))
-				sstr << SUMMARY_PROPS[i].PropName << L": " << (wchar_t *) &propdata[0] << endl;
+				sstr << SUMMARY_PROPS[i].PropName << L": " << (wchar_t *) &propdata[0] << ENDL;
 			else if ((nDataType == 2 /*VT_I2*/) || (nDataType == 3 /*VT_I4*/))
-				sstr << SUMMARY_PROPS[i].PropName << L": " << nIntVal << endl;
+				sstr << SUMMARY_PROPS[i].PropName << L": " << nIntVal << ENDL;
 		}
 	}
 
@@ -641,36 +642,31 @@ int CMsiViewer::generateInfoText()
 		m_ftCreateTime = ftPropVal;
 
 	// Content info
-	sstr << endl;
-	sstr << L"Total directories: " << GetTotalDirectories() << endl;
-	sstr << L"Total files: " << GetTotalFiles() << endl;
+	sstr << ENDL;
+	sstr << L"Total directories: " << GetTotalDirectories() << ENDL;
+	sstr << L"Total files: " << GetTotalFiles() << ENDL;
 
 	// Features list
-	sstr << endl;
-	sstr << L"[Available Features]" << endl;
+	sstr << ENDL << L"[Available Features]" << ENDL;
 	OK( dumpFeatures(sstr) );
 
 	// Registry keys
-	sstr << endl;
-	sstr << L"[Registry]" << endl;
+	sstr << ENDL << L"[Registry]" << ENDL;
 	OK ( dumpRegistryKeys(sstr) );
 
 	// Shortcuts list
-	sstr << endl;
-	sstr << L"[Shortcuts]" << endl;
+	sstr << ENDL <<  L"[Shortcuts]" << ENDL;
 	OK ( dumpShortcuts(sstr) );
 
 	// Services list
-	sstr << endl;
-	sstr << L"[Installable Services]" << endl;
+	sstr << ENDL << L"[Installable Services]" << ENDL;
 	OK ( dumpServices(sstr) );
 
 	// Properties
-	sstr << endl;
-	sstr << L"[Properties]" << endl;
+	sstr << ENDL << L"[Properties]" << ENDL;
 	OK ( dumpProperties(sstr) );
 
-	wstring content = sstr.str();
+	auto content = sstr.str();
 
 	// Read "Last Save Time/Date" property
 	FILETIME ftSaveTimeVal = {0};
@@ -739,7 +735,7 @@ int CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
 					sstr << L"HKEY_CURRENT_USER";
 					break;
 			}
-			sstr << L"\\" << regEntry.RegKeyName << L"]" << endl;
+			sstr << L"\\" << regEntry.RegKeyName << L"]" << ENDL;
 
 			nPrevRegRoot = regEntry.Root;
 			strPrevRegKeyName = regEntry.RegKeyName;
@@ -750,7 +746,7 @@ int CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
 			sstr << L"\"" << regEntry.Name << L"\"";
 		else
 			sstr << L"@";
-		sstr << L" = \"" << regEntry.Value << L"\"" << endl;
+		sstr << L" = \"" << regEntry.Value << L"\"" << ENDL;
 	}
 	
 	return ERROR_SUCCESS;
@@ -782,12 +778,12 @@ int CMsiViewer::dumpFeatures(std::wstringstream &sstr)
 		if (featEntry.Level > 0 && featEntry.Display > 0)
 		{
 			if (!featEntry.Title.empty())
-				sstr << L"- " << featEntry.Title << L"\n";
+				sstr << L"- " << featEntry.Title << ENDL;
 			else
-				sstr << L"- <" << featEntry.Key << L">\n";
+				sstr << L"- <" << featEntry.Key << L">" << ENDL;
 
 			if (!featEntry.Description.empty())
-				sstr << L"    " << featEntry.Description << L"\n";
+				sstr << L"    " << featEntry.Description << ENDL;
 		}
 	}
 
@@ -821,11 +817,11 @@ int CMsiViewer::dumpShortcuts(std::wstringstream &sstr)
 		auto separator = sEntry.Name.find('|');
 		std::wstring strName = (separator != std::wstring::npos) ? sEntry.Name.substr(separator + 1) : sEntry.Name;
 
-		sstr << L"- " << sEntry.Key << L" (" << strName << L")\n";
+		sstr << L"- " << sEntry.Key << L" (" << strName << L")" << ENDL;
 		sstr << sEntry.Directory_ << L" -> " << sEntry.Target;
 		if (!sEntry.Arguments.empty())
 			sstr << L" " << sEntry.Arguments;
-		sstr << L"\n";
+		sstr << ENDL;
 	}
 
 	return ERROR_SUCCESS;
@@ -849,7 +845,7 @@ int CMsiViewer::dumpProperties(std::wstringstream &sstr)
 		auto strPropertyData = GetCellString(hPropRec, 2);
 		
 		if (!strPropertyName.empty())
-			sstr << strPropertyName << L" = " << strPropertyData << endl;
+			sstr << strPropertyName << L" = " << strPropertyData << ENDL;
 	}
 
 	return ERROR_SUCCESS;
@@ -899,7 +895,7 @@ int CMsiViewer::dumpServices(std::wstringstream &sstr)
 
 		if (siEntry.Name.empty() || siEntry.Component_.empty())
 		{
-			sstr << L"[Invalid Service Entry]" << endl;
+			sstr << L"[Invalid Service Entry]" << ENDL;
 			continue;
 		}
 
@@ -907,20 +903,20 @@ int CMsiViewer::dumpServices(std::wstringstream &sstr)
 		auto strCommandFile = compFile ? compFile->GetTargetPath() : siEntry.Component_;
 		//TODO: find actual file name
 
-		sstr << siEntry.Name << endl;
-		if (!siEntry.DisplayName.empty()) sstr << L"\tDisplay Name: " << siEntry.DisplayName << endl;
-		sstr << L"\tDescription: " << siEntry.Description << endl;
-		sstr << L"\tCommand: " << strCommandFile << endl;
-		sstr << L"\tArguments: " << siEntry.Arguments << endl;
+		sstr << siEntry.Name << ENDL;
+		if (!siEntry.DisplayName.empty()) sstr << L"\tDisplay Name: " << siEntry.DisplayName << ENDL;
+		sstr << L"\tDescription: " << siEntry.Description << ENDL;
+		sstr << L"\tCommand: " << strCommandFile << ENDL;
+		sstr << L"\tArguments: " << siEntry.Arguments << ENDL;
 
 		sstr << L"\tService Type: ";
-		sstr << GetMappedValue(cmServiceTypeNames, siEntry.ServiceType, L"Unknown") << endl;
+		sstr << GetMappedValue(cmServiceTypeNames, siEntry.ServiceType, L"Unknown") << ENDL;
 
 		sstr << L"\tStart Type: ";
-		sstr << GetMappedValue(cmStartTypeNames, siEntry.StartType, L"Unknown") << endl;
+		sstr << GetMappedValue(cmStartTypeNames, siEntry.StartType, L"Unknown") << ENDL;
 
-		sstr << L"\tAccount: " << (!siEntry.StartName.empty() ? siEntry.StartName : L"[LocalSystem]") << endl;
-		if (!siEntry.Password.empty()) sstr << L"\tPassword: " << siEntry.Password << endl;
+		sstr << L"\tAccount: " << (!siEntry.StartName.empty() ? siEntry.StartName : L"[LocalSystem]") << ENDL;
+		if (!siEntry.Password.empty()) sstr << L"\tPassword: " << siEntry.Password << ENDL;
 	}
 
 	return ERROR_SUCCESS;
@@ -1103,7 +1099,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 		if (!cab || !*cab)
 		{
 			// Copy real file
-			wstring strFullSourcePath = getStoragePath() + file->GetSourcePath();
+			auto strFullSourcePath = getStoragePath() + file->GetSourcePath();
 			HANDLE hSourceFile = CreateFileW(strFullSourcePath.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 			if (hSourceFile != INVALID_HANDLE_VALUE)
 			{
@@ -1149,7 +1145,7 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 		}
 		else
 		{
-			wstring strCabPath;
+			std::wstring strCabPath;
 			if (cab[0] == '#' || m_eType == MsiFileType::MergeModule)
 			{
 				// Copy from internal stream
@@ -1176,9 +1172,9 @@ int CMsiViewer::DumpFileContent( FileNode *file, const wchar_t *destFilePath, Ex
 
 std::wstring CMsiViewer::getStoragePath()
 {
-	wstring strResult(m_strStorageLocation);
+	std::wstring strResult(m_strStorageLocation);
 	size_t slashPos = strResult.find_last_of('\\');
-	if (slashPos != wstring::npos)
+	if (slashPos != std::wstring::npos)
 		strResult.erase(slashPos + 1);
 	else
 		strResult.clear();
@@ -1215,7 +1211,7 @@ bool CMsiViewer::AcquireStreamCachePath()
 
 bool CMsiViewer::cacheInternalStream( const wchar_t* streamName )
 {
-	wstring strCabPath = m_mStreamCache[streamName];
+	auto strCabPath = m_mStreamCache[streamName];
 	if (strCabPath.length() > 0)
 		return true;
 	
@@ -1315,7 +1311,7 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 	if (!cab || !*cab)
 	{
 		// For real files
-		wstring strFullSourcePath = getStoragePath() + file->GetSourcePath();
+		auto strFullSourcePath = getStoragePath() + file->GetSourcePath();
 		
 		WIN32_FIND_DATAW fd;
 		HANDLE hSearch = FindFirstFile(strFullSourcePath.c_str(), &fd);
@@ -1344,7 +1340,7 @@ bool CMsiViewer::readRealFileAttributes(FileNode* file)
 	else
 	{
 		// For files in external cab
-		wstring strCabPath = getStoragePath();
+		auto strCabPath = getStoragePath();
 		strCabPath.append(cab);
 
 		WIN32_FIND_DATAW fd;
@@ -1399,7 +1395,7 @@ bool CMsiViewer::FindNodeDataByIndex(int itemIndex, StorageItemInfo* item_info)
 	item_info->Size = node->GetSize();
 	item_info->Attributes = node->GetSytemAttributes();
 
-	wstring path = node->GetTargetPath();
+	auto path = node->GetTargetPath();
 	wmemcpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), path.c_str(), path.length());
 	item_info->Path[path.length()] = 0;
 	

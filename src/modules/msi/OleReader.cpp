@@ -44,7 +44,7 @@ bool COleStorage::Open(const wchar_t* storagePath)
 				// We need only streams in storage
 				if (rgelt.type == STGTY_STREAM)
 				{
-					wstring fileName;
+					std::wstring fileName;
 					if (CompoundMsiNameToFileName(rgelt.pwcsName, fileName))
 						m_mStreamNames[fileName] = rgelt.pwcsName;
 				}
@@ -81,7 +81,7 @@ bool COleStorage::ExtractStream(const wchar_t* streamFileName, const wchar_t* de
 	if (findIt == m_mStreamNames.end())
 		return false;
 
-	wstring streamCompoundName = findIt->second;
+	auto streamCompoundName = findIt->second;
 	IStorage* pStor = (IStorage*)m_pStoragePtr;
 
 	IStream *pStream;

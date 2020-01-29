@@ -141,7 +141,7 @@ DWORD DirectoryNode::GetSytemAttributes()
 
 std::wstring DirectoryNode::GetSourcePath()
 {
-	wstring strResult;
+	std::wstring strResult;
 	if (Parent)
 	{
 		strResult = Parent->GetSourcePath();
@@ -158,7 +158,7 @@ std::wstring DirectoryNode::GetSourcePath()
 
 std::wstring DirectoryNode::GetTargetPath()
 {
-	wstring strResult;
+	std::wstring strResult;
 	if (Parent)
 	{
 		strResult = Parent->GetTargetPath();
@@ -257,7 +257,7 @@ DWORD FileNode::GetSytemAttributes()
 
 std::wstring FileNode::GetSourcePath()
 {
-	wstring strResult = Parent->GetSourcePath();
+	auto strResult = Parent->GetSourcePath();
 	strResult.append(L"\\");
 	if (!SourceName.empty())
 		strResult.append(SourceName);
@@ -268,7 +268,7 @@ std::wstring FileNode::GetSourcePath()
 
 std::wstring FileNode::GetTargetPath()
 {
-	wstring strResult = Parent->GetTargetPath();
+	auto strResult = Parent->GetTargetPath();
 	if (strResult.length() > 0)	strResult.append(L"\\");
 	strResult.append(TargetName);
 
