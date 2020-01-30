@@ -63,6 +63,7 @@ private:
 	int dumpProperties(std::wstringstream &sstr);
 	int dumpServices(std::wstringstream &sstr);
 	int dumpEnvironmentVars(std::wstringstream &sstr);
+	int dumpCustomActions(std::wstringstream &sstr);
 
 	std::wstring getStoragePath();
 	bool AcquireStreamCachePath();

@@ -19,6 +19,7 @@
 #define FCOPY_BUF_SIZE 32*1024
 
 #define ENDL std::endl
+static const wchar_t* csIndentStr = L"    ";
 
 static std::wstring GetCellString(MSIHANDLE hRec, unsigned int iField)
 {
@@ -634,6 +635,7 @@ int CMsiViewer::generateInfoText()
 	OK(dumpShortcuts(sstr));
 	OK(dumpServices(sstr));
 	OK(dumpEnvironmentVars(sstr));
+	OK(dumpCustomActions(sstr));
 	OK(dumpProperties(sstr));
 	
 	auto content = sstr.str();
@@ -796,8 +798,6 @@ int CMsiViewer::dumpServices(std::wstringstream &sstr)
 		{SERVICE_SYSTEM_START, L" System Start"}
 	};
 
-	static const wchar_t* csIndentStr = L"    ";
-
 	sstr << ENDL << L"[Installable Services]" << ENDL;
 
 	return iterateOptionalMsiTable(L"ServiceInstall", [this, &sstr](MSIHANDLE hSvcRec) {
@@ -849,6 +849,76 @@ int CMsiViewer::dumpEnvironmentVars(std::wstringstream &sstr)
 		auto strValue = GetCellString(hEnvRec, 3);
 
 		sstr << strName << L" => " << strValue << ENDL;
+	});
+}
+
+int CMsiViewer::dumpCustomActions(std::wstringstream &sstr)
+{
+	static std::map<Integer, const wchar_t*> cmCustomActionTypes = {
+		{1, L"DLL file stored in a Binary table stream"},
+		{2, L"EXE file stored in a Binary table stream"},
+		{5, L"JScript file stored in a Binary table stream"},
+		{6, L"VBScript file stored in a Binary table stream"},
+		{17, L"DLL file that is installed with a product"},
+		{18, L"EXE file that is installed with a product"},
+		{19, L"Displays a specified error message and returns failure, terminating the installation"},
+		{21, L"JScript file that is installed with a product"},
+		{22, L"VBScript file that is installed with a product"},
+		{34, L"EXE file having a path referencing a directory"},
+		{35, L"Directory set with formatted text"},
+		{37, L"JScript text stored in this sequence table"},
+		{38, L"VBScript text stored in this sequence table"},
+		{50, L"EXE file having a path specified by a property value"},
+		{51, L"Property set with formatted text"},
+		{53, L"JScript text specified by a property value"},
+		{54, L"VBScript text specified by a property value"}
+	};
+
+	sstr << ENDL << L"[Custom Actions]" << ENDL;
+
+	return iterateOptionalMsiTable(L"CustomAction", [&sstr](MSIHANDLE hActionRec) {
+		CustomActionEntry actEntry;
+		
+		actEntry.Action = GetCellString(hActionRec, 1);
+		actEntry.Type = MsiRecordGetInteger(hActionRec, 2);
+		actEntry.Source = GetCellString(hActionRec, 3);
+		actEntry.Target = GetCellString(hActionRec, 4);
+
+		if (!actEntry.Action.empty())
+		{
+			std::wstring strTypeDesc = GetMappedValue(cmCustomActionTypes, actEntry.Type, L"");
+			std::vector<const wchar_t*> vExtraDesc;
+
+			if (strTypeDesc.empty())
+			{
+				Integer nType = actEntry.Type;
+				if (actEntry.Type & msidbCustomActionTypeContinue)
+				{
+					nType -= msidbCustomActionTypeContinue;
+					vExtraDesc.push_back(L"Continue Running");
+				}
+				if (actEntry.Type & msidbCustomActionTypeAsync)
+				{
+					nType -= msidbCustomActionTypeAsync;
+					vExtraDesc.push_back(L"Async");
+				}
+
+				strTypeDesc = GetMappedValue(cmCustomActionTypes, nType, L"-");
+			}
+			
+			sstr << actEntry.Action << ENDL;
+			sstr << csIndentStr << L"Type: " << actEntry.Type << L" => " << strTypeDesc;
+			if (vExtraDesc.size() > 0)
+			{
+				sstr << L" (";
+				for (size_t i = 0; i < vExtraDesc.size(); ++i)
+					sstr << (i != 0 ? L"," : L"") << vExtraDesc[i];
+				sstr << L")";
+			}
+			sstr << ENDL;
+			sstr << csIndentStr << L"Source: " << actEntry.Source << ENDL;
+			sstr << csIndentStr << L"Target: " << actEntry.Target << ENDL;
+		}
 	});
 }
 

@@ -140,4 +140,14 @@ struct EnvironmentEntry
 	Identifier Component_;
 };
 
+// Table: CustomAction
+struct CustomActionEntry
+{
+	Identifier Action;
+	Integer Type;
+	Identifier Source;  // original type: CustomSource
+	Formatted Target;
+	DoubleInteger ExtendedType;
+};
+
 #endif //_PACKAGE_STRUCT_H_
