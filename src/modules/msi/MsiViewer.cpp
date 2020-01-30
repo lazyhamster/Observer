@@ -139,7 +139,7 @@ int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 
 	// Assign parent nodes (only after all entries are processed)
 	// Should be done only after files are read to remove empty special folder refs
-	OK ( assignParentDirs(mDirs, (openFlags & MSI_OPENFLAG_SHOWSPECIALS) != 0) );
+	assignParentDirs(mDirs, (openFlags & MSI_OPENFLAG_SHOWSPECIALS) != 0);
 
 	// Read CreateFolder table for allowed empty folders
 	WStringMap mCreateFolder;
@@ -167,7 +167,7 @@ int CMsiViewer::Open( const wchar_t* path, DWORD openFlags )
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
+UINT CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
 {
 	nodemap.clear();
 
@@ -211,36 +211,21 @@ int CMsiViewer::readDirectories(DirectoryNodesMap &nodemap)
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::readComponents( ComponentEntryMap &componentmap )
+UINT CMsiViewer::readComponents( ComponentEntryMap &componentmap )
 {
-	UINT res;
-	PMSIHANDLE hQueryComp;
-
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM Component", &hQueryComp) );
-	OK( MsiViewExecute(hQueryComp, 0) );
-
-	// Retrieve all component entries
-	PMSIHANDLE hCompRec;
-	while ((res = MsiViewFetch(hQueryComp, &hCompRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
-
+	return iterateOptionalMsiTable(L"Component", [&componentmap](MSIHANDLE hCompRec) {
 		ComponentEntry compEntry;
 
 		compEntry.Key = GetCellString(hCompRec, 1);
 		compEntry.Directory_ = GetCellString(hCompRec, 3);
 		compEntry.Attributes = MsiRecordGetInteger(hCompRec, 4);
-		if (compEntry.Attributes == MSI_NULL_INTEGER)
-			return ERROR_INVALID_DATA;
 
-		if (!compEntry.Key.empty())
+		if (!compEntry.Key.empty() && (compEntry.Attributes != MSI_NULL_INTEGER))
 			componentmap[compEntry.Key] = compEntry;
-	}
-
-	return ERROR_SUCCESS;
+	});
 }
 
-int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap )
+UINT CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap )
 {
 	UINT res;
 	PMSIHANDLE hQueryFile;
@@ -293,7 +278,7 @@ int CMsiViewer::readFiles( DirectoryNodesMap &nodemap, ComponentEntryMap &compon
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::readAppSearch(WStringMap &entries)
+UINT CMsiViewer::readAppSearch(WStringMap &entries)
 {
 	return iterateOptionalMsiTable(L"AppSearch", [&entries](MSIHANDLE hAppRec) {
 		auto strKey = GetCellString(hAppRec, 1);
@@ -304,7 +289,7 @@ int CMsiViewer::readAppSearch(WStringMap &entries)
 	});
 }
 
-int CMsiViewer::readCreateFolder(WStringMap &entries)
+UINT CMsiViewer::readCreateFolder(WStringMap &entries)
 {
 	return iterateOptionalMsiTable(L"CreateFolder", [&entries](MSIHANDLE hFolderRec) {
 		auto strDir = GetCellString(hFolderRec, 1);
@@ -315,7 +300,7 @@ int CMsiViewer::readCreateFolder(WStringMap &entries)
 	});
 }
 
-int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
+UINT CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 {
 	// Add base dir for fake embedded files
 	DirectoryEntry dirEntry;
@@ -345,36 +330,24 @@ int CMsiViewer::readEmbeddedFiles( DirectoryNodesMap &nodemap )
 	});
 }
 
-int CMsiViewer::readPackageType()
+UINT CMsiViewer::readPackageType()
 {
-	UINT res;
-	PMSIHANDLE hQuery;
-
 	// Merge Module must have ModuleComponents table with some data
 	// If this table is absent of empty then we have regular MSI database.
 
 	m_eType = MsiFileType::MSI;
 
-	OK_MISS( MsiDatabaseOpenViewW(m_hMsi, L"SELECT * FROM _Streams", &hQuery) );
-	OK( MsiViewExecute(hQuery, 0) );
+	return iterateOptionalMsiTable(L"_Streams", [this](MSIHANDLE hStreamRec) {
+		auto strStreamName = GetCellString(hStreamRec, 1);
 
-	PMSIHANDLE hCompRec;
-	while ((res = MsiViewFetch(hQuery, &hCompRec)) != ERROR_NO_MORE_ITEMS)
-	{
-		OK(res);
-
-		auto strStreamName = GetCellString(hCompRec, 1);
 		if (strStreamName == L"MergeModule.CABinet")
 		{
 			m_eType = MsiFileType::MergeModule;
-			break;
 		}
-	}
-
-	return ERROR_SUCCESS;
+	});
 }
 
-int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecialDirs )
+void CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecialDirs )
 {
 	int numSpecFolders = processSpecialDirs ? sizeof(MsiSpecialFolders) / sizeof(MsiSpecialFolders[0]) : 0;
 	
@@ -421,8 +394,6 @@ int CMsiViewer::assignParentDirs( DirectoryNodesMap &nodemap, bool processSpecia
 		}
 		parent->AddSubdir(node);
 	}
-
-	return ERROR_SUCCESS;
 }
 
 void CMsiViewer::removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolders)
@@ -552,7 +523,7 @@ void CMsiViewer::mergeSameNamedFolders(DirectoryNode *root)
 	}
 }
 
-int CMsiViewer::iterateOptionalMsiTable(const wchar_t* tableName, std::function<void(MSIHANDLE)> iterFunc)
+UINT CMsiViewer::iterateOptionalMsiTable(const wchar_t* tableName, std::function<void(MSIHANDLE)> iterFunc)
 {
 	UINT res;
 	PMSIHANDLE hQuery;
@@ -574,7 +545,7 @@ int CMsiViewer::iterateOptionalMsiTable(const wchar_t* tableName, std::function<
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::generateInfoText()
+UINT CMsiViewer::generateInfoText()
 {
 	struct PropDescription
 	{
@@ -661,7 +632,7 @@ int CMsiViewer::generateInfoText()
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
+UINT CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
 {
 	sstr << ENDL << L"[Registry]" << ENDL;
 
@@ -714,7 +685,7 @@ int CMsiViewer::dumpRegistryKeys(std::wstringstream &sstr)
 	});
 }
 
-int CMsiViewer::dumpFeatures(std::wstringstream &sstr)
+UINT CMsiViewer::dumpFeatures(std::wstringstream &sstr)
 {
 	sstr << ENDL << L"[Available Features]" << ENDL;
 
@@ -741,7 +712,7 @@ int CMsiViewer::dumpFeatures(std::wstringstream &sstr)
 	});
 }
 
-int CMsiViewer::dumpShortcuts(std::wstringstream &sstr)
+UINT CMsiViewer::dumpShortcuts(std::wstringstream &sstr)
 {
 	sstr << ENDL << L"[Shortcuts]" << ENDL;
 
@@ -767,7 +738,7 @@ int CMsiViewer::dumpShortcuts(std::wstringstream &sstr)
 	});
 }
 
-int CMsiViewer::dumpProperties(std::wstringstream &sstr)
+UINT CMsiViewer::dumpProperties(std::wstringstream &sstr)
 {
 	sstr << ENDL << L"[Properties]" << ENDL;
 	
@@ -780,7 +751,7 @@ int CMsiViewer::dumpProperties(std::wstringstream &sstr)
 	});
 }
 
-int CMsiViewer::dumpServices(std::wstringstream &sstr)
+UINT CMsiViewer::dumpServices(std::wstringstream &sstr)
 {
 	static std::map<DoubleInteger, const wchar_t*> cmServiceTypeNames = {
 		{SERVICE_WIN32_OWN_PROCESS, L"SERVICE_WIN32_OWN_PROCESS"},
@@ -840,7 +811,7 @@ int CMsiViewer::dumpServices(std::wstringstream &sstr)
 	});
 }
 
-int CMsiViewer::dumpEnvironmentVars(std::wstringstream &sstr)
+UINT CMsiViewer::dumpEnvironmentVars(std::wstringstream &sstr)
 {
 	sstr << ENDL << L"[Environment]" << ENDL;
 	
@@ -852,7 +823,7 @@ int CMsiViewer::dumpEnvironmentVars(std::wstringstream &sstr)
 	});
 }
 
-int CMsiViewer::dumpCustomActions(std::wstringstream &sstr)
+UINT CMsiViewer::dumpCustomActions(std::wstringstream &sstr)
 {
 	static std::map<Integer, const wchar_t*> cmCustomActionTypes = {
 		{1, L"DLL file stored in a Binary table stream"},
@@ -912,7 +883,7 @@ int CMsiViewer::dumpCustomActions(std::wstringstream &sstr)
 			{
 				sstr << L" (";
 				for (size_t i = 0; i < vExtraDesc.size(); ++i)
-					sstr << (i != 0 ? L"," : L"") << vExtraDesc[i];
+					sstr << (i != 0 ? L", " : L"") << vExtraDesc[i];
 				sstr << L")";
 			}
 			sstr << ENDL;
@@ -922,7 +893,7 @@ int CMsiViewer::dumpCustomActions(std::wstringstream &sstr)
 	});
 }
 
-int CMsiViewer::generateLicenseText()
+UINT CMsiViewer::generateLicenseText()
 {
 	UINT res;
 	PMSIHANDLE hQueryLicense;
@@ -973,7 +944,7 @@ int CMsiViewer::generateLicenseText()
 	return ERROR_SUCCESS;
 }
 
-int CMsiViewer::readMediaSources()
+UINT CMsiViewer::readMediaSources()
 {
 	UINT res;
 	PMSIHANDLE hQueryMedia;

@@ -38,32 +38,32 @@ private:
 	std::wstring m_strStreamCacheLocation;
 	std::map<std::wstring, std::wstring> m_mStreamCache;
 
-	int readDirectories(DirectoryNodesMap &nodemap);
-	int readComponents(ComponentEntryMap &componentmap);
-	int readFiles(DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap);
-	int readMediaSources();
-	int readAppSearch(WStringMap &entries);
-	int readCreateFolder(WStringMap &entries);
-	int readEmbeddedFiles(DirectoryNodesMap &nodemap);
-	int readPackageType();
+	UINT readDirectories(DirectoryNodesMap &nodemap);
+	UINT readComponents(ComponentEntryMap &componentmap);
+	UINT readFiles(DirectoryNodesMap &nodemap, ComponentEntryMap &componentmap);
+	UINT readMediaSources();
+	UINT readAppSearch(WStringMap &entries);
+	UINT readCreateFolder(WStringMap &entries);
+	UINT readEmbeddedFiles(DirectoryNodesMap &nodemap);
+	UINT readPackageType();
 
-	int assignParentDirs(DirectoryNodesMap &nodemap, bool processSpecialDirs);
+	void assignParentDirs(DirectoryNodesMap &nodemap, bool processSpecialDirs);
 	void removeEmptyFolders(DirectoryNode *root, WStringMap &forcedFolders);
 	void mergeDotFolders(DirectoryNode *root);
 	void checkShortNames(DirectoryNode *root);
 	void mergeSameNamedFolders(DirectoryNode *root);
 
-	int iterateOptionalMsiTable(const wchar_t* tableName, std::function<void(MSIHANDLE)> func);
+	UINT iterateOptionalMsiTable(const wchar_t* tableName, std::function<void(MSIHANDLE)> func);
 
-	int generateInfoText();
-	int generateLicenseText();
-	int dumpRegistryKeys(std::wstringstream &sstr);
-	int dumpFeatures(std::wstringstream &sstr);
-	int dumpShortcuts(std::wstringstream &sstr);
-	int dumpProperties(std::wstringstream &sstr);
-	int dumpServices(std::wstringstream &sstr);
-	int dumpEnvironmentVars(std::wstringstream &sstr);
-	int dumpCustomActions(std::wstringstream &sstr);
+	UINT generateInfoText();
+	UINT generateLicenseText();
+	UINT dumpRegistryKeys(std::wstringstream &sstr);
+	UINT dumpFeatures(std::wstringstream &sstr);
+	UINT dumpShortcuts(std::wstringstream &sstr);
+	UINT dumpProperties(std::wstringstream &sstr);
+	UINT dumpServices(std::wstringstream &sstr);
+	UINT dumpEnvironmentVars(std::wstringstream &sstr);
+	UINT dumpCustomActions(std::wstringstream &sstr);
 
 	std::wstring getStoragePath();
 	bool AcquireStreamCachePath();
