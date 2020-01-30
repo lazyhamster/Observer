@@ -410,7 +410,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="UdfIn.h" />
     <ClInclude Include="7zCommon\MyMap.h" />
     <ClInclude Include="7zCommon\MyString.h" />

@@ -415,7 +415,6 @@
     <ClInclude Include="OleReader.h" />
     <ClInclude Include="PackageStruct.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\depends\libmspack\libmspack.vcxproj">

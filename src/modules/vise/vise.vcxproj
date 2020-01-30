@@ -405,7 +405,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="Unpack.h" />
     <ClInclude Include="ViseFile.h" />
   </ItemGroup>

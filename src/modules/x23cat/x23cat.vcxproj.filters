@@ -82,9 +82,6 @@
     <ClInclude Include="x2fd\common\strutils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="x2fd\x2fd.h">
       <Filter>Header Files</Filter>
     </ClInclude>

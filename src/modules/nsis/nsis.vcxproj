@@ -427,7 +427,6 @@
     <ClInclude Include="NsisHandler.h" />
     <ClInclude Include="NsisIn.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\depends\7zip\7zip.vcxproj">

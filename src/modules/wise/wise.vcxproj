@@ -407,7 +407,6 @@
   <ItemGroup>
     <ClInclude Include="BaseWiseFile.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="Unpacker.h" />
     <ClInclude Include="WiseFile.h" />
     <ClInclude Include="WiseSfxFile.h" />

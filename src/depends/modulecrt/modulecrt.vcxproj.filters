@@ -32,9 +32,6 @@
     <ClInclude Include="OptionsParser.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PEHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>

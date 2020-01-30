@@ -413,7 +413,6 @@
     <ClInclude Include="InstallerOldFile.h" />
     <ClInclude Include="ppmd_def.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\depends\gea\gea.vcxproj">

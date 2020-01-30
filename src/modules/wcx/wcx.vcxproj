@@ -413,7 +413,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="wcxhead.h" />
     <ClInclude Include="WcxModule.h" />
     <ClInclude Include="wcx_loader.h" />

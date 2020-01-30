@@ -459,7 +459,6 @@
     <ClInclude Include="HLLib\Stream.h" />
     <ClInclude Include="HLLib\StreamMapping.h" />
     <ClInclude Include="HLLib\Streams.h" />
-    <ClInclude Include="targetver.h" />
     <ClInclude Include="HLLib\Utility.h" />
     <ClInclude Include="HLLib\VBSPFile.h" />
     <ClInclude Include="HLLib\VPKFile.h" />
