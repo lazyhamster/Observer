@@ -1,10 +1,7 @@
 #include "StdAfx.h"
 #include "CabControl.h"
 
-extern "C"
-{
-#include "mspack\mspack.h"
-};
+#include <mspack.h>
 
 struct CabCacheItem
 {

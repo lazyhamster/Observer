@@ -43,6 +43,7 @@ install:
   - vcpkg install zlib:%P_ARCH%-windows
   - vcpkg install bzip2:%P_ARCH%-windows
   - vcpkg install glib:%P_ARCH%-windows
+  - vcpkg install libmspack:%P_ARCH%-windows
   - vcpkg install boost-iostreams:%P_ARCH%-windows
   - cd %APPVEYOR_BUILD_FOLDER%
 

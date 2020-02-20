@@ -3,7 +3,9 @@ Changes history:
 1.12.0
 - Plugin now requires Visual C++ 2017 Redist (instead of VC++ 2010 Redist).
 - Changes in modules API.
+- Removed sources of several dependency libraries. It is now recommended to use Vcpkg tool to get them.
 - New extraction progress dialog.
+- New file properties dialog.
 - New file property exposed: Owner (for containers where applicable).
 - Now you can configure reaction on Enter and Ctrl-PgDn seprately.
 - Added ignore by extension filter to ini file.
@@ -13,6 +15,8 @@ Changes history:
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
 - MBOX: If mbox container wasn't fully parsed then just show what we have.
 - MSI: Fixed inability to extract files from some installers made by WiX.
+- MSI: Fixed problem with opening some installers (data buffer size issue).
+- MSI: Added information from Environment and CustomAction tables to {msi_info}.txt.
 - MPQ: Updated StormLib to version 9.22.
 - MPQ: Added support for listfiles.
 - InstallShield: Improved support for SFX files.

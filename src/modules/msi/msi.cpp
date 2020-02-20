@@ -5,6 +5,8 @@
 #include "ModuleDef.h"
 #include "MsiViewer.h"
 
+#include <mspack.h>
+
 int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, StorageGeneralInfo* info)
 {
 	CMsiViewer *view = new CMsiViewer();
@@ -95,6 +97,11 @@ static const GUID MODULE_GUID = { 0x32d5aeaa, 0xc662, 0x4fa3, { 0xaf, 0xd1, 0xff
 
 int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 {
+	int selftest;
+	MSPACK_SYS_SELFTEST(selftest);
+	if (selftest != MSPACK_ERR_OK)
+		return FALSE;
+	
 	LoadParams->ModuleId = MODULE_GUID;
 	LoadParams->ModuleVersion = MAKEMODULEVERSION(1, 0);
 	LoadParams->ApiVersion = ACTUAL_API_VERSION;

@@ -2,11 +2,7 @@
 #include "CabSystem.h"
 
 #include <MsiQuery.h>
-
-extern "C"
-{
-#include "mspack\mspack.h"
-};
+#include <mspack.h>
 
 #define MEM_CACHE_CHUNK_SIZE (64*1024)
 

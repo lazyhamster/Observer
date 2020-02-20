@@ -1,9 +1,6 @@
 #include "stdafx.h"
 
-extern "C"
-{
-#include "mspack\mspack.h"
-};
+#include <mspack.h>
 
 struct mspack_file_p {
 	FILE *fh;
