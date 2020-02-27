@@ -412,7 +412,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NameDecode.h" />
-    <ClInclude Include="NullStream.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
