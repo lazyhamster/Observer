@@ -10,8 +10,10 @@ int CMboxReader::Scan()
 	
 	GMimeParser* parser = g_mime_parser_new_with_stream(stream);
 	g_mime_parser_set_persist_stream(parser, TRUE);
-	g_mime_parser_set_scan_from(parser, TRUE);
+	g_mime_parser_set_format(parser, GMIME_FORMAT_MBOX);
 	g_mime_parser_set_respect_content_length(parser, TRUE);
+
+	GMimeParserOptions* parserOpts = g_mime_parser_options_new();
 
 	GMimeMessage* message;
 	gint64 msgStart;
@@ -20,7 +22,7 @@ int CMboxReader::Scan()
 	while (!g_mime_parser_eos(parser))
 	{
 		msgStart = g_mime_parser_tell(parser);
-		message = g_mime_parser_construct_message(parser);
+		message = g_mime_parser_construct_message(parser, parserOpts);
 
 		if (!message)
 		{
@@ -28,7 +30,7 @@ int CMboxReader::Scan()
 			break;
 		}
 
-		const char* strFrom = g_mime_message_get_sender(message);
+		const char* strFrom = GetSenderAddress(message);
 		const char* strSubj = g_mime_message_get_subject(message);
 
 		MBoxItem item;
@@ -37,7 +39,9 @@ int CMboxReader::Scan()
 		item.Sender = ConvertString(strFrom);
 		item.Subject = ConvertString(strSubj);
 		item.IsDeleted = false;
-		g_mime_message_get_date(message, &item.Date, &item.TimeZone);
+		
+		GDateTime* dtMsgDate = g_mime_message_get_date(message);
+		item.DateUtc = ConvertGDateTimeToUnixUtc(dtMsgDate);
 
 		SanitizeString(item.Subject);
 		
@@ -46,6 +50,7 @@ int CMboxReader::Scan()
 		g_object_unref (message);
 	}
 
+	g_mime_parser_options_free(parserOpts);
 	g_object_unref(stream);
 	g_object_unref(parser);
 	

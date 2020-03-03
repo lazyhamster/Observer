@@ -78,7 +78,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	RenameInvalidPathChars(item_info->Path);
 	item_info->Attributes = mbi.IsDeleted ? FILE_ATTRIBUTE_HIDDEN : FILE_ATTRIBUTE_NORMAL;
 	item_info->Size = mbi.EndPos - mbi.StartPos;
-	UnixTimeToFileTime(mbi.Date, &item_info->ModificationTime);
+	UnixTimeToFileTime(mbi.DateUtc, &item_info->ModificationTime);
 
 	return GET_ITEM_OK;
 }
@@ -112,7 +112,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
-	g_mime_init(0);
+	g_mime_init();
 
 	return TRUE;
 }

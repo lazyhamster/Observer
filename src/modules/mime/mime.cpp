@@ -13,7 +13,7 @@
 
 #include "NameDecode.h"
 
-static bool optCheckMandatoryHeaders = true;
+static GMimeParserOptions* g_parserOpts = nullptr;
 
 struct MimeFileInfo
 {
@@ -49,29 +49,24 @@ static void message_foreach_callback(GMimeObject *parent, GMimeObject *part, gpo
 		mi->messageParts.push_back(part);
 }
 
-static void headers_foreach_callback(const char *name, const char *value, gpointer user_data)
-{
-	GMimeStream* memStrm = (GMimeStream*) user_data;
-	char* szDecodedValue = g_mime_utils_header_decode_text(value);
-
-	g_mime_stream_write_string(memStrm, name);
-	g_mime_stream_write_string(memStrm, ": ");
-	g_mime_stream_write_string(memStrm, szDecodedValue);
-	g_mime_stream_write_string(memStrm, "\r\n");
-
-	g_free(szDecodedValue);
-}
-
 static void generate_headers_fake_file(MimeFileInfo *info)
 {
 	GMimeStream* memStrm = g_mime_stream_mem_new();
 	g_mime_stream_mem_set_owner((GMimeStreamMem*) memStrm, TRUE);
 
 	GMimeHeaderList* headers = g_mime_object_get_header_list((GMimeObject*) info->messageRef);
-	g_mime_header_list_foreach(headers, headers_foreach_callback, memStrm);
+	int numHeaders = g_mime_header_list_get_count(headers);
+	for (int i = 0; i < numHeaders; ++i)
+	{
+		GMimeHeader* hdr = g_mime_header_list_get_header_at(headers, i);
+		
+		g_mime_stream_write_string(memStrm, g_mime_header_get_name(hdr));
+		g_mime_stream_write_string(memStrm, ": ");
+		g_mime_stream_write_string(memStrm, g_mime_header_get_value(hdr));
+		g_mime_stream_write_string(memStrm, "\r\n");
+	}
 
 	info->headersDecoded = memStrm;
-	//TODO: implement
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -98,22 +93,22 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 
 	GMimeParser* parser = g_mime_parser_new_with_stream(stream);
 	g_mime_parser_set_persist_stream(parser, TRUE);
-	g_mime_parser_set_scan_from(parser, FALSE);
+	g_mime_parser_set_format(parser, GMIME_FORMAT_MESSAGE);
 	g_object_unref(stream);
 
-	GMimeMessage* message = g_mime_parser_construct_message(parser);
+	GMimeMessage* message = g_mime_parser_construct_message(parser, g_parserOpts);
 	if (message == NULL)
 	{
 		g_object_unref(parser);
 		return SOR_INVALID_FILE;
 	}
 
-	if (optCheckMandatoryHeaders)
 	{
 		// File should have at least one of the checked headers to be considered a MIME file
-		const char* hdr_ctype_str = g_mime_object_get_header((GMimeObject*) message, "Content-Type");
+		const char* hdr_msg_id = g_mime_message_get_message_id(message);
 		const char* hdr_from_str = g_mime_object_get_header((GMimeObject*) message, "From");
-		if (!hdr_ctype_str && !hdr_from_str)
+		const char* hdr_ver_str = g_mime_object_get_header((GMimeObject*)message, "MIME-Version");
+		if (!hdr_from_str && !hdr_msg_id && !hdr_ver_str)
 		{
 			g_object_unref(parser);
 			g_object_unref(message);
@@ -126,14 +121,18 @@ int MODULE_EXPORT OpenStorage(StorageOpenParams params, HANDLE *storage, Storage
 	const char* szType = ctype ? g_mime_content_type_get_media_type(ctype) : NULL;
 	const char* szSubType = ctype ? g_mime_content_type_get_media_subtype(ctype) : NULL;
 
-	time_t tMsgTime = 0;
-	int nTimeZone = 0;
-	g_mime_message_get_date(message, &tMsgTime, &nTimeZone);
+	GDateTime* dtMsgTime = g_mime_message_get_date(message);
 
 	MimeFileInfo* minfo = new MimeFileInfo();
 	minfo->messageRef = message;
 	minfo->parserRef = parser;
-	if (tMsgTime) UnixTimeToFileTime(tMsgTime, &minfo->msgTime);
+	
+	if (dtMsgTime)
+	{
+		GDateTime* dtMsgUtc = g_date_time_to_utc(dtMsgTime);
+		UnixTimeToFileTime(g_date_time_to_unix(dtMsgUtc), &minfo->msgTime);
+		g_date_time_unref(dtMsgUtc);
+	}
 
 	g_mime_message_foreach(message, message_foreach_callback, minfo);
 	generate_headers_fake_file(minfo);
@@ -209,7 +208,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 		}
 
 		GMimeStream* nullStream = g_mime_stream_null_new();
-		item_info->Size = g_mime_object_write_to_stream((GMimeObject*) subMsg, nullStream);
+		item_info->Size = g_mime_object_write_to_stream((GMimeObject*) subMsg, g_mime_format_options_get_default(), nullStream);
 		g_object_unref(nullStream);
 	}
 	else if (GMIME_IS_MESSAGE_PARTIAL (pObj))
@@ -226,10 +225,10 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	else if (GMIME_IS_PART (pObj))
 	{
 		/* a normal leaf part, could be text/plain or image/jpeg etc */
-		GetEntityName((GMimePart*) pObj, item_info->Path, STRBUF_SIZE(item_info->Path));
+		GetEntityName((GMimePart*) pObj, item_info->Path, STRBUF_SIZE(item_info->Path), g_parserOpts);
 		
 		GMimeStream* nullStream = g_mime_stream_null_new();
-		GMimeDataWrapper* wrap = g_mime_part_get_content_object((GMimePart*) pObj);
+		GMimeDataWrapper* wrap = g_mime_part_get_content((GMimePart*) pObj);
 		item_info->Size = wrap ? g_mime_data_wrapper_write_to_stream(wrap, nullStream) : 0;
 		
 		g_object_unref(nullStream);
@@ -276,7 +275,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 		GMimeStream* destStream = g_mime_stream_file_new(dfh);
 		g_mime_stream_file_set_owner((GMimeStreamFile*) destStream, FALSE);
 
-		g_mime_object_write_to_stream((GMimeObject*) subMsg, destStream);
+		g_mime_object_write_to_stream((GMimeObject*) subMsg, g_mime_format_options_get_default(), destStream);
 		g_object_unref(destStream);
 		retVal = SER_SUCCESS;
 	}
@@ -290,7 +289,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 	}
 	else if (GMIME_IS_PART (pObj))
 	{
-		GMimeDataWrapper* wrap = g_mime_part_get_content_object((GMimePart*) pObj);
+		GMimeDataWrapper* wrap = g_mime_part_get_content((GMimePart*) pObj);
 		
 		if (wrap)
 		{
@@ -329,12 +328,16 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
-	g_mime_init(0);
+	g_mime_init();
+
+	g_parserOpts = g_mime_parser_options_new();
 
 	return TRUE;
 }
 
 void MODULE_EXPORT UnloadSubModule()
 {
+	g_mime_parser_options_free(g_parserOpts);
+	
 	g_mime_shutdown();
 }

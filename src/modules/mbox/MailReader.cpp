@@ -41,6 +41,15 @@ void SanitizeString(std::wstring &str)
 	}
 }
 
+time_t ConvertGDateTimeToUnixUtc(GDateTime* gdt)
+{
+	GDateTime* dtUtc = g_date_time_to_utc(gdt);
+	time_t unixUtc = g_date_time_to_unix(dtUtc);
+	g_date_time_unref(dtUtc);
+
+	return unixUtc;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 bool IMailReader::Open( const wchar_t* filepath )
@@ -106,4 +115,24 @@ int IMailReader::Extract( int itemindex, const wchar_t* destpath )
 		_wunlink(destpath);
 
 	return nRet;
+}
+
+const char* IMailReader::GetSenderAddress(GMimeMessage* message)
+{
+	InternetAddressList* senderList = g_mime_message_get_from(message);
+	if (internet_address_list_length(senderList) > 0)
+	{
+		InternetAddress* addr0 = internet_address_list_get_address(senderList, 0);
+		if (INTERNET_ADDRESS_IS_MAILBOX(addr0))
+		{
+			InternetAddressMailbox* mailBoxAddr = (InternetAddressMailbox*)addr0;
+			return internet_address_mailbox_get_addr(mailBoxAddr);
+		}
+		else
+		{
+			return internet_address_get_name(addr0);
+		}
+	}
+
+	return nullptr;
 }

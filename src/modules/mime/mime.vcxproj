@@ -414,12 +414,6 @@
     <ClInclude Include="NameDecode.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\depends\gmime\gmime.vcxproj">
-      <Project>{4e67eba5-e9fa-425a-ac99-b744f879f042}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

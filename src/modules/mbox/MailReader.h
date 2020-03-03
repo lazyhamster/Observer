@@ -12,11 +12,10 @@ struct MBoxItem
 	std::wstring Sender;
 	bool IsDeleted;
 
-	time_t Date;
-	int TimeZone;
+	time_t DateUtc;
 
 	MBoxItem() : StartPos(0), EndPos(0), IsDeleted(false),
-		Date(0), TimeZone(0), Subject(L""), Sender(L"")
+		DateUtc(0), Subject(L""), Sender(L"")
 	{}
 
 	__int64 Size() const { return EndPos - StartPos; }
@@ -27,6 +26,8 @@ class IMailReader
 protected:
 	FILE* m_pSrcFile;
 	std::vector<MBoxItem> m_vItems;
+
+	const char* GetSenderAddress(GMimeMessage* message);
 
 public:
 	IMailReader() : m_pSrcFile(NULL) {}
@@ -47,5 +48,6 @@ public:
 
 std::wstring ConvertString(const char* src);
 void SanitizeString(std::wstring &str);
+time_t ConvertGDateTimeToUnixUtc(GDateTime* gdt);
 
 #endif // MailReader_h__

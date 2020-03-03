@@ -41,12 +41,12 @@ static void GenerateFileName(GMimeObject* entity, wchar_t* dest, size_t destSize
 	MultiByteToWideChar(CP_UTF8, 0, strName.c_str(), -1, dest, (int)destSize);
 }
 
-static void DecodeStr(const char* src, wchar_t* dest, size_t destSize)
+static void DecodeStr(const char* src, wchar_t* dest, size_t destSize, GMimeParserOptions* parserOpts)
 {
 	wmemset(dest, 0, destSize);
 	if (strstr(src, "=?") != NULL)
 	{
-		char* szPtr = g_mime_utils_header_decode_text(src);
+		char* szPtr = g_mime_utils_header_decode_text(parserOpts, src);
 		MultiByteToWideChar(CP_UTF8, 0, szPtr, -1, dest, (int)destSize);
 		g_free(szPtr);
 	}
@@ -71,12 +71,12 @@ static void RemoveUrlComponent(wchar_t* filename)
 	if (bPos) wmemmove(filename, bPos + 1, wcslen(bPos + 1) + 1);
 }
 
-void GetEntityName(GMimePart* entity, wchar_t* dest, size_t destSize)
+void GetEntityName(GMimePart* entity, wchar_t* dest, size_t destSize, GMimeParserOptions* parserOpts)
 {
 	const char* contentDesp = g_mime_object_get_content_disposition_parameter((GMimeObject*) entity, "filename");
 	if (contentDesp)
 	{
-		DecodeStr(contentDesp, dest, destSize);
+		DecodeStr(contentDesp, dest, destSize, parserOpts);
 		RemoveUrlComponent(dest);
 		if (wcslen(dest) > 1) return;
 	}
@@ -84,7 +84,7 @@ void GetEntityName(GMimePart* entity, wchar_t* dest, size_t destSize)
 	const char* contentType = g_mime_object_get_content_type_parameter((GMimeObject*) entity, "name");
 	if (contentType)
 	{
-		DecodeStr(contentType, dest, destSize);
+		DecodeStr(contentType, dest, destSize, parserOpts);
 		RemoveUrlComponent(dest);
 		if (wcslen(dest) > 1) return;
 	}
@@ -92,7 +92,7 @@ void GetEntityName(GMimePart* entity, wchar_t* dest, size_t destSize)
 	const char* contetLocation = g_mime_part_get_content_location(entity);
 	if (contetLocation)
 	{
-		DecodeStr(contetLocation, dest, destSize);
+		DecodeStr(contetLocation, dest, destSize, parserOpts);
 
 		RemoveUrlComponent(dest);
 		if (wcslen(dest) > 1) return;

@@ -42,6 +42,8 @@ int CBatReader::Scan()
 	GMimeStream* stream = g_mime_stream_file_new(m_pSrcFile);
 	g_mime_stream_file_set_owner((GMimeStreamFile*)stream, FALSE);
 
+	GMimeParserOptions* parserOpts = g_mime_parser_options_new();
+
 	int nFoundItems = 0;
 
 	m_vItems.clear();
@@ -60,20 +62,26 @@ int CBatReader::Scan()
 
 		GMimeParser* parser = g_mime_parser_new_with_stream(stream);
 		g_mime_parser_set_persist_stream(parser, TRUE);
-		g_mime_parser_set_scan_from(parser, FALSE);
+		g_mime_parser_set_format(parser, GMIME_FORMAT_MESSAGE);
 		
 		g_mime_stream_set_bounds(stream, msgStart, msgEnd);
-		GMimeMessage* message = g_mime_parser_construct_message(parser);
+		GMimeMessage* message = g_mime_parser_construct_message(parser, parserOpts);
 
-		const char* strFrom = message ? g_mime_message_get_sender(message) : NULL;
-		const char* strSubj = message ? g_mime_message_get_subject(message) : NULL;
+		const char* strFrom = nullptr;
+		const char* strSubj = nullptr;
+
+		if (message)
+		{
+			strFrom = GetSenderAddress(message);
+			strSubj = g_mime_message_get_subject(message);
+		}
 
 		MBoxItem item;
 		item.StartPos = msgStart;
 		item.EndPos = msgEnd;
 		item.Sender = ConvertString(strFrom);
-		item.Subject = ConvertString(strSubj);
-		item.Date = msgHeader.receivedTime;
+		item.Subject = strSubj ? ConvertString(strSubj) : L"NOT_PARSED";
+		item.DateUtc = msgHeader.receivedTime;  //TODO: check if it's actually UTC
 		item.IsDeleted = (msgHeader.statusFlag & 1) != 0;
 
 		// Subject need sanitizing because it will be a base for file name
@@ -90,6 +98,7 @@ int CBatReader::Scan()
 			break;
 	}
 
+	g_mime_parser_options_free(parserOpts);
 	g_object_unref(stream);
 
 	return nFoundItems;
