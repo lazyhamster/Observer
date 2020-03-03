@@ -72,13 +72,15 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	if (mbi.Subject.length() > 0)
-		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"%04d - %.240s.eml", item_index, mbi.Subject.c_str());
+		swprintf_s(item_info->Path, _countof(item_info->Path), L"%04d - %.240s.eml", item_index, mbi.Subject.c_str());
 	else
-		swprintf_s(item_info->Path, STRBUF_SIZE(item_info->Path), L"%04d.eml", item_index);
+		swprintf_s(item_info->Path, _countof(item_info->Path), L"%04d.eml", item_index);
 	RenameInvalidPathChars(item_info->Path);
 	item_info->Attributes = mbi.IsDeleted ? FILE_ATTRIBUTE_HIDDEN : FILE_ATTRIBUTE_NORMAL;
-	item_info->Size = mbi.EndPos - mbi.StartPos;
+	item_info->Size = mbi.GetSize();
+	item_info->PackedSize = mbi.GetSize();
 	UnixTimeToFileTime(mbi.DateUtc, &item_info->ModificationTime);
+	wcscpy_s(item_info->Owner, _countof(item_info->Owner), mbi.Sender.c_str());
 
 	return GET_ITEM_OK;
 }

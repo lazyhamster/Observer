@@ -18,7 +18,7 @@ struct MBoxItem
 		DateUtc(0), Subject(L""), Sender(L"")
 	{}
 
-	__int64 Size() const { return EndPos - StartPos; }
+	__int64 GetSize() const { return EndPos - StartPos; }
 };
 
 class IMailReader

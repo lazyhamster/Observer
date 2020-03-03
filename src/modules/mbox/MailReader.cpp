@@ -98,7 +98,7 @@ int IMailReader::Extract( int itemindex, const wchar_t* destpath )
 
 	const MBoxItem& item = m_vItems[itemindex];
 
-	size_t copySize = (size_t) item.Size();
+	size_t copySize = (size_t) item.GetSize();
 	char* copyBuf = (char*) malloc(copySize);
 	int nRet = SER_SUCCESS;
 	
