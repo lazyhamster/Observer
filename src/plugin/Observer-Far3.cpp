@@ -193,11 +193,29 @@ static std::wstring FileSizeToString(int64_t fileSize, bool keepBytes)
 	return tmpBuf;
 }
 
+static std::wstring ShortenPath(const std::wstring &path, size_t maxWidth)
+{
+	if (path.length() > maxWidth)
+	{
+		wchar_t* tmpBuf = _wcsdup(path.c_str());
+		if (tmpBuf)
+		{
+			FSF.TruncPathStr(tmpBuf, maxWidth);
+
+			std::wstring result(tmpBuf);
+			free(tmpBuf);
+			return result;
+		}
+	}
+
+	return path;
+}
+
 static void AddAttrLine(PluginDialogBuilder& Builder, const wchar_t* labelText, const wchar_t* valueText)
 {
 	const int cnLabelWidth = 18;
 	
-	auto dlgValueField = Builder.AddReadonlyEditField(valueText, 36);
+	auto dlgValueField = Builder.AddReadonlyEditField(valueText, 40);
 	auto x1 = dlgValueField->X1;
 	auto x2 = dlgValueField->X2;
 	Builder.AddTextBefore(dlgValueField, labelText);
@@ -258,9 +276,11 @@ static void ShowAttributes(const ContentTreeNode* node)
 	std::wstring strCreateTime = FileTimeToString(node->CreationTime);
 	std::wstring strPath = node->GetPath();
 
+	auto strTruncName = ShortenPath(node->Name(), 50);
+
 	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_OTHER_DIALOG, GetLocMsg(MSG_PROPS_HEADER), nullptr, AttrDlgProc);
 
-	Builder.AddText(node->Name())->Flags |= DIF_CENTERTEXT;
+	Builder.AddText(strTruncName.c_str())->Flags |= DIF_CENTERTEXT;
 	Builder.AddSeparator();
 
 	AddAttrLine(Builder, GetLocMsg(MSG_PROPS_PATH), strPath.c_str());
@@ -407,24 +427,6 @@ static bool GetSelectedPanelFilePath(std::wstring& nameStr)
 		}
 	
 	return !nameStr.empty();
-}
-
-static std::wstring ShortenPath(const std::wstring &path, size_t maxWidth)
-{
-	if (path.length() > maxWidth)
-	{
-		wchar_t* tmpBuf = _wcsdup(path.c_str());
-		if (tmpBuf)
-		{
-			FSF.TruncPathStr(tmpBuf, maxWidth);
-
-			std::wstring result(tmpBuf);
-			free(tmpBuf);
-			return result;
-		}
-	}
-
-	return path;
 }
 
 //-----------------------------------  Callback functions ----------------------------------------
