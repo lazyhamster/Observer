@@ -11,6 +11,7 @@ Changes history:
 - Added ignore by extension filter to ini file.
 - Updated several dependency libraries.
 - VDISK: Fixed crash after failed files extraction.
+- VDISK: Fixed crash when file list reading throws exception.
 - VDISK: Migrated to newer fork of DiscUtils library (original project is abandoned).
 - MBOX: Fixed rare issue when \n character in message subject prevented file extraction.
 - MBOX: If mbox container wasn't fully parsed then just show what we have.

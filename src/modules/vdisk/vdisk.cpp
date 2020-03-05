@@ -305,9 +305,16 @@ int MODULE_EXPORT PrepareFiles(HANDLE storage)
 	VDisk* vdObj = (VDisk*) storage;
 	if (vdObj == NULL) return FALSE;
 
-	PrepareFileList(vdObj);
-	
-	return TRUE;
+	try
+	{
+		PrepareFileList(vdObj);
+		return TRUE;
+	}
+	catch (Exception^ ex)
+	{
+		DisplayErrorMessage(ex->Message, L"VDISK Prepare Error");
+		return FALSE;
+	}
 }
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
