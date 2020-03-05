@@ -45,6 +45,7 @@ private:
 	std::map<std::wstring, ConfigSection*> m_Sections;
 
 	int ParseSectionValues(ConfigSection* section, const wchar_t* configFilePath);
+	ConfigSection* AddSection(const wchar_t* sectionName);
 
 	// Make it noncopyable
 	Config( const Config& ) = delete;
@@ -59,7 +60,6 @@ public:
 
 	ConfigSection* GetSection(const wchar_t* sectionName);
 	ConfigSection* GetSection(const std::wstring& sectionName) { return GetSection(sectionName.c_str()); }
-	ConfigSection* AddSection(const wchar_t* sectionName);
 	bool IsSectionExists(const wchar_t* sectionName);
 };
 

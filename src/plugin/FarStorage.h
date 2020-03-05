@@ -6,6 +6,14 @@
 
 typedef bool(*PasswordQueryCallbackFunc)(char*, size_t);
 
+enum class ListReadResult
+{
+	Ok,
+	Aborted,
+	PrepFailed,
+	ItemError
+};
+
 class StorageObject
 {
 private:
@@ -39,7 +47,7 @@ public:
 
 	bool Open(const wchar_t* path, bool applyExtFilters, int openWithModule);
 	bool Open(const wchar_t* path, const void* data, size_t dataSize, bool applyExtFilters, int openWithModule);
-	bool ReadFileList(bool &aborted);
+	ListReadResult ReadFileList();
 	void Close();
 
 	int Extract(ExtractOperationParams &params);

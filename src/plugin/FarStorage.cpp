@@ -111,10 +111,9 @@ void StorageObject::Close()
 	m_vItems.clear();
 }
 
-bool StorageObject::ReadFileList(bool &aborted)
+ListReadResult StorageObject::ReadFileList()
 {
 	bool fListOK = true;
-	aborted = false;
 
 	__int64 nTotalSize = 0, nTotalPackedSize = 0;
 	DWORD nNumFiles = 0, nNumDirs = 0;
@@ -125,7 +124,7 @@ bool StorageObject::ReadFileList(bool &aborted)
 	StorageItemInfo item_info;
 
 	if (!module->ModuleFunctions.PrepareFiles(m_pStoragePtr))
-		return false;
+		return ListReadResult::PrepFailed;
 
 	do
 	{
@@ -169,8 +168,7 @@ bool StorageObject::ReadFileList(bool &aborted)
 		// Check for user abort
 		if (CheckEsc())
 		{
-			fListOK = false;
-			aborted = true;
+			return ListReadResult::Aborted;
 		}
 
 		item_index++;
@@ -190,10 +188,10 @@ bool StorageObject::ReadFileList(bool &aborted)
 		if (m_nNumDirectories == 0)
 			m_nNumDirectories = (int) m_pRootDir->GetSubDirectoriesNum(true);
 
-		return true;
+		return ListReadResult::Ok;
 	}
 	
-	return false;
+	return ListReadResult::ItemError;
 }
 
 int StorageObject::Extract( ExtractOperationParams &params )

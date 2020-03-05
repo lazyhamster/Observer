@@ -353,14 +353,14 @@ static StorageObject* OpenStorage(const std::wstring& Name, bool applyExtFilters
 	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, TBPS_INDETERMINATE, NULL);
 
 	StorageObject* hResult = nullptr;
-	bool listAborted;
-	if (storage->ReadFileList(listAborted))
+	ListReadResult listRet = storage->ReadFileList();
+	if (listRet == ListReadResult::Ok)
 	{
 		hResult = storage;
 	}
 	else
 	{
-		if (!listAborted)
+		if (listRet == ListReadResult::ItemError)
 			DisplayMessage(true, true, MSG_OPEN_CONTENT_ERROR, MSG_OPEN_INVALID_ITEM, NULL);
 		delete storage;
 	}
