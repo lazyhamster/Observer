@@ -79,7 +79,7 @@ int CBatReader::Scan()
 		MBoxItem item;
 		item.StartPos = msgStart;
 		item.EndPos = msgEnd;
-		item.Sender = ConvertString(strFrom);
+		item.Sender = strFrom ? ConvertString(strFrom) : L"Unknown";
 		item.Subject = strSubj ? ConvertString(strSubj) : L"NOT_PARSED";
 		item.DateUtc = msgHeader.receivedTime;  //TODO: check if it's actually UTC
 		item.IsDeleted = (msgHeader.statusFlag & 1) != 0;
@@ -87,15 +87,15 @@ int CBatReader::Scan()
 		// Subject need sanitizing because it will be a base for file name
 		SanitizeString(item.Subject);
 
-		m_vItems.push_back(item);
-		nFoundItems++;
-		
 		if (message) g_object_unref(message);
 		g_object_unref(parser);
 
 		// Move to next message
 		if (_fseeki64(m_pSrcFile, msgEnd, SEEK_SET) != 0)
 			break;
+
+		m_vItems.push_back(item);
+		nFoundItems++;
 	}
 
 	g_mime_parser_options_free(parserOpts);
