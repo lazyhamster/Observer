@@ -14,7 +14,7 @@ enum EntryCompression
 
 struct SFFileEntry
 {
-	char LocalPath[MAX_PATH];
+	std::string LocalPath;
 	int64_t UnpackedSize;
 	int64_t PackedSize;
 	EntryCompression Compression;
@@ -28,9 +28,7 @@ struct SFFileEntry
 	SFFileEntry() : UnpackedSize(0), PackedSize(0),
 		Compression(COMP_UNKNOWN), DataOffset(0), Attributes(0), CRC(0),
 		LastWriteTime(0), CreationTime(0), IsXORed(false)
-	{
-		memset(LocalPath, 0, sizeof(LocalPath));
-	}
+	{}
 };
 
 #define SCRIPT_FILE "irsetup.dat"
@@ -50,6 +48,8 @@ protected:
 	
 	bool ReadString(AStream* stream, char* buf);
 	bool SkipString(AStream* stream);
+
+	std::string JoinLocalPath(const char* dirName, const char* fileName);
 
 public:
 	virtual ~SetupFactoryFile() {}

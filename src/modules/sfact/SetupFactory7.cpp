@@ -10,8 +10,6 @@ const uint8_t SIGNATURE[SIGNATURE_SIZE] = {0xe0,0xe1,0xe2,0xe3,0xe4,0xe5,0xe6,0x
 
 #define FILENAME_EMBEDDED_INSTALLER "irsetup.exe"
 
-#define STRBUF_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
-
 SetupFactory7::SetupFactory7( void )
 {
 	Init();
@@ -79,7 +77,7 @@ int SetupFactory7::EnumFiles()
 			return -1;
 
 		SFFileEntry fe;
-		strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), nameBuf);
+		fe.LocalPath = nameBuf;
 		fe.PackedSize = size;
 		fe.CRC = crc;
 		fe.Compression = COMP_PKWARE;
@@ -207,13 +205,7 @@ int SetupFactory7::ParseScript( int64_t baseOffset )
 		fe.Attributes = useOrigAttr ? origAttr : forcedAttr;
 		//fe.LastWriteTime = modTime;
 		//fe.CreationTime = createTime;
-
-		strcpy_s(fe.LocalPath, MAX_PATH, strDestDir);
-		if (strDestDir[0] && (strDestDir[strlen(strDestDir)-1] != '\\'))
-		{
-			strcat_s(fe.LocalPath, MAX_PATH, "\\");
-		}
-		strcat_s(fe.LocalPath, MAX_PATH, strBaseName);
+		fe.LocalPath = JoinLocalPath(strDestDir, strBaseName);
 
 		m_vFiles.push_back(fe);
 		nextOffset += nCompSize;
@@ -229,7 +221,7 @@ bool SetupFactory7::ReadSpecialFile( const char* fileName, bool isXORed )
 	m_pInFile->ReadBuffer(&fileSize, sizeof(fileSize));
 
 	SFFileEntry fe;
-	strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), fileName);
+	fe.LocalPath = fileName;
 	fe.PackedSize = fileSize;
 	fe.UnpackedSize = fileSize;
 	fe.Compression = COMP_NONE;

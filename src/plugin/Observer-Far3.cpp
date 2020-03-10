@@ -774,7 +774,7 @@ static bool ItemSortPred(ContentTreeNode* item1, ContentTreeNode* item2)
 int BatchExtract(StorageObject* info, ContentNodeList &items, __int64 totalExtractSize, ExtractSelectedParams &extParams)
 {
 	// Items should be sorted (e.g. for access to solid archives)
-	sort(items.begin(), items.end(), ItemSortPred);
+	std::sort(items.begin(), items.end(), ItemSortPred);
 
 	if (!ForceDirectoryExist(extParams.strDestPath))
 	{
@@ -1050,10 +1050,8 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 				return nullptr;
 			else if (nMItem == 1) // Show modules selection dialog
 			{
-				int nSelectedModItem = SelectModuleToOpenFileAs();
-				if (nSelectedModItem >= 0)
-					nOpenModuleIndex = nSelectedModItem;
-				else
+				nOpenModuleIndex = SelectModuleToOpenFileAs();
+				if (nOpenModuleIndex < 0)
 					return nullptr;
 			}
 		}

@@ -15,7 +15,7 @@ ContentTreeNode::ContentTreeNode( int index, StorageItemInfo* info )
 
 ContentTreeNode::~ContentTreeNode()
 {
-	for (auto iter = m_dummyFolders.begin(); iter != m_dummyFolders.end(); iter++)
+	for (auto iter = m_dummyFolders.begin(); iter != m_dummyFolders.end(); ++iter)
 	{
 		ContentTreeNode* dir = *iter;
 		delete dir;

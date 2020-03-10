@@ -122,9 +122,9 @@ public:
 #define EEN_CONTINUE 5
 #define EEN_CONTINUESILENT 6
 
-#define ULTOW(num, wstr) _ultow_s(num, wstr, ARRAY_SIZE(wstr), 10);
+#define ULTOW(num, wstr) _ultow_s(num, wstr, _countof(wstr), 10);
 
-#define I64TOW_C(num, wstr) _i64tow_s(num, wstr, ARRAY_SIZE(wstr), 10); InsertCommas(wstr);
+#define I64TOW_C(num, wstr) _i64tow_s(num, wstr, _countof(wstr), 10); InsertCommas(wstr);
 
 int CollectFileList(ContentTreeNode* node, ContentNodeList &targetlist, __int64 &totalSize, bool recursive);
 std::wstring GetFinalExtractionPath(const StorageObject* storage, const ContentTreeNode* item, const wchar_t* baseDir, int keepPathOpt);

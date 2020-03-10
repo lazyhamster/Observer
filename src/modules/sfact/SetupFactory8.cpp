@@ -11,8 +11,6 @@ const uint8_t SIGNATURE[SIGNATURE_SIZE] = {0xe0,0xe0,0xe1,0xe1,0xe2,0xe2,0xe3,0x
 #define FILENAME_EMBEDDED_INSTALLER "irsetup.exe"
 #define FILENAME_LUA_DLL "lua5.1.dll"
 
-#define STRBUF_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
-
 static bool GetVersionFromManifest(const char* manifest, int *major, int *minor)
 {
 	const char* identStart = strstr(manifest, "<assemblyIdentity");
@@ -112,7 +110,7 @@ int SetupFactory8::EnumFiles()
 		m_pInFile->Seek(4, STREAM_CURRENT);
 
 		SFFileEntry fe;
-		strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), nameBuf);
+		fe.LocalPath = nameBuf;
 		fe.PackedSize = fileSize;
 		fe.CRC = fileCrc;
 		fe.DataOffset = m_pInFile->GetPos();
@@ -268,13 +266,7 @@ int SetupFactory8::ParseScript( int64_t baseOffset )
 		fe.Attributes = useOrigAttr ? origAttr : forcedAttr;
 		fe.LastWriteTime = modTime;
 		fe.CreationTime = createTime;
-
-		strcpy_s(fe.LocalPath, MAX_PATH, strDestDir);
-		if (strDestDir[0] && (strDestDir[strlen(strDestDir)-1] != '\\'))
-		{
-			strcat_s(fe.LocalPath, MAX_PATH, "\\");
-		}
-		strcat_s(fe.LocalPath, MAX_PATH, strBaseName);
+		fe.LocalPath = JoinLocalPath(strDestDir, strBaseName);
 		
 		m_vFiles.push_back(fe);
 		nextOffset += nCompSize;
@@ -290,7 +282,7 @@ bool SetupFactory8::ReadSpecialFile( const char* fileName, bool isXORed )
 	m_pInFile->ReadBuffer(&fileSize, sizeof(fileSize));
 
 	SFFileEntry fe;
-	strcpy_s(fe.LocalPath, STRBUF_SIZE(fe.LocalPath), fileName);
+	fe.LocalPath = fileName;
 	fe.PackedSize = fileSize;
 	fe.UnpackedSize = fileSize;
 	fe.Compression = COMP_NONE;

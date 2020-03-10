@@ -47,6 +47,22 @@ bool SetupFactoryFile::SkipString( AStream* stream )
 	return stream->ReadBuffer(&strSize, sizeof(strSize)) && stream->Seek(strSize, STREAM_CURRENT);
 }
 
+std::string SetupFactoryFile::JoinLocalPath(const char* dirName, const char* fileName)
+{
+	auto dirLen = dirName ? strlen(dirName) : 0;
+	
+	std::string strResult;
+	if (dirLen > 0)
+	{
+		strResult = dirName;
+		if (dirName[dirLen - 1] != '\\')
+			strResult += '\\';
+	}
+	strResult += fileName;
+	
+	return strResult;
+}
+
 bool SetupFactoryFile::ReadString( AStream* stream, char* buf )
 {
 	uint8_t strSize;
