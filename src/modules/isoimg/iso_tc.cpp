@@ -682,7 +682,7 @@ IsoImage* GetImage( const wchar_t* filename, const char* passwd, bool &needPassw
 	HANDLE hImgHandle = CreateFile( filename, GENERIC_READ, FILE_SHARE_READ, 0, OPEN_EXISTING, 0, 0 );
 	if (hImgHandle == INVALID_HANDLE_VALUE) return NULL;
 
-	HANDLE hIszHandle = isz_open(hImgHandle, filename);
+	HANDLE hIszHandle = (wcslen(filename) < MAX_PATH) ? isz_open(hImgHandle, filename) : INVALID_HANDLE_VALUE;
 	if (hIszHandle != INVALID_HANDLE_VALUE)
 	{
 		image.ImageType = ISOTYPE_ISZ;
