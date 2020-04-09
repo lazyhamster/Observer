@@ -224,7 +224,7 @@ void ReportFailedModules(const std::vector<FailedModuleInfo> &failedModules)
 		list_index += 3;
 	}
 
-	FarList farList = {listItemsNumber, dataList};
+	FarList farList = {(int) listItemsNumber, dataList};
 
 	FarDialogItem DialogItems []={
 		/*0*/{DI_DOUBLEBOX, 3, 1, 56,15, 0, 0, 0,0, L"Observer"},
@@ -270,14 +270,14 @@ static HANDLE OpenStorage(const wchar_t* path, const void* data, size_t dataSize
 	FarSInfo.AdvControl(FarSInfo.ModuleNumber, ACTL_SETPROGRESSSTATE, (void*) PS_INDETERMINATE);
 
 	HANDLE hResult = INVALID_HANDLE_VALUE;
-	bool listAborted;
-	if (storage->ReadFileList(listAborted))
+	ListReadResult listRet = storage->ReadFileList();
+	if (listRet == ListReadResult::Ok)
 	{
 		hResult = (HANDLE) storage;
 	}
 	else
 	{
-		if (!listAborted)
+		if (listRet == ListReadResult::ItemError)
 			DisplayMessage(true, true, MSG_OPEN_CONTENT_ERROR, MSG_OPEN_INVALID_ITEM, NULL);
 		delete storage;
 	}
