@@ -20,11 +20,12 @@ Project is developed under MS Visual Studio 2017.
 
 Observer modules depend on several libraries that are not supplied with sources.
 The easiest way to use these libraries is with [vcpkg](https://github.com/Microsoft/vcpkg) tool.
-Deploy vcpkg and run:
 
-* vcpkg install zlib:x86-windows zlib:x64-windows
-* vcpkg install bzip2:x86-windows bzip2:x64-windows
-* vcpkg install glib:x86-windows glib:x64-windows
+For x86 version run:
+* vcpkg install zlib bzip2 glib gmime libmspack --triplet x86-windows
+
+For x64 version run:
+* vcpkg install zlib bzip2 glib gmime libmspack --triplet x64-windows
 
 Additional requirements:
 

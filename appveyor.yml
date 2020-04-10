@@ -1,16 +1,9 @@
 version: 1.0.{build}
 
-branches:
-  only:
-    - master
-    - master-gh
-
 image: Visual Studio 2017
 
 shallow_clone: true
 clone_depth: 1
-
-skip_tags: true
 
 configuration:
   - Release-Far3
@@ -61,6 +54,7 @@ after_build:
 
 artifacts:
   - path: '*.7z'
+    name: distr
 
 deploy:
   - provider: BinTray
@@ -74,3 +68,16 @@ deploy:
     publish: true
     override: true
     explode: false
+    on:
+      branch: master-gh
+  - provider: GitHub
+    tag: $(APPVEYOR_REPO_TAG_NAME)
+    release: $(PVER)
+    description: 'Stable Release'
+    auth_token:
+      secure: yydJ7NhXUmWzitSCv7CA8LvEW7/4KGABG11kPMhDmyGGyHAVQuOLTCOqxkI+vl1x
+    artifact: distr
+    draft: true
+    prerelease: false
+    on:
+      APPVEYOR_REPO_TAG: true        # deploy on tag push only
