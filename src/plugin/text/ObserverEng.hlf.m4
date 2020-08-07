@@ -23,7 +23,7 @@ m4_include(`version.m4i')m4_dnl
 
  For additional information look in supplied readme.txt
 
- (c) 2009-2019, Ariman
+ (c) 2009-2020, Ariman
  -----------------------------------------
  Plugin's Home Page: ~https://github.com/lazyhamster/Observer~@https://github.com/lazyhamster/Observer@
  Contact E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@

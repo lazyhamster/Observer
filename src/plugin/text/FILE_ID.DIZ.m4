@@ -26,7 +26,7 @@ Supported file formats:
 - PDF files (embedded files)
 - CreateInstall packages
 
-(c) 2009-2019, Ariman
+(c) 2009-2020, Ariman
 -----------------------------------------
 Web-site: https://github.com/lazyhamster/Observer
 E-mail for suggestions, bug reports, etc: ariman@inbox.ru

@@ -1,4 +1,4 @@
 m4_define(VMAJOR,    `1')m4_dnl
 m4_define(VMINOR,    `12')m4_dnl
-m4_define(VREVISION, `0')m4_dnl
+m4_define(VREVISION, `1')m4_dnl
 m4_define(OBSERVER_VERSION, `VMAJOR.VMINOR.VREVISION')m4_dnl

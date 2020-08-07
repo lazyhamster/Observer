@@ -30,6 +30,53 @@ static bool GetVersionFromManifest(const char* manifest, int *major, int *minor)
 	return false;
 }
 
+struct LANGANDCODEPAGE
+{
+	WORD wLanguage;
+	WORD wCodePage;
+};
+
+static bool GetVersionInfoData(const wchar_t* exePath, int& major, int &minor, std::wstring& productName)
+{
+	DWORD dwHandle = 0;
+	void* ptrData = nullptr;
+	UINT nDataSize = 0;
+
+	DWORD dwSize = GetFileVersionInfoSize(exePath, &dwHandle);
+	if (dwSize > 0)
+	{
+		void* ptrBlock = malloc(dwSize);
+		if (GetFileVersionInfo(exePath, dwHandle, dwSize, ptrBlock))
+		{
+			if (VerQueryValue(ptrBlock, L"\\", &ptrData, &nDataSize))
+			{
+				VS_FIXEDFILEINFO *verInfo = (VS_FIXEDFILEINFO*)ptrData;
+				if (verInfo->dwSignature == 0xfeef04bd)
+				{
+					major = (verInfo->dwFileVersionMS >> 16) & 0xffff;
+					minor = (verInfo->dwFileVersionMS >> 0) & 0xffff;
+				}
+			}
+
+			if (VerQueryValue(ptrBlock, L"\\VarFileInfo\\Translation", &ptrData, &nDataSize) && (nDataSize > 0))
+			{
+				LANGANDCODEPAGE *ptrTranslate = (LANGANDCODEPAGE*)ptrData;
+
+				wchar_t wszSubBlock[128] = { 0 };
+				swprintf_s(wszSubBlock, _countof(wszSubBlock), L"\\StringFileInfo\\%04x%04x\\ProductName", ptrTranslate->wLanguage, ptrTranslate->wCodePage);
+
+				VerQueryValue(ptrBlock, wszSubBlock, &ptrData, &nDataSize);
+				productName = (wchar_t*) ptrData;
+			}
+		}
+		free(ptrBlock);
+		return true;
+	}
+	return false;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 SetupFactory8::SetupFactory8( void )
 {
 	Init();
@@ -71,6 +118,18 @@ bool SetupFactory8::Open( CFileStream* inFile )
 		m_pInFile = inFile;
 		m_nStartOffset = inFile->GetPos();
 		return GetVersionFromManifest(manifestText.c_str(), &m_nVersion, &m_nMinorVersion) && (m_nVersion == 9);
+	}
+
+	// Some files have bogus manifest. Let's try VersionInfo data for them
+	if (manifestText.find("<description>Setup</description>") != std::string::npos)
+	{
+		std::wstring productName;
+		if (GetVersionInfoData(inFile->FilePath(), m_nVersion, m_nMinorVersion, productName) && (m_nVersion == 9) && (productName == L"Setup Factory Runtime"))
+		{
+			m_pInFile = inFile;
+			m_nStartOffset = inFile->GetPos();
+			return true;
+		}
 	}
 
 	return false;

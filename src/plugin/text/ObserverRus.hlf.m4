@@ -23,7 +23,7 @@
 
  Для дополнительной информации смотрите файл readme_ru.txt
 
- (c) 2009-2019, Ariman
+ (c) 2009-2020, Ariman
  -----------------------------------------
  Сайт плагина: ~https://github.com/lazyhamster/Observer~@https://github.com/lazyhamster/Observer@
  Контактный E-mail: ~ariman@@inbox.ru~@mailto:ariman@@inbox.ru@
