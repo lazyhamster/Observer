@@ -66,7 +66,7 @@ bool DirectoryNode::Init(DirectoryEntry *entry, bool substDotTargetWithSource)
 	if (colonPos != std::wstring::npos)
 	{
 		auto strSourcePart = entry->DefaultDir.substr(colonPos + 1);
-		auto strTargetPath = entry->DefaultDir.substr(colonPos);
+		auto strTargetPath = entry->DefaultDir.substr(0, colonPos);
 		
 		if (substDotTargetWithSource && (strTargetPath == L".") && (strSourcePart != L"."))
 		{
