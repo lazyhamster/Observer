@@ -175,10 +175,10 @@ static void ReportFailedModules(const std::vector<FailedModuleInfo> &failedModul
 		listIndex += 2;
 	}
 
-	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_LOAD_ERROR, L"Loading Error", nullptr, nullptr, nullptr, FDLG_WARNING);
+	PluginDialogBuilder Builder(FarSInfo, OBSERVER_GUID, GUID_OBS_LOAD_ERROR, GetLocMsg(MSG_PLUGIN_NAME), nullptr, nullptr, nullptr, FDLG_WARNING);
 
 	Builder.AddText(L"Some modules failed to load");
-	Builder.AddListBox(nullptr, 50, 10, boxList, boxListSize, DIF_LISTNOBOX | DIF_LISTNOCLOSE);
+	Builder.AddListBox(nullptr, 60, 10, boxList, boxListSize, DIF_LISTNOBOX | DIF_LISTNOCLOSE);
 	Builder.AddOKCancel(MSG_BTN_OK, -1, -1, true);
 
 	Builder.ShowDialog();
