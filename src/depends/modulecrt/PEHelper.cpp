@@ -124,7 +124,7 @@ std::string GetManifest(const wchar_t* libraryPath)
 		if (resData && resSize)
 		{
 			char* pManifestData = (char*) LockResource(resData);
-			manifestText.append(pManifestData);
+			manifestText.append(pManifestData, resSize);
 			UnlockResource(pManifestData);
 		}
 		FreeResource(resData);
