@@ -57,19 +57,6 @@ artifacts:
     name: distr
 
 deploy:
-  - provider: BinTray
-    username: lazyhamster
-    api_key:
-      secure: zxzGL5vd4v2+QjlatWuQg3E7IPrt5a5sJ9bPIwfBonZ2bnShrU3wnjYuUhr19cvL
-    subject: lazyhamster
-    repo: FAR-Plugins
-    package: Observer
-    version: $(PVER)
-    publish: true
-    override: true
-    explode: false
-    on:
-      branch: master-gh
   - provider: GitHub
     tag: $(APPVEYOR_REPO_TAG_NAME)
     release: $(PVER)

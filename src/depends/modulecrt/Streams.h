@@ -1,6 +1,8 @@
 #ifndef FileStream_h__
 #define FileStream_h__
 
+#include <stdint.h>
+
 #define STREAM_BEGIN FILE_BEGIN
 #define STREAM_CURRENT FILE_CURRENT
 #define STREAM_END FILE_END
@@ -60,7 +62,6 @@ public:
 	bool IsValid();
 
 	int64_t GetSize();
-	
 	bool Seek(int64_t seekPos, int8_t seekOrigin);
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);
 	bool ReadBufferAny(LPVOID buffer, size_t bufferSize, size_t *readSize);
