@@ -359,6 +359,8 @@ bool CPartialStream::Seek( int64_t seekPos, int64_t* newPos, int8_t seekOrigin )
 	case STREAM_END:
 		nextLocalPos = m_nSize - 1 + seekPos;
 		break;
+	default:
+		return false;
 	}
 
 	if (nextLocalPos < 0 || nextLocalPos >= m_nSize)

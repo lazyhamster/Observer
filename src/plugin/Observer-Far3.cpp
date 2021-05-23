@@ -51,7 +51,7 @@ static const wchar_t* GetLocMsg(int MsgID)
 static void LoadSettings(Config* cfg)
 {
 	// Load static settings from .ini file.
-	ConfigSection* generalCfg = cfg->GetSection(L"General");
+	const ConfigSection* generalCfg = cfg->GetSection(L"General");
 	if (generalCfg != NULL)
 	{
 		generalCfg->GetValue(L"PanelHeaderPrefix", optPanelHeaderPrefix, _countof(optPanelHeaderPrefix));
@@ -1020,7 +1020,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 	
 	if ((OInfo->OpenFrom == OPEN_COMMANDLINE) && optUsePrefix)
 	{
-		OpenCommandLineInfo* cmdInfo = (OpenCommandLineInfo*) OInfo->Data;
+		const OpenCommandLineInfo* cmdInfo = (OpenCommandLineInfo*) OInfo->Data;
 		wchar_t* szLocalNameBuffer = _wcsdup(cmdInfo->CommandLine);
 		FSF.Unquote(szLocalNameBuffer);
 
@@ -1093,7 +1093,7 @@ HANDLE WINAPI OpenW(const struct OpenInfo *OInfo)
 
 intptr_t WINAPI GetFindDataW(GetFindDataInfo* fdInfo)
 {
-	StorageObject* info = reinterpret_cast<StorageObject*>(fdInfo->hPanel);
+	StorageObject* info = static_cast<StorageObject*>(fdInfo->hPanel);
 	if (!info || !info->CurrentDir()) return FALSE;
 
 	size_t nTotalItems = info->CurrentDir()->GetChildCount();
@@ -1152,7 +1152,7 @@ intptr_t WINAPI SetDirectoryW(const SetDirectoryInfo* sdInfo)
 	if (sdInfo->hPanel == NULL || sdInfo->hPanel == INVALID_HANDLE_VALUE)
 		return FALSE;
 
-	StorageObject* info = reinterpret_cast<StorageObject*>(sdInfo->hPanel);
+	StorageObject* info = static_cast<StorageObject*>(sdInfo->hPanel);
 	if (!sdInfo->Dir || !sdInfo->Dir[0]) return TRUE;
 
 	return info->ChangeCurrentDir(sdInfo->Dir) ? 1 : 0;
@@ -1162,7 +1162,7 @@ void WINAPI GetOpenPanelInfoW(OpenPanelInfo* opInfo)
 {
 	opInfo->StructSize = sizeof(OpenPanelInfo);
 	
-	StorageObject* info = (StorageObject *) opInfo->hPanel;
+	const StorageObject* info = (StorageObject *) opInfo->hPanel;
 	if (!info) return;
 	
 	static wchar_t wszCurrentDir[PATH_BUFFER_SIZE];
@@ -1315,7 +1315,7 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 	if (!piInfo->hPanel || (piInfo->Rec.EventType != KEY_EVENT)) return FALSE;
 	
 	const KEY_EVENT_RECORD &evtRec = piInfo->Rec.Event.KeyEvent;
-	StorageObject* storage = reinterpret_cast<StorageObject*>(piInfo->hPanel);
+	StorageObject* storage = static_cast<StorageObject*>(piInfo->hPanel);
 
 	if (evtRec.bKeyDown && evtRec.wVirtualKeyCode == VK_F6 && CheckControlKeys(evtRec, false, true, false))
 	{
@@ -1364,7 +1364,7 @@ intptr_t WINAPI ProcessPanelInputW(const struct ProcessPanelInputInfo* piInfo)
 		std::wstring itemName;
 		if (GetCurrentPanelItemName(PANEL_ACTIVE, itemName, true) && (itemName != L".."))
 		{
-			ContentTreeNode* selectedItem = storage->CurrentDir()->GetChildByName(itemName.c_str());
+			const ContentTreeNode* selectedItem = storage->CurrentDir()->GetChildByName(itemName.c_str());
 			ShowAttributes(selectedItem);
 		}
 		

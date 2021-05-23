@@ -2,7 +2,7 @@
 #include "ModulesController.h"
 #include "CommonFunc.h"
 
-int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed )
+size_t ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed )
 {
 	Cleanup();
 
@@ -10,8 +10,8 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 	ConfigSection *mModulesList = cfg->GetSection(L"Modules");
 	if (!mModulesList) return 0;
 
-	ConfigSection *mFiltersList = cfg->GetSection(L"Filters");
-	ConfigSection *mShortcutList = cfg->GetSection(L"Shortcuts");
+	const ConfigSection *mFiltersList = cfg->GetSection(L"Filters");
+	const ConfigSection *mShortcutList = cfg->GetSection(L"Shortcuts");
 	bool vUsedShortcuts[36] = {0};
 
 	for (size_t i = 0; i < mModulesList->Count(); i++)
@@ -85,17 +85,19 @@ int ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vector<F
 		lastScIndex++;
 	}
 
-	return (int)m_vModules.size();
+	return m_vModules.size();
 }
 
 void ModulesController::Cleanup()
 {
-	for (size_t i = 0; i < m_vModules.size(); i++)
+	for (auto it = m_vModules.begin(); it < m_vModules.end(); ++it)
 	{
-		ExternalModule *modulePtr = m_vModules[i];
-		
-		modulePtr->Unload();
-		delete modulePtr;
+		ExternalModule* modulePtr = *it;
+		if (modulePtr != nullptr)
+		{
+			modulePtr->Unload();
+			delete modulePtr;
+		}
 	}
 	m_vModules.clear();
 }

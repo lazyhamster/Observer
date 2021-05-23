@@ -77,8 +77,8 @@ public:
 class CMemoryStream : public AStream
 {
 private:
-	CMemoryStream(const CMemoryStream& other) {}
-	CMemoryStream& operator=( const CMemoryStream& rhs ) {}
+	CMemoryStream(const CMemoryStream& other) = delete;
+	CMemoryStream& operator=(const CMemoryStream& rhs) = delete;
 
 protected:
 	char* m_pDataBuffer;
@@ -105,8 +105,6 @@ public:
 class CNullStream : public AStream
 {
 public:
-	CNullStream() {}
-
 	int64_t GetSize();
 	bool Seek(int64_t seekPos, int8_t seekOrigin);
 	bool Seek(int64_t seekPos, int64_t* newPos, int8_t seekOrigin);

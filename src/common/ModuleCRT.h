@@ -77,7 +77,7 @@ static void TrimStr(wchar_t* str)
 
 #define FILE_SIGNATURE_EXE "MZ"
 
-static inline bool SignatureMatchOrNull(const void* pBuf, size_t nBufSize, char* pSig)
+static inline bool SignatureMatchOrNull(const void* pBuf, size_t nBufSize, const char* pSig)
 {
 	if (!pBuf) return true;
 	

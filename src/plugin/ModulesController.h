@@ -34,7 +34,7 @@ public:
 	ModulesController(void) {};
 	~ModulesController(void) { this->Cleanup(); };
 
-	int Init(const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed);
+	size_t Init(const wchar_t* basePath, Config* cfg, std::vector<FailedModuleInfo> &failed);
 	void Cleanup();
 	
 	size_t NumModules() const { return m_vModules.size(); }
