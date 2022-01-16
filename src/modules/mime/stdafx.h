@@ -17,3 +17,4 @@
 #include <gmime/gmime.h>
 
 #include <vector>
+#include <string>
