@@ -1,5 +1,5 @@
 // stdafx.cpp : source file that includes just the standard includes
-// isoimg.pch will be the pre-compiled header
+// wise.pch will be the pre-compiled header
 // stdafx.obj will contain the pre-compiled type information
 
 #include "stdafx.h"
