@@ -1,5 +1,0 @@
-LIBRARY	"%MODNAME%.so"
-
-EXPORTS
-	LoadSubModule
-	UnloadSubModule

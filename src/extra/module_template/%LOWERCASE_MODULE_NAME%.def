@@ -1,0 +1,5 @@
+LIBRARY "%LOWERCASE_MODULE_NAME%.so"
+
+EXPORTS
+    LoadSubModule
+    UnloadSubModule
