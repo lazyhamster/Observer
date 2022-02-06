@@ -481,7 +481,7 @@
       <FileType>Document</FileType>
       <Command>copy /y %(Identity) $(OutDir) &gt; nul</Command>
       <Message>Processing %(Identity)</Message>
-      <Outputs>$(OutDir)</Outputs>
+      <Outputs>$(OutDir)%(Filename)%(Extension)</Outputs>
       <LinkObjects>false</LinkObjects>
     </CustomBuild>
     <None Include="version.m4i" />
