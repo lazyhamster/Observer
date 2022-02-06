@@ -1,0 +1,5 @@
+LIBRARY	"inst4j.so"
+
+EXPORTS
+	LoadSubModule
+	UnloadSubModule
