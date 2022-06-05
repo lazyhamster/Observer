@@ -38,9 +38,6 @@
     <ClCompile Include="ModulesController.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RegistrySettings.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -56,9 +53,6 @@
     <ClCompile Include="Observer-Far3.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Observer-Far2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ExtFilter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -68,9 +62,6 @@
       <Filter>Support Files</Filter>
     </None>
     <None Include="Observer-Far3.def">
-      <Filter>Source Files</Filter>
-    </None>
-    <None Include="Observer-Far2.def">
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\..\README.md">
@@ -97,9 +88,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="PlugLang.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RegistrySettings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="resource.h">
