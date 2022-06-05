@@ -1,6 +1,6 @@
 Observer
-Plug-in for FAR Manager 2.0 / 3.0
-Copyright: 2009-2020, Ariman
+Plug-in for FAR Manager 3.0.x
+Copyright: 2009-2022, Ariman
 
 -------------------------------------------------------------------
 
@@ -107,7 +107,7 @@ Possible values: 1 (show message) or 0 (don't show).
 This section sets file extention masks for modules to speed up files processing.
 Filters are used when entering file by Enter or PgDn keys.
 When plugins menu (F11) or prefix is used filters are ignored.
-Values are set in following format: ModuleName=.ext1;.ext2;.ext3
+Values are set in following format: ModuleName=*.ext1;*.ext2;*.ext3
 Module names are from [Modules] section and case sensitive. Extentions in list are seprated
 by semicolon and have dot in front. They are case-insensitive.
 If any module don't have filters set or extentions list is empty, then it is considered

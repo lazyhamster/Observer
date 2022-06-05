@@ -3,6 +3,9 @@
 
 bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &nOverlaySize)
 {
+	if (inStream == nullptr)
+		return false;
+	
 	int64_t StartOffset = 0;
 	int64_t DataSize = 0;
 	int64_t FileSize = inStream->GetSize();
