@@ -23,6 +23,9 @@ size_t ModulesController::Init( const wchar_t* basePath, Config* cfg, std::vecto
 		const std::wstring& moduleName = nextModuleInfo.Key;
 		const std::wstring& moduleLibrary = nextModuleInfo.Value;
 
+		// Check for explicitly disabled module
+		if (moduleLibrary == L"-") continue;
+
 		ConfigSection* moduleOpts = cfg->GetSection(moduleName);
 		std::wstring moduleLoadError;
 

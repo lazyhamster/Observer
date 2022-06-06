@@ -162,7 +162,7 @@ bool Config::ParseFile(const std::wstring& path)
 
 bool Config::ParseFile( const wchar_t* path )
 {
-	const size_t cnSectionListBufSize = 1024;
+	constexpr size_t cnSectionListBufSize = 1024;
 	wchar_t wszSectionListBuf[cnSectionListBufSize];
 
 	DWORD numCharsRead = GetPrivateProfileSectionNames(wszSectionListBuf, cnSectionListBufSize, path);
@@ -186,7 +186,7 @@ bool Config::ParseFile( const wchar_t* path )
 
 int Config::ParseSectionValues( ConfigSection* section, const wchar_t* configFilePath )
 {
-	const size_t dataBufferSize = 4 * 1024;
+	constexpr size_t dataBufferSize = 4 * 1024;
 	wchar_t dataBuffer[dataBufferSize];
 
 	DWORD numBytesRead = GetPrivateProfileSection(section->GetName(), dataBuffer, dataBufferSize, configFilePath);
