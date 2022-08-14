@@ -1,14 +1,15 @@
 #include "stdafx.h"
 #include "PEHelper.h"
 
-bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &nOverlaySize)
+template <typename T>
+static bool FindFileOverlayT(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &nOverlaySize, WORD nMachineArch)
 {
 	if (inStream == nullptr)
 		return false;
 	
 	int64_t StartOffset = 0;
 	int64_t DataSize = 0;
-	int64_t FileSize = inStream->GetSize();
+	const int64_t FileSize = inStream->GetSize();
 
 	inStream->SetPos(0);
 
@@ -20,12 +21,12 @@ bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &n
 	if (!inStream->SetPos(dosHeader.e_lfanew + sizeof(IMAGE_NT_SIGNATURE)))
 		return false;
 
-	IMAGE_FILE_HEADER fileHeader;
-	IMAGE_OPTIONAL_HEADER32 optnHeader;
+	IMAGE_FILE_HEADER fileHeader = { 0 };
+	T optnHeader = { 0 };
 
 	if (!inStream->ReadBuffer(&fileHeader, sizeof(fileHeader)) || !inStream->ReadBuffer(&optnHeader, sizeof(optnHeader)))
 		return false;
-	if (fileHeader.Machine != IMAGE_FILE_MACHINE_I386 || fileHeader.NumberOfSections == 0)
+	if (fileHeader.Machine != nMachineArch || fileHeader.NumberOfSections == 0)
 		return false;
 
 	// Read sections list (save for debug data calc later)
@@ -39,7 +40,7 @@ bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &n
 		if (!inStream->ReadBuffer(&sectionHead, sizeof(sectionHead)))
 			return false;
 
-		__int64 limit = sectionHead.PointerToRawData + sectionHead.SizeOfRawData;
+		int64_t limit = sectionHead.PointerToRawData + sectionHead.SizeOfRawData;
 		if (limit > FileSize) return false; // Section data is messed up so exit
 		if (limit > maxLimit) maxLimit = limit;
 
@@ -72,7 +73,7 @@ bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &n
 		// Strange debug data
 		if (dbgSectionIndex < 0) return false;
 
-		__int64 debugInfoFileOffset = vSections[dbgSectionIndex].PointerToRawData + (dbgDataDir.VirtualAddress - vSections[dbgSectionIndex].VirtualAddress);
+		int64_t debugInfoFileOffset = vSections[dbgSectionIndex].PointerToRawData + (dbgDataDir.VirtualAddress - vSections[dbgSectionIndex].VirtualAddress);
 
 		if (!inStream->SetPos(debugInfoFileOffset))
 			return false;
@@ -83,10 +84,11 @@ bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &n
 			if (!inStream->ReadBuffer(&ddir, sizeof(ddir)))
 				return false;
 
-			if (ddir.PointerToRawData + ddir.SizeOfData > StartOffset)
+			const int64_t dirEnd = static_cast<int64_t>(ddir.PointerToRawData) + ddir.SizeOfData;
+			if (dirEnd > StartOffset)
 			{
-				DataSize -= ddir.PointerToRawData + ddir.SizeOfData - StartOffset;
-				StartOffset = ddir.PointerToRawData + ddir.SizeOfData;
+				DataSize -= dirEnd - StartOffset;
+				StartOffset = dirEnd;
 			}
 
 			if (DataSize <= 0) break;
@@ -109,6 +111,12 @@ bool FindFileOverlay(AStream *inStream, int64_t &nOverlayStartOffset, int64_t &n
 	}
 
 	return false;
+}
+
+bool FindFileOverlay(AStream* inStream, int64_t& nOverlayStartOffset, int64_t& nOverlaySize)
+{
+	return FindFileOverlayT<IMAGE_OPTIONAL_HEADER32>(inStream, nOverlayStartOffset, nOverlaySize, IMAGE_FILE_MACHINE_I386)
+		|| FindFileOverlayT<IMAGE_OPTIONAL_HEADER64>(inStream, nOverlayStartOffset, nOverlaySize, IMAGE_FILE_MACHINE_AMD64);
 }
 
 std::string GetManifest(const wchar_t* libraryPath)
@@ -139,8 +147,6 @@ std::string GetManifest(const wchar_t* libraryPath)
 
 bool FindPESection(AStream *inStream, const char* szSectionName, int64_t &nSectionStartOffset, int64_t &nSectionSize)
 {
-	int64_t StartOffset = 0;
-	int64_t DataSize = 0;
 	int64_t FileSize = inStream->GetSize();
 
 	inStream->SetPos(0);
@@ -153,8 +159,8 @@ bool FindPESection(AStream *inStream, const char* szSectionName, int64_t &nSecti
 	if (!inStream->SetPos(dosHeader.e_lfanew + sizeof(IMAGE_NT_SIGNATURE)))
 		return false;
 
-	IMAGE_FILE_HEADER fileHeader;
-	IMAGE_OPTIONAL_HEADER32 optnHeader;
+	IMAGE_FILE_HEADER fileHeader = { 0 };
+	IMAGE_OPTIONAL_HEADER32 optnHeader = { 0 };
 
 	if (!inStream->ReadBuffer(&fileHeader, sizeof(fileHeader)) || !inStream->ReadBuffer(&optnHeader, sizeof(optnHeader)))
 		return false;
@@ -168,7 +174,7 @@ bool FindPESection(AStream *inStream, const char* szSectionName, int64_t &nSecti
 		if (!inStream->ReadBuffer(&sectionHead, sizeof(sectionHead)))
 			return false;
 
-		__int64 limit = sectionHead.PointerToRawData + sectionHead.SizeOfRawData;
+		int64_t limit = sectionHead.PointerToRawData + sectionHead.SizeOfRawData;
 		if (limit > FileSize) return false; // Section data is messed up so exit
 		if (limit > maxLimit) maxLimit = limit;
 

@@ -1,6 +1,7 @@
 Changes history:
 
 1.12.1
+- Added support for Install4j (extracting of internal zip archives).
 - SetupFactory: Fixed opening some files from SF 9.5.
 - MSI: Fixed regression wtih colon symbol appearing in folder names.
 - Minor fixes.
