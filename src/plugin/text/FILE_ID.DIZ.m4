@@ -1,6 +1,6 @@
 m4_include(`version.m4i')m4_dnl
 Observer OBSERVER_VERSION
-Plugin for FAR 2.0 / 3.0
+Plugin for FAR Manager
 ---------------------------
 
 This plugins allows to browse several types of file containers.

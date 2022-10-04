@@ -223,10 +223,10 @@ InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
 Ѕиблиотека обработки PDF.
 
 3. —истемные требовани€.
-OS: WinXP или новее.
+OS: Win7 или новее.
 
 Windows Installer 4+
-Microsoft Visual C++ 2013 Redistributable Package
+Microsoft Visual C++ 2019 Redistributable Package.
 
 ћодуль VDISK дополнительно требует Microsoft .NET Framework 4.5.
 ≈сли .NET не установлен, то этот модуль не будет загружатьс€.

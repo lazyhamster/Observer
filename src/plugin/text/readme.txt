@@ -224,10 +224,10 @@ Distributed under LGPL license.
 PDF rendering library.
 
 3. System requirements.
-OS: WinXP or higher.
+OS: Win7 or higher.
 
 Windows Installer 4+
-Microsoft Visual C++ 2013 Redistributable Package
+Microsoft Visual C++ 2019 Redistributable Package.
 
 VDISK module requires Microsoft .NET Framework 4.5 to be installed.
 If you don't install .NET then this modile will not load.
