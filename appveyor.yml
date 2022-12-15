@@ -39,6 +39,7 @@ install:
   - vcpkg install libmspack:%P_ARCH%-windows
   - vcpkg install gmime:%P_ARCH%-windows
   - vcpkg install boost-iostreams:%P_ARCH%-windows
+  - vcpkg upgrade
   - cd %APPVEYOR_BUILD_FOLDER%
 
 cache:
