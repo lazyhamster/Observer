@@ -16,7 +16,7 @@ ISSfx::ISEncSfxFile::~ISEncSfxFile()
 
 bool ISSfx::ISEncSfxFile::InternalOpen( CFileStream* headerFile )
 {
-	__int64 nOverlayStart, nOverlaySize;
+	__int64 nOverlayStart = 0, nOverlaySize = 0;
 
 	if (!FindFileOverlay(headerFile, nOverlayStart, nOverlaySize))
 		return false;
@@ -36,23 +36,34 @@ bool ISSfx::ISEncSfxFile::InternalOpen( CFileStream* headerFile )
 		return false;
 
 	WORD NumFiles;
-	if (!headerFile->ReadBuffer(&NumFiles, sizeof(NumFiles)) || NumFiles == 0)
+	if (!headerFile->Read(&NumFiles) || NumFiles == 0)
 		return false;
 
-	if (!headerFile->Seek(0x1E, STREAM_CURRENT))
+	DWORD Type = 0;
+	if (!headerFile->Read(&Type)) return false;
+
+	if (!headerFile->Seek(0x1A, STREAM_CURRENT))
 		return false;
 
-	SfxFileHeaderA headerA;
-	SfxFileHeaderW headerW;
+	SfxFileHeaderA headerA = { 0 };
+	SfxFileHeaderW headerW = { 0 };
 
 	for (WORD i = 0; i < NumFiles; i++)
 	{
-		SfxFileEntry fe;
-		memset(&fe, 0, sizeof(fe));
+		SfxFileEntry fe = { 0 };
 
 		if (isStreamUnicode)
 		{
 			headerFile->ReadBuffer(&headerW, sizeof(headerW));
+			if (Type == 4)
+			{
+				SfxFileHeaderWTimePart timePart = { 0 };
+				if (!headerFile->ReadBuffer(&timePart, sizeof(timePart)))
+					return false;
+				
+				fe.CreationTime = timePart.CreationTime;
+				fe.LastWriteTime = timePart.LastModificationTime;
+			}
 			headerFile->ReadBuffer(fe.Name, headerW.NameBytes);
 			fe.CompressedSize = headerW.CompressedSize;
 			fe.IsCompressed = headerW.IsCompressed != 0;
@@ -123,6 +134,8 @@ bool ISSfx::ISEncSfxFile::GetFileInfo( int itemIndex, StorageItemInfo* itemInfo 
 		MultiByteToWideChar(CP_ACP, 0, fileEntry.Name, -1, itemInfo->Path, STRBUF_SIZE(itemInfo->Path));
 	itemInfo->Size = unpackedSize;
 	itemInfo->PackedSize = fileEntry.CompressedSize;
+	itemInfo->CreationTime = fileEntry.CreationTime;
+	itemInfo->ModificationTime = fileEntry.LastWriteTime;
 		
 	return true;
 }
@@ -154,7 +167,7 @@ static std::string PrepareKey(const char* fileName, size_t fileNameLen)
 	//Experiments suggest that we should skip 0 bytes in file name.
 	
 	const char* SpecialKey = "\xEC\xCA\x79\xF8";
-	size_t specLen = strlen(SpecialKey);
+	const size_t specLen = strlen(SpecialKey);
 
 	std::string retVal;
 
@@ -191,7 +204,6 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, CFileStream* des
 	size_t offsChunk = 0, offsKey = 0;
 	__int64 bytesLeft = pEntry->CompressedSize;
 	BYTE readBuffer[EXTRACT_BUFFER_SIZE] = {0};
-	DWORD readDataSize;
 
 	z_stream strm = {0};
 	if (pEntry->IsCompressed && (inflateInit2(&strm, MAX_WBITS) != Z_OK))
@@ -203,7 +215,7 @@ int ISSfx::ISEncSfxFile::DecodeFile(const SfxFileEntry *pEntry, CFileStream* des
 	int result = CAB_EXTRACT_OK;
 	while (bytesLeft > 0)
 	{
-		readDataSize = (DWORD) min(bytesLeft, EXTRACT_BUFFER_SIZE);
+		DWORD readDataSize = (DWORD) min(bytesLeft, EXTRACT_BUFFER_SIZE);
 		
 		if (!m_pHeaderFile->ReadBuffer(readBuffer, readDataSize))
 		{
@@ -307,12 +319,11 @@ int ISSfx::ISEncSfxFile::CopyPlainFile( const SfxFileEntry *pEntry, CFileStream*
 
 	__int64 bytesLeft = pEntry->CompressedSize;
 	BYTE readBuffer[EXTRACT_BUFFER_SIZE] = {0};
-	DWORD readDataSize;
 
 	int result = CAB_EXTRACT_OK;
 	while (bytesLeft > 0)
 	{
-		readDataSize = (DWORD) min(bytesLeft, EXTRACT_BUFFER_SIZE);
+		DWORD readDataSize = (DWORD) min(bytesLeft, EXTRACT_BUFFER_SIZE);
 
 		if (!m_pHeaderFile->ReadBuffer(readBuffer, readDataSize))
 		{

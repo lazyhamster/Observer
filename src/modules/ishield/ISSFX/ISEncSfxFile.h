@@ -30,6 +30,14 @@ struct SfxFileHeaderW
 	WORD IsCompressed;
 };
 
+// Meaning of the each time field is guessed, can be wrong
+struct SfxFileHeaderWTimePart
+{
+	FILETIME CreationTime;
+	FILETIME LastModificationTime;
+	FILETIME LastAccessTime;
+};
+
 #pragma pack(pop)
 
 struct SfxFileEntry
@@ -40,6 +48,8 @@ struct SfxFileEntry
 	DWORD CompressedSize;
 	bool IsCompressed;
 	bool IsUnicode;
+	FILETIME CreationTime;
+	FILETIME LastWriteTime;
 };
 
 class ISEncSfxFile : public ISCabFile
