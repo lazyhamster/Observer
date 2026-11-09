@@ -213,6 +213,8 @@
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Far3|x64'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="FatLongNameReader.cpp" />
+    <ClCompile Include="FatNameEncoding.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|x64'">Create</PrecompiledHeader>
@@ -225,6 +227,8 @@
     <None Include="vdisk.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="FatLongNameReader.h" />
+    <ClInclude Include="FatNameEncoding.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

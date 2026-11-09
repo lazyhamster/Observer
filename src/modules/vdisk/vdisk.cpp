@@ -6,6 +6,7 @@
 #include <msclr/marshal.h>
 #include "ModuleDef.h"
 #include "modulecrt/OptionsParser.h"
+#include "FatNameEncoding.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -35,9 +36,10 @@ ref class VDFileInfo
 public:
 	DiscFileSystemInfo^ Ref;
 	int VolumeIndex;
+	FatNameEncoding^ NameEncoding; // Set only for volumes which use internal name representation
 
-	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex)
-		: Ref(objRef), VolumeIndex(volIndex)
+	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex, FatNameEncoding^ nameEncoding)
+		: Ref(objRef), VolumeIndex(volIndex), NameEncoding(nameEncoding)
 	{
 		//
 	}
@@ -78,7 +80,7 @@ struct VDisk
 	gcroot< List<String^>^ > vVolLabels; // Cache for volume labels
 };
 
-static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex)
+static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex, FatNameEncoding^ nameEncoding)
 {
 	try
 	{
@@ -88,22 +90,29 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 			DiscDirectoryInfo^ subDir = subDirList[i];
 			if (subDir->Name != "." && subDir->Name != ".." && subDir->Name->Length > 0 && subDir->Name[0] != 0)
 			{
-				vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex));
-				EnumFilesInVolume(vdObj, subDir, vol, volIndex);
+				vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex, nameEncoding));
+				EnumFilesInVolume(vdObj, subDir, vol, volIndex, nameEncoding);
 			}
 		}
 	}
-	catch (System::IO::IOException^)
+	catch (Exception^)
 	{
 		//Usually this exception occurs on corrupted data
 		//So we just skip all underlying directories
 	}
 
-	array<DiscFileInfo^> ^fileList = dirInfo->GetFiles();
-	for (int i = 0; i < fileList->Length; i++)
+	try
 	{
-		VDFileInfo^ fileInfo = gcnew VDFileInfo(fileList[i], volIndex);
-		vdObj->vItems->Add(fileInfo);
+		array<DiscFileInfo^> ^fileList = dirInfo->GetFiles();
+		for (int i = 0; i < fileList->Length; i++)
+		{
+			VDFileInfo^ fileInfo = gcnew VDFileInfo(fileList[i], volIndex, nameEncoding);
+			vdObj->vItems->Add(fileInfo);
+		}
+	}
+	catch (Exception^)
+	{
+		//Unreadable directory should not prevent listing of the rest of the volume
 	}
 }
 
@@ -152,6 +161,13 @@ static void PrepareFileList(VDisk* vdisk)
 		FileSystemParameters^ fsParams = gcnew FileSystemParameters();
 		fsParams->FileNameEncoding = GetFileNameEncoding();
 
+		FatNameEncoding^ fatNameEncoding = nullptr;
+		if (fsinfo[0]->Name == "FAT")
+		{
+			fatNameEncoding = gcnew FatNameEncoding(fsParams->FileNameEncoding);
+			fsParams->FileNameEncoding = fatNameEncoding;
+		}
+
 		try
 		{
 			DiscFileSystem^ dfs = fsinfo[0]->Open(volInfo, fsParams);
@@ -163,11 +179,17 @@ static void PrepareFileList(VDisk* vdisk)
 				//ntfsFS->NtfsOptions->HideMetafiles = false;
 			}
 			
-			EnumFilesInVolume(vdisk, dfs->Root, volInfo, i);
+			if (fatNameEncoding != nullptr)
+				fatNameEncoding->LoadLongNames(volInfo->Open());
+
+			EnumFilesInVolume(vdisk, dfs->Root, volInfo, i, fatNameEncoding);
 
 			// Replace volume name with label if present
 			// NOTE: C++/cli permits non-empty strings with 0 bytes inside, so we have to check for them too
-			String^ volLabel = dfs->VolumeLabel->Trim();
+			String^ volLabel = dfs->VolumeLabel;
+			if (fatNameEncoding != nullptr)
+				volLabel = fatNameEncoding->ToDisplayPath(volLabel, false);
+			volLabel = volLabel->Trim();
 			if (!String::IsNullOrEmpty(volLabel) && (volLabel->Length > 0) && (volLabel[0] != '\0'))
 			{
 				List<String^>^ labels = vdisk->vVolLabels;
@@ -317,6 +339,22 @@ int MODULE_EXPORT PrepareFiles(HANDLE storage)
 	}
 }
 
+static String^ GetItemDisplayPath(VDisk* vdObj, VDFileInfo^ fileInfo, bool useLongNames)
+{
+	String^ itemPath = fileInfo->Ref->FullName;
+	if (fileInfo->NameEncoding != nullptr)
+		itemPath = fileInfo->NameEncoding->ToDisplayPath(itemPath, useLongNames);
+
+	List<String^> ^volLabels = vdObj->vVolLabels;
+	String^ filePath = String::Format("[{0}]\\{1}", volLabels[fileInfo->VolumeIndex], itemPath);
+
+	// Remove trailing backslash if present
+	if (filePath->EndsWith("\\"))
+		filePath = filePath->Remove(filePath->Length - 1);
+
+	return filePath;
+}
+
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
 {
 	VDisk* vdObj = (VDisk*)storage;
@@ -328,12 +366,12 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	List<VDFileInfo^> ^fileList = vdObj->vItems;
 	VDFileInfo^ fileInfo = fileList[item_index];
 
-	List<String^> ^volLabels = vdObj->vVolLabels;
-	String^ filePath = String::Format("[{0}]\\{1}", volLabels[fileInfo->VolumeIndex], fileInfo->Ref->FullName);
-
-	// Remove trailing backslash if present
-	if (filePath->EndsWith("\\"))
-		filePath = filePath->Remove(filePath->Length - 1);
+	// Long names can make path too large for the output buffer
+	String^ filePath = GetItemDisplayPath(vdObj, fileInfo, true);
+	if (filePath->Length >= (int)STRBUF_SIZE(item_info->Path))
+		filePath = GetItemDisplayPath(vdObj, fileInfo, false);
+	if (filePath->Length >= (int)STRBUF_SIZE(item_info->Path))
+		return GET_ITEM_ERROR;
 
 	// Helper class for String^ to wchar_t* conversion
 	msclr::interop::marshal_context ctx;
