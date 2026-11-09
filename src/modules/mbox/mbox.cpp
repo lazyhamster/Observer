@@ -114,6 +114,9 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
 
+	// GLib prints warnings to the console, which corrupts the Far screen
+	g_log_set_default_handler([](const gchar*, GLogLevelFlags, const gchar*, gpointer) {}, nullptr);
+
 	g_mime_init();
 
 	return TRUE;
@@ -122,4 +125,7 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 void MODULE_EXPORT UnloadSubModule()
 {
 	g_mime_shutdown();
+
+	// Handler code is unloaded with this module, while GLib can stay loaded for another one
+	g_log_set_default_handler(g_log_default_handler, nullptr);
 }
