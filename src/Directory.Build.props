@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Imported automatically by every project below this folder.
+       Projects should not set PlatformToolset themselves, as it would override this value. -->
+  <PropertyGroup>
+    <PlatformToolset>v145</PlatformToolset>
+  </PropertyGroup>
+</Project>

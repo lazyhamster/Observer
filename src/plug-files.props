@@ -9,10 +9,15 @@
     <M4_MacroDependsOn
       Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(M4_MacroDependsOn)</M4_MacroDependsOn>
   </PropertyGroup>
+  <PropertyGroup>
+    <!-- Use the default MSYS2 location if available, so m4 does not have to be in PATH -->
+    <M4Exe Condition="'$(M4Exe)' == '' and Exists('C:\msys64\usr\bin\m4.exe')">C:\msys64\usr\bin\m4.exe</M4Exe>
+    <M4Exe Condition="'$(M4Exe)' == ''">m4</M4Exe>
+  </PropertyGroup>
   <ItemDefinitionGroup>
     <M4_Macro>
       <OutputFile>$(OutDir)%(Filename)</OutputFile>
-      <CommandLineTemplate>m4 -P [AdditionalOptions] [Inputs] &gt; [OutputFile]</CommandLineTemplate>
+      <CommandLineTemplate>&quot;$(M4Exe)&quot; -P [AdditionalOptions] [Inputs] &gt; [OutputFile]</CommandLineTemplate>
       <ExecutionDescription>Processing m4 script (%(Identity)) ...</ExecutionDescription>
       <AdditionalDependencies>version.m4i</AdditionalDependencies>
     </M4_Macro>

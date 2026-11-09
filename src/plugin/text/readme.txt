@@ -227,9 +227,9 @@ PDF rendering library.
 OS: Win7 or higher.
 
 Windows Installer 4+
-Microsoft Visual C++ 2019 Redistributable Package.
+Microsoft Visual C++ v14 Redistributable (latest version).
 
-VDISK module requires Microsoft .NET Framework 4.5 to be installed.
+VDISK module requires Microsoft .NET Framework 4.8 to be installed.
 If you don't install .NET then this modile will not load.
 
 4. Diclaimer.
