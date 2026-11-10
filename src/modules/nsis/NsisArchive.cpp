@@ -314,6 +314,7 @@ void CNsisArchive::Close()
 	m_numFiles = 0;
 	m_numDirectories = 0;
 	m_totalSize = 0;
+	m_itemSizes.clear();
 }
 
 UString CNsisArchive::getItemPath( int itemIndex )
@@ -372,11 +373,37 @@ int CNsisArchive::ExtractArcItem( const int itemIndex, const wchar_t* destFilePa
 
 __int64 CNsisArchive::GetItemSize( int itemIndex )
 {
+	if (itemIndex >= 0 && (size_t)itemIndex < m_itemSizes.size())
+		return m_itemSizes[itemIndex];
+
+	return CalculateItemSize(itemIndex);
+}
+
+bool CNsisArchive::PrepareSizes(const ListProgressCallbacks* progress)
+{
+	int count = GetItemsCount();
+	std::vector<__int64> sizes(count);
+
+	for (int i = 0; i < count; i++)
+	{
+		sizes[i] = CalculateItemSize(i);
+
+		// Callback limits redraw rate on its own
+		if (progress && progress->ListProgress && !progress->ListProgress(progress->signalContext, i + 1, count))
+			return false;
+	}
+
+	m_itemSizes.swap(sizes);
+	return true;
+}
+
+__int64 CNsisArchive::CalculateItemSize( int itemIndex )
+{
 	NWindows::NCOM::CPropVariant prop;
 	if ( (m_handler->GetProperty(itemIndex, kpidSize, &prop) == S_OK) && (prop.vt != VT_EMPTY) )
 		return prop.hVal.QuadPart;
 
-	DWORD res = 0;
+	__int64 res = 0;
 
 	// For non-solid archives only
 	if ( (m_handler->GetArchiveProperty(kpidSolid, &prop) == S_OK) && (prop.vt == VT_BOOL) && (!prop.boolVal) )
@@ -388,7 +415,7 @@ __int64 CNsisArchive::GetItemSize( int itemIndex )
 		UInt32 nIndex = itemIndex;
 		HRESULT extResult = m_handler->Extract(&nIndex, 1, 1, callback);
 		if (extResult == S_OK)
-			res = (DWORD) callback->GetCompleted();
+			res = callback->GetCompleted();
 	}
 
 	return res;
