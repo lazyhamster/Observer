@@ -7,6 +7,8 @@
 #include "ModuleDef.h"
 #include "modulecrt/OptionsParser.h"
 #include "FatNameEncoding.h"
+#include "ExtFeatureFilterStream.h"
+#include "ExtDirectoryReader.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -37,9 +39,17 @@ public:
 	DiscFileSystemInfo^ Ref;
 	int VolumeIndex;
 	FatNameEncoding^ NameEncoding; // Set only for volumes which use internal name representation
+	ExtEntryInfo^ Properties; // Set only if item properties were read during listing
+	ExtDirectoryReader^ ExtReader; // Set only for items listed by ExtDirectoryReader
 
 	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex, FatNameEncoding^ nameEncoding)
 		: Ref(objRef), VolumeIndex(volIndex), NameEncoding(nameEncoding)
+	{
+		//
+	}
+
+	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex, ExtEntryInfo^ properties, ExtDirectoryReader^ extReader)
+		: Ref(objRef), VolumeIndex(volIndex), Properties(properties), ExtReader(extReader)
 	{
 		//
 	}
@@ -116,6 +126,41 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 	}
 }
 
+// Same as EnumFilesInVolume, but symlinks are skipped instead of being resolved
+static void EnumExtFilesInVolume(VDisk* vdObj, DiscFileSystem^ dfs, ExtDirectoryReader^ reader, String^ dirPath, int volIndex, int depth)
+{
+	const int MaxDepth = 256; // Protection from loops in corrupted file systems
+	if (depth > MaxDepth) return;
+
+	List<ExtEntryInfo^>^ entries = gcnew List<ExtEntryInfo^>();
+	try
+	{
+		reader->ReadDirectory(dirPath, entries);
+	}
+	catch (Exception^)
+	{
+		//Unreadable directory should not prevent listing of the rest of the volume
+		return;
+	}
+
+	// Directories first, then files, same order as in EnumFilesInVolume
+	String^ prefix = (dirPath->Length > 0) ? dirPath + "\\" : String::Empty;
+	for each (ExtEntryInfo^ entry in entries)
+	{
+		if (!entry->IsDirectory) continue;
+
+		String^ path = prefix + entry->Name;
+		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetDirectoryInfo(path), volIndex, entry, reader));
+		EnumExtFilesInVolume(vdObj, dfs, reader, path, volIndex, depth + 1);
+	}
+
+	for each (ExtEntryInfo^ entry in entries)
+	{
+		if (entry->IsDirectory) continue;
+		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetFileInfo(prefix + entry->Name), volIndex, entry, reader));
+	}
+}
+
 static Encoding^ GetFileNameEncoding()
 {
 	try
@@ -170,7 +215,19 @@ static void PrepareFileList(VDisk* vdisk)
 
 		try
 		{
-			DiscFileSystem^ dfs = fsinfo[0]->Open(volInfo, fsParams);
+			DiscFileSystem^ dfs;
+			ExtDirectoryReader^ extReader = nullptr;
+			if (fsinfo[0]->Name == "ext")
+			{
+				IO::Stream^ extVolume = gcnew ExtFeatureFilterStream(volInfo->Open());
+				dfs = gcnew Ext::ExtFileSystem(extVolume, fsParams);
+				extReader = gcnew ExtDirectoryReader(dfs, extVolume);
+			}
+			else
+			{
+				dfs = fsinfo[0]->Open(volInfo, fsParams);
+			}
+
 			if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
 			{
 				Ntfs::NtfsFileSystem^ ntfsFS = (Ntfs::NtfsFileSystem^)dfs;
@@ -182,7 +239,10 @@ static void PrepareFileList(VDisk* vdisk)
 			if (fatNameEncoding != nullptr)
 				fatNameEncoding->LoadLongNames(volInfo->Open());
 
-			EnumFilesInVolume(vdisk, dfs->Root, volInfo, i, fatNameEncoding);
+			if (extReader != nullptr && extReader->IsAvailable)
+				EnumExtFilesInVolume(vdisk, dfs, extReader, String::Empty, i, 0);
+			else
+				EnumFilesInVolume(vdisk, dfs->Root, volInfo, i, fatNameEncoding);
 
 			// Replace volume name with label if present
 			// NOTE: C++/cli permits non-empty strings with 0 bytes inside, so we have to check for them too
@@ -379,6 +439,29 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), ctx.marshal_as<const wchar_t*>(filePath));
 
+	ExtEntryInfo^ props = fileInfo->Properties;
+	if (props != nullptr)
+	{
+		item_info->Attributes = (DWORD)props->Attributes;
+		item_info->Size = props->Length;
+		if (props->IsDirectory)
+			item_info->Attributes |= FILE_ATTRIBUTE_DIRECTORY;
+
+		if (props->HasTimes)
+		{
+			try
+			{
+				item_info->CreationTime = DateTimeToFileTime(props->CreationTimeUtc);
+				item_info->ModificationTime = DateTimeToFileTime(props->LastWriteTimeUtc);
+			}
+			catch (ArgumentOutOfRangeException^)
+			{
+				//Same as below, invalid date/time values are not crucial
+			}
+		}
+		return GET_ITEM_OK;
+	}
+
 	try
 	{
 		DiscFileSystemInfo^ fsData = fileInfo->Ref;
@@ -436,7 +519,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	try
 	{
-		IO::Stream ^inStr = dfi->OpenRead();
+		// DiscUtils hangs on ext files with holes, so they are read separately
+		IO::Stream ^inStr = (fileInfo->ExtReader != nullptr) ? fileInfo->ExtReader->OpenFile(dfi->FullName) : nullptr;
+		if (inStr == nullptr)
+			inStr = dfi->OpenRead();
 		IO::Stream ^outStr = gcnew IO::FileStream(strDestFile, IO::FileMode::Create, IO::FileAccess::Write, IO::FileShare::Read);
 
 		try
@@ -444,7 +530,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			int copyBufSize = 32 * 1024;
 			array<Byte> ^copyBuf = gcnew array<Byte>(copyBufSize);
 
-			Int64 bytesLeft = dfi->Length;
+			Int64 bytesLeft = inStr->Length;
 			while (bytesLeft > 0)
 			{
 				int copySize = (int) Math::Min(bytesLeft, (Int64) copyBufSize);

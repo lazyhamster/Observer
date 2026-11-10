@@ -213,6 +213,9 @@
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Far3|x64'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="ExtDirectoryReader.cpp" />
+    <ClCompile Include="ExtFeatureFilterStream.cpp" />
+    <ClCompile Include="ExtFileStream.cpp" />
     <ClCompile Include="FatLongNameReader.cpp" />
     <ClCompile Include="FatNameEncoding.cpp" />
     <ClCompile Include="stdafx.cpp">
@@ -227,6 +230,9 @@
     <None Include="vdisk.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ExtDirectoryReader.h" />
+    <ClInclude Include="ExtFeatureFilterStream.h" />
+    <ClInclude Include="ExtFileStream.h" />
     <ClInclude Include="FatLongNameReader.h" />
     <ClInclude Include="FatNameEncoding.h" />
     <ClInclude Include="stdafx.h" />
