@@ -10,6 +10,7 @@
 #include "ExtFeatureFilterStream.h"
 #include "ExtDirectoryReader.h"
 #include "NtfsDirectoryReader.h"
+#include "NtfsMftReader.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -149,6 +150,34 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 	{
 		//Unreadable directory should not prevent listing of the rest of the volume
 	}
+}
+
+// Lists NTFS volume from MFT records. Returns false if MFT can't be used, then directories should be listed.
+static bool ListNtfsFromMft(VDisk* vdObj, DiscFileSystem^ dfs, LogicalVolumeInfo^ vol, int volIndex)
+{
+	List<ItemProperties^>^ items = gcnew List<ItemProperties^>();
+	try
+	{
+		NtfsMftReader^ mft = gcnew NtfsMftReader(vol->Open());
+		if (!mft->Scan(vdObj->pProgress))
+		{
+			vdObj->fAborted = true;
+			return true;
+		}
+		mft->GetItems(items);
+	}
+	catch (Exception^)
+	{
+		return false;
+	}
+
+	// Item names hold paths here
+	for each (ItemProperties^ item in items)
+	{
+		DiscFileSystemInfo^ info = item->IsDirectory ? (DiscFileSystemInfo^) dfs->GetDirectoryInfo(item->Name) : (DiscFileSystemInfo^) dfs->GetFileInfo(item->Name);
+		vdObj->vItems->Add(gcnew VDFileInfo(info, volIndex, item, nullptr));
+	}
+	return true;
 }
 
 // Same as EnumFilesInVolume, but item properties are read together with directories
@@ -326,6 +355,8 @@ static void PrepareFileList(VDisk* vdisk)
 
 			if (extReader != nullptr && extReader->IsAvailable)
 				EnumCachedFilesInVolume(vdisk, dfs, extReader, extReader, String::Empty, i, 0);
+			else if (ntfsReader != nullptr && ListNtfsFromMft(vdisk, dfs, volInfo, i))
+				; // Done, reading MFT is much faster than reading directories
 			else if (ntfsReader != nullptr && ntfsReader->IsAvailable)
 				EnumCachedFilesInVolume(vdisk, dfs, ntfsReader, nullptr, String::Empty, i, 0);
 			else

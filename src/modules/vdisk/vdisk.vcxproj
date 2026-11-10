@@ -220,6 +220,7 @@
     <ClCompile Include="FatNameEncoding.cpp" />
     <ClCompile Include="InternalMembers.cpp" />
     <ClCompile Include="NtfsDirectoryReader.cpp" />
+    <ClCompile Include="NtfsMftReader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|x64'">Create</PrecompiledHeader>
@@ -240,6 +241,7 @@
     <ClInclude Include="InternalMembers.h" />
     <ClInclude Include="ItemProperties.h" />
     <ClInclude Include="NtfsDirectoryReader.h" />
+    <ClInclude Include="NtfsMftReader.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

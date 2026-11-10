@@ -42,6 +42,9 @@
     <ClCompile Include="NtfsDirectoryReader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="NtfsMftReader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -77,6 +80,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NtfsDirectoryReader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NtfsMftReader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
