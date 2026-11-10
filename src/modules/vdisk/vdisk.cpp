@@ -88,7 +88,28 @@ struct VDisk
 	gcroot<VirtualDisk^> pVdiskObj;
 	gcroot< List<VDFileInfo^>^ > vItems;
 	gcroot< List<String^>^ > vVolLabels; // Cache for volume labels
+
+	// Files list reading progress
+	const ListProgressCallbacks* pProgress = nullptr;
+	__int64 nItemsTotal = 0; // Estimate, 0 if unknown
+	bool fAborted = false;
 };
+
+// Returns false if listing should stop
+static bool ReportListProgress(VDisk* vdObj)
+{
+	if (vdObj->fAborted) return false;
+
+	const ListProgressCallbacks* progress = vdObj->pProgress;
+	if (progress && progress->ListProgress)
+	{
+		// Callback limits redraw rate on its own, but there is no need to call it for every item
+		int count = vdObj->vItems->Count;
+		if ((count % 256) == 0 && !progress->ListProgress(progress->signalContext, count, vdObj->nItemsTotal))
+			vdObj->fAborted = true;
+	}
+	return !vdObj->fAborted;
+}
 
 static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex, FatNameEncoding^ nameEncoding)
 {
@@ -101,7 +122,9 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 			if (subDir->Name != "." && subDir->Name != ".." && subDir->Name->Length > 0 && subDir->Name[0] != 0)
 			{
 				vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex, nameEncoding));
+				if (!ReportListProgress(vdObj)) return;
 				EnumFilesInVolume(vdObj, subDir, vol, volIndex, nameEncoding);
+				if (vdObj->fAborted) return;
 			}
 		}
 	}
@@ -118,6 +141,7 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 		{
 			VDFileInfo^ fileInfo = gcnew VDFileInfo(fileList[i], volIndex, nameEncoding);
 			vdObj->vItems->Add(fileInfo);
+			if (!ReportListProgress(vdObj)) return;
 		}
 	}
 	catch (Exception^)
@@ -151,13 +175,16 @@ static void EnumExtFilesInVolume(VDisk* vdObj, DiscFileSystem^ dfs, ExtDirectory
 
 		String^ path = prefix + entry->Name;
 		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetDirectoryInfo(path), volIndex, entry, reader));
+		if (!ReportListProgress(vdObj)) return;
 		EnumExtFilesInVolume(vdObj, dfs, reader, path, volIndex, depth + 1);
+		if (vdObj->fAborted) return;
 	}
 
 	for each (ExtEntryInfo^ entry in entries)
 	{
 		if (entry->IsDirectory) continue;
 		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetFileInfo(prefix + entry->Name), volIndex, entry, reader));
+		if (!ReportListProgress(vdObj)) return;
 	}
 }
 
@@ -187,6 +214,53 @@ static Encoding^ GetFileNameEncoding()
 		return Encoding::Default;
 	}
 };
+
+static array<Byte>^ ReadVolumeBytes(IO::Stream^ volume, __int64 offset, int count)
+{
+	array<Byte>^ data = gcnew array<Byte>(count);
+	volume->Position = offset;
+	int done = 0;
+	while (done < count)
+	{
+		int n = volume->Read(data, done, count - done);
+		if (n <= 0) return nullptr;
+		done += n;
+	}
+	return data;
+}
+
+// Number of items for progress display, it doesn't have to be exact. Returns 0 if unknown.
+static __int64 EstimateItemsCount(DiscFileSystem^ dfs, IO::Stream^ volume)
+{
+	try
+	{
+		if (dfs->GetType() == Ext::ExtFileSystem::typeid)
+		{
+			// Used inodes, except reserved ones (they are below s_first_ino)
+			array<Byte>^ sb = ReadVolumeBytes(volume, 1024, 0x58);
+			if (sb == nullptr) return 0;
+			__int64 used = (__int64)BitConverter::ToUInt32(sb, 0x00) - BitConverter::ToUInt32(sb, 0x10);
+			__int64 reserved = (BitConverter::ToUInt32(sb, 0x4C) >= 1) ? BitConverter::ToUInt32(sb, 0x54) - 1 : 10;
+			return Math::Max(used - reserved, (__int64)0);
+		}
+		if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
+		{
+			// Records in MFT, including free ones, so this is usually too much
+			array<Byte>^ boot = ReadVolumeBytes(volume, 0, 0x42);
+			if (boot == nullptr) return 0;
+			int clusterSize = BitConverter::ToUInt16(boot, 0x0B) * boot[0x0D];
+			int recordValue = (SByte)boot[0x40];
+			int recordSize = (recordValue < 0) ? (1 << -recordValue) : recordValue * clusterSize;
+			if (recordSize <= 0) return 0;
+			return Math::Max(dfs->GetFileLength("$MFT") / recordSize - 16, (__int64)0); // First 16 are metafiles
+		}
+	}
+	catch (Exception^)
+	{
+		// No estimate then
+	}
+	return 0;
+}
 
 static void PrepareFileList(VDisk* vdisk)
 {
@@ -239,6 +313,12 @@ static void PrepareFileList(VDisk* vdisk)
 			if (fatNameEncoding != nullptr)
 				fatNameEncoding->LoadLongNames(volInfo->Open());
 
+			if (vdisk->pProgress)
+			{
+				__int64 estimate = EstimateItemsCount(dfs, volInfo->Open());
+				vdisk->nItemsTotal = (estimate > 0) ? vdisk->vItems->Count + estimate : 0;
+			}
+
 			if (extReader != nullptr && extReader->IsAvailable)
 				EnumExtFilesInVolume(vdisk, dfs, extReader, String::Empty, i, 0);
 			else
@@ -261,6 +341,8 @@ static void PrepareFileList(VDisk* vdisk)
 			String^ errText = String::Format("Volume listing error : {0}", ex);
 			DisplayErrorMessage(errText, L"VDISK Error");
 		}
+
+		if (vdisk->fAborted) break;
 	} // for
 }
 
@@ -382,21 +464,36 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT PrepareFiles(HANDLE storage)
+int MODULE_EXPORT PrepareFilesEx(HANDLE storage, const ListProgressCallbacks* progress)
 {
 	VDisk* vdObj = (VDisk*) storage;
 	if (vdObj == NULL) return FALSE;
 
+	vdObj->pProgress = progress;
+	vdObj->nItemsTotal = 0;
+	vdObj->fAborted = false;
 	try
 	{
 		PrepareFileList(vdObj);
-		return TRUE;
+
+		// Exact number at the end, plugin uses it as total when it reads the items
+		if (progress && !vdObj->fAborted && !progress->ListProgress(progress->signalContext, vdObj->vItems->Count, vdObj->vItems->Count))
+			vdObj->fAborted = true;
+
+		vdObj->pProgress = nullptr;
+		return vdObj->fAborted ? FALSE : TRUE;
 	}
 	catch (Exception^ ex)
 	{
+		vdObj->pProgress = nullptr;
 		DisplayErrorMessage(ex->Message, L"VDISK Prepare Error");
 		return FALSE;
 	}
+}
+
+int MODULE_EXPORT PrepareFiles(HANDLE storage)
+{
+	return PrepareFilesEx(storage, nullptr);
 }
 
 static String^ GetItemDisplayPath(VDisk* vdObj, VDFileInfo^ fileInfo, bool useLongNames)
@@ -592,6 +689,8 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.GetItem = GetStorageItem;
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
+	if (MODULE_HAS_PREPARE_FILES_EX(LoadParams))
+		LoadParams->ApiFuncs.PrepareFilesEx = PrepareFilesEx;
 
 	OptionsList opts(LoadParams->Settings);
 	opts.GetValue(L"DefaultCodepage", optDefaultCodepage);

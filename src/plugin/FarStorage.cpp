@@ -111,7 +111,24 @@ void StorageObject::Close()
 	m_vItems.clear();
 }
 
-ListReadResult StorageObject::ReadFileList()
+// Remembers the last count reported by module, it's the total for the second stage
+struct ListProgressRelay
+{
+	const ListProgressCallbacks* target;
+	__int64 itemsFound;
+	bool aborted;
+};
+
+static int CALLBACK RelayListProgress(HANDLE context, __int64 itemsFound, __int64 itemsTotal)
+{
+	ListProgressRelay* relay = (ListProgressRelay*) context;
+	relay->itemsFound = itemsFound;
+	if (!relay->target->ListProgress(relay->target->signalContext, itemsFound, itemsTotal))
+		relay->aborted = true;
+	return relay->aborted ? FALSE : TRUE;
+}
+
+ListReadResult StorageObject::ReadFileList(const ListProgressCallbacks* prepareProgress, const ListProgressCallbacks* readProgress)
 {
 	bool fListOK = true;
 
@@ -123,8 +140,18 @@ ListReadResult StorageObject::ReadFileList()
 	DWORD item_index = 0;
 	StorageItemInfo item_info;
 
-	if (!module->ModuleFunctions.PrepareFiles(m_pStoragePtr))
+	// First pass is done by module, second one reads prepared items
+	ListProgressRelay relay = { prepareProgress, 0, false };
+	if (prepareProgress && module->ModuleFunctions.PrepareFilesEx)
+	{
+		ListProgressCallbacks relayCallbacks = { &relay, RelayListProgress };
+		if (!module->ModuleFunctions.PrepareFilesEx(m_pStoragePtr, &relayCallbacks))
+			return relay.aborted ? ListReadResult::Aborted : ListReadResult::PrepFailed;
+	}
+	else if (!module->ModuleFunctions.PrepareFiles(m_pStoragePtr))
+	{
 		return ListReadResult::PrepFailed;
+	}
 
 	do
 	{
@@ -165,13 +192,18 @@ ListReadResult StorageObject::ReadFileList()
 			fListOK = false;
 		}
 
-		// Check for user abort
-		if (CheckEsc())
+		item_index++;
+
+		// Check for user abort, progress callback checks it on its own
+		if (readProgress)
+		{
+			if (!readProgress->ListProgress(readProgress->signalContext, item_index, relay.itemsFound))
+				return ListReadResult::Aborted;
+		}
+		else if (CheckEsc())
 		{
 			return ListReadResult::Aborted;
 		}
-
-		item_index++;
 
 	} while (fListOK);
 

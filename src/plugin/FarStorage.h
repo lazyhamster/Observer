@@ -47,7 +47,8 @@ public:
 
 	bool Open(const wchar_t* path, bool applyExtFilters, int openWithModule);
 	bool Open(const wchar_t* path, const void* data, size_t dataSize, bool applyExtFilters, int openWithModule);
-	ListReadResult ReadFileList();
+	// Listing has two passes: module prepares items, then they are read by plugin
+	ListReadResult ReadFileList(const ListProgressCallbacks* prepareProgress = nullptr, const ListProgressCallbacks* readProgress = nullptr);
 	void Close();
 
 	int Extract(ExtractOperationParams &params);
