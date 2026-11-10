@@ -9,6 +9,7 @@
 #include "FatNameEncoding.h"
 #include "ExtFeatureFilterStream.h"
 #include "ExtDirectoryReader.h"
+#include "NtfsDirectoryReader.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -39,8 +40,8 @@ public:
 	DiscFileSystemInfo^ Ref;
 	int VolumeIndex;
 	FatNameEncoding^ NameEncoding; // Set only for volumes which use internal name representation
-	ExtEntryInfo^ Properties; // Set only if item properties were read during listing
-	ExtDirectoryReader^ ExtReader; // Set only for items listed by ExtDirectoryReader
+	ItemProperties^ Properties; // Set only if item properties were read during listing
+	ExtDirectoryReader^ ExtReader; // Set only for items on ext volumes, used for extraction
 
 	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex, FatNameEncoding^ nameEncoding)
 		: Ref(objRef), VolumeIndex(volIndex), NameEncoding(nameEncoding)
@@ -48,7 +49,7 @@ public:
 		//
 	}
 
-	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex, ExtEntryInfo^ properties, ExtDirectoryReader^ extReader)
+	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex, ItemProperties^ properties, ExtDirectoryReader^ extReader)
 		: Ref(objRef), VolumeIndex(volIndex), Properties(properties), ExtReader(extReader)
 	{
 		//
@@ -150,13 +151,13 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 	}
 }
 
-// Same as EnumFilesInVolume, but symlinks are skipped instead of being resolved
-static void EnumExtFilesInVolume(VDisk* vdObj, DiscFileSystem^ dfs, ExtDirectoryReader^ reader, String^ dirPath, int volIndex, int depth)
+// Same as EnumFilesInVolume, but item properties are read together with directories
+static void EnumCachedFilesInVolume(VDisk* vdObj, DiscFileSystem^ dfs, IDirectoryReader^ reader, ExtDirectoryReader^ extReader, String^ dirPath, int volIndex, int depth)
 {
 	const int MaxDepth = 256; // Protection from loops in corrupted file systems
 	if (depth > MaxDepth) return;
 
-	List<ExtEntryInfo^>^ entries = gcnew List<ExtEntryInfo^>();
+	List<ItemProperties^>^ entries = gcnew List<ItemProperties^>();
 	try
 	{
 		reader->ReadDirectory(dirPath, entries);
@@ -169,21 +170,21 @@ static void EnumExtFilesInVolume(VDisk* vdObj, DiscFileSystem^ dfs, ExtDirectory
 
 	// Directories first, then files, same order as in EnumFilesInVolume
 	String^ prefix = (dirPath->Length > 0) ? dirPath + "\\" : String::Empty;
-	for each (ExtEntryInfo^ entry in entries)
+	for each (ItemProperties^ entry in entries)
 	{
 		if (!entry->IsDirectory) continue;
 
 		String^ path = prefix + entry->Name;
-		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetDirectoryInfo(path), volIndex, entry, reader));
+		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetDirectoryInfo(path), volIndex, entry, extReader));
 		if (!ReportListProgress(vdObj)) return;
-		EnumExtFilesInVolume(vdObj, dfs, reader, path, volIndex, depth + 1);
+		EnumCachedFilesInVolume(vdObj, dfs, reader, extReader, path, volIndex, depth + 1);
 		if (vdObj->fAborted) return;
 	}
 
-	for each (ExtEntryInfo^ entry in entries)
+	for each (ItemProperties^ entry in entries)
 	{
 		if (entry->IsDirectory) continue;
-		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetFileInfo(prefix + entry->Name), volIndex, entry, reader));
+		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetFileInfo(prefix + entry->Name), volIndex, entry, extReader));
 		if (!ReportListProgress(vdObj)) return;
 	}
 }
@@ -291,6 +292,7 @@ static void PrepareFileList(VDisk* vdisk)
 		{
 			DiscFileSystem^ dfs;
 			ExtDirectoryReader^ extReader = nullptr;
+			NtfsDirectoryReader^ ntfsReader = nullptr;
 			if (fsinfo[0]->Name == "ext")
 			{
 				IO::Stream^ extVolume = gcnew ExtFeatureFilterStream(volInfo->Open());
@@ -308,6 +310,9 @@ static void PrepareFileList(VDisk* vdisk)
 				ntfsFS->NtfsOptions->HideHiddenFiles = false;
 				ntfsFS->NtfsOptions->HideSystemFiles = false;
 				//ntfsFS->NtfsOptions->HideMetafiles = false;
+
+				// Created after options are set, they affect which entries are listed
+				ntfsReader = gcnew NtfsDirectoryReader(ntfsFS);
 			}
 			
 			if (fatNameEncoding != nullptr)
@@ -320,7 +325,9 @@ static void PrepareFileList(VDisk* vdisk)
 			}
 
 			if (extReader != nullptr && extReader->IsAvailable)
-				EnumExtFilesInVolume(vdisk, dfs, extReader, String::Empty, i, 0);
+				EnumCachedFilesInVolume(vdisk, dfs, extReader, extReader, String::Empty, i, 0);
+			else if (ntfsReader != nullptr && ntfsReader->IsAvailable)
+				EnumCachedFilesInVolume(vdisk, dfs, ntfsReader, nullptr, String::Empty, i, 0);
 			else
 				EnumFilesInVolume(vdisk, dfs->Root, volInfo, i, fatNameEncoding);
 
@@ -536,7 +543,7 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), ctx.marshal_as<const wchar_t*>(filePath));
 
-	ExtEntryInfo^ props = fileInfo->Properties;
+	ItemProperties^ props = fileInfo->Properties;
 	if (props != nullptr)
 	{
 		item_info->Attributes = (DWORD)props->Attributes;
