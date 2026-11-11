@@ -14,6 +14,16 @@ struct ExtractProcessCallbacks
 	ExtractProgressFunc FileProgress;
 };
 
+// Files list reading progress callback, returns FALSE if user requested abort.
+// itemsTotal is an estimate, 0 if unknown.
+typedef int (CALLBACK *ListProgressFunc)(HANDLE, __int64 itemsFound, __int64 itemsTotal);
+
+struct ListProgressCallbacks
+{
+	HANDLE signalContext;
+	ListProgressFunc ListProgress;
+};
+
 #define ACTUAL_API_VERSION 6
 #define STORAGE_FORMAT_NAME_MAX_LEN 32
 #define STORAGE_PARAM_MAX_LEN 64
@@ -61,6 +71,7 @@ typedef int (MODULE_EXPORT *PrepareFilesFunc)(HANDLE storage);
 typedef void (MODULE_EXPORT *CloseStorageFunc)(HANDLE storage);
 typedef int (MODULE_EXPORT *GetItemFunc)(HANDLE storage, int item_index, StorageItemInfo* item_info);
 typedef int (MODULE_EXPORT *ExtractFunc)(HANDLE storage, ExtractOperationParams params);
+typedef int (MODULE_EXPORT *PrepareFilesExFunc)(HANDLE storage, const ListProgressCallbacks* progress);
 
 struct module_cbs
 {
@@ -69,6 +80,9 @@ struct module_cbs
 	GetItemFunc GetItem;
 	ExtractFunc ExtractItem;
 	PrepareFilesFunc PrepareFiles;
+	// Optional, used instead of PrepareFiles if set. Older plugin versions don't have this field,
+	// so set it only if MODULE_HAS_PREPARE_FILES_EX(LoadParams) is true.
+	PrepareFilesExFunc PrepareFilesEx;
 };
 
 struct ModuleLoadParameters
@@ -90,6 +104,7 @@ typedef int (MODULE_EXPORT *LoadSubModuleFunc)(ModuleLoadParameters*);
 typedef void (MODULE_EXPORT *UnloadSubModuleFunc)(void);
 
 #define MAKEMODULEVERSION(mj,mn) ((mj << 16) | mn)
+#define MODULE_HAS_PREPARE_FILES_EX(params) ((params)->StructSize >= sizeof(ModuleLoadParameters))
 #define STRBUF_SIZE(x) ( sizeof(x) / sizeof(x[0]) )
 
 // Open storage return results

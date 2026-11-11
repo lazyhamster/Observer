@@ -1,0 +1,146 @@
+name: Build
+
+# Run this manually once before the first tag, to fill the package feed.
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  # Changing the commit can change library versions, and forces them to be compiled again
+  VCPKG_COMMIT: 245d37306671ea67d8f313081a81aae8079f8916
+  VCPKG_DIR: C:\vp
+  VCPKG_PACKAGES: zlib bzip2 glib gmime libmspack boost-iostreams
+  PACKAGE_FEED: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
+  # Compiled libraries are kept in GitHub Packages, as a regular Actions cache
+  # can't be shared between tags and is deleted after 7 days without use
+  VCPKG_BINARY_SOURCES: clear;nuget,https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json,readwrite
+  BUILD_CONFIGURATION: Release-Far3
+
+jobs:
+  build:
+    runs-on: windows-2025-vs2026
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: x64
+            arch: x64
+          - platform: Win32
+            arch: x86
+    env:
+      # Only Release libraries are used here, so Debug ones are not worth compiling
+      VCPKG_TRIPLET: ${{ matrix.arch }}-windows-release
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Apply version from tag
+        if: github.ref_type == 'tag'
+        shell: pwsh
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          if ($env:TAG -notmatch '^v?(\d+)\.(\d+)\.(\d+)$') { throw "Tag '$env:TAG' is not a version like 1.13.0 or v1.13.0" }
+          $numbers = $Matches[1], $Matches[2], $Matches[3]
+          $names = 'VMAJOR', 'VMINOR', 'VREVISION'
+
+          $path = Join-Path $PWD 'src\plugin\version.m4i'
+          $text = [IO.File]::ReadAllText($path)
+          for ($i = 0; $i -lt $names.Count; $i++) {
+            $pattern = '(m4_define\(' + $names[$i] + ',\s*`)\d+'
+            if ($text -notmatch $pattern) { throw "$($names[$i]) not found in version.m4i" }
+            $text = $text -replace $pattern, ('${1}' + $numbers[$i])
+          }
+          [IO.File]::WriteAllText($path, $text)
+          Write-Output "Building version $($numbers -join '.')"
+
+      - name: Get vcpkg
+        shell: pwsh
+        run: |
+          git init $env:VCPKG_DIR
+          git -C $env:VCPKG_DIR fetch --depth 1 https://github.com/microsoft/vcpkg.git $env:VCPKG_COMMIT
+          git -C $env:VCPKG_DIR checkout FETCH_HEAD
+          & "$env:VCPKG_DIR\bootstrap-vcpkg.bat" -disableMetrics
+          & "$env:VCPKG_DIR\vcpkg.exe" integrate install
+
+      - name: Connect to package feed
+        shell: pwsh
+        env:
+          FEED_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $nuget = & "$env:VCPKG_DIR\vcpkg.exe" fetch nuget | Select-Object -Last 1
+          & $nuget sources add -Source $env:PACKAGE_FEED -Name GitHubPackages -UserName $env:GITHUB_REPOSITORY_OWNER -Password $env:FEED_TOKEN -StorePasswordInClearText
+          & $nuget setapikey $env:FEED_TOKEN -Source $env:PACKAGE_FEED
+
+      - name: Install libraries
+        shell: pwsh
+        run: |
+          & "$env:VCPKG_DIR\vcpkg.exe" install $env:VCPKG_PACKAGES.Split(' ') --triplet $env:VCPKG_TRIPLET --host-triplet x64-windows-release --overlay-triplets=.github\vcpkg-triplets --clean-after-build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload library build logs
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: vcpkg-logs-${{ matrix.arch }}
+          path: C:\vp\buildtrees\**\*.log
+          if-no-files-found: ignore
+
+      - name: Install m4
+        run: C:\msys64\usr\bin\pacman.exe -S --needed --noconfirm m4
+
+      - name: Build solution
+        shell: pwsh
+        run: |
+          # Added last, as MSYS2 has tools named the same as the Visual Studio ones
+          $env:Path += ';C:\msys64\usr\bin'
+          $msbuild = & "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe" -latest -requires Microsoft.Component.MSBuild -find 'MSBuild\Current\Bin\amd64\MSBuild.exe' | Select-Object -First 1
+          & $msbuild src\Observer.sln -nologo -v:m -m "-p:Configuration=$env:BUILD_CONFIGURATION" "-p:Platform=${{ matrix.platform }}" "-p:VcpkgTriplet=$env:VCPKG_TRIPLET"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Create archive
+        shell: pwsh
+        run: |
+          $env:Path += ';C:\msys64\usr\bin'
+          Push-Location src\extra
+          $version = (m4 -P version.m4 | Out-String).Trim()
+          Pop-Location
+          if (-not $version) { throw 'Unable to get version number' }
+
+          $farVersion = $env:BUILD_CONFIGURATION.Substring($env:BUILD_CONFIGURATION.Length - 4)
+          New-Item -ItemType Directory export | Out-Null
+          Copy-Item "bin\$env:BUILD_CONFIGURATION-${{ matrix.platform }}" export\Observer -Recurse
+          Push-Location export
+          7z a -r -bd '-x!*.ipdb' '-x!*.iobj' '-x!*.metagen' -- "..\Observer_${farVersion}_${{ matrix.arch }}_$version.7z" Observer
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: observer-${{ matrix.arch }}
+          path: '*.7z'
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: observer-*
+          merge-multiple: true
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+        run: gh release create "$TAG" *.7z --repo "$GITHUB_REPOSITORY" --draft --title "$TAG" --notes "Build of $TAG"

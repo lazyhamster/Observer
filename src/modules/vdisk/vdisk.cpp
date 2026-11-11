@@ -6,6 +6,11 @@
 #include <msclr/marshal.h>
 #include "ModuleDef.h"
 #include "modulecrt/OptionsParser.h"
+#include "FatNameEncoding.h"
+#include "ExtFeatureFilterStream.h"
+#include "ExtDirectoryReader.h"
+#include "NtfsDirectoryReader.h"
+#include "NtfsMftReader.h"
 
 using namespace System;
 using namespace System::Collections::Generic;
@@ -35,9 +40,18 @@ ref class VDFileInfo
 public:
 	DiscFileSystemInfo^ Ref;
 	int VolumeIndex;
+	FatNameEncoding^ NameEncoding; // Set only for volumes which use internal name representation
+	ItemProperties^ Properties; // Set only if item properties were read during listing
+	ExtDirectoryReader^ ExtReader; // Set only for items on ext volumes, used for extraction
 
-	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex)
-		: Ref(objRef), VolumeIndex(volIndex)
+	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex, FatNameEncoding^ nameEncoding)
+		: Ref(objRef), VolumeIndex(volIndex), NameEncoding(nameEncoding)
+	{
+		//
+	}
+
+	VDFileInfo(DiscFileSystemInfo^ objRef, int volIndex, ItemProperties^ properties, ExtDirectoryReader^ extReader)
+		: Ref(objRef), VolumeIndex(volIndex), Properties(properties), ExtReader(extReader)
 	{
 		//
 	}
@@ -76,9 +90,30 @@ struct VDisk
 	gcroot<VirtualDisk^> pVdiskObj;
 	gcroot< List<VDFileInfo^>^ > vItems;
 	gcroot< List<String^>^ > vVolLabels; // Cache for volume labels
+
+	// Files list reading progress
+	const ListProgressCallbacks* pProgress = nullptr;
+	__int64 nItemsTotal = 0; // Estimate, 0 if unknown
+	bool fAborted = false;
 };
 
-static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex)
+// Returns false if listing should stop
+static bool ReportListProgress(VDisk* vdObj)
+{
+	if (vdObj->fAborted) return false;
+
+	const ListProgressCallbacks* progress = vdObj->pProgress;
+	if (progress && progress->ListProgress)
+	{
+		// Callback limits redraw rate on its own, but there is no need to call it for every item
+		int count = vdObj->vItems->Count;
+		if ((count % 256) == 0 && !progress->ListProgress(progress->signalContext, count, vdObj->nItemsTotal))
+			vdObj->fAborted = true;
+	}
+	return !vdObj->fAborted;
+}
+
+static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalVolumeInfo^ vol, int volIndex, FatNameEncoding^ nameEncoding)
 {
 	try
 	{
@@ -88,22 +123,98 @@ static void EnumFilesInVolume(VDisk* vdObj, DiscDirectoryInfo^ dirInfo, LogicalV
 			DiscDirectoryInfo^ subDir = subDirList[i];
 			if (subDir->Name != "." && subDir->Name != ".." && subDir->Name->Length > 0 && subDir->Name[0] != 0)
 			{
-				vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex));
-				EnumFilesInVolume(vdObj, subDir, vol, volIndex);
+				vdObj->vItems->Add(gcnew VDFileInfo(subDir, volIndex, nameEncoding));
+				if (!ReportListProgress(vdObj)) return;
+				EnumFilesInVolume(vdObj, subDir, vol, volIndex, nameEncoding);
+				if (vdObj->fAborted) return;
 			}
 		}
 	}
-	catch (System::IO::IOException^)
+	catch (Exception^)
 	{
 		//Usually this exception occurs on corrupted data
 		//So we just skip all underlying directories
 	}
 
-	array<DiscFileInfo^> ^fileList = dirInfo->GetFiles();
-	for (int i = 0; i < fileList->Length; i++)
+	try
 	{
-		VDFileInfo^ fileInfo = gcnew VDFileInfo(fileList[i], volIndex);
-		vdObj->vItems->Add(fileInfo);
+		array<DiscFileInfo^> ^fileList = dirInfo->GetFiles();
+		for (int i = 0; i < fileList->Length; i++)
+		{
+			VDFileInfo^ fileInfo = gcnew VDFileInfo(fileList[i], volIndex, nameEncoding);
+			vdObj->vItems->Add(fileInfo);
+			if (!ReportListProgress(vdObj)) return;
+		}
+	}
+	catch (Exception^)
+	{
+		//Unreadable directory should not prevent listing of the rest of the volume
+	}
+}
+
+// Lists NTFS volume from MFT records. Returns false if MFT can't be used, then directories should be listed.
+static bool ListNtfsFromMft(VDisk* vdObj, DiscFileSystem^ dfs, LogicalVolumeInfo^ vol, int volIndex)
+{
+	List<ItemProperties^>^ items = gcnew List<ItemProperties^>();
+	try
+	{
+		NtfsMftReader^ mft = gcnew NtfsMftReader(vol->Open());
+		if (!mft->Scan(vdObj->pProgress))
+		{
+			vdObj->fAborted = true;
+			return true;
+		}
+		mft->GetItems(items);
+	}
+	catch (Exception^)
+	{
+		return false;
+	}
+
+	// Item names hold paths here
+	for each (ItemProperties^ item in items)
+	{
+		DiscFileSystemInfo^ info = item->IsDirectory ? (DiscFileSystemInfo^) dfs->GetDirectoryInfo(item->Name) : (DiscFileSystemInfo^) dfs->GetFileInfo(item->Name);
+		vdObj->vItems->Add(gcnew VDFileInfo(info, volIndex, item, nullptr));
+	}
+	return true;
+}
+
+// Same as EnumFilesInVolume, but item properties are read together with directories
+static void EnumCachedFilesInVolume(VDisk* vdObj, DiscFileSystem^ dfs, IDirectoryReader^ reader, ExtDirectoryReader^ extReader, String^ dirPath, int volIndex, int depth)
+{
+	const int MaxDepth = 256; // Protection from loops in corrupted file systems
+	if (depth > MaxDepth) return;
+
+	List<ItemProperties^>^ entries = gcnew List<ItemProperties^>();
+	try
+	{
+		reader->ReadDirectory(dirPath, entries);
+	}
+	catch (Exception^)
+	{
+		//Unreadable directory should not prevent listing of the rest of the volume
+		return;
+	}
+
+	// Directories first, then files, same order as in EnumFilesInVolume
+	String^ prefix = (dirPath->Length > 0) ? dirPath + "\\" : String::Empty;
+	for each (ItemProperties^ entry in entries)
+	{
+		if (!entry->IsDirectory) continue;
+
+		String^ path = prefix + entry->Name;
+		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetDirectoryInfo(path), volIndex, entry, extReader));
+		if (!ReportListProgress(vdObj)) return;
+		EnumCachedFilesInVolume(vdObj, dfs, reader, extReader, path, volIndex, depth + 1);
+		if (vdObj->fAborted) return;
+	}
+
+	for each (ItemProperties^ entry in entries)
+	{
+		if (entry->IsDirectory) continue;
+		vdObj->vItems->Add(gcnew VDFileInfo(dfs->GetFileInfo(prefix + entry->Name), volIndex, entry, extReader));
+		if (!ReportListProgress(vdObj)) return;
 	}
 }
 
@@ -134,6 +245,53 @@ static Encoding^ GetFileNameEncoding()
 	}
 };
 
+static array<Byte>^ ReadVolumeBytes(IO::Stream^ volume, __int64 offset, int count)
+{
+	array<Byte>^ data = gcnew array<Byte>(count);
+	volume->Position = offset;
+	int done = 0;
+	while (done < count)
+	{
+		int n = volume->Read(data, done, count - done);
+		if (n <= 0) return nullptr;
+		done += n;
+	}
+	return data;
+}
+
+// Number of items for progress display, it doesn't have to be exact. Returns 0 if unknown.
+static __int64 EstimateItemsCount(DiscFileSystem^ dfs, IO::Stream^ volume)
+{
+	try
+	{
+		if (dfs->GetType() == Ext::ExtFileSystem::typeid)
+		{
+			// Used inodes, except reserved ones (they are below s_first_ino)
+			array<Byte>^ sb = ReadVolumeBytes(volume, 1024, 0x58);
+			if (sb == nullptr) return 0;
+			__int64 used = (__int64)BitConverter::ToUInt32(sb, 0x00) - BitConverter::ToUInt32(sb, 0x10);
+			__int64 reserved = (BitConverter::ToUInt32(sb, 0x4C) >= 1) ? BitConverter::ToUInt32(sb, 0x54) - 1 : 10;
+			return Math::Max(used - reserved, (__int64)0);
+		}
+		if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
+		{
+			// Records in MFT, including free ones, so this is usually too much
+			array<Byte>^ boot = ReadVolumeBytes(volume, 0, 0x42);
+			if (boot == nullptr) return 0;
+			int clusterSize = BitConverter::ToUInt16(boot, 0x0B) * boot[0x0D];
+			int recordValue = (SByte)boot[0x40];
+			int recordSize = (recordValue < 0) ? (1 << -recordValue) : recordValue * clusterSize;
+			if (recordSize <= 0) return 0;
+			return Math::Max(dfs->GetFileLength("$MFT") / recordSize - 16, (__int64)0); // First 16 are metafiles
+		}
+	}
+	catch (Exception^)
+	{
+		// No estimate then
+	}
+	return 0;
+}
+
 static void PrepareFileList(VDisk* vdisk)
 {
 	VolumeManager^ volm = gcnew VolumeManager(vdisk->pVdiskObj);
@@ -152,22 +310,64 @@ static void PrepareFileList(VDisk* vdisk)
 		FileSystemParameters^ fsParams = gcnew FileSystemParameters();
 		fsParams->FileNameEncoding = GetFileNameEncoding();
 
+		FatNameEncoding^ fatNameEncoding = nullptr;
+		if (fsinfo[0]->Name == "FAT")
+		{
+			fatNameEncoding = gcnew FatNameEncoding(fsParams->FileNameEncoding);
+			fsParams->FileNameEncoding = fatNameEncoding;
+		}
+
 		try
 		{
-			DiscFileSystem^ dfs = fsinfo[0]->Open(volInfo, fsParams);
+			DiscFileSystem^ dfs;
+			ExtDirectoryReader^ extReader = nullptr;
+			NtfsDirectoryReader^ ntfsReader = nullptr;
+			if (fsinfo[0]->Name == "ext")
+			{
+				IO::Stream^ extVolume = gcnew ExtFeatureFilterStream(volInfo->Open());
+				dfs = gcnew Ext::ExtFileSystem(extVolume, fsParams);
+				extReader = gcnew ExtDirectoryReader(dfs, extVolume);
+			}
+			else
+			{
+				dfs = fsinfo[0]->Open(volInfo, fsParams);
+			}
+
 			if (dfs->GetType() == Ntfs::NtfsFileSystem::typeid)
 			{
 				Ntfs::NtfsFileSystem^ ntfsFS = (Ntfs::NtfsFileSystem^)dfs;
 				ntfsFS->NtfsOptions->HideHiddenFiles = false;
 				ntfsFS->NtfsOptions->HideSystemFiles = false;
 				//ntfsFS->NtfsOptions->HideMetafiles = false;
+
+				// Created after options are set, they affect which entries are listed
+				ntfsReader = gcnew NtfsDirectoryReader(ntfsFS);
 			}
 			
-			EnumFilesInVolume(vdisk, dfs->Root, volInfo, i);
+			if (fatNameEncoding != nullptr)
+				fatNameEncoding->LoadLongNames(volInfo->Open());
+
+			if (vdisk->pProgress)
+			{
+				__int64 estimate = EstimateItemsCount(dfs, volInfo->Open());
+				vdisk->nItemsTotal = (estimate > 0) ? vdisk->vItems->Count + estimate : 0;
+			}
+
+			if (extReader != nullptr && extReader->IsAvailable)
+				EnumCachedFilesInVolume(vdisk, dfs, extReader, extReader, String::Empty, i, 0);
+			else if (ntfsReader != nullptr && ListNtfsFromMft(vdisk, dfs, volInfo, i))
+				; // Done, reading MFT is much faster than reading directories
+			else if (ntfsReader != nullptr && ntfsReader->IsAvailable)
+				EnumCachedFilesInVolume(vdisk, dfs, ntfsReader, nullptr, String::Empty, i, 0);
+			else
+				EnumFilesInVolume(vdisk, dfs->Root, volInfo, i, fatNameEncoding);
 
 			// Replace volume name with label if present
 			// NOTE: C++/cli permits non-empty strings with 0 bytes inside, so we have to check for them too
-			String^ volLabel = dfs->VolumeLabel->Trim();
+			String^ volLabel = dfs->VolumeLabel;
+			if (fatNameEncoding != nullptr)
+				volLabel = fatNameEncoding->ToDisplayPath(volLabel, false);
+			volLabel = volLabel->Trim();
 			if (!String::IsNullOrEmpty(volLabel) && (volLabel->Length > 0) && (volLabel[0] != '\0'))
 			{
 				List<String^>^ labels = vdisk->vVolLabels;
@@ -179,6 +379,8 @@ static void PrepareFileList(VDisk* vdisk)
 			String^ errText = String::Format("Volume listing error : {0}", ex);
 			DisplayErrorMessage(errText, L"VDISK Error");
 		}
+
+		if (vdisk->fAborted) break;
 	} // for
 }
 
@@ -300,21 +502,52 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 	}
 }
 
-int MODULE_EXPORT PrepareFiles(HANDLE storage)
+int MODULE_EXPORT PrepareFilesEx(HANDLE storage, const ListProgressCallbacks* progress)
 {
 	VDisk* vdObj = (VDisk*) storage;
 	if (vdObj == NULL) return FALSE;
 
+	vdObj->pProgress = progress;
+	vdObj->nItemsTotal = 0;
+	vdObj->fAborted = false;
 	try
 	{
 		PrepareFileList(vdObj);
-		return TRUE;
+
+		// Exact number at the end, plugin uses it as total when it reads the items
+		if (progress && !vdObj->fAborted && !progress->ListProgress(progress->signalContext, vdObj->vItems->Count, vdObj->vItems->Count))
+			vdObj->fAborted = true;
+
+		vdObj->pProgress = nullptr;
+		return vdObj->fAborted ? FALSE : TRUE;
 	}
 	catch (Exception^ ex)
 	{
+		vdObj->pProgress = nullptr;
 		DisplayErrorMessage(ex->Message, L"VDISK Prepare Error");
 		return FALSE;
 	}
+}
+
+int MODULE_EXPORT PrepareFiles(HANDLE storage)
+{
+	return PrepareFilesEx(storage, nullptr);
+}
+
+static String^ GetItemDisplayPath(VDisk* vdObj, VDFileInfo^ fileInfo, bool useLongNames)
+{
+	String^ itemPath = fileInfo->Ref->FullName;
+	if (fileInfo->NameEncoding != nullptr)
+		itemPath = fileInfo->NameEncoding->ToDisplayPath(itemPath, useLongNames);
+
+	List<String^> ^volLabels = vdObj->vVolLabels;
+	String^ filePath = String::Format("[{0}]\\{1}", volLabels[fileInfo->VolumeIndex], itemPath);
+
+	// Remove trailing backslash if present
+	if (filePath->EndsWith("\\"))
+		filePath = filePath->Remove(filePath->Length - 1);
+
+	return filePath;
 }
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
@@ -328,18 +561,41 @@ int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo
 	List<VDFileInfo^> ^fileList = vdObj->vItems;
 	VDFileInfo^ fileInfo = fileList[item_index];
 
-	List<String^> ^volLabels = vdObj->vVolLabels;
-	String^ filePath = String::Format("[{0}]\\{1}", volLabels[fileInfo->VolumeIndex], fileInfo->Ref->FullName);
-
-	// Remove trailing backslash if present
-	if (filePath->EndsWith("\\"))
-		filePath = filePath->Remove(filePath->Length - 1);
+	// Long names can make path too large for the output buffer
+	String^ filePath = GetItemDisplayPath(vdObj, fileInfo, true);
+	if (filePath->Length >= (int)STRBUF_SIZE(item_info->Path))
+		filePath = GetItemDisplayPath(vdObj, fileInfo, false);
+	if (filePath->Length >= (int)STRBUF_SIZE(item_info->Path))
+		return GET_ITEM_ERROR;
 
 	// Helper class for String^ to wchar_t* conversion
 	msclr::interop::marshal_context ctx;
 
 	memset(item_info, 0, sizeof(StorageItemInfo));
 	wcscpy_s(item_info->Path, STRBUF_SIZE(item_info->Path), ctx.marshal_as<const wchar_t*>(filePath));
+
+	ItemProperties^ props = fileInfo->Properties;
+	if (props != nullptr)
+	{
+		item_info->Attributes = (DWORD)props->Attributes;
+		item_info->Size = props->Length;
+		if (props->IsDirectory)
+			item_info->Attributes |= FILE_ATTRIBUTE_DIRECTORY;
+
+		if (props->HasTimes)
+		{
+			try
+			{
+				item_info->CreationTime = DateTimeToFileTime(props->CreationTimeUtc);
+				item_info->ModificationTime = DateTimeToFileTime(props->LastWriteTimeUtc);
+			}
+			catch (ArgumentOutOfRangeException^)
+			{
+				//Same as below, invalid date/time values are not crucial
+			}
+		}
+		return GET_ITEM_OK;
+	}
 
 	try
 	{
@@ -398,7 +654,10 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 
 	try
 	{
-		IO::Stream ^inStr = dfi->OpenRead();
+		// DiscUtils hangs on ext files with holes, so they are read separately
+		IO::Stream ^inStr = (fileInfo->ExtReader != nullptr) ? fileInfo->ExtReader->OpenFile(dfi->FullName) : nullptr;
+		if (inStr == nullptr)
+			inStr = dfi->OpenRead();
 		IO::Stream ^outStr = gcnew IO::FileStream(strDestFile, IO::FileMode::Create, IO::FileAccess::Write, IO::FileShare::Read);
 
 		try
@@ -406,7 +665,7 @@ int MODULE_EXPORT ExtractItem(HANDLE storage, ExtractOperationParams params)
 			int copyBufSize = 32 * 1024;
 			array<Byte> ^copyBuf = gcnew array<Byte>(copyBufSize);
 
-			Int64 bytesLeft = dfi->Length;
+			Int64 bytesLeft = inStr->Length;
 			while (bytesLeft > 0)
 			{
 				int copySize = (int) Math::Min(bytesLeft, (Int64) copyBufSize);
@@ -468,6 +727,8 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.GetItem = GetStorageItem;
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
+	if (MODULE_HAS_PREPARE_FILES_EX(LoadParams))
+		LoadParams->ApiFuncs.PrepareFilesEx = PrepareFilesEx;
 
 	OptionsList opts(LoadParams->Settings);
 	opts.GetValue(L"DefaultCodepage", optDefaultCodepage);

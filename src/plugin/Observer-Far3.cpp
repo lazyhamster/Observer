@@ -329,6 +329,108 @@ static int AnalizeStorage(const wchar_t* Name, bool applyExtFilters, void* start
 	return retVal;
 }
 
+struct ListProgressContext
+{
+	const wchar_t* headerText;
+	ULONGLONG startTime;
+	ULONGLONG passStartTime;
+	ULONGLONG lastDisplayTime;
+	int currentPass;
+};
+
+static const int cntListPasses = 2;
+
+static std::wstring FormatItemsNumber(__int64 value)
+{
+	// Thousands separators make large numbers readable
+	std::wstring digits = std::to_wstring(value);
+	std::wstring result;
+	for (size_t i = 0; i < digits.size(); i++)
+	{
+		if (i > 0 && (digits.size() - i) % 3 == 0) result += L',';
+		result += digits[i];
+	}
+	return result;
+}
+
+static int ShowListProgress(ListProgressContext* pc, int pass, __int64 itemsFound, __int64 itemsTotal)
+{
+	ULONGLONG currentTime = GetTickCount64();
+
+	// Pass change is shown at once, remaining time is estimated for each pass separately
+	bool passChanged = (pass != pc->currentPass);
+	if (passChanged)
+	{
+		pc->currentPass = pass;
+		pc->passStartTime = currentTime;
+	}
+
+	if (!passChanged && (currentTime - pc->lastDisplayTime < 200))
+		return TRUE;
+	pc->lastDisplayTime = currentTime;
+
+	if (CheckEsc())
+		return FALSE;
+
+	// Estimated total can be lower than real number of items
+	bool hasTotal = (itemsTotal > 0) && (itemsFound < itemsTotal);
+	int percent = hasTotal ? (int)(itemsFound * 100 / itemsTotal) : 0;
+
+	std::wstring itemsText = FormatItemsNumber(itemsFound);
+	if (hasTotal)
+		itemsText += L" / " + FormatItemsNumber(itemsTotal) + FormatString(L" (%d%%)", percent);
+	std::wstring passLine = JoinProgressLine(GetLocMsg(MSG_OPEN_PROGRESS_PASS), FormatString(L"%d / %d", pass, cntListPasses), cntProgressDialogWidth, 0);
+	std::wstring itemsLine = JoinProgressLine(GetLocMsg(MSG_OPEN_PROGRESS_ITEMS), itemsText, cntProgressDialogWidth, 0);
+
+	std::wstring elapsedLine = JoinProgressLine(GetLocMsg(MSG_EXTRACT_PROGRESS_ELAPSED), DurationToString(currentTime - pc->startTime), cntProgressDialogWidth, 0);
+
+	std::wstring remainingLine;
+	ULONGLONG passTime = currentTime - pc->passStartTime;
+	if (hasTotal && itemsFound > 0 && passTime >= 1000)
+	{
+		long long remainingMs = (long long)(passTime * (double)(itemsTotal - itemsFound) / itemsFound);
+		remainingLine = JoinProgressLine(GetLocMsg(MSG_OPEN_PROGRESS_REMAINING), L"~" + DurationToString(remainingMs), cntProgressDialogWidth, 0);
+	}
+
+	std::wstring barLine = ProgressBarString(percent, cntProgressDialogWidth);
+
+	const wchar_t* DlgLines[8];
+	size_t numLines = 0;
+	DlgLines[numLines++] = GetLocMsg(MSG_PLUGIN_NAME);
+	DlgLines[numLines++] = pc->headerText;
+	DlgLines[numLines++] = L"\1";
+	DlgLines[numLines++] = passLine.c_str();
+	DlgLines[numLines++] = itemsLine.c_str();
+	if (hasTotal) DlgLines[numLines++] = barLine.c_str();
+	DlgLines[numLines++] = elapsedLine.c_str();
+	if (!remainingLine.empty()) DlgLines[numLines++] = remainingLine.c_str();
+
+	FarSInfo.Message(&OBSERVER_GUID, &GUID_OBS_MESSAGE_BOX, FMSG_LEFTALIGN, NULL, DlgLines, numLines, 0);
+
+	if (hasTotal)
+	{
+		ProgressValue pv = { sizeof(ProgressValue), (unsigned __int64) itemsFound, (unsigned __int64) itemsTotal };
+		FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, TBPS_NORMAL, NULL);
+		FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSVALUE, 0, &pv);
+	}
+	else
+	{
+		FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, TBPS_INDETERMINATE, NULL);
+	}
+
+	return TRUE;
+}
+
+static int CALLBACK ListPrepareProgress(HANDLE context, __int64 itemsFound, __int64 itemsTotal)
+{
+	return ShowListProgress((ListProgressContext*) context, 1, itemsFound, itemsTotal);
+}
+
+static int CALLBACK ListReadProgress(HANDLE context, __int64 itemsFound, __int64 itemsTotal)
+{
+	return ShowListProgress((ListProgressContext*) context, 2, itemsFound, itemsTotal);
+}
+
 static StorageObject* OpenStorage(const std::wstring& Name, bool applyExtFilters, int moduleIndex)
 {
 	if (Name.empty()) return nullptr;
@@ -352,8 +454,13 @@ static StorageObject* OpenStorage(const std::wstring& Name, bool applyExtFilters
 
 	FarSInfo.AdvControl(&OBSERVER_GUID, ACTL_SETPROGRESSSTATE, TBPS_INDETERMINATE, NULL);
 
+	ULONGLONG startTime = GetTickCount64();
+	ListProgressContext progressContext = { wszDialogText, startTime, startTime, startTime, 0 };
+	ListProgressCallbacks prepareCallbacks = { &progressContext, ListPrepareProgress };
+	ListProgressCallbacks readCallbacks = { &progressContext, ListReadProgress };
+
 	StorageObject* hResult = nullptr;
-	ListReadResult listRet = storage->ReadFileList();
+	ListReadResult listRet = storage->ReadFileList(&prepareCallbacks, &readCallbacks);
 	if (listRet == ListReadResult::Ok)
 	{
 		hResult = storage;

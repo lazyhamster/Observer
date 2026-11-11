@@ -226,9 +226,9 @@ InstallShield 6.x Cabinet Util by fOSSiL & Morlac.
 OS: Win7 или новее.
 
 Windows Installer 4+
-Microsoft Visual C++ 2019 Redistributable Package.
+Microsoft Visual C++ v14 Redistributable (последн€€ верси€).
 
-ћодуль VDISK дополнительно требует Microsoft .NET Framework 4.5.
+ћодуль VDISK дополнительно требует Microsoft .NET Framework 4.8.
 ≈сли .NET не установлен, то этот модуль не будет загружатьс€.
 
 4. √арантии.

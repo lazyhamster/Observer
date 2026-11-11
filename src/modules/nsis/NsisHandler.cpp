@@ -216,6 +216,7 @@ STDMETHODIMP CHandler::Open(IInStream *stream, const UInt64 *maxCheckStartPositi
 
 STDMETHODIMP CHandler::Close()
 {
+  ResetSolidState();
   _archive.Clear();
   _archive.Release();
   return S_OK;
@@ -433,26 +434,45 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
   CMyComPtr<ICompressProgressInfo> progress = lps;
   lps->Init(extractCallback, !_archive.IsSolid);
 
-  if (_archive.IsSolid)
-  {
-    RINOK(_archive.SeekTo_DataStreamOffset());
-    RINOK(_archive.InitDecoder());
-    _archive.Decoder.StreamPos = 0;
-  }
-
   /* We use tempBuf for solid archives, if there is duplicate item.
      We don't know uncompressed size for non-solid archives, so we can't
      allocate exact buffer.
      We use tempBuf also for first part (EXE stub) of unistall.exe
      and tempBuf2 is used for second part (NSIS script). */
 
-  CByteBuffer tempBuf;
-  CByteBuffer tempBuf2;
-  
+  CByteBuffer &tempBuf = _tempBuf;
+  CByteBuffer &tempBuf2 = _tempBuf2;
+
   /* tempPos is pos in uncompressed stream of previous item for solid archive, that
      was written to tempBuf  */
-  UInt64 tempPos = (UInt64)(Int64)-1;
-  
+  UInt64 &tempPos = _tempPos;
+
+  if (_archive.IsSolid)
+  {
+    // Continue from the previous call, unless an earlier item is requested
+    bool restart = !_solidDecoderReady;
+    for (i = 0; i < numItems && !restart; i++)
+    {
+      UInt32 index = (allFilesMode ? i : indices[i]);
+      if (index < _archive.Items.Size())
+      {
+        UInt64 pos = _archive.GetPosOfSolidItem(index);
+        restart = (pos < _archive.Decoder.StreamPos && pos != tempPos);
+        break;
+      }
+    }
+
+    // Stays false if this call fails or is aborted in the middle of an item
+    _solidDecoderReady = false;
+    if (restart)
+    {
+      tempPos = (UInt64)(Int64)-1;
+      RINOK(_archive.SeekTo_DataStreamOffset());
+      RINOK(_archive.InitDecoder());
+      _archive.Decoder.StreamPos = 0;
+    }
+  }
+
   /* prevPos is pos in uncompressed stream of previous item for solid archive.
      It's used for test mode (where we don't need to test same file second time */
   UInt64 prevPos =  (UInt64)(Int64)-1;
@@ -563,9 +583,10 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
                 return res;
               solidDataError = dataError = true;
             }
-            else if (!testMode && i + 1 < numItems)
+            else if (!testMode)
             {
-              UInt32 next = allFilesMode ? i + 1 : indices[i + 1];
+              // Last item of this call: the next call is likely to ask for the following item
+              UInt32 next = (i + 1 < numItems) ? (allFilesMode ? i + 1 : indices[i + 1]) : index + 1;
               if (next < _archive.Items.Size())
               {
                 UInt64 nextPos = _archive.GetPosOfSolidItem(next);
@@ -590,7 +611,12 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
             // unpackSize = item.PatchSize;
             // unpackSize_Defined = true;
             if (!readFromTemp)
+            {
               writeToTemp = true;
+              // tempBuf gets the uninstaller data, so it no longer holds the item at tempPos
+              if (_archive.IsSolid && tempPos != _archive.GetPosOfSolidItem(index))
+                tempPos = (UInt64)(Int64)-1;
+            }
             writeToTemp1 = writeToTemp;
             if (_archive.ExeStub.Size() == 0)
             {
@@ -680,6 +706,7 @@ STDMETHODIMP CHandler::Extract(const UInt32 *indices, UInt32 numItems,
         NExtract::NOperationResult::kDataError :
         NExtract::NOperationResult::kOK));
   }
+  _solidDecoderReady = _archive.IsSolid && !solidDataError;
   return S_OK;
   COM_TRY_END
 }

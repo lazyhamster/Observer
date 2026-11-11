@@ -31,9 +31,18 @@ void MODULE_EXPORT CloseStorage(HANDLE storage)
 		delete arc;
 }
 
+int MODULE_EXPORT PrepareFilesEx(HANDLE storage, const ListProgressCallbacks* progress)
+{
+	CNsisArchive* arc = (CNsisArchive *) storage;
+	if (!arc) return FALSE;
+
+	// Getting sizes can take a while, so it's done here with progress display instead of in GetItem
+	return arc->PrepareSizes(progress) ? TRUE : FALSE;
+}
+
 int MODULE_EXPORT PrepareFiles(HANDLE storage)
 {
-	return TRUE;
+	return PrepareFilesEx(storage, nullptr);
 }
 
 int MODULE_EXPORT GetStorageItem(HANDLE storage, int item_index, StorageItemInfo* item_info)
@@ -76,6 +85,8 @@ int MODULE_EXPORT LoadSubModule(ModuleLoadParameters* LoadParams)
 	LoadParams->ApiFuncs.GetItem = GetStorageItem;
 	LoadParams->ApiFuncs.ExtractItem = ExtractItem;
 	LoadParams->ApiFuncs.PrepareFiles = PrepareFiles;
+	if (MODULE_HAS_PREPARE_FILES_EX(LoadParams))
+		LoadParams->ApiFuncs.PrepareFilesEx = PrepareFilesEx;
 
 	return TRUE;
 }

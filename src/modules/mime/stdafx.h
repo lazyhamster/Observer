@@ -13,7 +13,6 @@
 #include <windows.h>
 
 // Additional headers
-#define ssize_t intptr_t
 #include <gmime/gmime.h>
 
 #include <vector>

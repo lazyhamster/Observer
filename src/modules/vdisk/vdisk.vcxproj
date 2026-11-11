@@ -22,7 +22,7 @@
     <ProjectGuid>{03F029A2-9B80-44FA-94B8-62C21A7C2BE5}</ProjectGuid>
     <RootNamespace>vdisk</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Far3|Win32'" Label="Configuration">
@@ -30,26 +30,22 @@
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
-    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release-Far3|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <CLRSupport>true</CLRSupport>
-    <PlatformToolset>v142</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -217,6 +213,14 @@
       </PrecompiledHeader>
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Release-Far3|x64'">false</CompileAsManaged>
     </ClCompile>
+    <ClCompile Include="ExtDirectoryReader.cpp" />
+    <ClCompile Include="ExtFeatureFilterStream.cpp" />
+    <ClCompile Include="ExtFileStream.cpp" />
+    <ClCompile Include="FatLongNameReader.cpp" />
+    <ClCompile Include="FatNameEncoding.cpp" />
+    <ClCompile Include="InternalMembers.cpp" />
+    <ClCompile Include="NtfsDirectoryReader.cpp" />
+    <ClCompile Include="NtfsMftReader.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug-Far3|x64'">Create</PrecompiledHeader>
@@ -229,6 +233,15 @@
     <None Include="vdisk.def" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ExtDirectoryReader.h" />
+    <ClInclude Include="ExtFeatureFilterStream.h" />
+    <ClInclude Include="ExtFileStream.h" />
+    <ClInclude Include="FatLongNameReader.h" />
+    <ClInclude Include="FatNameEncoding.h" />
+    <ClInclude Include="InternalMembers.h" />
+    <ClInclude Include="ItemProperties.h" />
+    <ClInclude Include="NtfsDirectoryReader.h" />
+    <ClInclude Include="NtfsMftReader.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

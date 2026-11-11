@@ -1,5 +1,30 @@
 Changes history:
 
+1.12.5
+- Added progress display while reading files list (number of items, estimated time), it can be aborted with Esc.
+- Changes in modules API (optional progress reporting while reading files list).
+- VDISK: Much faster opening of NTFS volumes, files list is read from MFT.
+- VDISK: Much faster reading of files list on ext volumes.
+- VDISK: Fixed opening of ext4 volumes created by recent versions of mkfs.
+- VDISK: Fixed missing directories on ext volumes with symbolic links (links are not shown).
+- VDISK: Fixed hang when extracting files with holes from ext4 volumes.
+- VDISK: Fixed sizes of files larger than 4 GB on ext volumes.
+- NSIS: Fixed sizes of files larger than 4 GB in non-solid archives.
+
+1.12.4
+- NSIS: Much faster extraction from solid archives.
+
+1.12.3
+- Plugin now requires latest Visual C++ v14 Redist (built with Visual Studio 2026).
+- VDISK: Now requires .NET Framework 4.8.
+- Updated several dependency libraries.
+- VDISK: Fixed errors on FAT volumes with non-ASCII file names.
+- VDISK: Added support for long file names on FAT volumes.
+- MIME, MBOX: GLib messages are no longer printed to Far console.
+
+1.12.2
+- InstallShield: Improved support for SFX files.
+
 1.12.1
 - Added support for Install4j (extracting of internal zip archives).
 - SetupFactory: Fixed opening some files from SF 9.5.
